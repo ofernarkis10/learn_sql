@@ -1,0 +1,1752 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>30 שאלות SQL ל־sql-practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one page at a time on a projector (question, then answer), or all pages stacked as a document. */
+:root {
+  --bg: #EEF1F5;
+  --page: #FCFCFD;
+  --ink: #172033;
+  --muted: #556074;
+  --line: #D6DBE3;
+  --soft: #E4E9F1;
+  --accent: #2457C5;
+  --answer: #A34E16;
+  --answer-soft: #F7E9DE;
+  --code-bg: #172033;
+  --code-fg: #E6E9EF;
+  --code-kw: #8FB4FF;
+  --code-fn: #F0A9DA;
+  --code-str: #F2C08A;
+  --code-num: #9EDFC0;
+  --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --font-body: "Assistant", "Arial Hebrew", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E131B; --page: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --soft: #1F2836;
+    --accent: #84A9FF; --answer: #F0A066; --answer-soft: #2E241C;
+    --code-bg: #0A0F17; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E131B; --page: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --soft: #1F2836;
+  --accent: #84A9FF; --answer: #F0A066; --answer-soft: #2E241C;
+  --code-bg: #0A0F17; color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 18px; line-height: 1.55;
+  display: flex; flex-direction: column;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--page); }
+* { box-sizing: border-box; }
+button, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* top bar */
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--page); border-bottom: 1px solid var(--line);
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.bar-in { max-width: 1240px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 18px; white-space: nowrap; }
+.brand span { color: var(--muted); font-weight: 500; }
+.spacer { flex: 1; }
+.ctl { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+select, .btn {
+  background: var(--page); border: 1px solid var(--line); border-radius: 8px;
+  padding: 6px 12px; min-height: 38px; cursor: pointer;
+}
+.btn:hover, select:hover { border-color: var(--accent); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: transparent; padding: 6px 12px; min-height: 36px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--page); }
+.progress { max-width: 1240px; margin: 8px auto 0; display: grid; grid-template-columns: repeat(30, 1fr); gap: 3px; }
+.progress i { height: 5px; border-radius: 3px; background: var(--soft); cursor: pointer; }
+.progress i.done { background: color-mix(in srgb, var(--accent) 45%, var(--soft)); }
+.progress i.now { background: var(--accent); }
+
+/* stage */
+main {
+  flex: 1; min-height: 0; overflow: auto;
+  padding-block: 20px 24px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.deck { max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+.pg {
+  background: var(--page); border: 1px solid var(--line); border-radius: 14px;
+  padding: clamp(20px, 3.4vw, 48px); min-height: min(640px, calc(100vh - 210px));
+  display: flex; flex-direction: column; gap: 22px; position: relative;
+}
+body.slides .pg { display: none; }
+body.slides .pg.on { display: flex; }
+.pg-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.eyebrow { font-size: 15px; font-weight: 700; letter-spacing: .04em; color: var(--accent); }
+.pg.ans .eyebrow { color: var(--answer); }
+.pgno { font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* question page */
+.qbody { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 28px; max-width: 980px; }
+.qnum { font-family: var(--font-display); font-weight: 700; font-size: clamp(56px, 9vw, 112px); line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.qtext { font-family: var(--font-display); font-weight: 500; font-size: clamp(26px, 3.6vw, 46px); line-height: 1.3; text-wrap: balance; }
+.meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; color: var(--muted); font-size: 17px; }
+.chip { font-family: var(--font-mono); font-size: 15px; background: var(--soft); border-radius: 6px; padding: 3px 10px; color: var(--ink); direction: ltr; }
+.hint-btn { align-self: flex-start; }
+.hint { background: var(--soft); border-radius: 10px; padding: 14px 18px; font-size: 19px; max-width: 760px; }
+code { font-family: var(--font-mono); font-size: .88em; background: var(--soft); padding: 1px 6px; border-radius: 4px; direction: ltr; unicode-bidi: isolate; }
+
+/* answer page */
+.atitle { font-family: var(--font-display); font-weight: 500; font-size: clamp(21px, 2.3vw, 28px); line-height: 1.35; text-wrap: balance; max-width: 1000px; }
+.agrid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.col { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.lbl { font-size: 14px; font-weight: 700; letter-spacing: .05em; color: var(--muted); }
+pre.sql {
+  margin: 0; direction: ltr; text-align: left; background: var(--code-bg); color: var(--code-fg);
+  border-radius: 10px; padding: 18px 20px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: clamp(13px, 1.2vw, 16px); line-height: 1.55;
+}
+.kw { color: var(--code-kw); font-weight: 600; }
+.fn { color: var(--code-fn); }
+.str { color: var(--code-str); }
+.num { color: var(--code-num); }
+.res { overflow-x: auto; direction: ltr; border: 1px solid var(--line); border-radius: 10px; }
+.res table { border-collapse: collapse; width: 100%; font-size: 16px; font-variant-numeric: tabular-nums; }
+.res th, .res td { padding: 6px 12px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.res th { background: var(--soft); font-weight: 700; font-family: var(--font-mono); font-size: 14px; }
+.res td.n, .res th.n { text-align: right; }
+.res tr:last-child td { border-bottom: 0; }
+.res .more td { color: var(--muted); font-style: italic; text-align: left; }
+.rowcount { font-size: 15px; color: var(--muted); }
+ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: flex; flex-direction: column; gap: 12px; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; }
+ol.steps li::before {
+  content: counter(s); font-family: var(--font-display); font-weight: 700; font-size: 15px;
+  width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--answer-soft); color: var(--answer);
+}
+.note { background: var(--answer-soft); border-radius: 10px; padding: 14px 18px; font-size: 17px; }
+.note b { color: var(--answer); }
+
+/* cover */
+.cover h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(36px, 5.5vw, 68px); line-height: 1.1; margin: 0; text-wrap: balance; }
+.cover .sub { font-size: clamp(19px, 2vw, 24px); color: var(--muted); max-width: 820px; margin: 0; }
+.stages { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.stage { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; background: var(--page); text-align: right; }
+.stage:hover { border-color: var(--accent); }
+.stage .r { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.stage .t { font-family: var(--font-display); font-weight: 500; font-size: 18px; line-height: 1.3; }
+.tables { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; direction: ltr; }
+.tables div { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-family: var(--font-mono); font-size: 13px; line-height: 1.5; color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
+.tables b { display: block; color: var(--ink); font-size: 15px; }
+
+/* bottom nav */
+.nav {
+  background: var(--page); border-top: 1px solid var(--line);
+  padding-block: 10px calc(10px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body.doc .nav { display: none; }
+body.doc main { overflow: visible; }
+body.doc { height: auto; }
+.nav-in { max-width: 1240px; margin: 0 auto; display: flex; gap: 12px; align-items: center; justify-content: space-between; }
+.nav .btn { min-width: 120px; font-weight: 600; }
+.nav .btn.primary { background: var(--accent); color: var(--page); border-color: var(--accent); }
+.nav .where { color: var(--muted); font-size: 16px; text-align: center; }
+.keys { font-size: 14px; color: var(--muted); }
+
+@media (max-width: 900px) {
+  .agrid { grid-template-columns: minmax(0, 1fr); }
+  .stages { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tables { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .keys { display: none; }
+}
+@media (max-width: 520px) {
+  .nav .btn { min-width: 0; }
+  .brand span { display: none; }
+}
+@media print {
+  .bar, .nav { display: none !important; }
+  body.slides .pg, .pg { display: flex !important; break-after: page; border: 0; min-height: 0; }
+  main { overflow: visible; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  body.slides .pg.on { animation: in .18s ease-out; }
+  @keyframes in { from { opacity: .4; } to { opacity: 1; } }
+}
+</style>
+<style>
+/* Back link to the page's topic in index.html */
+.site-back{color:var(--accent);font-family:var(--font-body,"Assistant","Arial Hebrew",Arial,sans-serif);font-weight:600;font-size:15px;text-decoration:none;width:fit-content;white-space:nowrap}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.wrap > .site-back{display:block;margin-bottom:12px}
+@media print{.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="bar" dir="rtl">
+  <div class="bar-in">
+    <a class="site-back" href="index.html#practice">→ חזרה לנושא: תרגול</a>
+    <div class="brand">30 שאלות SQL <span>· Northwind · sql-practice.com · SQLite</span></div>
+    <div class="spacer"></div>
+    <span id="fs-slot"></span>
+    <div class="ctl">
+      <label for="jump" class="keys">מעבר אל</label>
+      <select id="jump" aria-label="מעבר לשאלה"></select>
+      <div class="seg" role="group" aria-label="תצוגה">
+        <button type="button" id="v-slides" aria-pressed="true">מצגת</button>
+        <button type="button" id="v-doc" aria-pressed="false">מסמך</button>
+      </div>
+    </div>
+  </div>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+</div>
+
+<main dir="rtl"><div class="deck" id="deck"></div></main>
+
+<div class="nav" dir="rtl">
+  <div class="nav-in">
+    <button type="button" class="btn" id="prev">→ הקודם</button>
+    <div class="where"><span id="where"></span><div class="keys">חיצי המקלדת או רווח למעבר</div></div>
+    <button type="button" class="btn primary" id="next">הבא ←</button>
+  </div>
+</div>
+
+<script>
+const STAGES = [
+  { r: [1, 6],   t: "פונקציות צבירה" },
+  { r: [7, 14],  t: "קיבוץ עם GROUP BY" },
+  { r: [15, 22], t: "סינון קבוצות עם HAVING" },
+  { r: [23, 28], t: "קיבוץ על כמה טבלאות (JOIN)" },
+  { r: [29, 30], t: "אתגר" },
+];
+
+const Q = [
+{
+"q": "כמה לקוחות רשומים בחברה?",
+"tables": [
+"customers"
+],
+"hint": "יש פונקציה שסופרת שורות בטבלה.",
+"sql": "SELECT COUNT(*) AS customer_count\nFROM customers;",
+"cols": [
+"customer_count"
+],
+"num": [
+0
+],
+"rows": [
+[
+"93"
+]
+],
+"steps": [
+"<code>FROM customers</code> בוחר את טבלת הלקוחות, שבה כל שורה היא לקוח אחד.",
+"<code>COUNT(*)</code> סופר את כל השורות בטבלה. הכוכבית אומרת \"שורה שלמה\", בלי קשר לעמודה מסוימת.",
+"<code>AS customer_count</code> נותן שם לעמודת התוצאה. בלי זה העמודה תיקרא <code>COUNT(*)</code>.",
+"אין בשאילתה <code>GROUP BY</code>, ולכן כל הטבלה היא קבוצה אחת, והתוצאה היא שורה אחת עם מספר אחד: 93."
+],
+"note": "<b>מושג:</b> פונקציית צבירה מקבלת הרבה שורות ומחזירה ערך אחד. חמש הפונקציות הבסיסיות: COUNT, SUM, AVG, MIN, MAX. <br><b>שימו לב:</b> באתר יש שני \"לקוחות\" שהם שורות בדיקה (VALON ו־<code>Val2</code>), כמעט בלי נתונים. גם הם נספרים."
+},
+{
+"q": "כמה מוצרים מחירם גבוה מ־50?",
+"tables": [
+"products"
+],
+"hint": "קודם מסננים את השורות, ורק אחר כך סופרים.",
+"sql": "SELECT COUNT(*) AS product_count\nFROM products\nWHERE unit_price > 50;",
+"cols": [
+"product_count"
+],
+"num": [
+0
+],
+"rows": [
+[
+"7"
+]
+],
+"steps": [
+"<code>FROM products</code>: מתחילים מכל 77 המוצרים.",
+"<code>WHERE unit_price > 50</code> בודק כל שורה בנפרד ומשאיר רק מוצרים שמחירם גבוה מ־50.",
+"<code>COUNT(*)</code> סופר את השורות שנשארו אחרי הסינון: 7 מוצרים.",
+"סדר הביצוע חשוב: SQL מבצע את <code>WHERE</code> לפני פונקציית הצבירה, ולכן הספירה היא רק על המוצרים היקרים."
+],
+"note": "<b>שימו לב:</b> <code>&gt; 50</code> לא כולל מוצר שמחירו בדיוק 50. כדי לכלול אותו כותבים <code>&gt;= 50</code>."
+},
+{
+"q": "מה המחיר הנמוך ביותר, הגבוה ביותר והממוצע של מוצר?",
+"tables": [
+"products"
+],
+"hint": "אפשר לשים כמה פונקציות צבירה באותו SELECT.",
+"sql": "SELECT MIN(unit_price) AS min_price,\n       MAX(unit_price) AS max_price,\n       AVG(unit_price) AS avg_price\nFROM products;",
+"cols": [
+"min_price",
+"max_price",
+"avg_price"
+],
+"num": [
+0,
+1,
+2
+],
+"rows": [
+[
+"2.50",
+"263.50",
+"28.87"
+]
+],
+"steps": [
+"שלוש פונקציות צבירה רצות על אותן 77 שורות, וכל אחת מחזירה ערך אחד.",
+"<code>MIN</code> מחזירה את הערך הקטן ביותר בעמודה, ו־<code>MAX</code> את הגדול ביותר.",
+"<code>AVG</code> מחשבת ממוצע: סכום כל המחירים חלקי מספר המוצרים.",
+"התוצאה היא שורה אחת עם שלוש עמודות, כי אין <code>GROUP BY</code>."
+],
+"note": "<b>לדיון:</b> הממוצע (28.87) קרוב הרבה יותר למינימום מאשר למקסימום. כמה מוצרים יקרים מאוד מושכים את הממוצע למעלה, ורוב המוצרים זולים ממנו. האתר מציג את הממוצע עם הרבה ספרות אחרי הנקודה."
+},
+{
+"q": "כמה שילמה החברה בסך הכול על דמי משלוח (freight) בהזמנות של שנת 2017?",
+"tables": [
+"orders"
+],
+"hint": "הפונקציה YEAR מחזירה את השנה מתוך תאריך.",
+"sql": "SELECT SUM(freight) AS total_freight\nFROM orders\nWHERE YEAR(order_date) = 2017;",
+"cols": [
+"total_freight"
+],
+"num": [
+0
+],
+"rows": [
+[
+"32468.77"
+]
+],
+"steps": [
+"<code>WHERE YEAR(order_date) = 2017</code> משאיר רק את ההזמנות משנת 2017 (408 הזמנות).",
+"<code>SUM(freight)</code> מחבר את דמי המשלוח של כל ההזמנות שנשארו.",
+"התוצאה: 32,468.77. זה כמחצית מכל דמי המשלוח בטבלה (64,942.69 בכל השנים)."
+],
+"note": "<b>דרך נוספת:</b> <code>WHERE order_date &gt;= '2017-01-01' AND order_date &lt; '2018-01-01'</code> נותנת את אותה תוצאה, ובטבלאות גדולות היא גם מהירה יותר."
+},
+{
+"q": "מכמה מדינות שונות מגיעים הלקוחות?",
+"tables": [
+"customers"
+],
+"hint": "צריך לספור ערכים שונים, לא שורות.",
+"sql": "SELECT COUNT(DISTINCT country) AS countries\nFROM customers;",
+"cols": [
+"countries"
+],
+"num": [
+0
+],
+"rows": [
+[
+"21"
+]
+],
+"steps": [
+"<code>COUNT(country)</code> לבדו היה מחזיר 91: מספר השורות שבהן יש מדינה. לשתי שורות הבדיקה אין מדינה.",
+"<code>DISTINCT</code> בתוך הסוגריים סופר כל ערך פעם אחת בלבד. USA מופיעה 13 פעמים, אבל נספרת פעם אחת.",
+"התוצאה: 21 מדינות שונות."
+],
+"note": "<b>להשוואה:</b> <code>COUNT(*)</code> = כל השורות, <code>COUNT(country)</code> = שורות שבהן country אינו NULL, <code>COUNT(DISTINCT country)</code> = ערכים שונים."
+},
+{
+"q": "כמה הזמנות עדיין לא נשלחו?",
+"tables": [
+"orders"
+],
+"hint": "להזמנה שלא נשלחה אין ערך ב־shipped_date (הערך הוא NULL).",
+"sql": "SELECT COUNT(*) AS all_orders,\n       COUNT(shipped_date) AS shipped,\n       COUNT(*) - COUNT(shipped_date) AS not_shipped\nFROM orders;",
+"cols": [
+"all_orders",
+"shipped",
+"not_shipped"
+],
+"num": [
+0,
+1,
+2
+],
+"rows": [
+[
+"830",
+"809",
+"21"
+]
+],
+"steps": [
+"<code>COUNT(*)</code> סופר את כל ההזמנות: 830.",
+"<code>COUNT(shipped_date)</code> סופר רק שורות שבהן יש תאריך משלוח, כי פונקציות צבירה מדלגות על NULL: 809.",
+"ההפרש בין השניים הוא מספר ההזמנות בלי תאריך משלוח: 21."
+],
+"note": "<b>דרך נוספת:</b> <code>SELECT COUNT(*) FROM orders WHERE shipped_date IS NULL;</code>. שימו לב: <code>= NULL</code> לא עובד, חייבים לכתוב <code>IS NULL</code>."
+},
+{
+"q": "כמה לקוחות יש בכל מדינה? מיינו מהמדינה עם הכי הרבה לקוחות.",
+"tables": [
+"customers"
+],
+"hint": "רוצים שורה אחת לכל מדינה. זה התפקיד של GROUP BY.",
+"sql": "SELECT country, COUNT(*) AS customer_count\nFROM customers\nGROUP BY country\nORDER BY customer_count DESC, country;",
+"cols": [
+"country",
+"customer_count"
+],
+"num": [
+1
+],
+"rows": [
+[
+"USA",
+"13"
+],
+[
+"France",
+"11"
+],
+[
+"Germany",
+"11"
+],
+[
+"Brazil",
+"9"
+],
+[
+"UK",
+"7"
+],
+[
+"Mexico",
+"5"
+],
+[
+"Spain",
+"5"
+],
+[
+"Venezuela",
+"4"
+],
+[
+"Argentina",
+"3"
+],
+[
+"Canada",
+"3"
+]
+],
+"steps": [
+"<code>GROUP BY country</code> מחלק את 93 הלקוחות לקבוצות: כל הלקוחות מאותה מדינה נכנסים לאותה קבוצה.",
+"<code>COUNT(*)</code> רץ עכשיו על כל קבוצה בנפרד, ומחזיר כמה לקוחות יש בה.",
+"כל קבוצה הופכת לשורה אחת בתוצאה: 22 שורות. 21 מדינות, ועוד קבוצה אחת של NULL: שתי שורות הבדיקה שאין להן מדינה.",
+"<code>ORDER BY customer_count DESC</code> ממיין מהגדול לקטן. המיון השני לפי <code>country</code> קובע סדר קבוע כשיש שוויון (France ו־Germany עם 11)."
+],
+"note": "<b>כלל:</b> כל עמודה ב־SELECT שאינה בתוך פונקציית צבירה צריכה להופיע ב־GROUP BY. SQLite, הניב שבאתר, לא נותן על זה שגיאה, אבל מציג ערך משורה מקרית בקבוצה. ברוב הניבים האחרים זו שגיאה.",
+"more": 12,
+"total": 22
+},
+{
+"q": "כמה מוצרים יש בכל קטגוריה? הציגו את מספר הקטגוריה (category_id).",
+"tables": [
+"products"
+],
+"hint": "קבצו את טבלת המוצרים לפי category_id.",
+"sql": "SELECT category_id, COUNT(*) AS product_count\nFROM products\nGROUP BY category_id\nORDER BY category_id;",
+"cols": [
+"category_id",
+"product_count"
+],
+"num": [
+0,
+1
+],
+"rows": [
+[
+"1",
+"12"
+],
+[
+"2",
+"12"
+],
+[
+"3",
+"13"
+],
+[
+"4",
+"10"
+],
+[
+"5",
+"7"
+],
+[
+"6",
+"6"
+],
+[
+"7",
+"5"
+],
+[
+"8",
+"12"
+]
+],
+"steps": [
+"לכל מוצר בטבלת products יש מספר קטגוריה בעמודה <code>category_id</code>.",
+"<code>GROUP BY category_id</code> יוצר קבוצה לכל מספר קטגוריה: 8 קבוצות.",
+"<code>COUNT(*)</code> סופר כמה מוצרים יש בכל קבוצה.",
+"בדיקה: 12+12+13+10+7+6+5+12 = 77, בדיוק מספר המוצרים בטבלה. קיבוץ לא מוסיף ולא מוריד שורות, רק מחלק אותן."
+],
+"note": "<b>מה חסר?</b> רואים מספרים ולא שמות קטגוריות. השם נמצא בטבלה אחרת (categories). בשאלה 23 נחבר את הטבלאות."
+},
+{
+"q": "בכמה הזמנות טיפל כל עובד? הציגו את מספר העובד (employee_id).",
+"tables": [
+"orders"
+],
+"hint": "כל הזמנה שייכת לעובד אחד.",
+"sql": "SELECT employee_id, COUNT(*) AS order_count\nFROM orders\nGROUP BY employee_id\nORDER BY order_count DESC;",
+"cols": [
+"employee_id",
+"order_count"
+],
+"num": [
+0,
+1
+],
+"rows": [
+[
+"4",
+"156"
+],
+[
+"3",
+"127"
+],
+[
+"1",
+"123"
+],
+[
+"8",
+"104"
+],
+[
+"2",
+"96"
+],
+[
+"7",
+"72"
+],
+[
+"6",
+"67"
+],
+[
+"9",
+"43"
+],
+[
+"5",
+"42"
+]
+],
+"steps": [
+"בטבלת orders כל שורה היא הזמנה, ובעמודה <code>employee_id</code> רשום העובד שטיפל בה.",
+"<code>GROUP BY employee_id</code> מחלק את 830 ההזמנות ל־9 קבוצות, אחת לכל עובד.",
+"<code>COUNT(*)</code> סופר את ההזמנות בכל קבוצה.",
+"<code>ORDER BY order_count DESC</code> משתמש בשם העמודה שנתנו ב־SELECT. זה מותר ב־ORDER BY, כי הוא מתבצע אחרי ה־SELECT."
+],
+"note": "<b>בדיקה עצמית:</b> סכום כל השורות צריך להיות 830, מספר ההזמנות בטבלה."
+},
+{
+"q": "לכל חברת משלוחים (ship_via): כמה הזמנות היא קיבלה, ומה דמי המשלוח הממוצעים?",
+"tables": [
+"orders"
+],
+"hint": "שתי פונקציות צבירה, קיבוץ אחד.",
+"sql": "SELECT ship_via,\n       COUNT(*) AS order_count,\n       AVG(freight) AS avg_freight\nFROM orders\nGROUP BY ship_via\nORDER BY ship_via;",
+"cols": [
+"ship_via",
+"order_count",
+"avg_freight"
+],
+"num": [
+0,
+1,
+2
+],
+"rows": [
+[
+"1",
+"249",
+"65.00"
+],
+[
+"2",
+"326",
+"86.64"
+],
+[
+"3",
+"255",
+"80.44"
+]
+],
+"steps": [
+"<code>ship_via</code> הוא מספר חברת המשלוחים של ההזמנה. יש 3 חברות, ולכן 3 קבוצות.",
+"בכל קבוצה רצות שתי פונקציות: <code>COUNT(*)</code> סופרת הזמנות ו־<code>AVG(freight)</code> מחשבת את ממוצע דמי המשלוח.",
+"חברה 2 קיבלה הכי הרבה הזמנות (326), והממוצע שלה הוא גם הגבוה ביותר."
+],
+"note": "<b>על התוצאה:</b> האתר מציג את הממוצע עם הרבה ספרות אחרי הנקודה. כדי לעגל ל־2 ספרות: <code>ROUND(AVG(freight), 2)</code>."
+},
+{
+"q": "כמה הזמנות היו בכל שנה?",
+"tables": [
+"orders"
+],
+"hint": "אפשר לקבץ לפי ביטוי, לא רק לפי עמודה.",
+"sql": "SELECT YEAR(order_date) AS order_year,\n       COUNT(*) AS order_count\nFROM orders\nGROUP BY YEAR(order_date)\nORDER BY order_year;",
+"cols": [
+"order_year",
+"order_count"
+],
+"num": [
+0,
+1
+],
+"rows": [
+[
+"2016",
+"152"
+],
+[
+"2017",
+"408"
+],
+[
+"2018",
+"270"
+]
+],
+"steps": [
+"<code>YEAR(order_date)</code> מחשב את השנה של כל הזמנה.",
+"<code>GROUP BY YEAR(order_date)</code> מקבץ לפי השנה המחושבת. כך כל הימים של אותה שנה נכנסים לקבוצה אחת.",
+"נהוג לכתוב ב־GROUP BY את הביטוי המלא. SQLite מרשה גם <code>GROUP BY order_year</code>, אבל ברוב הניבים האחרים זו שגיאה: GROUP BY מתבצע לפני SELECT, ובשלב הזה השם order_year עוד לא קיים.",
+"ב־ORDER BY מותר להשתמש בשם order_year בכל הניבים, כי ORDER BY מתבצע אחרי SELECT."
+],
+"note": "<b>לדיון:</b> למה ב־2016 וב־2018 יש פחות הזמנות? הנתונים מתחילים ביולי 2016 ונגמרים במאי 2018. רק 2017 היא שנה מלאה."
+},
+{
+"q": "אילו 5 מוצרים נמכרו בכמות הגדולה ביותר? (סכום היחידות שנמכרו, quantity)",
+"tables": [
+"order_details"
+],
+"hint": "כל שורה ב־order_details היא מוצר אחד בתוך הזמנה. LIMIT 5 משאיר את 5 השורות הראשונות.",
+"sql": "SELECT product_id,\n       SUM(quantity) AS total_qty\nFROM order_details\nGROUP BY product_id\nORDER BY total_qty DESC\nLIMIT 5;",
+"cols": [
+"product_id",
+"total_qty"
+],
+"num": [
+0,
+1
+],
+"rows": [
+[
+"60",
+"1577"
+],
+[
+"59",
+"1496"
+],
+[
+"31",
+"1397"
+],
+[
+"56",
+"1263"
+],
+[
+"16",
+"1158"
+]
+],
+"steps": [
+"הטבלה <code>order_details</code> מחזיקה את שורות ההזמנות: כל שורה היא מוצר אחד בתוך הזמנה.",
+"כל שורה בטבלה היא \"מוצר X בהזמנה Y בכמות Z\". מוצר מופיע בהרבה הזמנות.",
+"<code>GROUP BY product_id</code> אוסף את כל השורות של כל מוצר, ו־<code>SUM(quantity)</code> מחבר את הכמויות.",
+"<code>ORDER BY total_qty DESC</code> ממיין מהנמכר ביותר, ו־<code>LIMIT 5</code> משאיר רק את 5 הראשונים."
+],
+"note": "<b>מי המוצרים?</b> 60 = Camembert Pierrot, 59 = Raclette Courdavault, 31 = Gorgonzola Telino, 56 = Gnocchi di nonna Alice, 16 = Pavlova."
+},
+{
+"q": "כמה הזמנות קיבלה כל חברת משלוחים בכל שנה?",
+"tables": [
+"orders"
+],
+"hint": "מקבצים לפי שתי עמודות: השנה וחברת המשלוחים.",
+"sql": "SELECT YEAR(order_date) AS order_year,\n       ship_via,\n       COUNT(*) AS order_count\nFROM orders\nGROUP BY YEAR(order_date), ship_via\nORDER BY order_year, ship_via;",
+"cols": [
+"order_year",
+"ship_via",
+"order_count"
+],
+"num": [
+0,
+1,
+2
+],
+"rows": [
+[
+"2016",
+"1",
+"38"
+],
+[
+"2016",
+"2",
+"56"
+],
+[
+"2016",
+"3",
+"58"
+],
+[
+"2017",
+"1",
+"133"
+],
+[
+"2017",
+"2",
+"153"
+],
+[
+"2017",
+"3",
+"122"
+],
+[
+"2018",
+"1",
+"78"
+],
+[
+"2018",
+"2",
+"117"
+],
+[
+"2018",
+"3",
+"75"
+]
+],
+"steps": [
+"כשמקבצים לפי שתי עמודות, כל קבוצה היא צירוף אחד של שנה וחברה, למשל \"2017 וחברה 2\".",
+"יש 3 שנים ו־3 חברות, ולכן 3 × 3 = 9 קבוצות ו־9 שורות בתוצאה.",
+"<code>COUNT(*)</code> סופר את ההזמנות בכל צירוף.",
+"<code>ORDER BY order_year, ship_via</code> ממיין קודם לפי שנה, ובתוך כל שנה לפי חברה."
+],
+"note": "<b>בדיקה עצמית:</b> שלוש השורות של 2017 מסתכמות ב־133+153+122 = 408, כמו בשאלה 11."
+},
+{
+"q": "מה הסכום הכולל של כל הזמנה? הציגו את 5 ההזמנות הגדולות ביותר.",
+"tables": [
+"order_details",
+"products"
+],
+"hint": "סכום של שורה = מחיר × כמות × (1 − הנחה). הכמות וההנחה נמצאות ב־order_details, והמחיר נמצא ב־products. מחברים את שתי הטבלאות עם JOIN לפי product_id.",
+"sql": "SELECT od.order_id,\n       SUM(p.unit_price * od.quantity\n           * (1 - od.discount)) AS order_total\nFROM order_details AS od\nJOIN products AS p\n  ON p.product_id = od.product_id\nGROUP BY od.order_id\nORDER BY order_total DESC\nLIMIT 5;",
+"cols": [
+"order_id",
+"order_total"
+],
+"num": [
+0,
+1
+],
+"rows": [
+[
+"10865",
+"16387.50"
+],
+[
+"10981",
+"15810.00"
+],
+[
+"10417",
+"13985.50"
+],
+[
+"10479",
+"13120.90"
+],
+[
+"11030",
+"12615.05"
+]
+],
+"steps": [
+"בטבלת order_details אין מחיר. <code>JOIN products AS p ON p.product_id = od.product_id</code> מצמיד לכל שורת הזמנה את שורת המוצר שלה, ואיתה את המחיר <code>p.unit_price</code>. (JOIN נלמד בהרחבה בשלב ד.)",
+"לכל שורה מחשבים את סכום השורה: <code>p.unit_price * od.quantity * (1 - od.discount)</code>. ההנחה שמורה כשבר, למשל 0.15 = 15%.",
+"<code>GROUP BY od.order_id</code> אוסף את כל השורות של כל הזמנה, ו־<code>SUM(...)</code> מחבר את סכומי השורות לסכום ההזמנה.",
+"ממיינים מהגדולה לקטנה ומשאירים 5 עם <code>LIMIT 5</code>."
+],
+"note": "<b>טעות נפוצה:</b> <code>SUM(p.unit_price) * SUM(od.quantity)</code> נותן מספר אחר לגמרי, כי הוא כופל שני סכומים במקום לחבר מכפלות."
+},
+{
+"q": "באילו מדינות יש יותר מ־5 לקוחות?",
+"tables": [
+"customers"
+],
+"hint": "התנאי הוא על מספר הלקוחות בקבוצה, לא על לקוח בודד.",
+"sql": "SELECT country, COUNT(*) AS customer_count\nFROM customers\nGROUP BY country\nHAVING COUNT(*) > 5\nORDER BY customer_count DESC, country;",
+"cols": [
+"country",
+"customer_count"
+],
+"num": [
+1
+],
+"rows": [
+[
+"USA",
+"13"
+],
+[
+"France",
+"11"
+],
+[
+"Germany",
+"11"
+],
+[
+"Brazil",
+"9"
+],
+[
+"UK",
+"7"
+]
+],
+"steps": [
+"<code>GROUP BY country</code> יוצר 21 קבוצות, כמו בשאלה 7.",
+"<code>HAVING COUNT(*) > 5</code> בודק כל קבוצה ומשאיר רק קבוצות שיש בהן יותר מ־5 לקוחות.",
+"<code>WHERE</code> לא יכול לעשות את זה: הוא בודק שורה אחת בכל פעם, לפני שהקבוצות נוצרו, ולכן אסור להשתמש בו ב־COUNT.",
+"Mexico ו־Spain, עם 5 לקוחות בדיוק, לא נכנסות, כי <code>&gt; 5</code> פירושו \"יותר מ־5\"."
+],
+"note": "<b>הכלל:</b> WHERE מסנן שורות, HAVING מסנן קבוצות. ב־HAVING נהוג לחזור על <code>COUNT(*)</code>. SQLite מרשה גם להשתמש בשם שנתנו ב־SELECT, אבל ברוב הניבים האחרים זו שגיאה, ולכן נהוג לחזור על הביטוי."
+},
+{
+"q": "באילו קטגוריות המחיר הממוצע של מוצר גבוה מ־30?",
+"tables": [
+"products"
+],
+"hint": "ב־HAVING אפשר להשתמש גם ב־AVG.",
+"sql": "SELECT category_id, AVG(unit_price) AS avg_price\nFROM products\nGROUP BY category_id\nHAVING AVG(unit_price) > 30\nORDER BY avg_price DESC;",
+"cols": [
+"category_id",
+"avg_price"
+],
+"num": [
+0,
+1
+],
+"rows": [
+[
+"6",
+"54.01"
+],
+[
+"1",
+"37.98"
+],
+[
+"7",
+"32.37"
+]
+],
+"steps": [
+"<code>GROUP BY category_id</code> יוצר 8 קבוצות, אחת לכל קטגוריה.",
+"<code>AVG(unit_price)</code> מחשב את המחיר הממוצע בכל קטגוריה.",
+"<code>HAVING AVG(unit_price) > 30</code> משאיר רק את הקטגוריות שהממוצע שלהן גבוה מ־30: שלוש קטגוריות.",
+"ממיינים מהממוצע הגבוה לנמוך."
+],
+"note": "<b>מי הקטגוריות?</b> 6 = Meat/Poultry, 1 = Beverages, 7 = Produce. בקטגוריה 6 יש רק 6 מוצרים, אבל שניים מהם יקרים מאוד."
+},
+{
+"q": "אילו לקוחות ביצעו 20 הזמנות או יותר?",
+"tables": [
+"orders"
+],
+"hint": "מקבצים את ההזמנות לפי customer_id. \"20 או יותר\" כולל את 20.",
+"sql": "SELECT customer_id, COUNT(*) AS order_count\nFROM orders\nGROUP BY customer_id\nHAVING COUNT(*) >= 20\nORDER BY order_count DESC;",
+"cols": [
+"customer_id",
+"order_count"
+],
+"num": [
+1
+],
+"rows": [
+[
+"SAVEA",
+"31"
+],
+[
+"ERNSH",
+"30"
+],
+[
+"QUICK",
+"28"
+]
+],
+"steps": [
+"<code>GROUP BY customer_id</code> יוצר קבוצה לכל לקוח שביצע הזמנה: 89 קבוצות.",
+"<code>COUNT(*)</code> סופר את ההזמנות של כל לקוח.",
+"<code>HAVING COUNT(*) >= 20</code> משאיר רק לקוחות עם 20 הזמנות לפחות. הסימן <code>&gt;=</code> כולל את 20 עצמו.",
+"רק 3 לקוחות עוברים את הסף. הבאים בתור, HUNGO ו־FOLKO, ביצעו 19 הזמנות כל אחד."
+],
+"note": "<b>מי הלקוחות?</b> SAVEA = Save-a-lot Markets, ERNSH = Ernst Handel, QUICK = QUICK-Stop."
+},
+{
+"q": "אילו מוצרים נמכרו בכמות כוללת של יותר מ־1,000 יחידות?",
+"tables": [
+"order_details"
+],
+"hint": "כמו שאלה 12, אבל במקום LIMIT 5 משתמשים בתנאי על הסכום.",
+"sql": "SELECT product_id, SUM(quantity) AS total_qty\nFROM order_details\nGROUP BY product_id\nHAVING SUM(quantity) > 1000\nORDER BY total_qty DESC, product_id;",
+"cols": [
+"product_id",
+"total_qty"
+],
+"num": [
+0,
+1
+],
+"rows": [
+[
+"60",
+"1577"
+],
+[
+"59",
+"1496"
+],
+[
+"31",
+"1397"
+],
+[
+"56",
+"1263"
+],
+[
+"16",
+"1158"
+],
+[
+"75",
+"1155"
+],
+[
+"24",
+"1125"
+],
+[
+"40",
+"1103"
+],
+[
+"62",
+"1083"
+],
+[
+"2",
+"1057"
+]
+],
+"steps": [
+"<code>GROUP BY product_id</code> אוסף את כל שורות המכירה של כל מוצר: 77 קבוצות.",
+"<code>SUM(quantity)</code> מחבר את היחידות שנמכרו מכל מוצר.",
+"<code>HAVING SUM(quantity) > 1000</code> משאיר 12 מוצרים.",
+"המיון השני לפי product_id קובע סדר קבוע למוצרים 2 ו־71, שנמכרו שניהם ב־1,057 יחידות."
+],
+"note": "<b>להשוואה עם שאלה 12:</b> LIMIT קובע כמה שורות יוצגו. HAVING קובע איזה תנאי קבוצה צריכה לעמוד בו. כאן לא ידענו מראש כמה מוצרים יעברו את הסף.",
+"more": 2,
+"total": 12
+},
+{
+"q": "אילו הזמנות כוללות יותר מ־5 מוצרים שונים?",
+"tables": [
+"order_details"
+],
+"hint": "כל מוצר בהזמנה הוא שורה אחת ב־order_details.",
+"sql": "SELECT order_id, COUNT(*) AS product_count\nFROM order_details\nGROUP BY order_id\nHAVING COUNT(*) > 5\nORDER BY order_id;",
+"cols": [
+"order_id",
+"product_count"
+],
+"num": [
+0,
+1
+],
+"rows": [
+[
+"10657",
+"6"
+],
+[
+"10847",
+"6"
+],
+[
+"10979",
+"6"
+],
+[
+"11077",
+"25"
+]
+],
+"steps": [
+"ב־order_details כל מוצר בהזמנה מופיע בשורה אחת, ולכן מספר השורות של הזמנה הוא מספר המוצרים השונים בה.",
+"<code>GROUP BY order_id</code> יוצר קבוצה לכל הזמנה: 830 קבוצות.",
+"<code>HAVING COUNT(*) > 5</code> משאיר רק 4 הזמנות."
+],
+"note": "<b>לדיון:</b> הזמנה 11077 כוללת 25 מוצרים, כשכמעט כל ההזמנות כוללות 1 עד 5. זה ערך חריג בולט, ושווה לבדוק אותו לפני ניתוח."
+},
+{
+"q": "בשנת 2017, אילו עובדים טיפלו ביותר מ־50 הזמנות?",
+"tables": [
+"orders"
+],
+"hint": "צריך גם WHERE (לשנה) וגם HAVING (למספר ההזמנות).",
+"sql": "SELECT employee_id, COUNT(*) AS order_count\nFROM orders\nWHERE YEAR(order_date) = 2017\nGROUP BY employee_id\nHAVING COUNT(*) > 50\nORDER BY order_count DESC;",
+"cols": [
+"employee_id",
+"order_count"
+],
+"num": [
+0,
+1
+],
+"rows": [
+[
+"4",
+"81"
+],
+[
+"3",
+"71"
+],
+[
+"1",
+"55"
+],
+[
+"8",
+"54"
+]
+],
+"steps": [
+"<b>WHERE</b> מתבצע ראשון: מכל 830 ההזמנות נשארות רק 408 ההזמנות של 2017.",
+"<b>GROUP BY</b>: את ההזמנות שנשארו מחלקים לקבוצות לפי עובד.",
+"<b>HAVING</b>: משאירים רק עובדים שיש להם יותר מ־50 הזמנות בשנה הזו.",
+"<b>ORDER BY</b>: ממיינים מהגבוה לנמוך. 4 עובדים עוברים את הסף."
+],
+"note": "<b>למה לא הכול ב־HAVING?</b> תנאי על שורה בודדת, כמו השנה, שייך ל־WHERE. ב־HAVING אין לכל קבוצה תאריך אחד: SQLite לוקח את התאריך של שורה מקרית בקבוצה, וברוב הניבים האחרים זו שגיאה."
+},
+{
+"q": "אילו מדינות יעד קיבלו 50 הזמנות לפחות, וגם דמי המשלוח הממוצעים אליהן גבוהים מ־80?",
+"tables": [
+"orders"
+],
+"hint": "אפשר לחבר כמה תנאים ב־HAVING עם AND.",
+"sql": "SELECT ship_country,\n       COUNT(*) AS order_count,\n       AVG(freight) AS avg_freight\nFROM orders\nGROUP BY ship_country\nHAVING COUNT(*) >= 50 AND AVG(freight) > 80\nORDER BY order_count DESC, ship_country;",
+"cols": [
+"ship_country",
+"order_count",
+"avg_freight"
+],
+"num": [
+1,
+2
+],
+"rows": [
+[
+"Germany",
+"122",
+"92.49"
+],
+[
+"USA",
+"122",
+"112.88"
+]
+],
+"steps": [
+"<code>GROUP BY ship_country</code> יוצר קבוצה לכל מדינת יעד: 21 קבוצות.",
+"התנאי הראשון, <code>COUNT(*) >= 50</code>, משאיר 5 מדינות: Germany, USA, Brazil, France, UK.",
+"התנאי השני, <code>AVG(freight) > 80</code>, צריך להתקיים גם הוא, כי ביניהם <code>AND</code>.",
+"רק Germany ו־USA עומדות בשני התנאים. ב־Brazil, למשל, הממוצע הוא 58.80."
+],
+"note": "<b>נסו:</b> החליפו את <code>AND</code> ב־<code>OR</code>. כמה מדינות יופיעו עכשיו, ולמה?"
+},
+{
+"q": "באילו ערים יש יותר מלקוח אחד?",
+"tables": [
+"customers"
+],
+"hint": "קבצו לפי העיר וגם לפי המדינה.",
+"sql": "SELECT city, country, COUNT(*) AS customer_count\nFROM customers\nGROUP BY city, country\nHAVING COUNT(*) > 1\nORDER BY customer_count DESC, city;",
+"cols": [
+"city",
+"country",
+"customer_count"
+],
+"num": [
+2
+],
+"rows": [
+[
+"London",
+"UK",
+"6"
+],
+[
+"México D.F.",
+"Mexico",
+"5"
+],
+[
+"Sao Paulo",
+"Brazil",
+"4"
+],
+[
+"Buenos Aires",
+"Argentina",
+"3"
+],
+[
+"Madrid",
+"Spain",
+"3"
+],
+[
+"Rio de Janeiro",
+"Brazil",
+"3"
+],
+[
+"NULL",
+"NULL",
+"2"
+],
+[
+"Lisboa",
+"Portugal",
+"2"
+],
+[
+"Nantes",
+"France",
+"2"
+],
+[
+"Paris",
+"France",
+"2"
+]
+],
+"steps": [
+"<code>GROUP BY city, country</code> יוצר קבוצה לכל צירוף של עיר ומדינה.",
+"למה גם country? יש ערים שונות עם אותו שם במדינות שונות, למשל London באנגליה וגם בקנדה. ב־Northwind זה לא קורה, אבל הקיבוץ לפי שתי העמודות מונע ערבוב אם יתווספו לקוחות כאלה.",
+"ובנוסף: כדי להציג את country ב־SELECT, היא צריכה להופיע ב־GROUP BY.",
+"<code>HAVING COUNT(*) &gt; 1</code> משאיר 11 שורות. ב־London לבדה יש 6 לקוחות. שימו לב לשורה עם NULL בעיר ובמדינה: אלה שתי שורות הבדיקה."
+],
+"note": "<b>כלל:</b> כל עמודה ב־SELECT שאינה בתוך פונקציית צבירה צריכה להופיע ב־GROUP BY. SQLite, הניב שבאתר, לא נותן על זה שגיאה, אבל מציג ערך משורה מקרית בקבוצה. ברוב הניבים האחרים זו שגיאה.",
+"more": 1,
+"total": 11
+},
+{
+"q": "כמה מוצרים יש בכל קטגוריה? הפעם הציגו את שם הקטגוריה.",
+"tables": [
+"products",
+"categories"
+],
+"hint": "השם נמצא בטבלת categories. מחברים לפי category_id.",
+"sql": "SELECT c.category_name, COUNT(*) AS product_count\nFROM products AS p\nJOIN categories AS c\n  ON c.category_id = p.category_id\nGROUP BY c.category_name\nORDER BY product_count DESC, c.category_name;",
+"cols": [
+"category_name",
+"product_count"
+],
+"num": [
+1
+],
+"rows": [
+[
+"Confections",
+"13"
+],
+[
+"Beverages",
+"12"
+],
+[
+"Condiments",
+"12"
+],
+[
+"Seafood",
+"12"
+],
+[
+"Dairy Products",
+"10"
+],
+[
+"Grains/Cereals",
+"7"
+],
+[
+"Meat/Poultry",
+"6"
+],
+[
+"Produce",
+"5"
+]
+],
+"steps": [
+"<code>JOIN categories AS c ON c.category_id = p.category_id</code> מצמיד לכל מוצר את שורת הקטגוריה שלו. עכשיו לכל מוצר יש גם שם קטגוריה.",
+"<code>p</code> ו־<code>c</code> הם כינויים (aliases) קצרים לטבלאות. הם חוסכים כתיבה ומבהירים מאיזו טבלה כל עמודה.",
+"<code>GROUP BY c.category_name</code> מקבץ לפי השם, ו־<code>COUNT(*)</code> סופר מוצרים.",
+"התוצאה זהה לשאלה 8, רק שבמקום מספרים רואים שמות."
+],
+"note": "<b>סדר הביצוע:</b> קודם FROM ו־JOIN בונים טבלה משולבת, ורק אחריהם בא הקיבוץ. מבחינת GROUP BY זו פשוט טבלה אחת גדולה."
+},
+{
+"q": "אילו עובדים טיפלו ביותר מ־100 הזמנות? הציגו את השם המלא.",
+"tables": [
+"employees",
+"orders"
+],
+"hint": "מחברים את employees ל־orders לפי employee_id, ומחברים את השם הפרטי ושם המשפחה עם +.",
+"sql": "SELECT e.first_name || ' ' || e.last_name AS employee,\n       COUNT(*) AS order_count\nFROM employees AS e\nJOIN orders AS o\n  ON o.employee_id = e.employee_id\nGROUP BY e.employee_id, e.first_name, e.last_name\nHAVING COUNT(*) > 100\nORDER BY order_count DESC;",
+"cols": [
+"employee",
+"order_count"
+],
+"num": [
+1
+],
+"rows": [
+[
+"Margaret Peacock",
+"156"
+],
+[
+"Janet Leverling",
+"127"
+],
+[
+"Nancy Davolio",
+"123"
+],
+[
+"Laura Callahan",
+"104"
+]
+],
+"steps": [
+"ה־JOIN יוצר שורה לכל הזמנה, עם פרטי העובד שטיפל בה: 830 שורות.",
+"<code>e.first_name || ' ' || e.last_name</code> מחבר שני טקסטים עם רווח ביניהם. ב־SQLite הסימן <code>||</code> מחבר טקסטים.",
+"ב־GROUP BY מופיעים first_name ו־last_name, כי הם מופיעים ב־SELECT. employee_id מבטיח ששני עובדים עם אותו שם לא יתאחדו לקבוצה אחת.",
+"<code>HAVING COUNT(*) > 100</code> משאיר 4 עובדים. Andrew Fuller, עם 96 הזמנות, לא נכנס."
+],
+"note": "<b>להשוואה:</b> זו שאלה 9, עם שמות ועם HAVING. <br><b>זהירות:</b> <code>+</code> בין טקסטים לא נותן שגיאה ב־SQLite, אלא מחזיר 0."
+},
+{
+"q": "לכל חברת משלוחים (לפי שם): כמה הזמנות היא שלחה, וכמה ימים עברו בממוצע מההזמנה ועד המשלוח?",
+"tables": [
+"orders",
+"shippers"
+],
+"hint": "julianday(תאריך) הופך תאריך למספר ימים. ההפרש בין שני julianday הוא מספר הימים ביניהם. מחברים לפי ship_via = shipper_id.",
+"sql": "SELECT s.company_name,\n       COUNT(*) AS shipped,\n       AVG(julianday(o.shipped_date)\n           - julianday(o.order_date)) AS avg_days\nFROM orders AS o\nJOIN shippers AS s\n  ON s.shipper_id = o.ship_via\nWHERE o.shipped_date IS NOT NULL\nGROUP BY s.company_name\nORDER BY avg_days;",
+"cols": [
+"company_name",
+"shipped",
+"avg_days"
+],
+"num": [
+1,
+2
+],
+"rows": [
+[
+"Federal Shipping",
+"249",
+"7.47"
+],
+[
+"Speedy Express",
+"245",
+"8.57"
+],
+[
+"United Package",
+"315",
+"9.23"
+]
+],
+"steps": [
+"שם העמודה שונה בשתי הטבלאות: ב־orders היא נקראת <code>ship_via</code> וב־shippers <code>shipper_id</code>. ה־ON מחבר ביניהן.",
+"<code>WHERE o.shipped_date IS NOT NULL</code> מוציא את 21 ההזמנות שעוד לא נשלחו, כי אין להן משך משלוח.",
+"<code>julianday(o.shipped_date) - julianday(o.order_date)</code> מחשב לכל הזמנה כמה ימים עברו מההזמנה ועד המשלוח.",
+"Federal Shipping היא המהירה ביותר: 7.47 ימים בממוצע. האתר יציג יותר ספרות אחרי הנקודה."
+],
+"note": "<b>למה המספרים שונים משאלה 10?</b> שם ספרנו את כל ההזמנות, כולל כאלה שלא נשלחו. כאן ספרנו רק הזמנות שנשלחו."
+},
+{
+"q": "אילו לקוחות קנו בסכום כולל של יותר מ־50,000?",
+"tables": [
+"customers",
+"orders",
+"order_details",
+"products"
+],
+"hint": "ארבע טבלאות: לקוח ← הזמנות ← שורות הזמנה ← מוצרים (בשביל המחיר). בתנאי של HAVING חוזרים על כל הביטוי של SUM.",
+"sql": "SELECT c.company_name,\n       SUM(p.unit_price * od.quantity\n           * (1 - od.discount)) AS revenue\nFROM customers AS c\nJOIN orders AS o\n  ON o.customer_id = c.customer_id\nJOIN order_details AS od\n  ON od.order_id = o.order_id\nJOIN products AS p\n  ON p.product_id = od.product_id\nGROUP BY c.customer_id, c.company_name\nHAVING SUM(p.unit_price * od.quantity\n           * (1 - od.discount)) > 50000\nORDER BY revenue DESC;",
+"cols": [
+"company_name",
+"revenue"
+],
+"num": [
+1
+],
+"rows": [
+[
+"QUICK-Stop",
+"114,694"
+],
+[
+"Ernst Handel",
+"111,362"
+],
+[
+"Save-a-lot Markets",
+"108,703"
+],
+[
+"Rattlesnake Canyon Grocery",
+"57,318"
+],
+[
+"Hungry Owl All-Night Grocers",
+"52,624"
+]
+],
+"steps": [
+"ה־JOIN הראשון מחבר כל לקוח להזמנות שלו, השני מחבר כל הזמנה לשורות שלה, והשלישי מוסיף לכל שורה את מחיר המוצר. אחרי שלושת ה־JOIN, כל שורה היא מוצר אחד בהזמנה של לקוח מסוים, עם המחיר שלו.",
+"<code>GROUP BY c.customer_id, c.company_name</code> אוסף את כל השורות של כל לקוח.",
+"<code>SUM(...)</code> מחבר את סכומי השורות לסך הקניות של הלקוח.",
+"<code>HAVING</code> חוזר על הביטוי המלא. SQLite מרשה גם להשתמש בשם שנתנו ב־SELECT, אבל ברוב הניבים האחרים זו שגיאה, ולכן נהוג לחזור על הביטוי. 5 לקוחות עוברים את הסף."
+],
+"note": "<b>על התוצאה:</b> הסכומים מעוגלים כאן למספר שלם. Hungry Owl All-Night Grocers עובר את הסף בקושי, עם 52,624."
+},
+{
+"q": "אילו קטגוריות הכניסו בשנת 2017 יותר מ־80,000?",
+"tables": [
+"categories",
+"products",
+"order_details",
+"orders"
+],
+"hint": "ארבע טבלאות. orders נחוצה רק בשביל התאריך.",
+"sql": "SELECT c.category_name,\n       SUM(p.unit_price * od.quantity\n           * (1 - od.discount)) AS revenue_2017\nFROM categories AS c\nJOIN products AS p\n  ON p.category_id = c.category_id\nJOIN order_details AS od\n  ON od.product_id = p.product_id\nJOIN orders AS o\n  ON o.order_id = od.order_id\nWHERE YEAR(o.order_date) = 2017\nGROUP BY c.category_name\nHAVING SUM(p.unit_price * od.quantity\n           * (1 - od.discount)) > 80000\nORDER BY revenue_2017 DESC;",
+"cols": [
+"category_name",
+"revenue_2017"
+],
+"num": [
+1
+],
+"rows": [
+[
+"Dairy Products",
+"121,772"
+],
+[
+"Beverages",
+"112,771"
+],
+[
+"Confections",
+"87,689"
+],
+[
+"Meat/Poultry",
+"85,346"
+]
+],
+"steps": [
+"שרשרת החיבורים: קטגוריה ← מוצרים ← שורות הזמנה ← הזמנה. כל ON מחבר מפתח לטבלה הבאה.",
+"<code>WHERE YEAR(o.order_date) = 2017</code> משאיר רק שורות מהזמנות של 2017. זה תנאי על שורה, ולכן הוא ב־WHERE.",
+"<code>GROUP BY c.category_name</code> ו־<code>SUM</code> מחשבים את ההכנסה של כל קטגוריה בשנה הזו.",
+"<code>HAVING ... > 80000</code> הוא תנאי על הקבוצה, ולכן הוא ב־HAVING. 4 קטגוריות עוברות."
+],
+"note": "<b>מבנה שכדאי לזכור:</b> בשאילתה אחת יש גם WHERE וגם HAVING, וכל אחד עושה עבודה אחרת: WHERE בוחר שורות, HAVING בוחר קבוצות."
+},
+{
+"q": "אילו מוצרים נקנו על ידי 35 לקוחות שונים או יותר?",
+"tables": [
+"products",
+"order_details",
+"orders"
+],
+"hint": "לקוח שקנה את אותו מוצר כמה פעמים צריך להיספר פעם אחת בלבד.",
+"sql": "SELECT p.product_name,\n       COUNT(DISTINCT o.customer_id) AS customer_count\nFROM products AS p\nJOIN order_details AS od\n  ON od.product_id = p.product_id\nJOIN orders AS o\n  ON o.order_id = od.order_id\nGROUP BY p.product_id, p.product_name\nHAVING COUNT(DISTINCT o.customer_id) >= 35\nORDER BY customer_count DESC;",
+"cols": [
+"product_name",
+"customer_count"
+],
+"num": [
+1
+],
+"rows": [
+[
+"Raclette Courdavault",
+"43"
+],
+[
+"Camembert Pierrot",
+"36"
+]
+],
+"steps": [
+"customer_id נמצא רק ב־orders, ולכן צריך לעבור דרך order_details: מוצר ← שורות הזמנה ← הזמנה ← לקוח.",
+"<code>GROUP BY p.product_id, p.product_name</code> יוצר קבוצה לכל מוצר.",
+"<code>COUNT(*)</code> היה סופר שורות, כלומר כמה פעמים המוצר הוזמן. <code>COUNT(DISTINCT o.customer_id)</code> סופר כמה לקוחות שונים הזמינו אותו.",
+"<code>HAVING</code> משתמש באותה ספירה, ומשאיר 2 מוצרים בלבד."
+],
+"note": "<b>נסו:</b> הורידו את הסף ל־30. יופיעו 17 מוצרים, וארבעה מהם (למשל Gnocchi di nonna Alice) עם 34 לקוחות, ממש מתחת לסף המקורי."
+},
+{
+"q": "באילו מדינות יש יותר לקוחות מהממוצע למדינה?",
+"tables": [
+"customers"
+],
+"hint": "את הממוצע אפשר לחשב בשאילתה נפרדת (תת־שאילתה) בתוך ה־HAVING.",
+"sql": "SELECT country, COUNT(*) AS customer_count\nFROM customers\nGROUP BY country\nHAVING COUNT(*) > (\n    SELECT COUNT(*) * 1.0 / COUNT(DISTINCT country)\n    FROM customers\n)\nORDER BY customer_count DESC, country;",
+"cols": [
+"country",
+"customer_count"
+],
+"num": [
+1
+],
+"rows": [
+[
+"USA",
+"13"
+],
+[
+"France",
+"11"
+],
+[
+"Germany",
+"11"
+],
+[
+"Brazil",
+"9"
+],
+[
+"UK",
+"7"
+],
+[
+"Mexico",
+"5"
+],
+[
+"Spain",
+"5"
+]
+],
+"steps": [
+"תת־השאילתה בסוגריים רצה קודם ומחזירה מספר אחד: 93 לקוחות חלקי 21 מדינות = 4.43 לקוחות למדינה בממוצע.",
+"השאילתה הראשית מקבצת לפי מדינה, ו־<code>HAVING</code> משווה את מספר הלקוחות בכל מדינה לממוצע הזה.",
+"7 מדינות עוברות את 4.43. Venezuela, עם 4, נשארת בחוץ.",
+"ההכפלה ב־<code>1.0</code> חשובה: ב־SQLite, חילוק של מספר שלם במספר שלם נותן מספר שלם, ו־93/21 היה מחזיר 4 במקום 4.43."
+],
+"note": "<b>היתרון:</b> לא כתבנו את המספר 4.33 בתוך השאילתה. אם יתווספו לקוחות, הממוצע יחושב מחדש לבד."
+},
+{
+"q": "אילו לקוחות קנו מוצרים מכל 8 הקטגוריות?",
+"tables": [
+"customers",
+"orders",
+"order_details",
+"products"
+],
+"hint": "סופרים מכמה קטגוריות שונות כל לקוח קנה: COUNT(DISTINCT ...). לקוח שקנה מכל הקטגוריות הגיע ל־8.",
+"sql": "SELECT c.company_name,\n       COUNT(DISTINCT p.category_id) AS category_count\nFROM customers AS c\nJOIN orders AS o\n  ON o.customer_id = c.customer_id\nJOIN order_details AS od\n  ON od.order_id = o.order_id\nJOIN products AS p\n  ON p.product_id = od.product_id\nGROUP BY c.customer_id, c.company_name\nHAVING COUNT(DISTINCT p.category_id) = 8\nORDER BY c.company_name;",
+"cols": [
+"company_name",
+"category_count"
+],
+"num": [
+1
+],
+"rows": [
+[
+"Berglunds snabbköp",
+"8"
+],
+[
+"Blauer See Delikatessen",
+"8"
+],
+[
+"Bon app'",
+"8"
+],
+[
+"Bottom-Dollar Markets",
+"8"
+],
+[
+"Chop-suey Chinese",
+"8"
+],
+[
+"Die Wandernde Kuh",
+"8"
+],
+[
+"Ernst Handel",
+"8"
+],
+[
+"Folies gourmandes",
+"8"
+],
+[
+"Folk och fä HB",
+"8"
+],
+[
+"Frankenversand",
+"8"
+]
+],
+"steps": [
+"שלושה JOIN: לקוח ← הזמנות ← שורות הזמנה ← מוצרים. רק בטבלת המוצרים רשומה הקטגוריה של כל מוצר שנקנה.",
+"<code>GROUP BY c.customer_id, c.company_name</code> יוצר קבוצה לכל לקוח.",
+"<code>COUNT(DISTINCT p.category_id)</code> סופר מכמה קטגוריות שונות הלקוח קנה. לקוח שקנה 20 מוצרים מאותה קטגוריה נספר שם פעם אחת.",
+"<code>HAVING COUNT(DISTINCT p.category_id) = 8</code> משאיר רק לקוחות שקנו מכל 8 הקטגוריות: 36 לקוחות."
+],
+"note": "<b>לסיכום:</b> 36 מתוך 89 הלקוחות שהזמינו קנו מכל הקטגוריות. נסו להחליף את <code>= 8</code> ב־<code>&lt; 4</code> כדי למצוא לקוחות שקנו מעט קטגוריות.",
+"more": 26,
+"total": 36
+}
+];
+
+/* ---------- rendering ---------- */
+const KW = new Set("SELECT FROM WHERE GROUP BY HAVING ORDER ASC DESC AS AND OR NOT NULL IS JOIN ON LIMIT DISTINCT IN LEFT INNER CAST".split(" "));
+const FN = new Set("COUNT SUM AVG MIN MAX YEAR MONTH ROUND TRIM".split(" "));
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function hl(sql) {
+  let out = "", last = 0;
+  const re = /('[^']*')|(\[[^\]]+\])|\b(\d+(?:\.\d+)?)\b|\b([A-Z]+|julianday)\b/g;
+  let m;
+  while ((m = re.exec(sql))) {
+    out += esc(sql.slice(last, m.index));
+    if (m[1]) out += `<span class="str">${esc(m[1])}</span>`;
+    else if (m[2]) out += esc(m[2]);
+    else if (m[3]) out += `<span class="num">${m[3]}</span>`;
+    else if (KW.has(m[4])) out += `<span class="kw">${m[4]}</span>`;
+    else if (FN.has(m[4]) || m[4] === "julianday") out += `<span class="fn">${m[4]}</span>`;
+    else out += m[4];
+    last = re.lastIndex;
+  }
+  return out + esc(sql.slice(last));
+}
+const stageOf = n => STAGES.findIndex(s => n >= s.r[0] && n <= s.r[1]);
+const stageLabel = n => { const i = stageOf(n); return `שלב ${"אבגדה"[i]}: ${STAGES[i].t}`; };
+
+function resultTable(d) {
+  const num = new Set(d.num || []);
+  const head = d.cols.map((c, i) => `<th class="${num.has(i) ? "n" : ""}">${esc(c)}</th>`).join("");
+  const body = d.rows.map(r => `<tr>${r.map((v, i) => `<td class="${num.has(i) ? "n" : ""}">${esc(v)}</td>`).join("")}</tr>`).join("");
+  const more = d.more ? `<tr class="more"><td colspan="${d.cols.length}">… ועוד ${d.more} שורות</td></tr>` : "";
+  const n = d.total || d.rows.length;
+  return `<div class="res"><table>${head ? `<tr>${head}</tr>` : ""}${body}${more}</table></div>
+          <div class="rowcount">${n === 1 ? "שורה אחת" : n + " שורות"} בתוצאה</div>`;
+}
+
+const pages = [];
+const deck = document.getElementById("deck");
+
+// cover
+pages.push({ id: "start", label: "פתיחה", html: `
+  <div class="pg-head"><div class="eyebrow">שיעור SQL · מגמת מידע ונתונים</div><div class="pgno">דף פתיחה</div></div>
+  <div class="cover" style="display:flex;flex-direction:column;gap:22px">
+    <h1>30 שאלות SQL: מספירה פשוטה ועד HAVING</h1>
+    <p class="sub">כל שאלה מוצגת בשני דפים: קודם השאלה, ואז הפתרון עם התוצאה והסבר מפורט. השאילתות כתובות בתחביר SQLite ורצות כמו שהן ב־sql-practice.com (בסיס הנתונים northwind.db), והתוצאות חושבו על הנתונים של האתר. האתר מציג מספרים עשרוניים עם יותר ספרות אחרי הנקודה.</p>
+    <div class="lbl">חמשת השלבים</div>
+    <div class="stages">${STAGES.map((s, i) => `<button type="button" class="stage" data-go="q${s.r[0]}"><span class="r">שאלות ${s.r[0]}–${s.r[1]}</span><span class="t">${esc(s.t)}</span></button>`).join("")}</div>
+    <div class="lbl">הטבלאות שבהן נשתמש · <a href="https://claude.ai/artifact/HkN9TcwvV5YPCnr3uTC7TV" target="_blank" rel="noopener" style="color:var(--accent)">רשימת כל הטבלאות והשדות ↗</a></div>
+    <div class="tables">
+      <div><b>customers</b>customer_id, company_name, city, region, country, fax · 93 rows</div>
+      <div><b>orders</b>order_id, customer_id, employee_id, order_date, required_date, shipped_date, ship_via, freight, ship_city, ship_country · 830</div>
+      <div><b>order_details</b>order_id, product_id, quantity, discount · 2,155</div>
+      <div><b>products</b>product_id, product_name, supplier_id, category_id, unit_price, units_in_stock, discontinued · 77</div>
+      <div><b>categories</b>category_id, category_name · 8</div>
+      <div><b>employees</b>employee_id, first_name, last_name, title, city, hire_date · 9</div>
+      <div><b>shippers</b>shipper_id, company_name · 3</div>
+      <div><b>suppliers</b>supplier_id, company_name, country, fax, home_page · 29</div>
+      <div><b>סדר הביצוע</b>FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT</div>
+    </div>
+  </div>` });
+
+Q.forEach((d, i) => {
+  const n = i + 1;
+  const chips = d.tables.map(t => `<span class="chip">${esc(t)}</span>`).join("");
+  pages.push({ id: "q" + n, label: `שאלה ${n}`, n, html: `
+    <div class="pg-head"><div class="eyebrow">${stageLabel(n)}</div><div class="pgno">שאלה ${n} מתוך 30</div></div>
+    <div class="qbody">
+      <div class="qnum">${n}</div>
+      <div class="qtext">${esc(d.q)}</div>
+      <div class="meta">טבלאות: ${chips}</div>
+      <button type="button" class="btn hint-btn" data-hint="${n}" aria-expanded="false">הצג רמז</button>
+      <div class="hint" id="hint-${n}" hidden>${esc(d.hint)}</div>
+    </div>` });
+  pages.push({ id: "a" + n, label: `תשובה ${n}`, n, ans: true, html: `
+    <div class="pg-head"><div class="eyebrow">תשובה לשאלה ${n} · ${STAGES[stageOf(n)].t}</div><div class="pgno">תשובה ${n} מתוך 30</div></div>
+    <div class="atitle">${esc(d.q)}</div>
+    <div class="agrid">
+      <div class="col">
+        <div class="lbl">השאילתה</div>
+        <pre class="sql"><code style="background:none;padding:0;font-size:inherit">${hl(d.sql)}</code></pre>
+        <div class="lbl">התוצאה</div>
+        ${resultTable(d)}
+      </div>
+      <div class="col">
+        <div class="lbl">הסבר שלב אחר שלב</div>
+        <ol class="steps">${d.steps.map(s => `<li><div>${s}</div></li>`).join("")}</ol>
+        ${d.note ? `<div class="note">${d.note}</div>` : ""}
+      </div>
+    </div>` });
+});
+
+pages.forEach((p, i) => {
+  const el = document.createElement("section");
+  el.className = "pg" + (p.ans ? " ans" : "");
+  el.id = "pg-" + p.id;
+  el.setAttribute("aria-label", p.label);
+  el.innerHTML = p.html;
+  deck.appendChild(el);
+  p.el = el;
+});
+
+// jump menu + progress
+const jump = document.getElementById("jump");
+jump.innerHTML = `<option value="0">פתיחה</option>` + Q.map((d, i) => `<option value="${1 + i * 2}">שאלה ${i + 1}</option>`).join("");
+const prog = document.getElementById("progress");
+prog.innerHTML = Q.map((_, i) => `<i data-i="${1 + i * 2}" title="שאלה ${i + 1}"></i>`).join("");
+
+let cur = 0;
+function show(i, scroll) {
+  cur = Math.max(0, Math.min(pages.length - 1, i));
+  pages.forEach((p, k) => p.el.classList.toggle("on", k === cur));
+  const p = pages[cur];
+  document.getElementById("where").textContent = p.n ? `${p.ans ? "תשובה" : "שאלה"} ${p.n} מתוך 30` : "פתיחה";
+  jump.value = p.n ? String(1 + (p.n - 1) * 2) : "0";
+  [...prog.children].forEach((b, k) => { b.className = (p.n && k + 1 < p.n) ? "done" : (p.n === k + 1 ? "now" : ""); });
+  document.getElementById("prev").disabled = cur === 0;
+  const nx = document.getElementById("next");
+  nx.disabled = cur === pages.length - 1;
+  nx.textContent = p.n && !p.ans ? "לתשובה ←" : "הבא ←";
+  if (document.body.classList.contains("doc")) { if (scroll) p.el.scrollIntoView({ block: "start" }); }
+  else document.querySelector("main").scrollTop = 0;
+}
+
+function setView(v) {
+  document.body.classList.toggle("slides", v === "slides");
+  document.body.classList.toggle("doc", v === "doc");
+  document.getElementById("v-slides").setAttribute("aria-pressed", v === "slides");
+  document.getElementById("v-doc").setAttribute("aria-pressed", v === "doc");
+  try { localStorage.setItem("sql30s-view", v); } catch (e) {}
+  show(cur, true);
+}
+
+document.getElementById("prev").onclick = () => show(cur - 1);
+document.getElementById("next").onclick = () => show(cur + 1);
+document.getElementById("v-slides").onclick = () => setView("slides");
+document.getElementById("v-doc").onclick = () => setView("doc");
+jump.onchange = () => show(+jump.value, true);
+prog.onclick = e => { const t = e.target.closest("i"); if (t) show(+t.dataset.i, true); };
+deck.addEventListener("click", e => {
+  const h = e.target.closest("[data-hint]");
+  if (h) { const box = document.getElementById("hint-" + h.dataset.hint); box.hidden = !box.hidden; h.setAttribute("aria-expanded", !box.hidden); h.textContent = box.hidden ? "הצג רמז" : "הסתר רמז"; }
+  const g = e.target.closest("[data-go]");
+  if (g) show(pages.findIndex(p => p.id === g.dataset.go), true);
+});
+document.addEventListener("keydown", e => {
+  if (document.body.classList.contains("doc")) return;
+  if (e.target.closest("select")) return;
+  if (e.target.closest("button") && (e.key === " " || e.key === "Enter")) return;
+  if (["ArrowLeft", "PageDown", " "].includes(e.key)) { e.preventDefault(); show(cur + 1); }
+  else if (["ArrowRight", "PageUp", "Backspace"].includes(e.key)) { e.preventDefault(); show(cur - 1); }
+  else if (e.key === "Home") show(0);
+  else if (e.key === "End") show(pages.length - 1);
+});
+
+let view = "slides";
+try { view = localStorage.getItem("sql30s-view") || "slides"; } catch (e) {}
+const start = pages.findIndex(p => p.id === location.hash.slice(1));
+if (start > 0) cur = start;
+setView(view === "doc" ? "doc" : "slides");
+</script>
+</body>
+</html>

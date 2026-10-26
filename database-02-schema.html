@@ -1,0 +1,916 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>מבנה הטבלאות של Northwind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: reference sheet. Relationship map on top, then one card per table, with a sticky table index. */
+:root {
+  --bg: #EEF1F5;
+  --page: #FCFCFD;
+  --ink: #172033;
+  --muted: #556074;
+  --line: #D6DBE3;
+  --soft: #E4E9F1;
+  --accent: #2457C5;
+  --key: #A34E16;
+  --key-soft: #F7E9DE;
+  --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --font-body: "Assistant", "Arial Hebrew", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E131B; --page: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --soft: #1F2836;
+    --accent: #84A9FF; --key: #F0A066; --key-soft: #2E241C; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E131B; --page: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --soft: #1F2836;
+  --accent: #84A9FF; --key: #F0A066; --key-soft: #2E241C; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.55; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--page); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button { font: inherit; color: inherit; }
+.wrap {
+  max-width: 1180px; margin: 0 auto;
+  padding-block: 28px 60px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 28px;
+}
+header { display: flex; flex-direction: column; gap: 8px; }
+.eyebrow { font-size: 14px; font-weight: 700; letter-spacing: .05em; color: var(--accent); }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 4.4vw, 48px); line-height: 1.15; margin: 0; text-wrap: balance; }
+.lead { margin: 0; max-width: 760px; color: var(--muted); font-size: 18px; }
+h2 { font-family: var(--font-display); font-weight: 500; font-size: 24px; margin: 0; text-wrap: balance; }
+code, .mono { font-family: var(--font-mono); font-size: .86em; }
+code { background: var(--soft); padding: 1px 6px; border-radius: 4px; direction: ltr; unicode-bidi: isolate; }
+
+/* sticky index */
+.index {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--page); border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center;
+}
+.index a {
+  font-family: var(--font-mono); font-size: 14px; color: var(--ink); text-decoration: none;
+  border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; direction: ltr;
+}
+.index a:hover { border-color: var(--accent); color: var(--accent); }
+.index .sp { flex: 1; }
+.toggle { display: inline-flex; gap: 8px; align-items: center; font-size: 15px; cursor: pointer; }
+.toggle input { width: 18px; height: 18px; accent-color: var(--accent); }
+
+/* panels */
+.panel { background: var(--page); border: 1px solid var(--line); border-radius: 14px; padding: clamp(18px, 2.6vw, 30px); display: flex; flex-direction: column; gap: 16px; }
+.diagram { overflow-x: auto; direction: ltr; }
+.diagram svg { display: block; width: 100%; min-width: 780px; height: auto; }
+.box { fill: var(--page); stroke: var(--line); stroke-width: 2; }
+.box.hub { stroke: var(--accent); stroke-width: 3; }
+.bname { fill: var(--ink); font: 700 17px var(--font-mono); }
+.bmeta { fill: var(--muted); font: 400 15px var(--font-body); }
+.link { stroke: var(--muted); stroke-width: 2; fill: none; }
+.lbl { fill: var(--key); font: 600 12.5px var(--font-mono); }
+.card-n { fill: var(--muted); font: 700 13px var(--font-mono); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 15px; color: var(--muted); }
+.rels { width: 100%; border-collapse: collapse; font-size: 15.5px; }
+.rels th, .rels td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: right; vertical-align: top; }
+.rels th { font-size: 13px; color: var(--muted); font-weight: 700; letter-spacing: .04em; }
+.rels td.c { direction: ltr; text-align: left; font-family: var(--font-mono); font-size: 14px; white-space: nowrap; }
+.scroll { overflow-x: auto; }
+
+/* table cards */
+.tcard { scroll-margin-top: 90px; }
+.thead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+.tname { font-family: var(--font-mono); font-weight: 600; font-size: clamp(22px, 2.6vw, 28px); direction: ltr; }
+.tcount { font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tdesc { margin: 0; max-width: 820px; }
+.cols { width: 100%; border-collapse: collapse; font-size: 15.5px; }
+.cols th { font-size: 13px; color: var(--muted); font-weight: 700; letter-spacing: .04em; text-align: right; padding: 8px 10px; border-bottom: 2px solid var(--line); white-space: nowrap; }
+.cols td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.cols tr:last-child td { border-bottom: 0; }
+.cols td.f { font-family: var(--font-mono); font-weight: 600; direction: ltr; text-align: left; white-space: nowrap; }
+.cols td.t { font-family: var(--font-mono); font-size: 13.5px; color: var(--muted); direction: ltr; text-align: left; white-space: nowrap; }
+.cols td.ex { font-family: var(--font-mono); font-size: 13.5px; direction: ltr; text-align: left; color: var(--muted); max-width: 230px; overflow-wrap: anywhere; }
+.cols td.k { white-space: nowrap; }
+.pk, .fk { font-size: 12.5px; font-weight: 700; border-radius: 5px; padding: 1px 7px; display: inline-block; }
+.pk { background: var(--key); color: var(--page); }
+.fk { background: var(--key-soft); color: var(--key); }
+.fk-to { display: block; font-family: var(--font-mono); font-size: 12.5px; color: var(--key); direction: ltr; text-align: right; margin-top: 2px; }
+.used td.f::before { content: "●"; color: var(--accent); font-size: 10px; margin-right: 6px; vertical-align: 2px; }
+tr.unused td.f::before { content: "●"; color: transparent; font-size: 10px; margin-right: 6px; vertical-align: 2px; }
+body.only-used tr.unused { display: none; }
+.tip { background: var(--key-soft); border-radius: 10px; padding: 12px 16px; font-size: 16px; }
+.tip b { color: var(--key); }
+
+.notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.notes div { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.notes h3 { margin: 0 0 4px; font-family: var(--font-display); font-weight: 500; font-size: 18px; }
+.notes p { margin: 0; color: var(--muted); }
+.types { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 18px; font-size: 15px; }
+.types span { color: var(--muted); }
+.types b { font-family: var(--font-mono); font-weight: 600; color: var(--ink); direction: ltr; unicode-bidi: isolate; }
+@media (max-width: 760px) {
+  .notes, .types { grid-template-columns: minmax(0, 1fr); }
+  .cols td.ex, .cols th.ex { display: none; }
+}
+</style>
+<style>
+/* Back link to the page's topic in index.html */
+.site-back{color:var(--accent);font-family:var(--font-body,"Assistant","Arial Hebrew",Arial,sans-serif);font-weight:600;font-size:15px;text-decoration:none;width:fit-content;white-space:nowrap}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.wrap > .site-back{display:block;margin-bottom:12px}
+@media print{.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="wrap" dir="rtl">
+  <a class="site-back" href="index.html#database">→ חזרה לנושא: מסד הנתונים Northwind</a>
+  <header>
+    <div class="eyebrow">דף עזר לשיעור SQL · Northwind · sql-practice.com</div>
+    <h1>מבנה הטבלאות של Northwind</h1>
+    <p class="lead">כל הטבלאות של northwind.db באתר sql-practice.com, עם כל השדות, סוגי הנתונים והקשרים ביניהן. שדה עם נקודה כחולה הוא שדה שמופיע בשאלות של השיעור, התרגול ושיעורי הבית. באתר יש גם שלוש טבלאות קטנות שלא משמשות בשאלות: employee_territories, territories ו־regions.</p>
+  </header>
+
+  <nav class="index" aria-label="קפיצה לטבלה">
+    <a href="#t-customers">customers</a>
+    <a href="#t-orders">orders</a>
+    <a href="#t-order_details">order_details</a>
+    <a href="#t-products">products</a>
+    <a href="#t-categories">categories</a>
+    <a href="#t-employees">employees</a>
+    <a href="#t-shippers">shippers</a>
+    <a href="#t-suppliers">suppliers</a>
+    <span class="sp"></span>
+    <label class="toggle" for="onlyUsed"><input type="checkbox" id="onlyUsed"> רק שדות שבשימוש בשאלות</label>
+  </nav>
+
+  <section class="panel" aria-labelledby="map-h">
+    <h2 id="map-h">איך הטבלאות מתחברות</h2>
+    <div class="diagram">
+      <svg viewBox="0 0 1040 344" role="img" aria-label="תרשים קשרים: customers, employees ו-shippers מתחברים ל-orders; orders מתחבר ל-order_details; order_details מתחבר ל-products; products מתחבר ל-categories ול-suppliers; employees מתחבר לעצמו דרך reports_to">
+  <path class="link" d="M210 82 H290" />
+  <path class="link" d="M480 82 H560" />
+  <path class="link" d="M750 82 H830" />
+  <path class="link" d="M405 124 V216" />
+  <path class="link" d="M115 216 V170 H345 V124" />
+  <path class="link" d="M655 216 V170 H880 V124" />
+  <path class="link" d="M965 216 V124" />
+  <path class="link" d="M345 300 V316 H425 V300" />
+  <text class="lbl" x="250" y="30" text-anchor="middle">customer_id</text>
+  <text class="lbl" x="520" y="30" text-anchor="middle">order_id</text>
+  <text class="lbl" x="790" y="30" text-anchor="middle">product_id</text>
+  <text class="lbl" x="413" y="200" text-anchor="start">employee_id</text>
+  <text class="lbl" x="125" y="162" text-anchor="start">ship_via = shipper_id</text>
+  <text class="lbl" x="665" y="162" text-anchor="start">category_id</text>
+  <text class="lbl" x="957" y="200" text-anchor="end">supplier_id</text>
+  <text class="lbl" x="385" y="336" text-anchor="middle">reports_to → employee_id</text>
+  <text class="card-n" x="216" y="104">1</text><text class="card-n" x="270" y="104">∞</text>
+  <text class="card-n" x="486" y="104">1</text><text class="card-n" x="540" y="104">∞</text>
+  <text class="card-n" x="756" y="104">∞</text><text class="card-n" x="812" y="104">1</text>
+  <rect class="box" x="20" y="40" width="190" height="84" rx="10" />
+  <text class="bname" x="38" y="74">customers</text><text class="bmeta" x="38" y="100">93 · לקוחות</text>
+  <rect class="box hub" x="290" y="40" width="190" height="84" rx="10" />
+  <text class="bname" x="308" y="74">orders</text><text class="bmeta" x="308" y="100">830 · הזמנות</text>
+  <rect class="box hub" x="560" y="40" width="190" height="84" rx="10" />
+  <text class="bname" x="578" y="74">order_details</text><text class="bmeta" x="578" y="100">2,155 · שורות הזמנה</text>
+  <rect class="box" x="830" y="40" width="190" height="84" rx="10" />
+  <text class="bname" x="848" y="74">products</text><text class="bmeta" x="848" y="100">77 · מוצרים</text>
+  <rect class="box" x="20" y="216" width="190" height="84" rx="10" />
+  <text class="bname" x="38" y="250">shippers</text><text class="bmeta" x="38" y="276">3 · חברות משלוחים</text>
+  <rect class="box" x="290" y="216" width="190" height="84" rx="10" />
+  <text class="bname" x="308" y="250">employees</text><text class="bmeta" x="308" y="276">9 · עובדים</text>
+  <rect class="box" x="560" y="216" width="190" height="84" rx="10" />
+  <text class="bname" x="578" y="250">categories</text><text class="bmeta" x="578" y="276">8 · קטגוריות</text>
+  <rect class="box" x="830" y="216" width="190" height="84" rx="10" />
+  <text class="bname" x="848" y="250">suppliers</text><text class="bmeta" x="848" y="276">29 · ספקים</text>
+</svg>
+    </div>
+    <div class="legend"><span>מסגרת כחולה: שתי הטבלאות שרוב השאלות מתחילות מהן</span><span>המספרים 1 ו־∞ על הקו: שורה אחת בצד אחד, הרבה שורות בצד השני</span><span>מספר בתיבה: כמה שורות יש בטבלה</span></div>
+    <div class="scroll">
+      <table class="rels">
+        <tr><th>החיבור (ON)</th><th>מה הוא אומר</th></tr>
+        <tr><td class="c">orders.customer_id = customers.customer_id</td><td>לכל הזמנה יש לקוח אחד. ללקוח יכולות להיות הרבה הזמנות (או אף אחת).</td></tr>
+        <tr><td class="c">orders.employee_id = employees.employee_id</td><td>כל הזמנה טופלה על ידי עובד אחד.</td></tr>
+        <tr><td class="c">orders.ship_via = shippers.shipper_id</td><td>חברת המשלוחים של ההזמנה. שימו לב: לשדה יש שם שונה בכל טבלה.</td></tr>
+        <tr><td class="c">order_details.order_id = orders.order_id</td><td>להזמנה אחת יש כמה שורות, שורה לכל מוצר שהוזמן.</td></tr>
+        <tr><td class="c">order_details.product_id = products.product_id</td><td>כל שורת הזמנה היא מוצר אחד.</td></tr>
+        <tr><td class="c">products.category_id = categories.category_id</td><td>לכל מוצר יש קטגוריה אחת.</td></tr>
+        <tr><td class="c">products.supplier_id = suppliers.supplier_id</td><td>לכל מוצר יש ספק אחד.</td></tr>
+        <tr><td class="c">employees.reports_to = employees.employee_id</td><td>המנהל של העובד הוא גם עובד באותה טבלה (חיבור טבלה לעצמה).</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <div id="tables" style="display:flex;flex-direction:column;gap:28px"></div>
+
+  <section class="panel" aria-labelledby="types-h">
+    <h2 id="types-h">סוגי הנתונים בטבלאות</h2>
+    <div class="types">
+      <div><b>INTEGER / INT</b> <span>מספר שלם</span></div>
+      <div><b>NUMERIC</b> <span>מספר, שלם או עשרוני (מחירים, דמי משלוח)</span></div>
+      <div><b>REAL</b> <span>מספר עשרוני (משמש ל־discount)</span></div>
+      <div><b>TEXT</b> <span>טקסט באורך כלשהו</span></div>
+      <div><b>DATE / DATETIME</b> <span>תאריך, שמור כטקסט בתבנית YYYY-MM-DD</span></div>
+      <div><b>discontinued</b> <span>מספר שלם: 0 = נמכר, 1 = הופסק</span></div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="notes-h">
+    <h2 id="notes-h">כדאי לזכור בזמן הפתרון</h2>
+    <div class="notes">
+      <div><h3>המחיר נמצא ב־products</h3><p>ב־order_details אין מחיר. סכום של שורת הזמנה: <code>p.unit_price * od.quantity * (1 - od.discount)</code>, אחרי <code>JOIN products AS p ON p.product_id = od.product_id</code>.</p></div>
+      <div><h3>ההנחה היא שבר</h3><p><code>discount</code> שמור כמספר בין 0 ל־1. הערך 0.15 פירושו 15%.</p></div>
+      <div><h3>הזמנות שלא נשלחו</h3><p>ב־21 הזמנות <code>shipped_date</code> ריק (NULL). בודקים עם <code>IS NULL</code>, לא עם <code>= NULL</code>.</p></div>
+      <div><h3>טווח התאריכים</h3><p>ההזמנות הן מ־4 ביולי 2016 עד 6 במאי 2018. רק 2017 היא שנה מלאה. השנה: <code>YEAR(order_date)</code>.</p></div>
+      <div><h3>לקוחות בלי הזמנות</h3><p>מתוך 93 לקוחות, 89 ביצעו הזמנות. 4 לא הזמינו אף פעם: FISSA, PARIS ושתי שורות הבדיקה VALON ו־<code>'Val2 '</code>.</p></div>
+      <div><h3>רווח מיותר</h3><p>אצל ספק 9 המדינה נשמרה כ־<code>'Sweden '</code>, עם רווח בסוף. בקיבוץ לפי country היא תופיע כמדינה נפרדת. <code>TRIM(country)</code> מסיר את הרווח.</p></div>
+    </div>
+  </section>
+</div>
+
+<script>
+// key: "pk", or ["fk", "Table.Column"], or ["pkfk", "Table.Column"]
+const T = [
+ {
+  "id": "customers",
+  "name": "customers",
+  "rows": 93,
+  "desc": "הלקוחות של החברה: חנויות ומסעדות ב־21 מדינות. כל שורה היא לקוח אחד. באתר יש גם שתי שורות בדיקה (VALON ו־'Val2 ') כמעט בלי נתונים.",
+  "cols": [
+   [
+    "customer_id",
+    "TEXT",
+    "pk",
+    "קוד הלקוח, 5 אותיות",
+    "ALFKI",
+    1
+   ],
+   [
+    "company_name",
+    "TEXT",
+    "",
+    "שם החברה של הלקוח",
+    "Alfreds Futterkiste",
+    1
+   ],
+   [
+    "contact_name",
+    "TEXT",
+    "",
+    "איש הקשר",
+    "Maria Anders"
+   ],
+   [
+    "contact_title",
+    "TEXT",
+    "",
+    "התפקיד של איש הקשר",
+    "Sales Representative"
+   ],
+   [
+    "address",
+    "TEXT",
+    "",
+    "כתובת",
+    "Obere Str. 57"
+   ],
+   [
+    "city",
+    "TEXT",
+    "",
+    "עיר",
+    "Berlin",
+    1
+   ],
+   [
+    "region",
+    "TEXT",
+    "",
+    "אזור בעולם, למשל Western Europe",
+    "Western Europe",
+    1
+   ],
+   [
+    "postal_code",
+    "TEXT",
+    "",
+    "מיקוד",
+    "12209"
+   ],
+   [
+    "country",
+    "TEXT",
+    "",
+    "מדינה",
+    "Germany",
+    1
+   ],
+   [
+    "phone",
+    "TEXT",
+    "",
+    "טלפון",
+    "030-0074321"
+   ],
+   [
+    "fax",
+    "TEXT",
+    "",
+    "פקס",
+    "030-0076545",
+    1
+   ]
+  ]
+ },
+ {
+  "id": "orders",
+  "name": "orders",
+  "rows": 830,
+  "desc": "ההזמנות. כל שורה היא הזמנה אחת: מי הזמין, מי טיפל, מתי, ואיך נשלחה. המוצרים עצמם נמצאים ב־order_details.",
+  "cols": [
+   [
+    "order_id",
+    "INTEGER",
+    "pk",
+    "מספר ההזמנה",
+    "10250",
+    1
+   ],
+   [
+    "customer_id",
+    "TEXT",
+    [
+     "fk",
+     "customers.customer_id"
+    ],
+    "הלקוח שהזמין",
+    "HANAR",
+    1
+   ],
+   [
+    "employee_id",
+    "INTEGER",
+    [
+     "fk",
+     "employees.employee_id"
+    ],
+    "העובד שטיפל בהזמנה",
+    "4",
+    1
+   ],
+   [
+    "order_date",
+    "DATETIME",
+    "",
+    "תאריך ההזמנה",
+    "2016-07-08",
+    1
+   ],
+   [
+    "required_date",
+    "DATETIME",
+    "",
+    "התאריך שבו הלקוח צריך את ההזמנה",
+    "2016-08-05",
+    1
+   ],
+   [
+    "shipped_date",
+    "DATETIME",
+    "",
+    "תאריך המשלוח. NULL אם עוד לא נשלחה",
+    "2016-07-12",
+    1
+   ],
+   [
+    "ship_via",
+    "INTEGER",
+    [
+     "fk",
+     "shippers.shipper_id"
+    ],
+    "חברת המשלוחים",
+    "2",
+    1
+   ],
+   [
+    "freight",
+    "NUMERIC",
+    "",
+    "דמי המשלוח",
+    "65.83",
+    1
+   ],
+   [
+    "ship_name",
+    "TEXT",
+    "",
+    "שם המקבל",
+    "Hanari Carnes"
+   ],
+   [
+    "ship_address",
+    "TEXT",
+    "",
+    "כתובת המשלוח",
+    "Rua do Paço, 67"
+   ],
+   [
+    "ship_city",
+    "TEXT",
+    "",
+    "עיר היעד",
+    "Rio de Janeiro",
+    1
+   ],
+   [
+    "ship_region",
+    "TEXT",
+    "",
+    "אזור היעד בעולם, למשל South America",
+    "South America"
+   ],
+   [
+    "ship_postal_code",
+    "TEXT",
+    "",
+    "מיקוד היעד",
+    "05454-876"
+   ],
+   [
+    "ship_country",
+    "TEXT",
+    "",
+    "מדינת היעד של המשלוח",
+    "Brazil",
+    1
+   ]
+  ],
+  "tip": "<b>שימו לב:</b> <code>ship_country</code> היא המדינה שאליה נשלחה ההזמנה. המדינה של הלקוח היא <code>customers.country</code>. ב־Northwind הן כמעט תמיד זהות."
+ },
+ {
+  "id": "order_details",
+  "name": "order_details",
+  "rows": 2155,
+  "desc": "שורות ההזמנה. כל שורה היא מוצר אחד בתוך הזמנה אחת, עם הכמות וההנחה. להזמנה אחת יש כמה שורות. המחיר לא שמור כאן, אלא בטבלת products.",
+  "cols": [
+   [
+    "order_id",
+    "INT",
+    [
+     "pkfk",
+     "orders.order_id"
+    ],
+    "ההזמנה",
+    "10250",
+    1
+   ],
+   [
+    "product_id",
+    "INT",
+    [
+     "pkfk",
+     "products.product_id"
+    ],
+    "המוצר",
+    "51",
+    1
+   ],
+   [
+    "quantity",
+    "INT",
+    "",
+    "כמה יחידות הוזמנו",
+    "35",
+    1
+   ],
+   [
+    "discount",
+    "REAL",
+    "",
+    "הנחה כשבר: 0.15 = 15%",
+    "0.15",
+    1
+   ]
+  ],
+  "tip": "<b>מפתח מורכב:</b> המפתח הראשי הוא הצירוף <code>order_id</code> + <code>product_id</code>, כי אותו מוצר מופיע בהזמנה אחת רק פעם אחת. <br><b>סכום שורה:</b> צריך את המחיר מ־products: <code>JOIN products AS p ON p.product_id = od.product_id</code>, ואז <code>p.unit_price * od.quantity * (1 - od.discount)</code>. למשל: 42.40 × 35 × (1 − 0.15) = 1,261.40."
+ },
+ {
+  "id": "products",
+  "name": "products",
+  "rows": 77,
+  "desc": "המוצרים שהחברה מוכרת. כל שורה היא מוצר אחד.",
+  "cols": [
+   [
+    "product_id",
+    "INTEGER",
+    "pk",
+    "מספר המוצר",
+    "1",
+    1
+   ],
+   [
+    "product_name",
+    "TEXT",
+    "",
+    "שם המוצר",
+    "Chai",
+    1
+   ],
+   [
+    "supplier_id",
+    "INTEGER",
+    [
+     "fk",
+     "suppliers.supplier_id"
+    ],
+    "הספק של המוצר",
+    "1",
+    1
+   ],
+   [
+    "category_id",
+    "INTEGER",
+    [
+     "fk",
+     "categories.category_id"
+    ],
+    "הקטגוריה של המוצר",
+    "1",
+    1
+   ],
+   [
+    "quantity_per_unit",
+    "TEXT",
+    "",
+    "גודל האריזה",
+    "10 boxes x 20 bags"
+   ],
+   [
+    "unit_price",
+    "NUMERIC",
+    "",
+    "מחיר המחירון הנוכחי",
+    "18.00",
+    1
+   ],
+   [
+    "units_in_stock",
+    "INTEGER",
+    "",
+    "יחידות במלאי",
+    "39",
+    1
+   ],
+   [
+    "units_on_order",
+    "INTEGER",
+    "",
+    "יחידות שהוזמנו מהספק",
+    "0"
+   ],
+   [
+    "reorder_level",
+    "INTEGER",
+    "",
+    "רמת מלאי שמתחתיה מזמינים שוב",
+    "10"
+   ],
+   [
+    "discontinued",
+    "INTEGER",
+    "",
+    "1 = המוצר הפסיק להימכר",
+    "0",
+    1
+   ]
+  ],
+  "tip": "<b>המחיר:</b> <code>products.unit_price</code> הוא המקום היחיד במסד הנתונים שבו שמור מחיר. כדי לחשב סכום של הזמנה מחברים את order_details ל־products."
+ },
+ {
+  "id": "categories",
+  "name": "categories",
+  "rows": 8,
+  "desc": "קטגוריות המוצרים, למשל Beverages או Seafood.",
+  "cols": [
+   [
+    "category_id",
+    "INTEGER",
+    "pk",
+    "מספר הקטגוריה",
+    "1",
+    1
+   ],
+   [
+    "category_name",
+    "TEXT",
+    "",
+    "שם הקטגוריה",
+    "Beverages",
+    1
+   ],
+   [
+    "description",
+    "TEXT",
+    "",
+    "תיאור",
+    "Soft drinks, coffees, teas, beers, and ales"
+   ]
+  ]
+ },
+ {
+  "id": "employees",
+  "name": "employees",
+  "rows": 9,
+  "desc": "עובדי מחלקת המכירות. כל הזמנה ב־orders שייכת לאחד מהם.",
+  "cols": [
+   [
+    "employee_id",
+    "INTEGER",
+    "pk",
+    "מספר העובד",
+    "4",
+    1
+   ],
+   [
+    "last_name",
+    "TEXT",
+    "",
+    "שם משפחה",
+    "Peacock",
+    1
+   ],
+   [
+    "first_name",
+    "TEXT",
+    "",
+    "שם פרטי",
+    "Margaret",
+    1
+   ],
+   [
+    "title",
+    "TEXT",
+    "",
+    "תפקיד",
+    "Sales Representative",
+    1
+   ],
+   [
+    "title_of_courtesy",
+    "TEXT",
+    "",
+    "תואר פנייה",
+    "Mrs."
+   ],
+   [
+    "birth_date",
+    "DATE",
+    "",
+    "תאריך לידה",
+    "1937-09-19"
+   ],
+   [
+    "hire_date",
+    "DATE",
+    "",
+    "תאריך תחילת העבודה",
+    "1993-05-03",
+    1
+   ],
+   [
+    "address",
+    "TEXT",
+    "",
+    "כתובת",
+    "4110 Old Redmond Rd."
+   ],
+   [
+    "city",
+    "TEXT",
+    "",
+    "עיר",
+    "Redmond",
+    1
+   ],
+   [
+    "region",
+    "TEXT",
+    "",
+    "אזור בעולם",
+    "North America",
+    1
+   ],
+   [
+    "postal_code",
+    "TEXT",
+    "",
+    "מיקוד",
+    "98052"
+   ],
+   [
+    "country",
+    "TEXT",
+    "",
+    "מדינה",
+    "USA",
+    1
+   ],
+   [
+    "home_phone",
+    "TEXT",
+    "",
+    "טלפון בבית",
+    "(206) 555-8122"
+   ],
+   [
+    "extension",
+    "TEXT",
+    "",
+    "שלוחה",
+    "5176"
+   ],
+   [
+    "reports_to",
+    "INTEGER",
+    [
+     "fk",
+     "employees.employee_id"
+    ],
+    "המנהל הישיר. NULL אצל המנהל הבכיר",
+    "2"
+   ]
+  ]
+ },
+ {
+  "id": "shippers",
+  "name": "shippers",
+  "rows": 3,
+  "desc": "חברות המשלוחים: Speedy Express, United Package ו־Federal Shipping.",
+  "cols": [
+   [
+    "shipper_id",
+    "INTEGER",
+    "pk",
+    "מספר החברה (מתאים ל־orders.ship_via)",
+    "1",
+    1
+   ],
+   [
+    "company_name",
+    "TEXT",
+    "",
+    "שם החברה",
+    "Speedy Express",
+    1
+   ],
+   [
+    "phone",
+    "TEXT",
+    "",
+    "טלפון",
+    "(503) 555-9831"
+   ]
+  ]
+ },
+ {
+  "id": "suppliers",
+  "name": "suppliers",
+  "rows": 29,
+  "desc": "הספקים שמהם החברה קונה את המוצרים. כל שורה היא ספק אחד.",
+  "cols": [
+   [
+    "supplier_id",
+    "INTEGER",
+    "pk",
+    "מספר הספק",
+    "1",
+    1
+   ],
+   [
+    "company_name",
+    "TEXT",
+    "",
+    "שם הספק",
+    "Exotic Liquids",
+    1
+   ],
+   [
+    "contact_name",
+    "TEXT",
+    "",
+    "איש הקשר",
+    "Charlotte Cooper"
+   ],
+   [
+    "contact_title",
+    "TEXT",
+    "",
+    "התפקיד של איש הקשר",
+    "Purchasing Manager"
+   ],
+   [
+    "address",
+    "TEXT",
+    "",
+    "כתובת",
+    "49 Gilbert St."
+   ],
+   [
+    "city",
+    "TEXT",
+    "",
+    "עיר",
+    "London",
+    1
+   ],
+   [
+    "region",
+    "TEXT",
+    "",
+    "אזור בעולם",
+    "British Isles",
+    1
+   ],
+   [
+    "postal_code",
+    "TEXT",
+    "",
+    "מיקוד",
+    "EC1 4SD"
+   ],
+   [
+    "country",
+    "TEXT",
+    "",
+    "מדינה. שימו לב: אצל ספק 9 נשמר 'Sweden ' עם רווח בסוף",
+    "UK",
+    1
+   ],
+   [
+    "phone",
+    "TEXT",
+    "",
+    "טלפון",
+    "(171) 555-2222"
+   ],
+   [
+    "fax",
+    "TEXT",
+    "",
+    "פקס",
+    "NULL",
+    1
+   ],
+   [
+    "home_page",
+    "TEXT",
+    "",
+    "אתר אינטרנט",
+    "NULL",
+    1
+   ]
+  ]
+ }
+];
+
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function keyCell(k) {
+  if (k === "pk") return `<span class="pk">PK</span>`;
+  if (Array.isArray(k)) {
+    const tag = k[0] === "pkfk" ? `<span class="pk">PK</span> <span class="fk">FK</span>` : `<span class="fk">FK</span>`;
+    return `${tag}<span class="fk-to">→ ${esc(k[1])}</span>`;
+  }
+  return "";
+}
+document.getElementById("tables").innerHTML = T.map(t => `
+  <section class="panel tcard" id="t-${t.id}" aria-label="${esc(t.name)}">
+    <div class="thead"><span class="tname">${esc(t.name)}</span><span class="tcount">${t.rows.toLocaleString("en-US")} שורות · ${t.cols.length} שדות</span></div>
+    <p class="tdesc">${esc(t.desc)}</p>
+    <div class="scroll">
+      <table class="cols">
+        <tr><th>שדה</th><th>סוג</th><th>מפתח</th><th>תיאור</th><th class="ex">דוגמה</th></tr>
+        ${t.cols.map(c => `<tr class="${c[5] ? "used" : "unused"}">
+          <td class="f">${esc(c[0])}</td><td class="t">${esc(c[1])}</td><td class="k">${keyCell(c[2])}</td>
+          <td>${esc(c[3])}</td><td class="ex">${esc(c[4])}</td></tr>`).join("")}
+      </table>
+    </div>
+    ${t.tip ? `<div class="tip">${t.tip}</div>` : ""}
+  </section>`).join("");
+
+const cb = document.getElementById("onlyUsed");
+try { cb.checked = localStorage.getItem("nw-only-used") === "1"; } catch (e) {}
+const apply = () => { document.body.classList.toggle("only-used", cb.checked); try { localStorage.setItem("nw-only-used", cb.checked ? "1" : "0"); } catch (e) {} };
+cb.addEventListener("change", apply); apply();
+</script>
+</body>
+</html>

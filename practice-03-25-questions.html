@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>25 שאלות תרגול SQL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a question sheet. One block per question: number, question, then the structure of each table it uses. */
+:root {
+  --bg: #EEF1F5;
+  --sheet: #FCFCFD;
+  --ink: #172033;
+  --muted: #556074;
+  --line: #D6DBE3;
+  --head: #E4E9F1;
+  --accent: #2457C5;
+  --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --font-body: "Assistant", "Arial Hebrew", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --head: #1F2836; --accent: #84A9FF; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --head: #1F2836; --accent: #84A9FF; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.5; }
+.wrap {
+  max-width: 1100px; margin: 0 auto;
+  padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.sheet { background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; padding: clamp(18px, 3vw, 40px); display: flex; flex-direction: column; gap: 22px; }
+header { display: flex; flex-direction: column; gap: 6px; border-bottom: 3px double var(--line); padding-bottom: 14px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 3.6vw, 40px); line-height: 1.15; margin: 0; }
+.sub { margin: 0; color: var(--muted); }
+.sub code { font-family: var(--font-mono); font-size: .85em; direction: ltr; unicode-bidi: isolate; }
+h2.stage { font-family: var(--font-display); font-weight: 500; font-size: 22px; margin: 10px 0 0; display: flex; gap: 12px; align-items: baseline; }
+h2.stage span { font-size: 14px; font-weight: 700; color: var(--accent); letter-spacing: .04em; }
+.q { border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; break-inside: avoid; }
+.qhead { display: flex; gap: 14px; align-items: baseline; }
+.qn { font-family: var(--font-display); font-weight: 700; font-size: 26px; color: var(--accent); min-width: 32px; font-variant-numeric: tabular-nums; }
+.qt { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: clamp(19px, 2vw, 22px); line-height: 1.4; text-wrap: balance; }
+.tables { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+.tcard { border: 1px solid var(--line); border-radius: 6px; overflow: hidden; min-width: 0; max-width: 100%; direction: ltr; }
+.tname { background: var(--head); font-family: var(--font-mono); font-weight: 600; font-size: 15px; color: var(--accent); padding: 6px 10px; border-bottom: 1px solid var(--line); }
+.flist { display: grid; grid-auto-flow: column; column-gap: 22px; padding: 6px 10px; overflow-x: auto; }
+.fld { display: flex; justify-content: space-between; gap: 14px; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; white-space: nowrap; }
+.fld b { font-weight: 600; }
+.fld i { font-style: normal; color: var(--muted); }
+.ref { font-size: 13.5px; color: var(--muted); }
+.join { display: flex; flex-direction: column; gap: 6px; }
+.jl { font-size: 14px; font-weight: 700; color: var(--accent); letter-spacing: .03em; }
+.join pre { margin: 0; direction: ltr; text-align: left; background: var(--head); border-radius: 6px; padding: 10px 14px; font-family: var(--font-mono); font-size: 14px; line-height: 1.6; overflow-x: auto; }
+.join .k { color: var(--accent); font-weight: 600; }
+.note { margin: 0; background: var(--head); border-radius: 6px; padding: 10px 14px; }
+@media (max-width: 700px) { .flist { grid-auto-flow: row; grid-template-rows: none !important; } }
+@media print { body { background: none; } .sheet { border: 0; } }
+</style>
+<style>
+/* Back link to the page's topic in index.html */
+.site-back{color:var(--accent);font-family:var(--font-body,"Assistant","Arial Hebrew",Arial,sans-serif);font-weight:600;font-size:15px;text-decoration:none;width:fit-content;white-space:nowrap}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.wrap > .site-back{display:block;margin-bottom:12px}
+@media print{.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="wrap" dir="rtl">
+  <a class="site-back" href="index.html#practice">→ חזרה לנושא: תרגול</a>
+<div class="sheet">
+  <header>
+    <h1>25 שאלות תרגול SQL</h1>
+    <p class="sub">Northwind ב־sql-practice.com (northwind.db) · כתבו שאילתה לכל שאלה והריצו אותה באתר. מתחת לכל שאלה מופיע המבנה של הטבלאות שצריך בשבילה.</p>
+    <p class="sub">תזכורת: המחיר נמצא בטבלת products. שורת הזמנה מכניסה <code>p.unit_price * od.quantity * (1 - od.discount)</code>. התחביר הוא SQLite: <code>LIMIT</code> במקום TOP, ו־<code>||</code> לחיבור טקסטים.</p>
+  </header>
+<h2 class="stage"><span>שלב א</span>פונקציות צבירה</h2>
+<article class="q">
+  <div class="qhead"><span class="qn">1</span><p class="qt">כמה לקוחות נמצאים בגרמניה?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">customers</div><div class="flist" style="grid-template-rows: repeat(6, auto)"><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>company_name</b><i>TEXT</i></div><div class="fld"><b>contact_name</b><i>TEXT</i></div><div class="fld"><b>contact_title</b><i>TEXT</i></div><div class="fld"><b>address</b><i>TEXT</i></div><div class="fld"><b>city</b><i>TEXT</i></div><div class="fld"><b>region</b><i>TEXT</i></div><div class="fld"><b>postal_code</b><i>TEXT</i></div><div class="fld"><b>country</b><i>TEXT</i></div><div class="fld"><b>phone</b><i>TEXT</i></div><div class="fld"><b>fax</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 4 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">2</span><p class="qt">מה דמי המשלוח הנמוכים ביותר, הגבוהים ביותר והממוצעים?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 7 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">3</span><p class="qt">כמה דמי משלוח שולמו בסך הכול על הזמנות שנשלחו לגרמניה?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 11 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">4</span><p class="qt">מכמה ערים שונות מגיעים הלקוחות?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">customers</div><div class="flist" style="grid-template-rows: repeat(6, auto)"><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>company_name</b><i>TEXT</i></div><div class="fld"><b>contact_name</b><i>TEXT</i></div><div class="fld"><b>contact_title</b><i>TEXT</i></div><div class="fld"><b>address</b><i>TEXT</i></div><div class="fld"><b>city</b><i>TEXT</i></div><div class="fld"><b>region</b><i>TEXT</i></div><div class="fld"><b>postal_code</b><i>TEXT</i></div><div class="fld"><b>country</b><i>TEXT</i></div><div class="fld"><b>phone</b><i>TEXT</i></div><div class="fld"><b>fax</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 13 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">5</span><p class="qt">לכמה לקוחות אין ערך בשדה region?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">customers</div><div class="flist" style="grid-template-rows: repeat(6, auto)"><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>company_name</b><i>TEXT</i></div><div class="fld"><b>contact_name</b><i>TEXT</i></div><div class="fld"><b>contact_title</b><i>TEXT</i></div><div class="fld"><b>address</b><i>TEXT</i></div><div class="fld"><b>city</b><i>TEXT</i></div><div class="fld"><b>region</b><i>TEXT</i></div><div class="fld"><b>postal_code</b><i>TEXT</i></div><div class="fld"><b>country</b><i>TEXT</i></div><div class="fld"><b>phone</b><i>TEXT</i></div><div class="fld"><b>fax</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 16 בסדרת 90 השאלות</div>
+</article>
+<h2 class="stage"><span>שלב ב</span>קיבוץ עם GROUP BY</h2>
+<article class="q">
+  <div class="qhead"><span class="qn">6</span><p class="qt">כמה הזמנות נשלחו לכל מדינה? מיינו מהמדינה עם הכי הרבה הזמנות.</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 19 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">7</span><p class="qt">עם כמה לקוחות שונים עבד כל עובד?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 27 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">8</span><p class="qt">כמה הזמנות היו בכל חודש של שנת 2017?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 31 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">9</span><p class="qt">אילו 5 לקוחות ביצעו הכי הרבה הזמנות?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 34 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">10</span><p class="qt">כמה הזמנות טיפל כל עובד בכל שנה?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 37 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">11</span><p class="qt">אילו 5 מוצרים הכניסו הכי הרבה כסף?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">order_details</div><div class="flist" style="grid-template-rows: repeat(4, auto)"><div class="fld"><b>order_id</b><i>INT</i></div><div class="fld"><b>product_id</b><i>INT</i></div><div class="fld"><b>quantity</b><i>INT</i></div><div class="fld"><b>discount</b><i>REAL</i></div></div></div><div class="tcard"><div class="tname">products</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>product_id</b><i>INTEGER</i></div><div class="fld"><b>product_name</b><i>TEXT</i></div><div class="fld"><b>supplier_id</b><i>INTEGER</i></div><div class="fld"><b>category_id</b><i>INTEGER</i></div><div class="fld"><b>quantity_per_unit</b><i>TEXT</i></div><div class="fld"><b>unit_price</b><i>NUMERIC</i></div><div class="fld"><b>units_in_stock</b><i>INTEGER</i></div><div class="fld"><b>units_on_order</b><i>INTEGER</i></div><div class="fld"><b>reorder_level</b><i>INTEGER</i></div><div class="fld"><b>discontinued</b><i>INTEGER</i></div></div></div></div>
+  <div class="ref">שאלה 41 בסדרת 90 השאלות</div>
+</article>
+<h2 class="stage"><span>שלב ג</span>סינון קבוצות עם HAVING</h2>
+<article class="q">
+  <div class="qhead"><span class="qn">12</span><p class="qt">לאילו מדינות נשלחו יותר מ־50 הזמנות?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 43 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">13</span><p class="qt">לאילו מדינות דמי המשלוח הממוצעים גבוהים מ־100?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 47 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">14</span><p class="qt">אילו הזמנות כוללות יותר מ־250 יחידות?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">order_details</div><div class="flist" style="grid-template-rows: repeat(4, auto)"><div class="fld"><b>order_id</b><i>INT</i></div><div class="fld"><b>product_id</b><i>INT</i></div><div class="fld"><b>quantity</b><i>INT</i></div><div class="fld"><b>discount</b><i>REAL</i></div></div></div></div>
+  <div class="ref">שאלה 53 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">15</span><p class="qt">אילו לקוחות ביצעו פחות מ־3 הזמנות?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 55 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">16</span><p class="qt">ב־2018, אילו לקוחות ביצעו יותר מ־5 הזמנות?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 58 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">17</span><p class="qt">אילו עובדים טיפלו ביותר מ־100 הזמנות, וגם דמי המשלוח הממוצעים בהזמנות שלהם גבוהים מ־80?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 61 בסדרת 90 השאלות</div>
+</article>
+<h2 class="stage"><span>שלב ד</span>קיבוץ על כמה טבלאות (JOIN)</h2>
+<article class="q">
+  <div class="qhead"><span class="qn">18</span><p class="qt">כמה מוצרים מספק כל ספק? הציגו את שם הספק.</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">products</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>product_id</b><i>INTEGER</i></div><div class="fld"><b>product_name</b><i>TEXT</i></div><div class="fld"><b>supplier_id</b><i>INTEGER</i></div><div class="fld"><b>category_id</b><i>INTEGER</i></div><div class="fld"><b>quantity_per_unit</b><i>TEXT</i></div><div class="fld"><b>unit_price</b><i>NUMERIC</i></div><div class="fld"><b>units_in_stock</b><i>INTEGER</i></div><div class="fld"><b>units_on_order</b><i>INTEGER</i></div><div class="fld"><b>reorder_level</b><i>INTEGER</i></div><div class="fld"><b>discontinued</b><i>INTEGER</i></div></div></div><div class="tcard"><div class="tname">suppliers</div><div class="flist" style="grid-template-rows: repeat(6, auto)"><div class="fld"><b>supplier_id</b><i>INTEGER</i></div><div class="fld"><b>company_name</b><i>TEXT</i></div><div class="fld"><b>contact_name</b><i>TEXT</i></div><div class="fld"><b>contact_title</b><i>TEXT</i></div><div class="fld"><b>address</b><i>TEXT</i></div><div class="fld"><b>city</b><i>TEXT</i></div><div class="fld"><b>region</b><i>TEXT</i></div><div class="fld"><b>postal_code</b><i>TEXT</i></div><div class="fld"><b>country</b><i>TEXT</i></div><div class="fld"><b>phone</b><i>TEXT</i></div><div class="fld"><b>fax</b><i>TEXT</i></div><div class="fld"><b>home_page</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 67 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">19</span><p class="qt">אילו לקוחות (לפי שם) ביצעו יותר מ־20 הזמנות?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">customers</div><div class="flist" style="grid-template-rows: repeat(6, auto)"><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>company_name</b><i>TEXT</i></div><div class="fld"><b>contact_name</b><i>TEXT</i></div><div class="fld"><b>contact_title</b><i>TEXT</i></div><div class="fld"><b>address</b><i>TEXT</i></div><div class="fld"><b>city</b><i>TEXT</i></div><div class="fld"><b>region</b><i>TEXT</i></div><div class="fld"><b>postal_code</b><i>TEXT</i></div><div class="fld"><b>country</b><i>TEXT</i></div><div class="fld"><b>phone</b><i>TEXT</i></div><div class="fld"><b>fax</b><i>TEXT</i></div></div></div><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 71 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">20</span><p class="qt">לכל עובד (שם מלא): כמה ימים עברו בממוצע מההזמנה ועד המשלוח?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">employees</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>last_name</b><i>TEXT</i></div><div class="fld"><b>first_name</b><i>TEXT</i></div><div class="fld"><b>title</b><i>TEXT</i></div><div class="fld"><b>title_of_courtesy</b><i>TEXT</i></div><div class="fld"><b>birth_date</b><i>DATE</i></div><div class="fld"><b>hire_date</b><i>DATE</i></div><div class="fld"><b>address</b><i>TEXT</i></div><div class="fld"><b>city</b><i>TEXT</i></div><div class="fld"><b>region</b><i>TEXT</i></div><div class="fld"><b>postal_code</b><i>TEXT</i></div><div class="fld"><b>country</b><i>TEXT</i></div><div class="fld"><b>home_phone</b><i>TEXT</i></div><div class="fld"><b>extension</b><i>TEXT</i></div><div class="fld"><b>reports_to</b><i>INTEGER</i></div></div></div><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 73 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">21</span><p class="qt">אילו עובדים (שם מלא) הכניסו יותר מ־150,000?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">employees</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>last_name</b><i>TEXT</i></div><div class="fld"><b>first_name</b><i>TEXT</i></div><div class="fld"><b>title</b><i>TEXT</i></div><div class="fld"><b>title_of_courtesy</b><i>TEXT</i></div><div class="fld"><b>birth_date</b><i>DATE</i></div><div class="fld"><b>hire_date</b><i>DATE</i></div><div class="fld"><b>address</b><i>TEXT</i></div><div class="fld"><b>city</b><i>TEXT</i></div><div class="fld"><b>region</b><i>TEXT</i></div><div class="fld"><b>postal_code</b><i>TEXT</i></div><div class="fld"><b>country</b><i>TEXT</i></div><div class="fld"><b>home_phone</b><i>TEXT</i></div><div class="fld"><b>extension</b><i>TEXT</i></div><div class="fld"><b>reports_to</b><i>INTEGER</i></div></div></div><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div><div class="tcard"><div class="tname">order_details</div><div class="flist" style="grid-template-rows: repeat(4, auto)"><div class="fld"><b>order_id</b><i>INT</i></div><div class="fld"><b>product_id</b><i>INT</i></div><div class="fld"><b>quantity</b><i>INT</i></div><div class="fld"><b>discount</b><i>REAL</i></div></div></div><div class="tcard"><div class="tname">products</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>product_id</b><i>INTEGER</i></div><div class="fld"><b>product_name</b><i>TEXT</i></div><div class="fld"><b>supplier_id</b><i>INTEGER</i></div><div class="fld"><b>category_id</b><i>INTEGER</i></div><div class="fld"><b>quantity_per_unit</b><i>TEXT</i></div><div class="fld"><b>unit_price</b><i>NUMERIC</i></div><div class="fld"><b>units_in_stock</b><i>INTEGER</i></div><div class="fld"><b>units_on_order</b><i>INTEGER</i></div><div class="fld"><b>reorder_level</b><i>INTEGER</i></div><div class="fld"><b>discontinued</b><i>INTEGER</i></div></div></div></div>
+  <div class="ref">שאלה 77 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">22</span><p class="qt">אילו עובדים (שם מלא) שלחו הזמנות ל־20 מדינות שונות או יותר?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">employees</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>last_name</b><i>TEXT</i></div><div class="fld"><b>first_name</b><i>TEXT</i></div><div class="fld"><b>title</b><i>TEXT</i></div><div class="fld"><b>title_of_courtesy</b><i>TEXT</i></div><div class="fld"><b>birth_date</b><i>DATE</i></div><div class="fld"><b>hire_date</b><i>DATE</i></div><div class="fld"><b>address</b><i>TEXT</i></div><div class="fld"><b>city</b><i>TEXT</i></div><div class="fld"><b>region</b><i>TEXT</i></div><div class="fld"><b>postal_code</b><i>TEXT</i></div><div class="fld"><b>country</b><i>TEXT</i></div><div class="fld"><b>home_phone</b><i>TEXT</i></div><div class="fld"><b>extension</b><i>TEXT</i></div><div class="fld"><b>reports_to</b><i>INTEGER</i></div></div></div><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 82 בסדרת 90 השאלות</div>
+</article>
+<h2 class="stage"><span>שלב ה</span>אתגר</h2>
+<article class="q">
+  <div class="qhead"><span class="qn">23</span><p class="qt">אילו ספקים (לפי שם) מספקים מוצרים מיותר מקטגוריה אחת?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">suppliers</div><div class="flist" style="grid-template-rows: repeat(6, auto)"><div class="fld"><b>supplier_id</b><i>INTEGER</i></div><div class="fld"><b>company_name</b><i>TEXT</i></div><div class="fld"><b>contact_name</b><i>TEXT</i></div><div class="fld"><b>contact_title</b><i>TEXT</i></div><div class="fld"><b>address</b><i>TEXT</i></div><div class="fld"><b>city</b><i>TEXT</i></div><div class="fld"><b>region</b><i>TEXT</i></div><div class="fld"><b>postal_code</b><i>TEXT</i></div><div class="fld"><b>country</b><i>TEXT</i></div><div class="fld"><b>phone</b><i>TEXT</i></div><div class="fld"><b>fax</b><i>TEXT</i></div><div class="fld"><b>home_page</b><i>TEXT</i></div></div></div><div class="tcard"><div class="tname">products</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>product_id</b><i>INTEGER</i></div><div class="fld"><b>product_name</b><i>TEXT</i></div><div class="fld"><b>supplier_id</b><i>INTEGER</i></div><div class="fld"><b>category_id</b><i>INTEGER</i></div><div class="fld"><b>quantity_per_unit</b><i>TEXT</i></div><div class="fld"><b>unit_price</b><i>NUMERIC</i></div><div class="fld"><b>units_in_stock</b><i>INTEGER</i></div><div class="fld"><b>units_on_order</b><i>INTEGER</i></div><div class="fld"><b>reorder_level</b><i>INTEGER</i></div><div class="fld"><b>discontinued</b><i>INTEGER</i></div></div></div></div>
+  <div class="ref">שאלה 85 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">24</span><p class="qt">אילו לקוחות (לפי שם) השתמשו תמיד באותה חברת משלוחים?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">customers</div><div class="flist" style="grid-template-rows: repeat(6, auto)"><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>company_name</b><i>TEXT</i></div><div class="fld"><b>contact_name</b><i>TEXT</i></div><div class="fld"><b>contact_title</b><i>TEXT</i></div><div class="fld"><b>address</b><i>TEXT</i></div><div class="fld"><b>city</b><i>TEXT</i></div><div class="fld"><b>region</b><i>TEXT</i></div><div class="fld"><b>postal_code</b><i>TEXT</i></div><div class="fld"><b>country</b><i>TEXT</i></div><div class="fld"><b>phone</b><i>TEXT</i></div><div class="fld"><b>fax</b><i>TEXT</i></div></div></div><div class="tcard"><div class="tname">orders</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>order_id</b><i>INTEGER</i></div><div class="fld"><b>customer_id</b><i>TEXT</i></div><div class="fld"><b>employee_id</b><i>INTEGER</i></div><div class="fld"><b>order_date</b><i>DATETIME</i></div><div class="fld"><b>required_date</b><i>DATETIME</i></div><div class="fld"><b>shipped_date</b><i>DATETIME</i></div><div class="fld"><b>ship_via</b><i>INTEGER</i></div><div class="fld"><b>freight</b><i>NUMERIC</i></div><div class="fld"><b>ship_name</b><i>TEXT</i></div><div class="fld"><b>ship_address</b><i>TEXT</i></div><div class="fld"><b>ship_city</b><i>TEXT</i></div><div class="fld"><b>ship_region</b><i>TEXT</i></div><div class="fld"><b>ship_postal_code</b><i>TEXT</i></div><div class="fld"><b>ship_country</b><i>TEXT</i></div></div></div></div>
+  <div class="ref">שאלה 88 בסדרת 90 השאלות</div>
+</article>
+<article class="q">
+  <div class="qhead"><span class="qn">25</span><p class="qt">באילו קטגוריות (לפי שם) ההפרש בין המוצר היקר לזול גדול מ־50?</p></div>
+  <div class="tables"><div class="tcard"><div class="tname">categories</div><div class="flist" style="grid-template-rows: repeat(3, auto)"><div class="fld"><b>category_id</b><i>INTEGER</i></div><div class="fld"><b>category_name</b><i>TEXT</i></div><div class="fld"><b>description</b><i>TEXT</i></div></div></div><div class="tcard"><div class="tname">products</div><div class="flist" style="grid-template-rows: repeat(5, auto)"><div class="fld"><b>product_id</b><i>INTEGER</i></div><div class="fld"><b>product_name</b><i>TEXT</i></div><div class="fld"><b>supplier_id</b><i>INTEGER</i></div><div class="fld"><b>category_id</b><i>INTEGER</i></div><div class="fld"><b>quantity_per_unit</b><i>TEXT</i></div><div class="fld"><b>unit_price</b><i>NUMERIC</i></div><div class="fld"><b>units_in_stock</b><i>INTEGER</i></div><div class="fld"><b>units_on_order</b><i>INTEGER</i></div><div class="fld"><b>reorder_level</b><i>INTEGER</i></div><div class="fld"><b>discontinued</b><i>INTEGER</i></div></div></div></div>
+  <div class="ref">שאלה 89 בסדרת 90 השאלות</div>
+</article>
+</div>
+</div>
+</body>
+</html>

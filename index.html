@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>לומדים SQL · Northwind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: library index on a light grid ground; home = one card per topic, topic view = one row per document */
+:root{
+  --bg:#eef1f5; --paper:#fcfcfd; --ink:#172033; --muted:#556074; --line:#d6dbe3;
+  --accent:#2457c5; --accent-soft:#e4e9f1; --mark:#a34e16; --grid:rgba(36,87,197,.06); --hl:#ffe9a8;
+  --f-display:"Rubik", "Arial Hebrew", Arial, sans-serif;
+  --f-body:"Assistant", "Arial Hebrew", Arial, sans-serif;
+  --f-mono:"JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e131b; --paper:#161d29; --ink:#e7ebf2; --muted:#9aa5b8; --line:#2b3546;
+  --accent:#84a9ff; --accent-soft:#1f2836; --mark:#f0a46f; --grid:rgba(132,169,255,.05); --hl:#5a4a1c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e131b; --paper:#161d29; --ink:#e7ebf2; --muted:#9aa5b8; --line:#2b3546;
+  --accent:#84a9ff; --accent-soft:#1f2836; --mark:#f0a46f; --grid:rgba(132,169,255,.05); --hl:#5a4a1c; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.7;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px}
+.wrap{max-width:900px;margin:0 auto;padding-block:40px 104px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
+  display:flex;flex-direction:column;gap:32px}
+h1,h2{font-family:var(--f-display);text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:2.6rem}
+h2{font-size:1.6rem;color:var(--accent)}
+p{margin:0}
+code,.c{font-family:var(--f-mono);direction:ltr;unicode-bidi:isolate;font-size:.88em}
+header{display:flex;flex-direction:column;gap:12px}
+.eyebrow{font-size:.8rem;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.lead{max-width:66ch;font-size:1.08rem}
+.about{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:22px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:20px}
+.about div{display:flex;flex-direction:column;gap:6px;min-width:0}
+.about h3{margin:0;font-size:1rem;color:var(--mark)}
+.about p{color:var(--muted);font-size:.97rem}
+.about a{color:var(--accent);font-weight:700}
+section.topic{display:flex;flex-direction:column;gap:14px}
+ul.docs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+ul.docs li a{display:grid;grid-template-columns:3.2rem 1fr auto;gap:4px 16px;align-items:start;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 18px;color:inherit;text-decoration:none;transition:border-color .15s}
+ul.docs li a:hover,ul.docs li a:focus-visible{border-color:var(--accent);outline:none}
+ul.docs li a:focus-visible{box-shadow:0 0 0 3px var(--accent-soft)}
+.no{font-family:var(--f-mono);color:var(--accent);font-size:1.3rem;font-weight:600;grid-row:span 2;line-height:1.4}
+.t{font-family:var(--f-display);font-weight:700;font-size:1.18rem;min-width:0}
+.d{grid-column:2 / 4;color:var(--muted);font-size:.96rem;min-width:0}
+.q{font-size:.82rem;font-weight:700;color:var(--mark);background:var(--accent-soft);border-radius:99px;padding:2px 10px;white-space:nowrap;align-self:center}
+@media (max-width:520px){h1{font-size:2rem} ul.docs li a{grid-template-columns:2.4rem 1fr} .q{grid-column:2;justify-self:start} .d{grid-column:2}}
+footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* Home page cards and topic navigation */
+ul.topics{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:14px}
+ul.topics li{display:flex;min-width:0}
+ul.topics a{display:flex;flex-direction:column;gap:8px;width:100%;background:var(--paper);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:10px;padding:16px 18px;color:inherit;text-decoration:none;transition:border-color .15s}
+ul.topics a:hover,ul.topics a:focus-visible{border-color:var(--accent);outline:none}
+ul.topics a:focus-visible{box-shadow:0 0 0 3px var(--accent-soft)}
+ul.topics .tt{font-family:var(--f-display);font-weight:700;font-size:1.3rem;line-height:1.25}
+ul.topics .tc{font-size:.82rem;font-weight:700;color:var(--mark)}
+ul.topics .td{color:var(--muted);font-size:.95rem}
+ul.topics .go{margin-top:auto;color:var(--accent);font-weight:700;font-size:.92rem}
+.back{color:var(--accent);font-weight:600;text-decoration:none;font-size:.95rem;width:fit-content}
+.back:hover,.back:focus-visible{text-decoration:underline}
+.count{font-size:.95rem;font-weight:700;color:var(--mark)}
+nav.topicnav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+nav.topicnav a{color:var(--accent);font-weight:700;text-decoration:none;border:1px solid var(--line);background:var(--paper);border-radius:99px;padding:6px 14px}
+nav.topicnav a:hover,nav.topicnav a:focus-visible{border-color:var(--accent);outline:none}
+/* Search */
+mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 1px}
+.search{position:sticky;top:0;z-index:5;background:var(--bg);padding-block:10px;margin-block:-10px}
+.search label{display:flex;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:99px;padding:6px 8px 6px 16px}
+.search label:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.search .ico{color:var(--muted);font-size:1.1rem;padding-inline-start:4px}
+.search input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:1rem;outline:none;padding:4px 0}
+.search input::-webkit-search-cancel-button{display:none}
+.search button{border:0;background:var(--accent-soft);color:var(--accent);font:inherit;font-weight:700;font-size:.85rem;border-radius:99px;padding:4px 12px;cursor:pointer}
+.search button[hidden]{display:none}
+#view{display:flex;flex-direction:column;gap:32px}
+.group{display:flex;flex-direction:column;gap:10px}
+.group h2{font-size:1.25rem;display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--accent);padding-bottom:6px}
+.group h2 a{font-family:var(--f-body);font-size:.9rem;font-weight:700;color:var(--accent);text-decoration:none}
+.group h2 a:hover,.group h2 a:focus-visible{text-decoration:underline}
+.note{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 18px;color:var(--muted);font-size:.97rem}
+.hwtag{font-size:.75rem;font-weight:700;color:var(--paper);background:var(--mark);border-radius:99px;padding:1px 8px;margin-inline-start:8px;vertical-align:middle;font-family:var(--f-body)}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="wrap">
+<div class="search" role="search">
+  <label><span class="ico" aria-hidden="true">⌕</span>
+  <input id="q" type="search" placeholder="חיפוש בכל הדפים, למשל: HAVING, טבלאות, צבירה" aria-label="חיפוש בכותרות ובתיאורים של כל הדפים" autocomplete="off">
+  <button id="clear" type="button" hidden>ניקוי</button></label>
+</div>
+
+<main id="view" aria-live="polite"></main>
+
+<footer>האתר נבנה בהדרגה, ודפים חדשים יתווספו לרשימות. כל השאילתות נבדקו מול מסד הנתונים northwind.db באתר sql-practice.com. אם האתר ישנה את הנתונים, ייתכן שחלק מהתוצאות יהיו שונות.</footer>
+</div>
+
+<script>
+/* ================================================================
+   DATA: every topic and document of the site, in the order of study.
+   The full rules are in README.md, section "Building and updating index.html". In short:
+   - Edit only this data to add, change or remove a document; the code below builds every view.
+   - New page:     one line in its topic's items { no, href, t, q, d }, and update the topic's count.
+   - New homework: the same, plus  homework:true  (shows the "עבודת בית" tag), in the topic "assignments" (עבודות בית).
+   - New topic:    a block { id, title, count, desc, lead, items } in the order of study.
+                   Never change an id once published; "q" is reserved.
+   - Strings: double quotes, a comma after every entry, Hebrew ׳ and ״ instead of plain quotes.
+     SQL words inside a description may be wrapped in <code>…</code>.
+   - Pages link back with  href="index.html#<topic-id>".
+   - After every change: open the page; a blank page means a missing comma or quote here.
+   ================================================================ */
+const TOPICS = [
+{ id:"database", title:"מסד הנתונים Northwind", count:"2 דפי עזר · 11 טבלאות",
+  desc:"הטבלאות של Northwind באתר sql-practice.com: רשימה קצרה של שדות וסוגים, ודף מפורט עם הקשרים בין הטבלאות.",
+  lead:"Northwind הוא מסד הנתונים של חברה קטנה שמוכרת מזון: לקוחות, הזמנות, מוצרים, ספקים ועובדים. כאן נמצא המבנה שלו כפי שהוא באתר sql-practice.com. כדאי לפתוח את אחד הדפים לצד כל דף תרגול.",
+  items:[
+    { no:"01", href:"database-01-tables.html", t:"טבלאות Northwind בקצרה", q:"11 טבלאות",
+      d:"דף אחד עם כל 11 הטבלאות של northwind.db. לכל טבלה רק שמות השדות והסוג של כל שדה, בלי הסברים. נוח להדפסה ולפתיחה לצד התרגול." },
+    { no:"02", href:"database-02-schema.html", t:"מבנה הטבלאות של Northwind", q:"דף עזר",
+      d:"מפת הקשרים בין הטבלאות, ולכל טבלה: הסבר, מפתח ראשי ומפתחות זרים, תיאור של כל שדה וערך לדוגמה. כולל הערות על הנתונים: המחיר נמצא ב־products, ההנחה היא שבר, הזמנות שלא נשלחו וטווח התאריכים." },
+  ]},
+{ id:"formulas", title:"דף נוסחאות SQL", count:"דף עזר · 14 נושאים",
+  desc:"מבנה משפט SELECT, סדר הביצוע והפונקציות העיקריות, כמו דף נוסחאות במתמטיקה.",
+  lead:"כל התחביר שצריך לתרגול בדף אחד: מבנה המשפט, סדר הביצוע, תנאים, צבירה, קיבוץ, JOIN ופונקציות של מספרים, טקסט ותאריכים. התחביר הוא של SQLite, כמו באתר sql-practice.com.",
+  items:[
+    { no:"01", href:"formulas-01-sql-sheet.html", t:"דף נוסחאות SQL", q:"דף עזר",
+      d:"מבנה משפט <code>SELECT</code> וסדר הביצוע, <code>WHERE</code>, פונקציות צבירה, <code>GROUP BY</code> ו־<code>HAVING</code>, <code>JOIN</code>, פונקציות מספר, טקסט ותאריך, <code>CASE</code>, תת־שאילתות, טבלת הבדלים בין SQLite ל־SQL Server וטעויות נפוצות." },
+  ]},
+{ id:"practice", title:"תרגול", count:"2 דפים · 120 שאלות",
+  desc:"שאלות מדורגות מפונקציות צבירה, דרך GROUP BY ו־HAVING, ועד קיבוץ על כמה טבלאות.",
+  lead:"השאלות מדורגות מהפשוט למסובך: פונקציות צבירה, קיבוץ עם GROUP BY, סינון קבוצות עם HAVING, קיבוץ על כמה טבלאות עם JOIN ושאלות אתגר. כתבו כל שאילתה בעצמכם והריצו אותה באתר sql-practice.com, ורק אז עברו לדף התשובה.",
+  items:[
+    { no:"01", href:"practice-01-30-questions.html", t:"30 שאלות SQL", q:"30 שאלות",
+      d:"שאלה ותשובה בשני דפים: דף השאלה, ואחריו דף עם השאילתה, התוצאה מהאתר והסבר מפורט. אפשר להציג כמצגת בכיתה או כמסמך אחד. חמישה שלבים: צבירה, GROUP BY, HAVING, JOIN ואתגר." },
+    { no:"02", href:"practice-02-90-questions.html", t:"90 שאלות תרגול SQL", q:"90 שאלות",
+      d:"שלוש שאלות מקבילות לכל אחת מ־30 השאלות, באותה רמת קושי ובאותו מבנה של שאלה ותשובה עם הסבר. בלי תת־שאילתות. מתאים לתרגול נוסף ולחזרה לפני מבחן." },
+  ]},
+{ id:"assignments", title:"עבודות בית", count:"עבודה אחת · 25 שאלות",
+  desc:"עבודות להגשה, בלי פתרונות. כרגע: 25 שאלות חדשות, מקבילות לשאלות התרגול.",
+  lead:"כל עבודות הבית וההגשה של האתר. העבודות מתפרסמות בלי פתרונות. שיעורי הבית מקבילים לשאלות התרגול: אותם נושאים ואותה רמת קושי, עם שאלות חדשות. כתבו את השאילתה המלאה לכל שאלה ובדקו אותה באתר לפני ההגשה.",
+  items:[
+    { no:"01", href:"assignments-01-homework.html", t:"שיעורי בית SQL", q:"25 שאלות", homework:true,
+      d:"25 שאלות להגשה, בלי תשובות, עם המבנה של הטבלאות שצריך מתחת לכל שאלה. כתבו את השאילתה המלאה לכל שאלה והריצו אותה באתר. מותאם להדפסה." },
+  ]},
+];
+
+/* ---------- views ---------- */
+const SITE = 'לומדים SQL';
+const view = document.getElementById('view');
+const qInput = document.getElementById('q');
+const clearBtn = document.getElementById('clear');
+const byId = Object.fromEntries(TOPICS.map(t => [t.id, t]));
+const CHAIN = TOPICS.map(t => t.id);   // order of the cards and of the previous/next links
+
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const titleOf = id => byId[id].title;
+
+/* ---------- search: ignore niqqud, geresh/gershayim/quotes, maqaf and case ---------- */
+function norm(s){
+  let out = '', map = [];
+  for (let i = 0; i < s.length; i++){
+    let c = s[i];
+    if (c === '־' || c === '-' || c === '_') c = ' ';
+    else if (/[֑-ׇ'"׳״`‘’“”]/.test(c)) continue;
+    out += c.toLowerCase(); map.push(i);
+  }
+  return { out, map };
+}
+const terms = q => norm(q).out.split(/\s+/).filter(Boolean);
+const plain = html => html.replace(/<[^>]+>/g, '');
+function matches(item, topic, ts){
+  const hay = norm(item.t + ' ' + plain(item.d) + ' ' + topic.title + (item.homework ? ' שיעורי בית עבודת בית' : '')).out;
+  return ts.every(t => hay.includes(t));
+}
+// highlight the terms in a plain-text string (returns escaped HTML)
+function hl(text, ts){
+  if (!ts.length) return esc(text);
+  const { out, map } = norm(text), r = [];
+  for (const t of ts){ let p = out.indexOf(t); while (p !== -1){ r.push([map[p], map[p + t.length - 1] + 1]); p = out.indexOf(t, p + 1); } }
+  if (!r.length) return esc(text);
+  r.sort((a, b) => a[0] - b[0]);
+  const m = [r[0]]; for (const x of r.slice(1)){ const l = m[m.length - 1]; if (x[0] <= l[1]) l[1] = Math.max(l[1], x[1]); else m.push(x); }
+  let html = '', at = 0;
+  for (const [a, b] of m){ html += esc(text.slice(at, a)) + '<mark>' + esc(text.slice(a, b)) + '</mark>'; at = b; }
+  return html + esc(text.slice(at));
+}
+// description: highlight the text and the text inside <code>, keep the tags
+const hlDesc = (d, ts) => d.split(/(<\/?code>)/).map((p, k) => k % 2 ? p : hl(p, ts)).join('');
+
+/* ---------- rendering ---------- */
+function itemHTML(i, ts = []){
+  const ext = /\.pdf$/i.test(i.href) ? ' target="_blank" rel="noopener"' : '';
+  const tag = i.homework ? '<span class="hwtag">עבודת בית</span>' : '';
+  return `<li><a href="${esc(i.href)}"${ext}><span class="no">${i.no}</span><span class="t">${hl(i.t, ts)}${tag}</span><span class="q">${esc(i.q)}</span><span class="d">${hlDesc(i.d, ts)}</span></a></li>`;
+}
+const header = (title, lead, count) => `<header>
+  <span class="eyebrow">אתר לימוד · SQL · מסד הנתונים Northwind · sql-practice.com</span>
+  <h1>${title}</h1>${lead ? `\n  <p class="lead">${lead}</p>` : ''}${count ? `\n  <span class="count">${count}</span>` : ''}
+</header>`;
+function topicNav(id){
+  const k = CHAIN.indexOf(id), p = CHAIN[k - 1], n = CHAIN[k + 1];
+  return `<nav class="topicnav" aria-label="נושאים סמוכים">${p ? `<a href="#${p}" rel="prev">→ ${titleOf(p)}</a>` : '<span></span>'}${n ? `<a href="#${n}" rel="next">${titleOf(n)} ←</a>` : ''}</nav>`;
+}
+const card = t => `<li><a href="#${t.id}"><span class="tt">${t.title}</span><span class="tc">${t.count}</span><span class="td">${t.desc}</span><span class="go">לדפי הנושא ←</span></a></li>`;
+
+function renderHome(){
+  return header('לומדים SQL', 'אוסף דפי לימוד ותרגול בשפת SQL על מסד הנתונים Northwind. כל השאלות נכתבו לאתר sql-practice.com, שבו מריצים את השאילתות בדפדפן, וכל התשובות נבדקו מול הנתונים שבאתר.', '') + `
+<div class="about">
+  <div><h3>איפה מריצים</h3><p>באתר <a href="https://www.sql-practice.com/" target="_blank" rel="noopener">sql-practice.com</a>. בתיבת הבחירה בשורה העליונה בוחרים את <span class="c">northwind.db</span>.</p></div>
+  <div><h3>התחביר</h3><p>האתר עובד עם SQLite. משתמשים ב־<span class="c">LIMIT</span> במקום TOP וב־<span class="c">||</span> לחיבור טקסטים. הפרטים בדף הנוסחאות.</p></div>
+  <div><h3>שמות הטבלאות</h3><p>כל השמות באותיות קטנות עם קו תחתון בין מילים, למשל <span class="c">order_details</span> ו־<span class="c">unit_price</span>.</p></div>
+  <div><h3>איך לתרגל</h3><p>כתבו את השאילתה והריצו אותה לפני שעוברים לדף התשובה. השוו את התוצאה שקיבלתם לתוצאה שבדף.</p></div>
+  <div><h3>חיפוש</h3><p>בשורת החיפוש למעלה אפשר לחפש מילה בכותרות ובתיאורים של כל הדפים.</p></div>
+</div>
+<nav aria-label="נושאים"><ul class="topics">
+${CHAIN.map(id => card(byId[id])).join('\n')}
+</ul></nav>`;
+}
+function renderTopic(t){
+  return `<a class="back" href="#">→ לכל הנושאים</a>
+${header(t.title, t.lead, t.count)}
+<section class="topic" id="list-${t.id}"><ul class="docs">
+${t.items.map(i => itemHTML(i)).join('\n')}
+</ul></section>
+${topicNav(t.id)}`;
+}
+function renderSearch(q){
+  const ts = terms(q);
+  let total = 0;
+  const groups = TOPICS.map(t => {
+    const hits = t.items.filter(i => matches(i, t, ts));
+    total += hits.length;
+    return hits.length ? `<section class="group">
+  <h2>${t.title} <a href="#${t.id}">לדף הנושא ←</a></h2>
+  <ul class="docs">
+${hits.map(i => itemHTML(i, ts)).join('\n')}
+  </ul>
+</section>` : '';
+  }).join('\n');
+  const summary = total ? `נמצאו ${total} דפים עבור "${esc(q.trim())}"` : `לא נמצאו דפים עבור "${esc(q.trim())}". נסו מילה אחרת או חלק ממילה.`;
+  return `<a class="back" href="#">→ לכל הנושאים</a>
+${header('תוצאות חיפוש', '', '')}
+<p class="note" role="status">${summary}</p>
+${groups}`;
+}
+
+/* ---------- routing by the URL hash ---------- */
+function route(){
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (h.startsWith('q=')) return { kind: 'search', q: h.slice(2) };
+  if (byId[h]) return { kind: 'topic', id: h };
+  return { kind: 'home' };
+}
+let lastNonSearch = '';
+function render(scroll){
+  const r = route();
+  if (r.kind === 'search' && !r.q.trim()){ history.replaceState(null, '', lastNonSearch || location.pathname); return render(scroll); }
+  if (r.kind !== 'search'){ lastNonSearch = location.hash || ''; if (document.activeElement !== qInput) qInput.value = ''; }
+  else if (qInput.value !== r.q) qInput.value = r.q;
+  clearBtn.hidden = !qInput.value;
+  view.innerHTML = r.kind === 'search' ? renderSearch(r.q) : r.kind === 'topic' ? renderTopic(byId[r.id]) : renderHome();
+  document.title = r.kind === 'home' ? 'לומדים SQL · Northwind' : r.kind === 'search' ? `חיפוש: ${r.q.trim()} · ${SITE}` : `${titleOf(r.id)} · ${SITE}`;
+  if (scroll) window.scrollTo(0, 0);
+}
+qInput.addEventListener('input', () => {
+  const v = qInput.value;
+  const inSearch = route().kind === 'search';
+  if (v.trim()){
+    const url = '#q=' + encodeURIComponent(v);
+    inSearch ? history.replaceState(null, '', url) : history.pushState(null, '', url);
+  } else {
+    history.replaceState(null, '', lastNonSearch || location.pathname);
+  }
+  render(false);
+});
+qInput.addEventListener('keydown', e => { if (e.key === 'Escape'){ qInput.value = ''; qInput.dispatchEvent(new Event('input')); } });
+clearBtn.addEventListener('click', () => { qInput.value = ''; qInput.dispatchEvent(new Event('input')); qInput.focus(); });
+window.addEventListener('hashchange', () => render(true));
+window.addEventListener('popstate', () => render(true));
+render(false);
+</script>
+</body>
+</html>
