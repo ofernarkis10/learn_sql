@@ -32,7 +32,7 @@ The pages are in Hebrew (right-to-left); SQL code is left-to-right. Every query 
 | | `database-02-schema.html` | Detailed reference: relationship map, keys, a description and an example value for every field, notes on the data |
 | SQL formula sheet | `formulas-01-sql-sheet.html` | Statement structure, order of execution, functions, JOIN, CASE, subqueries, SQLite vs SQL Server, common mistakes |
 | Lessons (מצגות לשיעור) | `lessons-01-join-groupby.html` | Animated presentation: how the engine runs one query on `orders` and `customers` step by step (nested-loop `JOIN`, `INNER` vs `LEFT JOIN`, `GROUP BY`, `HAVING`, `SELECT`, `ORDER BY`), with review questions |
-| | `lessons-02-groupby-steps.html` | Animated presentation of `GROUP BY` without `JOIN`: customers by city (`COUNT(*)`) and orders by shipper (`COUNT(*)`, `SUM(freight)`), with review questions |
+| | `lessons-02-groupby-steps.html` | Animated presentation of `GROUP BY` without `JOIN`: customers by city (`COUNT(*)`), orders by shipper (`COUNT(*)`, `SUM(freight)`), the same query filtered with `HAVING` (groups) and with `WHERE` (rows), a `WHERE` vs `HAVING` comparison and review questions |
 | Practice | `practice-01-30-questions.html` | 30 graded questions, each on two pages (question; query, result and detailed explanation). Slides or document view |
 | | `practice-02-90-questions.html` | 90 questions parallel to the 30 (three per question), same format, no subqueries |
 | | `practice-03-25-questions.html` | 25 of the 90 questions, questions only, with the structure of the tables each one needs. Print-ready. **Hidden:** not listed in `index.html`; open it by its file name |
