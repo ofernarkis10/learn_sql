@@ -18,7 +18,8 @@ The pages are in Hebrew (right-to-left); SQL code is left-to-right. Every query 
 ## Working with sql-practice.com
 
 - In the combobox in the top row of the site, choose **northwind.db**.
-- The site runs **SQLite**. Use `LIMIT` instead of `TOP`, `||` to join text, `julianday(b) - julianday(a)` for the days between dates, `SUBSTR`, `IFNULL` and `date('now')`. The site adds `YEAR()`, `MONTH()`, `DAY()`, `LEN()` and `CONCAT()`.
+- The site runs **SQLite**. Use `LIMIT` instead of `TOP`, `||` to join text, `julianday(b) - julianday(a)` for the days between dates, `SUBSTR`, `IFNULL` and `date('now')`. The site adds `YEAR()`, `MONTH()`, `DAY()`, `LEN()` and `CONCAT()`, and statistical functions: `MEDIAN`, `MODE` (NULL on a tie), `STDEV` and `VARIANCE` (sample, n − 1), `LOWER_QUARTILE`, `UPPER_QUARTILE`, `SQRT`, `LOG` (natural log), `EXP`, `POWER`.
+- The site shows only the result of the first statement in the editor; run each step of a two-step question on its own.
 - Table and field names are lowercase with an underscore between words: `order_details`, `unit_price`.
 - `order_details` has no price. The price of a line is `p.unit_price * od.quantity * (1 - od.discount)`, after `JOIN products AS p ON p.product_id = od.product_id`.
 - The dates on the site are 20 years later than in the classic Northwind: the orders run from 2016-07-04 to 2018-05-06.
@@ -33,6 +34,7 @@ The pages are in Hebrew (right-to-left); SQL code is left-to-right. Every query 
 | Practice | `practice-01-30-questions.html` | 30 graded questions, each on two pages (question; query, result and detailed explanation). Slides or document view |
 | | `practice-02-90-questions.html` | 90 questions parallel to the 30 (three per question), same format, no subqueries |
 | | `practice-03-25-questions.html` | 25 of the 90 questions, questions only, with the structure of the tables each one needs. Print-ready. **Hidden:** not listed in `index.html`; open it by its file name |
+| Statistics in SQL | `statistics-01-measures-regression.html` | 20 questions with full solutions: measures of center and spread, how close a distribution is to normal (Pearson skewness, the 68–95–99.7 rule), linear regression (slope, intercept, r). Uses the site's `MEDIAN`, `MODE`, `STDEV`, `VARIANCE`, `LOWER_QUARTILE`, `UPPER_QUARTILE` |
 | Homework (עבודות בית) | `assignments-01-homework.html` | 25 new questions to hand in, parallel to the practice sheet, questions only. Print-ready |
 
 All the question sets are graded in the same five stages: aggregate functions, `GROUP BY`, `HAVING`, grouping over several tables (`JOIN`), and a challenge.
@@ -59,7 +61,7 @@ All the question sets are graded in the same five stages: aggregate functions, `
 | `lead` | Text under the title of the topic view | May be longer than `desc` |
 | `items` | The topic's documents | See below |
 
-Current topic ids: `database`, `formulas`, `practice`, `assignments`.
+Current topic ids: `database`, `formulas`, `practice`, `statistics`, `assignments`.
 
 ### The data: documents
 
@@ -86,6 +88,7 @@ learn_sql/
 ├── database-NN-<name>.html          Northwind database reference (01 short tables, 02 detailed schema)
 ├── formulas-NN-<name>.html          SQL formula sheet
 ├── practice-NN-<name>.html          practice question sets (01 thirty, 02 ninety, 03 twenty-five)
+├── statistics-NN-<name>.html         statistics in SQL (01 measures, normality and regression)
 ├── assignments-NN-<name>.html       homework (01 questions)
 ├── font-size.js                     text-size control shown on every page
 ├── README.md
