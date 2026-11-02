@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JOIN בין מוצרים לקטגוריות – Northwind</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#1d2433;--mute:#6b7385;--line:#e2e5ee;--acc:#3b5bdb;--ok:#2f9e44;--bad:#e03131;--warn:#f08c00}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Rubik","Heebo",Arial,sans-serif}
+#deck{height:100%;overflow:hidden;position:relative}
+.slide{position:absolute;inset:0 0 58px 0;overflow-y:auto;padding:22px clamp(12px,3vw,40px) 30px;opacity:0;pointer-events:none;transform:translateX(-30px);transition:.35s}
+.slide.on{opacity:1;pointer-events:auto;transform:none}
+h1{font-size:clamp(26px,4.5vw,44px);margin:.2em 0 .3em}
+h2{font-size:clamp(20px,3vw,30px);margin:0 0 .5em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+h2 .tag{font-size:.55em;background:var(--acc);color:#fff;border-radius:20px;padding:3px 12px;font-weight:600}
+p{line-height:1.6;margin:.4em 0}
+.sub{color:var(--mute);font-size:clamp(15px,2vw,19px)}
+.big{font-size:clamp(16px,2.2vw,20px)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 2px 8px #1d243310}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.row>*{flex:1 1 280px;min-width:0}
+.cap{font-weight:700;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cap small{font-weight:400;color:var(--mute)}
+code{direction:ltr;unicode-bidi:embed;background:#eef1f8;border-radius:5px;padding:0 5px;font-family:Consolas,monospace;font-size:.92em}
+
+pre.sql{direction:ltr;text-align:left;background:#1e2230;color:#e6e8ef;border-radius:12px;padding:12px 14px;margin:0;font:15px/1.7 Consolas,"Courier New",monospace;overflow-x:auto}
+pre.sql .ln{display:block;border-radius:6px;padding:0 6px;transition:.3s}
+pre.sql.live .ln{opacity:.35}
+pre.sql.live .ln.hl{opacity:1;background:#3b5bdb55;box-shadow:inset 3px 0 0 #74c0fc}
+.kw{color:#74c0fc;font-weight:700}.fn{color:#ffd43b}.st{color:#b2f2bb}.num{color:#ffa8a8}
+
+/* stage chips */
+.stages{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.stages span{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;font-size:14px;color:var(--mute);transition:.3s}
+.stages span.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
+.stages span.done{background:#e7f0ff;color:var(--acc);border-color:#c5d4fb}
+
+/* tables */
+table.t{direction:ltr;border-collapse:separate;border-spacing:0;width:100%;font-size:14px;background:#fff;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+table.t th{background:#eef1f8;text-align:left;padding:6px 8px;font-size:12.5px;color:#3d4557;white-space:nowrap}
+table.t td{padding:4px 8px;border-top:1px solid var(--line);white-space:nowrap;transition:background .3s,opacity .3s}
+table.t td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+table.t tr{transition:transform .6s ease}
+.chip{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+tr.cur td{background:#fff3bf}
+tr.cur td:first-child{box-shadow:inset 4px 0 0 var(--warn)}
+tr.moved td{opacity:.28}
+td.city{font-weight:700}
+tr.new td{animation:pop .7s}
+@keyframes pop{0%{background:#ffec99}100%{}}
+.empty{color:var(--mute);font-style:italic;text-align:center;padding:14px}
+
+/* buckets */
+.buckets{display:flex;flex-wrap:wrap;gap:10px;direction:ltr}
+.bucket{flex:1 1 150px;border:2px solid var(--c);border-radius:12px;background:#fff;overflow:hidden;animation:bin .45s}
+@keyframes bin{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
+.bucket h4{margin:0;padding:6px 10px;background:var(--c);color:#fff;font-size:14px;display:flex;justify-content:space-between}
+.bucket ul{list-style:none;margin:0;padding:5px 10px;font-size:13px;line-height:1.85}
+.bucket li{display:flex;justify-content:space-between;gap:6px;white-space:nowrap;overflow:hidden}
+.bucket li span{overflow:hidden;text-overflow:ellipsis}
+.bucket li .cnum{flex:none;width:20px;height:20px;border-radius:50%;background:var(--c);color:#fff;font:700 12px/20px Arial;text-align:center;margin-top:3px;opacity:0;animation:cnt .3s forwards}
+@keyframes cnt{from{opacity:0;transform:scale(2)}to{opacity:1;transform:none}}
+.bucket .agg{border-top:2px dashed var(--c);padding:6px 10px;font:700 15px/1.5 Consolas,monospace;color:var(--c);opacity:0;animation:cnt .4s forwards}
+.bucket.done ul{opacity:.4}
+.ghost{position:fixed;z-index:50;pointer-events:none;background:#fff;border:2px solid var(--c);border-radius:8px;box-shadow:0 8px 24px #1d243340;
+  font-size:13px;padding:3px 8px;white-space:nowrap;overflow:hidden;direction:ltr}
+
+.say{min-height:3.4em;background:#fff;border:1px solid var(--line);border-right:5px solid var(--acc);border-radius:10px;padding:10px 14px;margin:10px 0;font-size:clamp(15px,2vw,18px);line-height:1.6}
+.say b.ok{color:var(--ok)}
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.ctrl button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer}
+.ctrl button:hover{border-color:var(--acc)}
+.ctrl button.pri{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:700}
+.prog{flex:1 1 90px;height:6px;background:#e2e5ee;border-radius:3px;overflow:hidden;min-width:60px}
+.prog i{display:block;height:100%;background:var(--acc);width:0;transition:.3s}
+.stepn{color:var(--mute);font-size:13px;direction:ltr}
+.counter{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--mute);margin-top:4px}
+.counter b{color:var(--ink);font-size:17px}
+.note{background:#fff9db;border:1px solid #ffe066;border-radius:10px;padding:10px 14px;margin-top:12px;line-height:1.6}
+details{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0}
+summary{cursor:pointer;font-weight:700;line-height:1.6}
+details p{margin:.5em 0 0}
+.ltr{direction:ltr;text-align:left;font-family:Consolas,monospace}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.flow div{background:#fff;border:1px solid var(--acc);border-radius:10px;padding:10px;line-height:1.5}
+.flow b{display:block;color:var(--acc)}
+
+nav{position:fixed;bottom:0;left:0;right:0;height:58px;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:14px;padding:0 10px;z-index:5}
+nav button{border:none;background:#eef1f8;border-radius:10px;padding:10px 16px;font:inherit;font-size:15px;cursor:pointer}
+nav button:hover{background:#dbe4ff}
+#count{color:var(--mute);min-width:150px;text-align:center;font-size:14px;white-space:nowrap}
+@media (max-width:600px){table.t{font-size:12.5px}table.t td,table.t th{padding:3px 5px}pre.sql{font-size:12.5px}#count{min-width:0;flex:1}}
+.site-back{color:var(--acc);font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap;margin-inline-end:auto}
+.site-back:hover{text-decoration:underline}
+#fs-slot{margin-inline-start:auto}
+@media (max-width:600px){.site-back{display:none}}
+.parts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}
+.part{background:#fff;border:1px solid var(--line);border-right:4px solid var(--acc);border-radius:10px;padding:8px 12px;cursor:pointer;transition:.2s;line-height:1.55;font-size:15px}
+.part.on{border-color:var(--acc);box-shadow:0 0 0 3px #3b5bdb22;background:#f3f6ff}
+.part code,ol.plan code,.an-note code{direction:ltr;unicode-bidi:embed;background:#eef1f8;border-radius:5px;padding:0 5px;font-family:Consolas,monospace;font-size:.92em}
+.part>code{display:block;width:fit-content;max-width:100%;margin-bottom:4px;font-weight:700;white-space:pre-wrap;text-align:left}
+pre.an-sql .ln{opacity:1}
+pre.an-sql .ln.hl{background:#3b5bdb55;box-shadow:inset 3px 0 0 #74c0fc}
+ol.plan{counter-reset:pl;list-style:none;padding:0;margin:6px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+ol.plan li{counter-increment:pl;background:#fff;border:1px solid var(--line);border-radius:10px;padding:32px 12px 10px;line-height:1.5;position:relative;font-size:15px}
+ol.plan li::before{content:counter(pl);position:absolute;top:7px;right:10px;width:22px;height:22px;border-radius:50%;background:var(--acc);color:#fff;font:700 12px/22px Arial;text-align:center}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<style>
+.bucket li .v{border-radius:4px;padding:0 4px;transition:.3s;font-family:Consolas,monospace}
+.bucket li .v.hl{animation:vhl .35s forwards}
+@keyframes vhl{to{background:var(--c);color:#fff}}
+.bucket h4 small{font-weight:400;opacity:.85}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:13px;color:var(--mute)}
+.legend span{background:#fff;border:1px solid var(--line);border-radius:8px;padding:2px 8px}
+</style>
+<style>
+.say b.bad{color:var(--bad)}
+.bucket li .v{flex:none}
+#jProd td,#jCat td,#jOut td{padding:2px 8px;font-size:13.5px}
+#jProd th,#jCat th{padding:4px 8px}
+.pk{color:var(--warn);font-size:11px;margin-left:3px}
+.bucket .hv{padding:5px 10px}
+tr.match td{background:#d3f9d8 !important}
+tr.miss td{background:#ffe3e3 !important;color:#a33}
+tr.outer td{background:#e7f0ff}
+tr.outer td:first-child{box-shadow:inset 4px 0 0 var(--acc)}
+tr.done td{opacity:.45}
+th.hc{background:#dbe4ff !important;color:#1c3d8f}
+th.hp{background:#d3f9d8 !important;color:#1f6b2c}
+td.cc{background:#f3f6ff}
+td.pc{background:#f2fbf3}
+td.more,th.more{color:var(--mute);font-style:italic}
+.wide{overflow-x:auto}
+.hits{display:inline-block;min-width:22px;border-radius:11px;background:var(--acc);color:#fff;font:700 11px/18px Arial;text-align:center;margin-left:6px;padding:0 5px}
+pre.pseudo{direction:ltr;text-align:left;background:#fff;border:1px dashed #b8c0d6;border-radius:10px;padding:8px 10px;margin:0;font:13px/1.6 Consolas,monospace}
+pre.pseudo span{display:block;border-radius:5px;padding:0 4px;transition:.25s}
+pre.pseudo span.hl{background:#fff3bf}
+pre.pseudo span.ok{background:#d3f9d8}
+ul.pts{line-height:1.9;padding-inline-start:22px;font-size:clamp(15px,2vw,18px)}
+.chain{display:flex;flex-wrap:wrap;gap:8px;align-items:center;direction:ltr;margin:8px 0}
+.chain .tb{background:#fff;border:2px solid var(--acc);border-radius:10px;padding:8px 12px;font:13px/1.5 Consolas,monospace}
+.chain .tb b{display:block;font-size:14px;color:var(--acc)}
+.chain .ar{font:12px/1.3 Consolas,monospace;color:var(--mute);text-align:center}
+.info{display:flex;gap:12px;flex-wrap:wrap}
+.info .card{flex:1 1 220px}
+.info .big2{font-size:30px;font-weight:800;color:var(--acc)}
+tr.cut td{background:#ffe3e3;color:#a33;text-decoration:line-through;opacity:.7}
+tr.cutline td{border-top:3px dashed var(--bad) !important}
+tr.gold td{background:#fff3bf}
+tr.star td{background:#e7f5ff}
+td.rk{font-weight:800;color:var(--acc);text-align:center}
+td.newc{animation:pop .9s;font-weight:700}
+.more-row td{color:var(--mute);font-style:italic;text-align:center}
+.legend2{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;margin:6px 0}
+.legend2 span{border-radius:6px;padding:2px 8px}
+</style>
+<div id="deck">
+
+<section class="slide" data-title="פתיחה">
+  <p class="sub">מגמת מידע ונתונים · SQL על Northwind</p>
+  <h1>JOIN בין מוצרים לקטגוריות<br>ואחריו GROUP BY</h1>
+  <p class="big">לכל מוצר בטבלה <code>products</code> יש <code>category_id</code>, אבל שם הקטגוריה שמור בטבלה אחרת: <code>categories</code>. נראה איך מנוע ה-SQL מחבר את שתי הטבלאות לטבלת פלט אחת, ואחר כך איך מקבצים אותה לפי שם הקטגוריה.</p>
+  <div class="row" style="margin-top:12px">
+    <div class="card"><div class="cap">חלק 1: JOIN</div><pre class="sql" id="sqlJ0"></pre></div>
+    <div class="card"><div class="cap">חלק 2: GROUP BY לפי שם קטגוריה</div><pre class="sql" id="sqlG0"></pre></div>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <div class="card"><div class="cap">חלק 3: חמשת המוצרים שנמכרו הכי הרבה</div><pre class="sql" id="sqlT0"></pre></div>
+    <div class="card"><div class="cap">חלק 4: הכנסה, כמות ומחיר ממוצע לפי מדינה</div><pre class="sql" id="sqlC0"></pre></div>
+  </div>
+  <p class="sub" style="margin-top:12px">ניווט: <b>הבא / הקודם</b> למטה או החצים במקלדת. בשקופיות המונפשות לוחצים <b>"צעד הבא"</b> או רווח.</p>
+</section>
+
+<section class="slide" data-title="הטבלאות">
+  <h2>שתי הטבלאות <span class="tag">מדגם: 12 המוצרים הראשונים</span></h2>
+  <p>העמודה <code>products.category_id</code> היא <b>מפתח זר</b> (FK). היא מצביעה על המפתח הראשי (PK) <code>categories.category_id</code>. הצבע מראה לאיזו קטגוריה שייך כל מוצר.</p>
+  <div class="row" style="margin-top:12px">
+    <div><div class="cap">categories <small>8 שורות · 3 עמודות</small></div><div class="wide"><table class="t" id="tCat"></table></div></div>
+    <div><div class="cap">products <small>12 מתוך 77 שורות · 10 עמודות</small></div><div class="wide"><table class="t" id="tProd"></table></div></div>
+  </div>
+  <div class="note">בטבלה <code>products</code> יש 10 עמודות. כדי שהטבלאות ייכנסו למסך מוצגות רק 4: <code>product_id</code>, <code>product_name</code>, <code>category_id</code> ו-<code>unit_price</code>. שאר העמודות (supplier_id, quantity_per_unit, units_in_stock ועוד) מסומנות ב-"…".</div>
+</section>
+
+<section class="slide" data-title="חלק 1: ניתוח השאילתה" id="anJ"></section>
+
+<section class="slide" data-title="JOIN – בניית הפלט">
+  <h2>חלק 1: איך נבנית טבלת הפלט של ה-JOIN</h2>
+  <div class="row">
+    <div style="flex:2 1 330px"><div class="ctrl" id="ctlJ"></div><div class="say" id="sayJ"></div></div>
+    <div style="flex:1 1 280px"><pre class="sql live" id="sqlJ"></pre>
+      <pre class="pseudo" id="pseudoJ" style="margin-top:8px"><span>for each row p in products:</span><span>  find c in categories where c.category_id = p.category_id</span><span>  output (c.*, p.*)</span></pre></div>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <div style="flex:1 1 300px"><div class="cap">products <small>הלולאה עוברת על המוצרים</small></div><div class="wide"><table class="t" id="jProd"></table></div></div>
+    <div style="flex:1 1 300px"><div class="cap">categories <small>מחפשים את הקטגוריה המתאימה</small></div><div class="wide"><table class="t" id="jCat"></table></div></div>
+  </div>
+  <div style="margin-top:14px"><div class="cap">טבלת הפלט: <code>categories.*, products.*</code> <small id="jN"></small></div>
+    <div class="legend2"><span style="background:#dbe4ff">עמודות מ-categories</span><span style="background:#d3f9d8">עמודות מ-products</span></div>
+    <div class="wide"><table class="t" id="jOut"></table></div></div>
+</section>
+
+<section class="slide" data-title="מה קיבלנו?">
+  <h2>מה יש בטבלת הפלט?</h2>
+  <ul class="pts">
+    <li>כל שורה בפלט היא <b>שורה מ-products</b> ולידה <b>השורה המתאימה מ-categories</b>.</li>
+    <li>יש בפלט <b>12 שורות</b>, כמו מספר המוצרים, כי כל מוצר שייך לקטגוריה אחת בדיוק.</li>
+    <li>העמודות של <code>categories</code> מופיעות ראשונות, כי כך כתבנו ב-<code>SELECT categories.*, products.*</code>. <b>סדר העמודות נקבע ב-SELECT</b>, לא ב-FROM.</li>
+    <li>העמודה <code>category_id</code> מופיעה <b>פעמיים</b>, פעם מכל טבלה. בכל שורה שני הערכים שווים, כי זה בדיוק תנאי ה-<code>ON</code>.</li>
+    <li>קטגוריה עם כמה מוצרים <b>חוזרת</b> כמה פעמים. Condiments מופיעה 5 פעמים, וגם התיאור שלה משוכפל 5 פעמים.</li>
+    <li>Confections ו-Grains/Cereals <b>לא מופיעות</b>: אין להן מוצרים בין 12 המוצרים במדגם, ו-INNER JOIN משאיר רק שורות שנמצאה להן התאמה. בטבלה המלאה לכל 8 הקטגוריות יש מוצרים.</li>
+  </ul>
+  <div class="note">בפועל כמעט אף פעם לא צריך את כל העמודות. בוחרים רק את מה שצריך, למשל <code>categories.category_name</code> ו-<code>products.unit_price</code>. עם העמודות האלה נמשיך עכשיו ל-GROUP BY: <b>כמה מוצרים יש בכל קטגוריה, ומה המחיר הממוצע שלהם?</b></div>
+</section>
+
+<section class="slide" data-title="חלק 2: ניתוח השאילתה" id="anG"></section>
+
+<section class="slide demo" data-title="GROUP BY לפי שם קטגוריה" id="demoG"></section>
+
+<section class="slide" data-title="חלק 3: ניתוח השאילתה" id="anT"></section>
+
+<section class="slide" data-title="חמשת המוצרים הנמכרים">
+  <h2>חלק 3: חמשת המוצרים שנמכרו הכי הרבה <span class="tag">GROUP BY · ORDER BY · LIMIT</span></h2>
+  <div class="row">
+    <div style="flex:2 1 330px"><div class="ctrl" id="ctlT"></div><div class="say" id="sayT"></div></div>
+    <div style="flex:1 1 300px"><pre class="sql live" id="sqlT"></pre></div>
+  </div>
+  <div id="tView" style="margin-top:10px"></div>
+</section>
+
+<section class="slide" data-title="חלק 4: ניתוח השאילתה" id="anC"></section>
+
+<section class="slide" data-title="הכנסה לפי מדינה">
+  <h2>חלק 4: איזו מדינה הביאה הכי הרבה הכנסה? <span class="tag">JOIN של 4 טבלאות</span></h2>
+  <div class="row">
+    <div style="flex:2 1 330px"><div class="ctrl" id="ctlC"></div><div class="say" id="sayC"></div></div>
+    <div style="flex:1 1 300px"><pre class="sql live" id="sqlC"></pre></div>
+  </div>
+  <div id="cView" style="margin-top:10px"></div>
+</section>
+
+<section class="slide" data-title="סיכום ושאלות">
+  <h2>סיכום</h2>
+  <div class="flow">
+    <div><b>1. JOIN</b>12 מוצרים + 8 קטגוריות ← 12 שורות בפלט</div>
+    <div><b>2. GROUP BY</b>12 שורות ← 6 קבוצות לפי category_name</div>
+    <div><b>3. COUNT, AVG</b>מספר מוצרים ומחיר ממוצע בכל קבוצה</div>
+    <div><b>4. ORDER BY</b>Condiments ראשונה עם 5 מוצרים</div>
+    <div><b>5. LIMIT 5</b>2,155 שורות הזמנה ← 77 מוצרים ← 5 הנמכרים ביותר</div>
+    <div><b>6. JOIN של 4 טבלאות</b>21 מדינות לפי הכנסה (מחיר × כמות), עם כמות ומחיר ממוצע</div>
+  </div>
+  <h2 style="margin-top:20px">שאלות לבדיקה</h2>
+  <details><summary>1. כמה שורות יהיו בפלט של ה-JOIN אם נריץ אותו על כל 77 המוצרים?</summary><p>77 שורות. כל מוצר שייך לקטגוריה אחת בדיוק, ולכן כל שורה ב-products מייצרת שורה אחת בפלט.</p></details>
+  <details><summary>2. מה ישתנה אם נכתוב <code>SELECT products.*, categories.*</code>?</summary><p>רק סדר העמודות: קודם העמודות של products ואחריהן העמודות של categories. השורות עצמן יהיו אותן שורות.</p></details>
+  <details><summary>3. איך מציגים גם קטגוריות שאין להן מוצרים, עם 0 מוצרים?</summary><p class="ltr">SELECT categories.category_name, COUNT(products.product_id) AS product_count<br>FROM categories<br>LEFT JOIN products ON products.category_id = categories.category_id<br>GROUP BY categories.category_name;</p><p>חשוב לכתוב <code>COUNT(products.product_id)</code> ולא <code>COUNT(*)</code>. בקטגוריה בלי מוצרים יש שורה אחת עם NULL, ו-<code>COUNT(*)</code> היה סופר אותה כ-1.</p></details>
+  <details><summary>4. כתבו שאילתה שמציגה רק קטגוריות שהמחיר הממוצע בהן גבוה מ-25.</summary><p class="ltr">SELECT categories.category_name, ROUND(AVG(products.unit_price), 2) AS avg_price<br>FROM products<br>JOIN categories ON products.category_id = categories.category_id<br>GROUP BY categories.category_name<br>HAVING AVG(products.unit_price) &gt; 25;</p><p>במדגם: Dairy Products 29.50, Meat/Poultry 97.00, Produce 30.00, Seafood 31.00.</p></details>
+  <details><summary>5. מה הבעיה ב-<code>SELECT categories.category_name, products.product_name, COUNT(*) … GROUP BY categories.category_name</code>?</summary><p>בכל קבוצה יש כמה מוצרים, ולכן ל-<code>product_name</code> אין ערך אחד. ברוב המנועים זו שגיאה. SQLite (כמו באתר sql-practice) לא מתריע, ומציג שם של מוצר אחד מהקבוצה, בלי שאפשר לדעת איזה. זו בדיוק הסיבה לא לכתוב כך.</p></details>
+  <details><summary>6. איך מקבלים את 5 המוצרים שנמכרו <b>הכי מעט</b>?</summary><p>מחליפים את כיוון המיון ל-<code>ORDER BY total_quantity ASC</code> (או בלי ASC, כי זו ברירת המחדל) ומשאירים <code>LIMIT 5</code>.</p></details>
+  <details><summary>7. מה יקרה אם נכתוב LIMIT 5 בלי ORDER BY?</summary><p>נקבל 5 מוצרים כלשהם, לא בהכרח הנמכרים ביותר. LIMIT רק חותך את התוצאה אחרי המיון. בלי מיון אין "ראשונים".</p></details>
+  <details><summary>8. בחלק 4: למה צריך את הטבלה <code>orders</code>, אם לא בוחרים ממנה אף עמודה?</summary><p>ב-<code>order_details</code> אין לקוח. רק ב-<code>orders</code> כתוב מי הזמין (<code>customer_id</code>), ורק ב-<code>customers</code> כתובה המדינה. ‏orders היא ה"גשר" בין שורת ההזמנה ללקוח.</p></details>
+  <details><summary>9. ל-Norway המחיר הממוצע הגבוה ביותר (41.19), אבל היא אחרונה בכמות. איך זה ייתכן?</summary><p>שתי העמודות מודדות דברים שונים. <code>SUM(quantity)</code> סופר כמה יחידות נמכרו, ולנורווגיה היו רק 16 שורות הזמנה. <code>AVG(unit_price)</code> הוא ממוצע מחירי המחירון של המוצרים שהוזמנו, והלקוחות שם הזמינו מוצרים יקרים יחסית.</p></details>
+  <details><summary>10. למה כותבים <code>SUM(p.unit_price * od.quantity)</code> ולא <code>SUM(p.unit_price) * SUM(od.quantity)</code>?</summary><p>צריך להכפיל מחיר בכמות <b>בכל שורה בנפרד</b>, ורק אחר כך לחבר. ‏<code>SUM(p.unit_price) * SUM(od.quantity)</code> מכפיל את סכום כל המחירים בסכום כל הכמויות, ומקבל מספר ענק שאין לו משמעות. למשל בשתי שורות: ‏21 × 12 + 14 × 10 = 392, אבל ‏(21 + 14) × (12 + 10) = 770.</p></details>
+  <details><summary>11. ב-order_details יש גם עמודה <code>discount</code>. איך מחשבים הכנסה אחרי הנחה?</summary><p class="ltr">ROUND(SUM(p.unit_price * od.quantity * (1 - od.discount)), 2) AS revenue</p><p>ההנחה שמורה כשבר: 0.15 פירושו 15%. לכן מכפילים ב-<code>(1 - od.discount)</code>. ההכנסה של כל מדינה תהיה קטנה יותר מאשר בשקופית.</p></details>
+  <details><summary>12. למה ב-JOIN צריך לכתוב <code>products.category_id</code> ולא רק <code>category_id</code>?</summary><p>כי עמודה בשם הזה קיימת בשתי הטבלאות. בלי שם הטבלה המנוע לא יודע לאיזו מהן הכוונה, ומחזיר שגיאה (ambiguous column name).</p></details>
+</section>
+
+</div>
+<nav><a class="site-back" href="index.html#lessons">→ חזרה לנושא: מצגות לשיעור</a><button id="prev">→ הקודם</button><span id="count"></span><button id="next">הבא ←</button><span id="fs-slot"></span></nav>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s);
+const f2=x=>x.toFixed(2);
+const kw=s=>`<span class="kw">${s}</span>`,fn=s=>`<span class="fn">${s}</span>`,nm=s=>`<span class="num">${s}</span>`;
+const cut=(s,n)=>s.length>n?s.slice(0,n-1)+'…':s;
+
+/* ---------- data: sample from Northwind (sql-practice.com) ---------- */
+const cats=[[1,'Beverages','Soft drinks, coffees, teas, beers, and ales'],[2,'Condiments','Sweet and savory sauces, relishes, spreads, and seasonings'],
+ [3,'Confections','Desserts, candies, and sweet breads'],[4,'Dairy Products','Cheeses'],[5,'Grains/Cereals','Breads, crackers, pasta, and cereal'],
+ [6,'Meat/Poultry','Prepared meats'],[7,'Produce','Dried fruit and bean curd'],[8,'Seafood','Seaweed and fish']];
+const prods=[[1,'Chai',1,18],[2,'Chang',1,19],[3,'Aniseed Syrup',2,10],[4,"Chef Anton's Cajun Seasoning",2,22],[5,"Chef Anton's Gumbo Mix",2,21.35],
+ [6,"Grandma's Boysenberry Spread",2,25],[7,"Uncle Bob's Organic Dried Pears",7,30],[8,'Northwoods Cranberry Sauce',2,40],[9,'Mishi Kobe Niku',6,97],
+ [10,'Ikura',8,31],[11,'Queso Cabrales',4,21],[12,'Queso Manchego La Pastora',4,38]];
+const CC={1:'#3b5bdb',2:'#e8590c',3:'#ae3ec9',4:'#e67700',5:'#868e96',6:'#c92a2a',7:'#2f9e44',8:'#0c8599'};
+const catOf=id=>cats.find(c=>c[0]===id);
+const chip=id=>`<span class="chip" style="background:${CC[id]}"></span>`;
+const NP=prods.length;
+
+/* ---------- SQL ---------- */
+const SQLJ=[['sel',kw('SELECT')+' categories.*, products.*'],['from',kw('FROM')+' products'],
+ ['join',kw('JOIN')+' categories'],['on','  '+kw('ON')+' products.category_id = categories.category_id;']];
+const SQLG=[['sel',kw('SELECT')+' categories.category_name,'],['a0','       '+fn('COUNT')+'(*) '+kw('AS')+' product_count,'],
+ ['a1','       '+fn('ROUND')+'('+fn('AVG')+'(products.unit_price), '+nm(2)+') '+kw('AS')+' avg_price'],
+ ['from',kw('FROM')+' products'],['join',kw('JOIN')+' categories '+kw('ON')+' products.category_id = categories.category_id'],
+ ['grp',kw('GROUP BY')+' categories.category_name'],['ord',kw('ORDER BY')+' product_count '+kw('DESC')+', categories.category_name;']];
+const lines=(L,act)=>L.map(([k,h])=>`<span class="ln ${act&&act.includes(k)?'hl':''}">${h}</span>`).join('');
+$('#sqlJ0').innerHTML=lines(SQLJ);
+
+/* ---------- slide 2: the tables ---------- */
+$('#tCat').innerHTML='<tr><th>category_id <span class="pk">🔑PK</span></th><th>category_name</th><th>description</th></tr>'+
+ cats.map(c=>`<tr><td>${chip(c[0])}${c[0]}</td><td>${c[1]}</td><td>${cut(c[2],34)}</td></tr>`).join('');
+$('#tProd').innerHTML='<tr><th>product_id <span class="pk">🔑PK</span></th><th>product_name</th><th>category_id <span class="pk">🔗FK</span></th><th>unit_price</th><th class="more">…</th></tr>'+
+ prods.map(p=>`<tr><td>${p[0]}</td><td>${cut(p[1],26)}</td><td>${chip(p[2])}${p[2]}</td><td class="n">${f2(p[3])}</td><td class="more">…</td></tr>`).join('');
+
+/* ---------- ghosts ---------- */
+function flyTo(from,rect,html,color,delay,done){
+  const a=from.getBoundingClientRect();
+  const g=document.createElement('div');g.className='ghost';g.innerHTML=html;g.style.setProperty('--c',color);
+  Object.assign(g.style,{left:a.left+'px',top:a.top+'px',width:a.width+'px',height:a.height+'px'});
+  document.documentElement.appendChild(g);
+  const an=g.animate([{left:a.left+'px',top:a.top+'px',width:a.width+'px',height:a.height+'px',opacity:1},
+    {left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',height:rect.height+'px',opacity:.9}],{duration:800,delay,easing:'cubic-bezier(.5,0,.2,1)',fill:'both'});
+  an.onfinish=()=>{g.remove();done&&done();};
+}
+function union(cells){const r=cells.map(c=>c.getBoundingClientRect());const l=Math.min(...r.map(x=>x.left)),t=Math.min(...r.map(x=>x.top));
+  return {left:l,top:t,width:Math.max(...r.map(x=>x.right))-l,height:Math.max(...r.map(x=>x.bottom))-t};}
+function clearGhosts(){document.querySelectorAll('.ghost').forEach(g=>g.remove());document.querySelectorAll('[style*="visibility: hidden"]').forEach(e=>e.style.visibility='');}
+
+/* ---------- slide 3: JOIN ---------- */
+const steppers=[];
+(function(){
+  const TOT=NP+1;let step=0,timer=null;const ctl=$('#ctlJ');
+  ctl.innerHTML='<button data-a="reset">⟲ התחלה</button><button data-a="prev">→ אחורה</button><button data-a="next" class="pri">צעד הבא ←</button><button data-a="play">▶ נגן</button><button data-a="end">⏩ לסוף</button><div class="prog"><i></i></div><span class="stepn"></span>';
+  const playB=$('[data-a=play]',ctl);
+  const head='<tr><th class="hc">category_id</th><th class="hc">category_name</th><th class="hc">description</th>'+
+    '<th class="hp">product_id</th><th class="hp">product_name</th><th class="hp">category_id</th><th class="hp">unit_price</th><th class="hp more">… 6 עמודות</th></tr>';
+  function render(s,prev){
+    clearGhosts();
+    const cur=s>=1&&s<=NP?s-1:-1,n=Math.min(s,NP),end=s>NP;
+    $('#sqlJ').innerHTML=lines(SQLJ,s===0?['sel']:end?['sel']:['from','join','on']);
+    const ps=document.querySelectorAll('#pseudoJ span');ps.forEach((e,i)=>e.className=cur<0?'':i===0?'hl':i===1?'hl':'ok');
+    $('#jProd').innerHTML='<tr><th>product_id</th><th>product_name</th><th>category_id</th><th>unit_price</th></tr>'+prods.map((p,i)=>
+      `<tr id="jp${i}" class="${i===cur?'outer':i<n?'done':''}"><td>${p[0]}</td><td>${cut(p[1],24)}</td><td>${chip(p[2])}${p[2]}</td><td class="n">${f2(p[3])}</td></tr>`).join('');
+    const hits={};prods.slice(0,n).forEach(p=>hits[p[2]]=(hits[p[2]]||0)+1);
+    $('#jCat').innerHTML='<tr><th>category_id</th><th>category_name</th><th>description</th></tr>'+cats.map(c=>{
+      const cls=cur>=0&&prods[cur][2]===c[0]?'match':end&&!hits[c[0]]?'miss':'';
+      return `<tr id="jc${c[0]}" class="${cls}"><td>${chip(c[0])}${c[0]}${hits[c[0]]?`<span class="hits">×${hits[c[0]]}</span>`:''}</td><td>${c[1]}</td><td>${cut(c[2],26)}</td></tr>`;}).join('');
+    $('#jOut').innerHTML=head+(n?prods.slice(0,n).map((p,i)=>{const c=catOf(p[2]);
+      return `<tr id="jo${i}"><td class="cc">${chip(c[0])}${c[0]}</td><td class="cc">${c[1]}</td><td class="cc">${cut(c[2],22)}</td>`+
+        `<td class="pc">${p[0]}</td><td class="pc">${cut(p[1],22)}</td><td class="pc">${chip(p[2])}${p[2]}</td><td class="pc n">${f2(p[3])}</td><td class="pc more">…</td></tr>`;}).join('')
+      :'<tr><td colspan="8" class="empty">טבלת הפלט עוד ריקה. יש לה כבר כותרות: 3 עמודות מ-categories ואחריהן כל העמודות של products.</td></tr>');
+    $('#jN').textContent=n?`${n} שורות`:'';
+    let t;
+    if(s===0)t='המנוע עובר על הטבלה <code>products</code> שורה אחרי שורה. לכל מוצר הוא מחפש ב-<code>categories</code> את השורה עם אותו <code>category_id</code>, ו<b>מדביק את שתי השורות</b> לשורה אחת בטבלת הפלט. לחצו <b>"צעד הבא"</b>.';
+    else if(cur>=0){const p=prods[cur],c=catOf(p[2]);
+      t=`מוצר <b>${p[1]}</b>: <code>products.category_id = ${p[2]}</code> ← בטבלה categories נמצאה השורה <code>category_id = ${c[0]}</code>, הקטגוריה <b style="color:${CC[c[0]]}">${c[1]}</b>. `+
+        `<b class="ok">מדביקים</b>: 3 העמודות של הקטגוריה משמאל, העמודות של המוצר מימין, ונוצרת שורה ${cur+1} בפלט.`+
+        (hits[c[0]]>1?` זו כבר הפעם ה-${hits[c[0]]} שהקטגוריה ${c[1]} נכנסת לפלט.`:'');}
+    else t=`<b>סיום:</b> 12 מוצרים יצרו <b>12 שורות</b> בפלט. Condiments מופיעה 5 פעמים. הקטגוריות <b class="bad">Confections</b> ו-<b class="bad">Grains/Cereals</b> (באדום) לא התאימו לאף מוצר במדגם, ולכן ב-JOIN הן לא מופיעות בפלט בכלל.`;
+    $('#sayJ').innerHTML=t;
+    if(s===prev+1&&cur>=0){const p=prods[cur],c=catOf(p[2]),row=$('#jo'+cur),cells=[...row.children];
+      const sl=row.closest('.slide'),rb=row.getBoundingClientRect().bottom,lim=window.innerHeight-70;if(rb>lim)sl.scrollTop+=rb-lim;
+      row.style.visibility='hidden';let left=2;const fin=()=>{if(--left===0)row.style.visibility='';};
+      flyTo($('#jc'+c[0]),union(cells.slice(0,3)),`${c[0]} · ${c[1]}`,CC[c[0]],0,fin);
+      flyTo($('#jp'+cur),union(cells.slice(3)),`${p[0]} · ${cut(p[1],22)} · ${f2(p[3])}`,CC[c[0]],250,fin);}
+  }
+  const stop=()=>{clearTimeout(timer);timer=null;playB.textContent='▶ נגן';};
+  const go=x=>{const p=step;step=Math.max(0,Math.min(TOT,x));render(step,p);$('.prog i',ctl).style.width=100*step/TOT+'%';$('.stepn',ctl).textContent=step+' / '+TOT;};
+  const tick=()=>{if(step>=TOT){stop();return;}go(step+1);timer=setTimeout(tick,1700);};
+  ctl.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;
+    if(a==='reset'){stop();go(0);}else if(a==='prev'){stop();go(step-1);}else if(a==='next')go(step+1);else if(a==='end'){stop();go(TOT);}
+    else if(a==='play'){if(timer)stop();else{if(step>=TOT)go(0);playB.textContent='⏸ עצור';timer=setTimeout(tick,200);}}});
+  steppers.push({slide:ctl.closest('.slide'),next:()=>go(step+1),stop});go(0);
+})();
+
+/* ---------- generic GROUP BY demo engine (optional WHERE and HAVING) ----------
+   phases: data → [where: one step per row] → build: one step per kept row → agg: one step per aggregate
+           → [hav: one step per group] → res → ord */
+const demos=[];
+function makeDemo(cfg){
+  const root=$('#'+cfg.id),P=cfg.id;
+  const rows=cfg.rows,N=rows.length,A=cfg.aggs.length,col=k=>cfg.color[k];
+  const chip=k=>`<span class="chip" style="background:${col(k)}"></span>`;
+  const W=!!cfg.where,H=!!cfg.having;
+  const keep=rows.map(r=>W?cfg.where.test(r):true);
+  const kept=rows.map((r,i)=>i).filter(i=>keep[i]),K=kept.length;
+  const groups=[];kept.forEach(i=>{const k=cfg.key(rows[i]);let g=groups.find(x=>x.k===k);if(!g){g={k,rows:[]};groups.push(g);}g.rows.push(i);});
+  groups.forEach(g=>{g.v=cfg.aggs.map(a=>a.calc(g.rows.map(i=>rows[i])));g.ok=H?cfg.having.test(g):true;});
+  const G=groups.length,final=groups.filter(g=>g.ok),sorted=[...final].sort(cfg.sort);
+
+  const PH=[{id:'data',n:0,label:'הנתונים'}];
+  if(W)PH.push({id:'where',n:N,label:'סינון WHERE'});
+  PH.push({id:'build',n:K,label:'בניית קבוצות'},{id:'agg',n:A,label:'חישוב '+cfg.aggs.map(a=>a.short).join(' ו-')});
+  if(H)PH.push({id:'hav',n:G,label:'סינון HAVING'});
+  PH.push({id:'res',n:1,label:'בניית התוצאה'},{id:'ord',n:1,label:'מיון'});
+  let acc=1;PH.forEach((p,i)=>{p.start=i?acc:0;if(i)acc+=p.n;});const TOTAL=acc-1;
+  const idx=id=>PH.findIndex(p=>p.id===id);
+  function state(s){
+    let pi=0;for(let i=PH.length-1;i>=0;i--)if(s>=PH[i].start&&(i||s===0)){pi=i;break;}
+    const j=s-PH[pi].start;
+    const done=id=>{const k=idx(id);if(k<0)return 0;return pi>k?PH[k].n:pi===k?j+1:0;};
+    return {pi,j,id:PH[pi].id,w:done('where'),b:done('build'),a:done('agg'),h:done('hav'),res:pi>=idx('res'),ord:pi>=idx('ord')};
+  }
+  const sqlHTML=(act=[])=>cfg.sql.map(([k,h])=>`<span class="ln ${act.includes(k)?'hl':''}">${h}</span>`).join('');
+  root.innerHTML=`<h2>${cfg.title}</h2>
+   <div class="stages">${PH.map((p,i)=>`<span>${i+1}. ${p.label}</span>`).join('')}</div>
+   <div class="row"><div style="flex:2 1 330px"><div class="ctrl"></div><div class="say"></div>
+     <div class="counter">${W?`<span>עברו את WHERE: <b class="cW">0</b>/${N}</span>`:''}<span>שורות בקבוצות: <b class="cRows">0</b>/${K}</span><span>קבוצות: <b class="cGrp">0</b></span><span>שורות בתוצאה: <b class="cRes">0</b></span></div></div>
+     <div style="flex:1 1 270px"><pre class="sql live"></pre>${cfg.legend||''}</div></div>
+   <div class="row" style="margin-top:12px">
+     <div style="flex:1 1 330px"><div class="cap">${cfg.srcCap}</div><table class="t src"></table></div>
+     <div style="flex:1.2 1 330px"><div class="cap">קבוצות לפי <code>${cfg.keyName}</code></div><div class="buckets"></div>
+       <div class="resWrap" style="margin-top:14px"><div class="cap">טבלת התוצאה</div><table class="t res"></table></div></div></div>`;
+  const E=c=>$('.'+c,root);
+
+  function render(s,prev){
+    clearGhosts();
+    const st=state(s),fwd=s===prev+1;
+    root.querySelectorAll('.stages span').forEach((e,i)=>e.className=i===st.pi?'on':i<st.pi?'done':'');
+    E('sql').innerHTML=sqlHTML(st.id==='agg'?cfg.hl.agg[st.a-1]:cfg.hl[st.id]);
+
+    /* source table */
+    const wCur=st.id==='where'?st.j:-1,bCur=st.id==='build'?kept[st.j]:-1,moved=new Set(kept.slice(0,st.b));
+    E('src').innerHTML='<tr>'+cfg.cols.map(c=>`<th>${c.h}</th>`).join('')+(W?`<th>${cfg.where.col}</th>`:'')+'</tr>'+rows.map((r,i)=>{
+      const checked=W&&i<st.w;let c='';
+      if(checked&&!keep[i])c='fail'+(i===wCur&&fwd?' shake':'');
+      else if(i===bCur||i===wCur)c='cur';
+      else if(moved.has(i))c='moved';
+      else if(checked&&st.id==='where')c='pass';
+      const wc=W?`<td class="wk ${checked?(keep[i]?'ok':'no'):''}">${checked?(keep[i]?'✔':'✘'):''}</td>`:'';
+      return `<tr id="${P}s${i}" class="${c}">`+cfg.cols.map(x=>`<td class="${x.cls||''}">${x.key?chip(cfg.key(r)):''}${x.f(r)}</td>`).join('')+wc+'</tr>';}).join('');
+
+    /* buckets */
+    const bk=[];kept.slice(0,st.b).forEach(i=>{const k=cfg.key(rows[i]);let b=bk.find(x=>x.k===k);if(!b){b={k,rows:[]};bk.push(b);}b.rows.push(i);});
+    const justAgg=st.id==='agg'&&fwd?st.a-1:-1,hCur=st.id==='hav'?st.j:-1;
+    E('buckets').innerHTML=bk.length?bk.map((b,bi)=>{
+      const g=groups[bi];
+      const valOn=cfg.aggs.some((a,ai)=>ai<st.a&&a.mark==='value'),vi=cfg.aggs.findIndex(a=>a.mark==='value');
+      const lis=b.rows.map((i,j)=>{let marks='';
+        cfg.aggs.forEach((a,ai)=>{if(ai<st.a&&a.mark==='count'){const d=ai===justAgg?bi*0.15+j*0.28:0;marks+=`<b class="cnum" style="animation-delay:${d}s">${j+1}</b>`;}});
+        const vd=vi===justAgg?bi*0.15+j*0.3:0;
+        return `<li id="${P}b${i}">${cfg.li(rows[i],valOn?`class="v hl" style="animation-delay:${vd}s"`:'class="v"')}${marks}</li>`;}).join('');
+      const aggs=cfg.aggs.slice(0,st.a).map((a,ai)=>{const d=ai===justAgg?bi*0.15+b.rows.length*0.3:0;
+        return `<div class="agg" style="animation-delay:${d}s">${a.name} = ${a.fmt(g.v[ai])}</div>`;}).join('');
+      const hv=H&&bi<st.h?`<div class="hv ${g.ok?'ok':'no'}">HAVING ${g.ok?'✔ נשארת':'✘ נמחקת'}</div>`:'';
+      const cls=[st.res?'done':'',bi===hCur?'hcur':'',H&&bi<st.h&&!g.ok&&bi!==hCur?'hfail':''].join(' ');
+      return `<div class="bucket ${cls}" id="${P}k${bi}" style="--c:${col(b.k)}"><h4><span>${cfg.keyLabel(b.k)}</span><span>${st.a?'':b.rows.length}</span></h4><ul>${lis}</ul>${aggs}${hv}</div>`;}).join('')
+      :`<div class="empty" style="direction:rtl;flex:1">${W&&st.id!=='build'&&!st.b?'קודם WHERE מסנן את השורות. רק אחר כך נבנות הקבוצות.':'עדיין אין קבוצות. הן ייבנו תוך כדי מעבר על השורות.'}</div>`;
+    root.querySelectorAll('.bucket').forEach((el,bi)=>{if(!(fwd&&st.id==='build'&&bk[bi].rows[0]===bCur))el.style.animation='none';});
+
+    /* result */
+    const rs=st.res?(st.ord?sorted:final):[];
+    E('resWrap').style.display=st.res?'':'none';
+    flip(E('res'),'<tr>'+cfg.resCols.map(c=>`<th>${c.h}</th>`).join('')+'</tr>'+(rs.length?rs.map(g=>
+      `<tr data-k="${g.k}" id="${P}r${groups.indexOf(g)}">`+cfg.resCols.map((c,ci)=>`<td class="${ci?'n':'city'}">${ci?'':chip(g.k)}${c.f(g)}</td>`).join('')+'</tr>').join(''):
+      `<tr><td colspan="${cfg.resCols.length}" class="empty">אין שורות</td></tr>`));
+    if(W)E('cW').textContent=kept.filter(i=>i<st.w).length;
+    E('cRows').textContent=st.b;E('cGrp').textContent=bk.length;E('cRes').textContent=rs.length;
+
+    /* narration */
+    const pre=`<b>שלב ${st.pi+1} – ${PH[st.pi].label}:</b> `;let t;
+    if(st.id==='data')t=pre+cfg.say.data;
+    else if(st.id==='where'){const r=rows[st.j];t=pre+cfg.say.where(r)+' ← '+(keep[st.j]?'<b class="ok">✔ השורה נשארת</b>':'<b class="bad">✘ השורה יוצאת ולא תיכנס לאף קבוצה</b>');
+      if(st.j===N-1)t+=`<br>סיימנו לסנן: נשארו <b>${K}</b> מתוך ${N} שורות. רק הן ימשיכו לשלב הקיבוץ.`;}
+    else if(st.id==='build'){const i=kept[st.j],r=rows[i],k=cfg.key(r),first=groups.find(g=>g.k===k).rows[0]===i,n=bk.find(b=>b.k===k).rows.length;
+      t=pre+cfg.say.row(r)+' ← '+(first?'<b class="ok">עוד אין קבוצה לערך הזה, יוצרים קבוצה חדשה</b>':`נכנסת לקבוצה הקיימת (עכשיו יש בה ${n} שורות)`);}
+    else if(st.id==='agg')t=pre+cfg.say.agg[st.a-1];
+    else if(st.id==='hav'){const g=groups[st.j];t=pre+cfg.say.hav(g)+' ← '+(g.ok?'<b class="ok">✔ עומדת בתנאי, הקבוצה נשארת</b>':'<b class="bad">✘ לא עומדת בתנאי, הקבוצה כולה נמחקת</b>');
+      if(st.j===G-1)t+=`<br>נשארו <b>${final.length}</b> מתוך ${G} קבוצות.`;}
+    else t=pre+cfg.say[st.id];
+    E('say').innerHTML=t;
+
+    if(fwd){
+      if(st.id==='build')fly($('#'+P+'s'+bCur),$('#'+P+'b'+bCur),cfg.ghost(rows[bCur]),col(cfg.key(rows[bCur])));
+      if(st.id==='res')final.forEach((g,n)=>{const bi=groups.indexOf(g);fly($('#'+P+'k'+bi+' h4'),$('#'+P+'r'+bi),cfg.resGhost(g),col(g.k),n*180);});
+    }
+  }
+
+  let step=0,timer=null;const ctl=E('ctrl');
+  ctl.innerHTML='<button data-a="reset">⟲ התחלה</button><button data-a="prev">→ אחורה</button><button data-a="next" class="pri">צעד הבא ←</button><button data-a="play">▶ נגן</button><button data-a="skip">⏭ לשלב הבא</button><div class="prog"><i></i></div><span class="stepn"></span>';
+  const playB=$('[data-a=play]',ctl);
+  const stop=()=>{clearTimeout(timer);timer=null;playB.textContent='▶ נגן';};
+  const go=n=>{const p=step;step=Math.max(0,Math.min(TOTAL,n));render(step,p);
+    $('.prog i',ctl).style.width=100*step/TOTAL+'%';$('.stepn',ctl).textContent=step+' / '+TOTAL;};
+  const tick=()=>{if(step>=TOTAL){stop();return;}go(step+1);const id=state(step).id;timer=setTimeout(tick,id==='where'||id==='build'?1100:id==='hav'?1700:2600);};
+  const nextPhase=s=>{const st=state(s),p=PH[st.pi];if(st.pi>0&&st.j<p.n-1)return p.start+p.n-1;const nx=PH[st.pi+1];return nx?nx.start+nx.n-1:TOTAL;};
+  ctl.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;
+    if(a==='reset'){stop();go(0);}else if(a==='prev'){stop();go(step-1);}else if(a==='next')go(step+1);
+    else if(a==='skip'){stop();go(nextPhase(step));}
+    else if(a==='play'){if(timer)stop();else{if(step>=TOTAL)go(0);playB.textContent='⏸ עצור';timer=setTimeout(tick,200);}}});
+  demos.push({slide:root,next:()=>go(step+1),stop});go(0);
+  $('#'+cfg.sql0).innerHTML=cfg.sql.map(([k,h])=>`<span class="ln">${h}</span>`).join('');
+}
+
+function fly(from,to,html,color,delay=0){
+  if(!from||!to)return;
+  const a=from.getBoundingClientRect(),b=to.getBoundingClientRect();
+  const g=document.createElement('div');g.className='ghost';g.innerHTML=html;g.style.setProperty('--c',color);
+  Object.assign(g.style,{left:a.left+'px',top:a.top+'px',width:a.width+'px',height:a.height+'px'});
+  document.documentElement.appendChild(g);to.style.visibility='hidden';
+  const an=g.animate([{left:a.left+'px',top:a.top+'px',width:a.width+'px',height:a.height+'px'},
+     {left:b.left+'px',top:b.top+'px',width:b.width+'px',height:b.height+'px'}],{duration:750,delay,easing:'cubic-bezier(.5,0,.2,1)',fill:'both'});
+  an.onfinish=()=>{g.remove();to.style.visibility='';};
+}
+function clearGhosts(){document.querySelectorAll('.ghost').forEach(g=>g.remove());document.querySelectorAll('[style*="visibility: hidden"]').forEach(e=>e.style.visibility='');}
+function flip(tbl,html){
+  const old={};tbl.querySelectorAll('tr[data-k]').forEach(r=>old[r.dataset.k]=r.getBoundingClientRect().top);
+  tbl.innerHTML=html;
+  tbl.querySelectorAll('tr[data-k]').forEach(r=>{const o=old[r.dataset.k];if(o==null)return;const d=o-r.getBoundingClientRect().top;if(!d)return;
+    r.style.transition='none';r.style.transform=`translateY(${d}px)`;r.getBoundingClientRect();r.style.transition='';r.style.transform='';});
+}
+
+
+
+/* ---------- slide 5: GROUP BY category_name ---------- */
+const joined=prods.map(p=>{const c=catOf(p[2]);return [c[1],p[1],p[3],c[0]];});
+const GC={};cats.forEach(c=>GC[c[1]]=CC[c[0]]);
+makeDemo({id:'demoG',sql0:'sqlG0',title:'חלק 2: GROUP BY לפי שם קטגוריה <span class="tag">על טבלת הפלט של ה-JOIN</span>',
+  rows:joined,key:r=>r[0],keyName:'categories.category_name',keyLabel:k=>k,color:GC,
+  srcCap:'טבלת הפלט של ה-JOIN <small>רק 3 עמודות מתוך 13</small>',
+  cols:[{h:'category_name',f:r=>r[0],cls:'city',key:1},{h:'product_name',f:r=>cut(r[1],26)},{h:'unit_price',f:r=>f2(r[2]),cls:'n'}],
+  li:(r,v)=>`<span>${cut(r[1],15)}</span><span ${v}>${f2(r[2])}</span>`,ghost:r=>`${r[0]} · ${cut(r[1],20)} · ${f2(r[2])}`,
+  aggs:[{name:'COUNT(*)',short:'COUNT',mark:'count',calc:rs=>rs.length,fmt:v=>v},
+        {name:'AVG',short:'AVG',mark:'value',calc:rs=>Math.round(rs.reduce((a,r)=>a+r[2],0)/rs.length*100)/100,fmt:v=>f2(v)}],
+  sql:SQLG,hl:{data:['from','join'],build:['grp'],agg:[['a0'],['a1']],res:['sel','a0','a1'],ord:['ord']},
+  sort:(a,b)=>b.v[0]-a.v[0]||a.k.localeCompare(b.k),
+  resCols:[{h:'category_name',f:g=>g.k},{h:'product_count',f:g=>g.v[0]},{h:'avg_price',f:g=>f2(g.v[1])}],resGhost:g=>`${g.k} · ${g.v[0]} · ${f2(g.v[1])}`,
+  say:{data:'זו טבלת הפלט של ה-JOIN מהשקופית הקודמת. בזכות ה-JOIN יש לכל מוצר גם את <b>שם הקטגוריה</b> שלו, ולכן אפשר לקבץ לפי <code>categories.category_name</code>. המנוע עובר על 12 השורות לפי הסדר.',
+       row:r=>`המוצר <b>${r[1]}</b> מהקטגוריה <b>${r[0]}</b>`,
+       agg:['השורות חולקו ל-<b>6 קבוצות</b>, אחת לכל שם קטגוריה שהופיע בפלט. <code>COUNT(*)</code> סופר כמה מוצרים יש בכל קבוצה.',
+            '<code>AVG(products.unit_price)</code> מחשב את המחיר הממוצע בכל קבוצה: סכום המחירים המסומנים חלקי מספר המוצרים. לדוגמה ב-Condiments: <code>(10 + 22 + 21.35 + 25 + 40) / 5 = 118.35 / 5 = 23.67</code>. ‏<code>ROUND(…, 2)</code> מעגל לשתי ספרות אחרי הנקודה.'],
+       res:'כל קבוצה מתכווצת ל<b>שורה אחת</b>: שם הקטגוריה, מספר המוצרים והמחיר הממוצע. מ-12 שורות קיבלנו 6.',
+       ord:'<code>ORDER BY product_count DESC, categories.category_name</code>: קודם לפי מספר המוצרים בסדר יורד. בתיקו מכריע שם הקטגוריה בסדר אלפביתי. 🎉 זו התוצאה הסופית!'}});
+
+/* ---------- small stepper for the stage slides ---------- */
+function mkStepper(ctlSel,TOT,render,speed){
+  let step=0,timer=null;const ctl=$(ctlSel);
+  ctl.innerHTML='<button data-a="reset">⟲ התחלה</button><button data-a="prev">→ אחורה</button><button data-a="next" class="pri">צעד הבא ←</button><button data-a="play">▶ נגן</button><div class="prog"><i></i></div><span class="stepn"></span>';
+  const playB=$('[data-a=play]',ctl);
+  const stop=()=>{clearTimeout(timer);timer=null;playB.textContent='▶ נגן';};
+  const go=x=>{const p=step;step=Math.max(0,Math.min(TOT,x));render(step,p);$('.prog i',ctl).style.width=100*step/TOT+'%';$('.stepn',ctl).textContent=step+' / '+TOT;};
+  const tick=()=>{if(step>=TOT){stop();return;}go(step+1);timer=setTimeout(tick,speed||2600);};
+  ctl.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;
+    if(a==='reset'){stop();go(0);}else if(a==='prev'){stop();go(step-1);}else if(a==='next')go(step+1);
+    else if(a==='play'){if(timer)stop();else{if(step>=TOT)go(0);playB.textContent='⏸ עצור';timer=setTimeout(tick,200);}}});
+  steppers.push({slide:ctl.closest('.slide'),next:()=>go(step+1),stop});go(0);
+}
+const fmtN=n=>n.toLocaleString('en-US');
+/* results checked on sql-practice.com (northwind.db) */
+const odSample=[[10248,11,'Queso Cabrales',21,12,'France'],[10248,42,'Singaporean Hokkien Fried Mee',14,10,'France'],[10248,72,'Mozzarella di Giovanni',34.8,5,'France'],
+ [10249,14,'Tofu',23.25,9,'Germany'],[10249,51,'Manjimup Dried Apples',53,40,'Germany'],[10250,41,"Jack's New England Clam Chowder",9.65,10,'Brazil'],
+ [10250,51,'Manjimup Dried Apples',53,35,'Brazil'],[10250,65,'Louisiana Fiery Hot Pepper Sauce',21.05,15,'Brazil'],[10251,22,"Gustaf's Knäckebröd",21,6,'France'],[10251,57,'Ravioli Angelo',19.5,15,'France']];
+
+/* ---------- part 3: top 5 products ---------- */
+const top8=[[60,'Camembert Pierrot',34,1577,51],[59,'Raclette Courdavault',55,1496,54],[31,'Gorgonzola Telino',12.5,1397,51],[56,'Gnocchi di nonna Alice',38,1263,50],
+ [16,'Pavlova',17.45,1158,43],[75,'Rhönbräu Klosterbier',7.75,1155,46],[24,'Guaraná Fantástica',4.5,1125,51],[40,'Boston Crab Meat',18.4,1103,41]];
+const SQLT=[['sel',kw('SELECT')+' p.product_id, p.product_name, p.unit_price,'],['sum','       '+fn('SUM')+'(od.quantity) '+kw('AS')+' total_quantity'],
+ ['from',kw('FROM')+' order_details '+kw('AS')+' od'],['join',kw('JOIN')+' products '+kw('AS')+' p '+kw('ON')+' p.product_id = od.product_id'],
+ ['grp',kw('GROUP BY')+' p.product_id, p.product_name'],['ord',kw('ORDER BY')+' total_quantity '+kw('DESC')],['lim',kw('LIMIT')+' '+nm(5)+';']];
+$('#sqlT0').innerHTML=lines(SQLT);
+mkStepper('#ctlT',6,(s,prev)=>{
+  $('#sqlT').innerHTML=lines(SQLT,[['from'],['from','join'],['grp'],['sum'],['ord'],['lim'],['sel','sum']][s]);
+  const v=$('#tView');
+  const odHead='<tr><th>od.order_id</th><th>od.product_id</th><th>p.product_name</th><th>p.unit_price</th><th>od.quantity</th></tr>';
+  if(s===0){v.innerHTML=`<div class="info">
+    <div class="card"><div class="cap">order_details</div><div class="big2">2,155</div>שורות. כל שורה היא <b>מוצר אחד בתוך הזמנה</b>: מספר הזמנה, מספר מוצר, כמות והנחה. <b>אין בה שם מוצר ואין מחיר.</b></div>
+    <div class="card"><div class="cap">products</div><div class="big2">77</div>מוצרים. כאן נמצאים <b>שם המוצר</b> (<code>product_name</code>) <b>והמחיר</b> (<code>unit_price</code>).</div></div>
+    <div class="cap" style="margin-top:12px">5 השורות הראשונות ב-order_details</div><div class="wide"><table class="t"><tr><th>order_id</th><th>product_id</th><th>quantity</th><th>discount</th></tr>${odSample.slice(0,5).map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td class="n">${r[4]}</td><td class="n">0</td></tr>`).join('')}</table></div>`;}
+  else if(s===1){v.innerHTML=`<div class="cap">אחרי ה-JOIN: לכל שורת הזמנה נוספו שם המוצר והמחיר <small>10 שורות ראשונות מתוך 2,155</small></div><div class="wide"><table class="t">${odHead}${odSample.map(r=>`<tr class="new"><td>${r[0]}</td><td>${r[1]}</td><td class="pc">${r[2]}</td><td class="pc n">${f2(r[3])}</td><td class="n">${r[4]}</td></tr>`).join('')}<tr class="more-row"><td colspan="5">… ועוד 2,145 שורות</td></tr></table></div>`;}
+  else{
+    const sorted=s>=4,rows=sorted?top8:[...top8].sort((a,b)=>a[0]-b[0]);
+    const showSum=s>=3,lim=s>=5,fin=s>=6;
+    const head=`<tr>${sorted?'<th>#</th>':''}<th>product_id</th><th>product_name</th><th>unit_price</th><th>${s===2?'שורות בקבוצה':'COUNT(*)'}</th>${showSum?'<th>total_quantity</th>':''}</tr>`;
+    const body=(fin?rows.slice(0,5):rows).map((r,i)=>`<tr data-k="${r[0]}" class="${lim&&!fin&&i>=5?'cut':''} ${lim&&!fin&&i===5?'cutline':''} ${fin?'gold':''}">${sorted?`<td class="rk">${i+1}</td>`:''}<td>${r[0]}</td><td>${r[1]}</td><td class="n">${f2(r[2])}</td><td class="n">${r[4]}</td>${showSum?`<td class="n ${s===3?'newc':''}">${fmtN(r[3])}</td>`:''}</tr>`).join('');
+    const more=fin?'':`<tr class="more-row"><td colspan="${5+(sorted?1:0)+(showSum?1:0)}">${lim?'… ועוד 69 מוצרים, כולם מתחת לקו':'… ועוד 69 קבוצות (מוצגות 8 מתוך 77)'}</td></tr>`;
+    const tbl=$('#tTbl');
+    const cap=['','','קבוצות: אחת לכל מוצר','לכל קבוצה חושב SUM(od.quantity)','אחרי מיון ב-ORDER BY total_quantity DESC','אחרי LIMIT 5 נשארות רק 5 השורות הראשונות','התוצאה הסופית'][s];
+    if(tbl&&prev===s-1&&s===4){flip(tbl,head+body+more);$('#tCap').textContent=cap;}
+    else v.innerHTML=`<div class="cap" id="tCap">${cap}</div><div class="wide"><table class="t" id="tTbl">${head+body+more}</table></div>`;
+  }
+  $('#sayT').innerHTML=['<b>השאלה:</b> אילו 5 מוצרים נמכרו בכמות הגדולה ביותר, ומה המחיר של כל אחד? הכמויות נמצאות ב-<code>order_details</code>, אבל שם המוצר והמחיר נמצאים ב-<code>products</code>. לכן צריך JOIN.',
+   '<b>שלב 1 – JOIN:</b> לכל אחת מ-2,155 שורות ההזמנה המנוע מוצא את המוצר לפי <code>product_id</code> ומוסיף את <code>product_name</code> ו-<code>unit_price</code>. שימו לב: Manjimup Dried Apples מופיע פעמיים, בשתי הזמנות שונות.',
+   '<b>שלב 2 – GROUP BY:</b> כל השורות של אותו מוצר נכנסות לקבוצה אחת. יש 77 מוצרים, ולכן 77 קבוצות. מוצגות כאן 8 קבוצות, אלה שיגיעו לראש הרשימה. למשל Camembert Pierrot הוזמן ב-51 הזמנות שונות.',
+   '<b>שלב 3 – SUM:</b> לכל קבוצה המנוע מחבר את הכמויות (<code>od.quantity</code>) מכל שורות ההזמנה שלה. כך ל-Camembert Pierrot יש 1,577 יחידות שנמכרו.',
+   '<b>שלב 4 – ORDER BY total_quantity DESC:</b> ממיינים את 77 הקבוצות מהכמות הגדולה לקטנה. המספר בעמודה # הוא המקום בדירוג.',
+   '<b>שלב 5 – LIMIT 5:</b> ‏LIMIT בא <u>אחרון</u>. הוא לוקח את 5 השורות הראשונות של התוצאה הממוינת, וכל השאר נחתך. שימו לב כמה Pavlova במקום 5 קרוב ל-Rhönbräu Klosterbier במקום 6: הפרש של 3 יחידות בלבד.',
+   '<b>התוצאה:</b> 5 שורות, ולכל מוצר גם המחיר שלו. המוצר הנמכר ביותר אינו היקר ביותר: Raclette Courdavault עולה 55, ו-Gorgonzola Telino במקום 3 עולה רק 12.50. 🎉'][s];
+},2600);
+
+/* ---------- part 4: countries ---------- */
+/* [country, total_quantity, avg_price, lines, revenue] – sql-practice.com, ORDER BY revenue DESC */
+const countries=[['USA',9330,31.45,352,280738.38],['Germany',9213,27.45,328,257630.67],['Austria',5167,30.17,125,149985.09],['Brazil',4247,28.03,203,123734.73],
+ ['France',3254,28.44,184,93609.16],['Venezuela',2936,22.32,118,65647.19],['UK',2742,24.49,135,64865.15],['Canada',1984,28.07,75,61900.15],
+ ['Sweden',2235,26.87,97,61833.70],['Ireland',1684,33.42,55,60397.91],['Denmark',1170,29.19,46,39039.07],['Belgium',1392,25.76,56,38348.98],
+ ['Switzerland',1275,26.69,52,34546.55],['Mexico',1025,27.23,72,25561.71],['Finland',885,25.44,54,21628.65],['Spain',718,25.32,54,20295.48],
+ ['Italy',822,22.13,53,17633.91],['Portugal',533,27.65,30,14012.90],['Argentina',339,32.28,34,8310.88],['Norway',161,41.19,16,6000.35],['Poland',205,20.95,16,3646.70]];
+const qtyRank={};[...countries].sort((a,b)=>b[1]-a[1]).forEach((c,i)=>qtyRank[c[0]]=i+1);
+const fmtM=n=>n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const SQLC=[['sel',kw('SELECT')+' c.country,'],['sum','       '+fn('SUM')+'(od.quantity) '+kw('AS')+' total_quantity,'],
+ ['avg','       '+fn('ROUND')+'('+fn('AVG')+'(p.unit_price), '+nm(2)+') '+kw('AS')+' avg_price,'],
+ ['rev','       '+fn('ROUND')+'('+fn('SUM')+'(p.unit_price * od.quantity), '+nm(2)+') '+kw('AS')+' revenue'],
+ ['from',kw('FROM')+' order_details '+kw('AS')+' od'],['j1',kw('JOIN')+' orders '+kw('AS')+' o '+kw('ON')+' o.order_id = od.order_id'],
+ ['j2',kw('JOIN')+' customers '+kw('AS')+' c '+kw('ON')+' c.customer_id = o.customer_id'],['j3',kw('JOIN')+' products '+kw('AS')+' p '+kw('ON')+' p.product_id = od.product_id'],
+ ['grp',kw('GROUP BY')+' c.country'],['ord',kw('ORDER BY')+' revenue '+kw('DESC')+';']];
+$('#sqlC0').innerHTML=lines(SQLC);
+mkStepper('#ctlC',5,(s,prev)=>{
+  $('#sqlC').innerHTML=lines(SQLC,[['from','j1','j2','j3'],['from','j1','j2','j3','rev'],['grp'],['sum','avg','rev'],['ord'],['sel','sum','avg','rev']][s]);
+  const v=$('#cView');
+  if(s===0){v.innerHTML=`<div class="cap">הדרך משורת הזמנה אל המדינה ואל המחיר</div>
+    <div class="chain"><div class="tb"><b>order_details</b>order_id · product_id · quantity</div>
+      <div class="ar">order_id<br>⟶</div><div class="tb"><b>orders</b>order_id · customer_id</div>
+      <div class="ar">customer_id<br>⟶</div><div class="tb"><b>customers</b>customer_id · <u>country</u></div></div>
+    <div class="chain"><div class="tb"><b>order_details</b>product_id</div><div class="ar">product_id<br>⟶</div><div class="tb"><b>products</b>product_id · <u>unit_price</u></div></div>
+    <div class="note">ב-<code>order_details</code> יש כמות, אבל אין בה מדינה ואין מחיר. המדינה נמצאת אצל הלקוח, והדרך אליו עוברת דרך ההזמנה. לכן צריך <b>3 פעולות JOIN</b>. ההכנסה מכל שורת הזמנה היא <b>מחיר × כמות</b>: המחיר מ-products והכמות מ-order_details.</div>`;}
+  else if(s===1){v.innerHTML=`<div class="cap">אחרי 3 פעולות ה-JOIN: לכל שורת הזמנה יש עכשיו מדינה ומחיר, ואפשר לחשב את ההכנסה ממנה <small>10 שורות ראשונות מתוך 2,155</small></div><div class="wide"><table class="t"><tr><th>od.order_id</th><th>p.product_name</th><th>p.unit_price</th><th>od.quantity</th><th>p.unit_price * od.quantity</th><th>c.country</th></tr>${odSample.map(r=>`<tr class="new"><td>${r[0]}</td><td>${r[2]}</td><td class="pc n">${f2(r[3])}</td><td class="n">${r[4]}</td><td class="n" style="background:#fff9db">${f2(r[3])} × ${r[4]} = ${fmtM(r[3]*r[4])}</td><td class="cc"><b>${r[5]}</b></td></tr>`).join('')}<tr class="more-row"><td colspan="6">… ועוד 2,145 שורות</td></tr></table></div>`;}
+  else{
+    const sorted=s>=4,rows=sorted?countries:[...countries].sort((a,b)=>a[0].localeCompare(b[0])),agg=s>=3,fin=s>=5;
+    const head=`<tr>${sorted?'<th>#</th>':''}<th>country</th><th>שורות בקבוצה</th>${agg?'<th>total_quantity</th><th>avg_price</th><th>revenue</th>':''}${fin?'<th>מקום לפי כמות</th>':''}</tr>`;
+    const body=rows.map((r,i)=>{const qr=qtyRank[r[0]],d=qr-(i+1);
+      const mv=d>0?`<span style="color:var(--ok)">▲ עלתה מ-${qr}</span>`:d<0?`<span style="color:var(--bad)">▼ ירדה מ-${qr}</span>`:`${qr}`;
+      return `<tr data-k="${r[0]}" class="${fin&&i<3?'gold':''} ${fin&&d!==0?'star':''}">${sorted?`<td class="rk">${i+1}</td>`:''}<td class="city">${r[0]}</td><td class="n">${r[3]}</td>${agg?`<td class="n ${s===3?'newc':''}">${fmtN(r[1])}</td><td class="n ${s===3?'newc':''}">${f2(r[2])}</td><td class="n ${s===3?'newc':''}" style="background:#fff9db">${fmtM(r[4])}</td>`:''}${fin?`<td class="n">${mv}</td>`:''}</tr>`;}).join('');
+    const cap=s===2?'21 קבוצות, אחת לכל מדינה (לפי סדר האלף-בית)':s===3?'לכל מדינה חושבו SUM, AVG והכנסה':s===4?'התוצאה אחרי מיון ב-ORDER BY revenue DESC':'השוואה: המקום לפי הכנסה מול המקום לפי כמות';
+    const tbl=$('#cTbl');
+    if(tbl&&prev===s-1&&s===4){flip(tbl,head+body);$('#cCap').textContent=cap;}
+    else if(tbl&&prev===s-1&&s===5){tbl.innerHTML=head+body;$('#cCap').textContent=cap;}
+    else v.innerHTML=`<div class="cap" id="cCap">${cap}</div><div class="wide"><table class="t" id="cTbl">${head+body}</table></div>`;
+  }
+  $('#sayC').innerHTML=['<b>השאלה:</b> כמה הכנסה הביאה כל מדינה, כמה יחידות נמכרו לה, ומה המחיר הממוצע של המוצרים שהיא הזמינה? המידע מפוזר ב-4 טבלאות.',
+   '<b>שלב 1 – JOIN:</b> המנוע מחבר את 4 הטבלאות. כל שורה בפלט היא עדיין <b>שורת הזמנה אחת</b> (2,155 שורות), אבל עכשיו יש בה <code>country</code> מ-customers ו-<code>unit_price</code> מ-products. לכל שורה אפשר לחשב <code>p.unit_price * od.quantity</code>: ההכנסה מהשורה הזו. למשל <code>21.00 × 12 = 252.00</code>.',
+   '<b>שלב 2 – GROUP BY c.country:</b> כל שורות ההזמנה של אותה מדינה נכנסות לקבוצה אחת. הלקוחות מגיעים מ-21 מדינות, ולכן יש 21 קבוצות. העמודה "שורות בקבוצה" מראה כמה שורות הזמנה יש בכל קבוצה.',
+   '<b>שלב 3 – SUM, AVG והכנסה:</b> ‏<code>SUM(od.quantity)</code> מחבר את הכמויות. ‏<code>AVG(p.unit_price)</code> מחשב ממוצע מחירים. ‏<code>SUM(p.unit_price * od.quantity)</code> מחשב <b>לכל שורה</b> מחיר × כמות, ואז מחבר את כל המכפלות בקבוצה. זו ההכנסה של המדינה.',
+   '<b>שלב 4 – ORDER BY revenue DESC:</b> ממיינים לפי ההכנסה, מהגבוהה לנמוכה. USA ראשונה עם 280,738.38, ואחריה Germany עם 257,630.67.',
+   '<b>התוצאה:</b> בעמודה האחרונה המקום של כל מדינה אם ממיינים לפי כמות. בכחול המדינות שהמקום שלהן השתנה. Canada קנתה <b>פחות</b> יחידות מ-Sweden (1,984 מול 2,235), אבל מוצרים יקרים יותר, ולכן ההכנסה ממנה גבוהה יותר. כך גם Norway מול Poland. <b>כמות לבד לא קובעת את ההכנסה.</b> 🎉'][s];
+},3000);
+
+/* ---------- query-analysis slides (shown before each animation) ---------- */
+const aK=s=>`<span class="kw">${s}</span>`,aF=s=>`<span class="fn">${s}</span>`,aN=s=>`<span class="num">${s}</span>`;
+function buildAnalysis(id,a){
+  const el=document.getElementById(id);
+  el.innerHTML=`<h2>${a.title} <span class="tag">ניתוח השאילתה</span></h2>
+  <p class="big"><b>השאלה:</b> ${a.q}</p>
+  <div class="row" style="margin-top:8px">
+    <div style="flex:1 1 300px"><div class="cap">השאילתה</div><pre class="sql an-sql">${a.sql.map(([k,h])=>`<span class="ln" data-k="${k}">${h}</span>`).join('')}</pre>
+      <div class="note"><b>מה נקבל בסוף?</b> ${a.expect}</div></div>
+    <div style="flex:1.3 1 340px"><div class="cap">מה אומר כל חלק בשאילתה? <small>מעבר עם העכבר מסמן את השורה בשאילתה</small></div>
+      <div class="parts">${a.parts.map(p=>`<div class="part" data-k="${p.k}"><code>${p.c}</code><span>${p.t}</span></div>`).join('')}</div></div>
+  </div>
+  <div class="cap" style="margin-top:14px">מה המנוע צריך לעשות, לפי הסדר <small>את זה נראה בהנפשה בשקף הבא</small></div>
+  <ol class="plan">${a.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+  el.querySelectorAll('.part').forEach(p=>{const ks=p.dataset.k.split(' ');
+    const on=v=>{el.querySelectorAll('.part').forEach(x=>x.classList.remove('on'));p.classList.toggle('on',v);
+      el.querySelectorAll('.an-sql .ln').forEach(l=>l.classList.toggle('hl',v&&ks.includes(l.dataset.k)));};
+    p.addEventListener('mouseenter',()=>on(true));p.addEventListener('mouseleave',()=>on(false));
+    p.addEventListener('click',()=>on(!p.classList.contains('on')));});
+}
+
+buildAnalysis('anJ',{title:'חלק 1: מה השאילתה מבקשת?',
+  q:'להציג <b>כל מוצר יחד עם כל הפרטים של הקטגוריה שלו</b>: מספר הקטגוריה, השם והתיאור שלה, ולידם כל העמודות של המוצר.',
+  sql:[['sel',aK('SELECT')+' categories.*, products.*'],['from',aK('FROM')+' products'],['join',aK('JOIN')+' categories'],['on','  '+aK('ON')+' products.category_id = categories.category_id;']],
+  parts:[
+   {k:'sel',c:'SELECT categories.*, products.*',t:'הכוכבית <code>*</code> פירושה "כל העמודות". קודם כל העמודות של categories (3), ואחריהן כל העמודות של products (10). <b>הסדר כאן קובע את סדר העמודות בפלט.</b>'},
+   {k:'from',c:'FROM products',t:'המנוע עובר על הטבלה products, מוצר אחרי מוצר.'},
+   {k:'join',c:'JOIN categories',t:'מצרפים את הטבלה categories. בלי ON המנוע לא יודע איזו קטגוריה שייכת לאיזה מוצר.'},
+   {k:'on',c:'ON products.category_id = categories.category_id',t:'תנאי ההתאמה: מוצר מתחבר לקטגוריה שיש לה אותו <code>category_id</code>. כותבים את שם הטבלה לפני העמודה, כי עמודה בשם הזה יש בשתי הטבלאות.'}],
+  steps:['לוקחים את המוצר הבא ב-products.','קוראים את ה-<code>category_id</code> שלו.','מחפשים ב-categories את השורה עם אותו <code>category_id</code>.',
+   '<b>מדביקים</b> את שתי השורות לשורה אחת בפלט: קודם הקטגוריה, אחר כך המוצר.','חוזרים על זה עד שעוברים על כל המוצרים.'],
+  expect:'טבלה עם <b>13 עמודות</b> (3 + 10) ו<b>שורה אחת לכל מוצר</b>, כי כל מוצר שייך לקטגוריה אחת בדיוק. במדגם יש 12 מוצרים, ולכן 12 שורות. קטגוריה שאין לה אף מוצר במדגם לא תופיע.'});
+
+buildAnalysis('anG',{title:'חלק 2: מה השאילתה מבקשת?',
+  q:'<b>כמה מוצרים יש בכל קטגוריה, ומה המחיר הממוצע שלהם?</b> הקטגוריות עם הכי הרבה מוצרים יופיעו ראשונות.',
+  sql:[['sel',aK('SELECT')+' categories.category_name,'],['cnt','       '+aF('COUNT')+'(*) '+aK('AS')+' product_count,'],['avg','       '+aF('ROUND')+'('+aF('AVG')+'(products.unit_price), '+aN(2)+') '+aK('AS')+' avg_price'],
+       ['from',aK('FROM')+' products'],['join',aK('JOIN')+' categories '+aK('ON')+' products.category_id = categories.category_id'],['grp',aK('GROUP BY')+' categories.category_name'],['ord',aK('ORDER BY')+' product_count '+aK('DESC')+', categories.category_name;']],
+  parts:[
+   {k:'from join',c:'FROM products JOIN categories ON …',t:'אותו JOIN כמו בחלק 1. בזכותו יש לכל מוצר את <b>שם הקטגוריה</b>, שנמצא רק ב-categories.'},
+   {k:'grp',c:'GROUP BY categories.category_name',t:'קבוצה לכל שם קטגוריה. כל המוצרים מאותה קטגוריה נכנסים לאותה קבוצה.'},
+   {k:'cnt',c:'COUNT(*) AS product_count',t:'כמה מוצרים יש בכל קבוצה.'},
+   {k:'avg',c:'ROUND(AVG(products.unit_price), 2)',t:'<code>AVG</code> מחשב ממוצע: סכום המחירים בקבוצה חלקי מספר המוצרים. <code>ROUND(…, 2)</code> מעגל לשתי ספרות אחרי הנקודה.'},
+   {k:'ord',c:'ORDER BY product_count DESC, categories.category_name',t:'קודם לפי מספר המוצרים, מהגדול לקטן. בתיקו לפי שם הקטגוריה, בסדר אלפביתי.'}],
+  steps:['<b>JOIN:</b> בונים את טבלת הפלט של חלק 1.','<b>GROUP BY:</b> כל שורה נכנסת לקבוצה של שם הקטגוריה שלה.','<b>COUNT:</b> סופרים מוצרים בכל קבוצה.',
+   '<b>AVG:</b> מחשבים מחיר ממוצע בכל קבוצה.','<b>בניית התוצאה:</b> שורה אחת לכל קטגוריה.','<b>ORDER BY:</b> ממיינים.'],
+  expect:'טבלה עם 3 עמודות: <code>category_name</code>, <code>product_count</code>, <code>avg_price</code>. תהיה בה שורה לכל קטגוריה שיש לה מוצרים במדגם. סכום כל הספירות יהיה 12.'});
+
+buildAnalysis('anT',{title:'חלק 3: מה השאילתה מבקשת?',
+  q:'<b>אילו 5 מוצרים נמכרו בכמות הגדולה ביותר, ומה המחיר של כל אחד מהם?</b>',
+  sql:[['sel',aK('SELECT')+' p.product_id, p.product_name, p.unit_price,'],['sum','       '+aF('SUM')+'(od.quantity) '+aK('AS')+' total_quantity'],['from',aK('FROM')+' order_details '+aK('AS')+' od'],
+       ['join',aK('JOIN')+' products '+aK('AS')+' p '+aK('ON')+' p.product_id = od.product_id'],['grp',aK('GROUP BY')+' p.product_id, p.product_name'],['ord',aK('ORDER BY')+' total_quantity '+aK('DESC')],['lim',aK('LIMIT')+' '+aN(5)+';']],
+  parts:[
+   {k:'from',c:'FROM order_details AS od',t:'כל שורה ב-<code>order_details</code> היא <b>מוצר אחד בתוך הזמנה</b>, עם הכמות שהוזמנה. מוצר שהוזמן ב-50 הזמנות מופיע 50 פעמים.'},
+   {k:'join',c:'JOIN products AS p ON p.product_id = od.product_id',t:'ב-order_details אין שם מוצר ואין מחיר. ה-JOIN מביא אותם מ-products לפי <code>product_id</code>.'},
+   {k:'grp',c:'GROUP BY p.product_id, p.product_name',t:'קבוצה לכל מוצר: כל השורות של אותו מוצר, מכל ההזמנות.'},
+   {k:'sum',c:'SUM(od.quantity) AS total_quantity',t:'מחברים את הכמויות מכל ההזמנות של המוצר. זו הכמות הכוללת שנמכרה.'},
+   {k:'sel',c:'p.unit_price',t:'המחיר של המוצר, מטבלת products. יש לו ערך אחד בכל קבוצה, כי כל הקבוצה היא אותו מוצר.'},
+   {k:'ord',c:'ORDER BY total_quantity DESC',t:'מיון יורד: המוצר שנמכר הכי הרבה ראשון.'},
+   {k:'lim',c:'LIMIT 5',t:'לוקחים רק את 5 השורות הראשונות של התוצאה הממוינת. LIMIT מתבצע <b>אחרון</b>, אחרי המיון.'}],
+  steps:['<b>JOIN:</b> לכל אחת מ-2,155 שורות ההזמנה מוסיפים את שם המוצר והמחיר.','<b>GROUP BY:</b> מקבצים לפי מוצר: 77 קבוצות.','<b>SUM:</b> מחברים את הכמויות בכל קבוצה.',
+   '<b>ORDER BY:</b> ממיינים את 77 המוצרים מהנמכר ביותר לנמכר פחות.','<b>LIMIT 5:</b> חותכים אחרי 5 השורות הראשונות.'],
+  expect:'בדיוק <b>5 שורות</b> עם 4 עמודות: <code>product_id</code>, <code>product_name</code>, <code>unit_price</code>, <code>total_quantity</code>. השורה הראשונה תהיה המוצר שנמכר בכמות הגדולה ביותר.'});
+
+buildAnalysis('anC',{title:'חלק 4: מה השאילתה מבקשת?',
+  q:'<b>כמה הכנסה הביאה כל מדינה?</b> לכל מדינה רוצים גם כמה יחידות נמכרו לה ומה המחיר הממוצע של המוצרים שהזמינה. המדינה עם ההכנסה הגבוהה ביותר תופיע ראשונה.',
+  sql:[['sel',aK('SELECT')+' c.country,'],['sum','       '+aF('SUM')+'(od.quantity) '+aK('AS')+' total_quantity,'],['avg','       '+aF('ROUND')+'('+aF('AVG')+'(p.unit_price), '+aN(2)+') '+aK('AS')+' avg_price,'],
+       ['rev','       '+aF('ROUND')+'('+aF('SUM')+'(p.unit_price * od.quantity), '+aN(2)+') '+aK('AS')+' revenue'],['from',aK('FROM')+' order_details '+aK('AS')+' od'],
+       ['j1',aK('JOIN')+' orders '+aK('AS')+' o '+aK('ON')+' o.order_id = od.order_id'],['j2',aK('JOIN')+' customers '+aK('AS')+' c '+aK('ON')+' c.customer_id = o.customer_id'],
+       ['j3',aK('JOIN')+' products '+aK('AS')+' p '+aK('ON')+' p.product_id = od.product_id'],['grp',aK('GROUP BY')+' c.country'],['ord',aK('ORDER BY')+' revenue '+aK('DESC')+';']],
+  parts:[
+   {k:'from',c:'FROM order_details AS od',t:'מתחילים משורות ההזמנה, כי שם נמצאת הכמות.'},
+   {k:'j1',c:'JOIN orders AS o ON o.order_id = od.order_id',t:'מכל שורת הזמנה עוברים להזמנה עצמה, כדי לדעת <b>מי הלקוח</b> (<code>customer_id</code>).'},
+   {k:'j2',c:'JOIN customers AS c ON c.customer_id = o.customer_id',t:'מההזמנה עוברים ללקוח, כדי לדעת <b>מאיזו מדינה</b> הוא (<code>country</code>).'},
+   {k:'j3',c:'JOIN products AS p ON p.product_id = od.product_id',t:'מכל שורת הזמנה עוברים למוצר, כדי לדעת את <b>המחיר</b> (<code>unit_price</code>).'},
+   {k:'grp',c:'GROUP BY c.country',t:'קבוצה לכל מדינה: כל שורות ההזמנה של הלקוחות מאותה מדינה.'},
+   {k:'sum avg',c:'SUM(od.quantity), AVG(p.unit_price)',t:'כמה יחידות נמכרו בסך הכול, ומה הממוצע של מחירי המוצרים בשורות האלה.'},
+   {k:'rev',c:'SUM(p.unit_price * od.quantity) AS revenue',t:'<b>ההכנסה.</b> בכל שורה מכפילים מחיר בכמות, ואז מחברים את כל המכפלות בקבוצה.'},
+   {k:'ord',c:'ORDER BY revenue DESC',t:'מיון יורד לפי ההכנסה, לא לפי הכמות.'}],
+  steps:['<b>3 פעולות JOIN:</b> לכל שורת הזמנה מוסיפים את המדינה של הלקוח ואת המחיר של המוצר.','<b>GROUP BY:</b> מקבצים את 2,155 השורות לפי מדינה.',
+   '<b>חישובים:</b> לכל מדינה SUM של הכמות, AVG של המחיר, ו-SUM של מחיר × כמות.','<b>ORDER BY:</b> ממיינים לפי ההכנסה.','<b>השוואה:</b> בודקים מה היה קורה אם היינו ממיינים לפי כמות.'],
+  expect:'טבלה עם 4 עמודות: <code>country</code>, <code>total_quantity</code>, <code>avg_price</code>, <code>revenue</code>. תהיה בה שורה לכל מדינה שיש בה לקוחות שהזמינו. כדאי לנחש מראש: האם המדינה שקנתה הכי הרבה יחידות היא גם זו שהביאה הכי הרבה הכנסה?'});
+
+/* ---------- deck nav ---------- */
+const slides=[...document.querySelectorAll('.slide')];let cur=0;
+const all=()=>[...steppers,...demos];
+function show(i){cur=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,j)=>s.classList.toggle('on',j===cur));
+  all().forEach(d=>d.stop());clearGhosts();
+  $('#count').textContent=`${cur+1} / ${slides.length} · ${slides[cur].dataset.title}`;slides[cur].scrollTop=0;}
+const curDemo=()=>all().find(d=>d.slide===slides[cur]);
+$('#prev').onclick=()=>show(cur-1);$('#next').onclick=()=>show(cur+1);
+document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='PageDown')show(cur+1);else if(e.key==='ArrowRight'||e.key==='PageUp')show(cur-1);
+  else if((e.key===' '||e.key==='Enter')&&curDemo()){e.preventDefault();curDemo().next();}});
+let tx=null;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+document.addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>80&&!e.target.closest('table,pre,.buckets,.wide'))show(dx>0?cur+1:cur-1);tx=null;});
+show(0);
+</script>
+</body>
+</html>

@@ -95,6 +95,16 @@ nav button:hover{background:#dbe4ff}
 .site-back:hover{text-decoration:underline}
 #fs-slot{margin-inline-start:auto}
 @media (max-width:600px){.site-back{display:none}}
+.parts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}
+.part{background:#fff;border:1px solid var(--line);border-right:4px solid var(--acc);border-radius:10px;padding:8px 12px;cursor:pointer;transition:.2s;line-height:1.55;font-size:15px}
+.part.on{border-color:var(--acc);box-shadow:0 0 0 3px #3b5bdb22;background:#f3f6ff}
+.part code,ol.plan code,.an-note code{direction:ltr;unicode-bidi:embed;background:#eef1f8;border-radius:5px;padding:0 5px;font-family:Consolas,monospace;font-size:.92em}
+.part>code{display:block;width:fit-content;max-width:100%;margin-bottom:4px;font-weight:700;white-space:pre-wrap;text-align:left}
+pre.an-sql .ln{opacity:1}
+pre.an-sql .ln.hl{background:#3b5bdb55;box-shadow:inset 3px 0 0 #74c0fc}
+ol.plan{counter-reset:pl;list-style:none;padding:0;margin:6px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+ol.plan li{counter-increment:pl;background:#fff;border:1px solid var(--line);border-radius:10px;padding:32px 12px 10px;line-height:1.5;position:relative;font-size:15px}
+ol.plan li::before{content:counter(pl);position:absolute;top:7px;right:10px;width:22px;height:22px;border-radius:50%;background:var(--acc);color:#fff;font:700 12px/22px Arial;text-align:center}
 </style>
 <script src="font-size.js"></script>
 </head>
@@ -142,7 +152,11 @@ table.cmp th{text-align:right}
   <p class="sub" style="margin-top:12px">ניווט: <b>הבא / הקודם</b> למטה או החצים במקלדת. בשקופיות המונפשות לוחצים <b>"צעד הבא"</b> או רווח, ו-<b>"לשלב הבא"</b> כדי לדלג.</p>
 </section>
 
+<section class="slide" data-title="הדגמה 1: ניתוח השאילתה" id="anA"></section>
+
 <section class="slide demo" data-title="הדגמה 1: לקוחות לפי עיר" id="demoA"></section>
+<section class="slide" data-title="הדגמה 2: ניתוח השאילתה" id="anB"></section>
+
 <section class="slide demo" data-title="הדגמה 2: הזמנות לפי חברת שילוח" id="demoB"></section>
 
 <section class="slide" data-title="מסננים: WHERE ו-HAVING">
@@ -159,7 +173,11 @@ table.cmp th{text-align:right}
   <p>בהדגמה 3 נוסיף לשאילתה של הדגמה 2 את <code>HAVING</code>. בהדגמה 4 נריץ אותה על אותן 12 הזמנות עם <code>WHERE</code>, ונראה שהתוצאה משתנה בצורה אחרת.</p>
 </section>
 
+<section class="slide" data-title="הדגמה 3: ניתוח השאילתה" id="anC"></section>
+
 <section class="slide demo" data-title="הדגמה 3: HAVING" id="demoC"></section>
+<section class="slide" data-title="הדגמה 4: ניתוח השאילתה" id="anD"></section>
+
 <section class="slide demo" data-title="הדגמה 4: WHERE" id="demoD"></section>
 
 <section class="slide" data-title="WHERE מול HAVING">
@@ -442,6 +460,80 @@ makeDemo({...ordBase,id:'demoD',sql0:'sqlD0',title:'הדגמה 4: רק הזמנ�
     `<tr><td class="city"><span class="chip" style="background:${SHIPCOL[g.k]}"></span>${g.k}</td><td class="n">${g.c}</td><td class="n">${f2(g.s)}</td></tr>`).join('');
   $('#pBoth').innerHTML=`קודם WHERE משאיר 8 מתוך 12 שורות. אחר כך GROUP BY בונה 3 קבוצות, ו-HAVING מוחק את ${out.map(g=>`חברה ${g.k} (רק ${g.c} הזמנות)`).join(', ')}. בלי WHERE לכל שלוש החברות היו לפחות 3 הזמנות, וכולן היו נשארות.`;
 })();
+
+/* ---------- query-analysis slides (shown before each animation) ---------- */
+const aK=s=>`<span class="kw">${s}</span>`,aF=s=>`<span class="fn">${s}</span>`,aN=s=>`<span class="num">${s}</span>`;
+function buildAnalysis(id,a){
+  const el=document.getElementById(id);
+  el.innerHTML=`<h2>${a.title} <span class="tag">ניתוח השאילתה</span></h2>
+  <p class="big"><b>השאלה:</b> ${a.q}</p>
+  <div class="row" style="margin-top:8px">
+    <div style="flex:1 1 300px"><div class="cap">השאילתה</div><pre class="sql an-sql">${a.sql.map(([k,h])=>`<span class="ln" data-k="${k}">${h}</span>`).join('')}</pre>
+      <div class="note"><b>מה נקבל בסוף?</b> ${a.expect}</div></div>
+    <div style="flex:1.3 1 340px"><div class="cap">מה אומר כל חלק בשאילתה? <small>מעבר עם העכבר מסמן את השורה בשאילתה</small></div>
+      <div class="parts">${a.parts.map(p=>`<div class="part" data-k="${p.k}"><code>${p.c}</code><span>${p.t}</span></div>`).join('')}</div></div>
+  </div>
+  <div class="cap" style="margin-top:14px">מה המנוע צריך לעשות, לפי הסדר <small>את זה נראה בהנפשה בשקף הבא</small></div>
+  <ol class="plan">${a.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+  el.querySelectorAll('.part').forEach(p=>{const ks=p.dataset.k.split(' ');
+    const on=v=>{el.querySelectorAll('.part').forEach(x=>x.classList.remove('on'));p.classList.toggle('on',v);
+      el.querySelectorAll('.an-sql .ln').forEach(l=>l.classList.toggle('hl',v&&ks.includes(l.dataset.k)));};
+    p.addEventListener('mouseenter',()=>on(true));p.addEventListener('mouseleave',()=>on(false));
+    p.addEventListener('click',()=>on(!p.classList.contains('on')));});
+}
+
+buildAnalysis('anA',{title:'הדגמה 1: מה השאילתה מבקשת?',
+  q:'<b>כמה לקוחות יש בכל עיר?</b> הערים עם הכי הרבה לקוחות יופיעו ראשונות.',
+  sql:[['sel',aK('SELECT')+' city,'],['cnt','       '+aF('COUNT')+'(*) '+aK('AS')+' customer_count'],['from',aK('FROM')+' customers'],['grp',aK('GROUP BY')+' city'],['ord',aK('ORDER BY')+' customer_count '+aK('DESC')+';']],
+  parts:[
+   {k:'from',c:'FROM customers',t:'טבלה אחת בלבד, בלי JOIN. כל שורה היא לקוח אחד, ולכל לקוח יש עיר.'},
+   {k:'grp',c:'GROUP BY city',t:'כל הלקוחות מאותה עיר נכנסים ל<b>קבוצה אחת</b>. יהיו בדיוק כמה קבוצות כמו מספר הערים השונות.'},
+   {k:'cnt',c:'COUNT(*) AS customer_count',t:'לכל קבוצה סופרים כמה שורות יש בה, כלומר כמה לקוחות. <code>*</code> פירושו "סופרים שורות", לא עמודה מסוימת.'},
+   {k:'sel cnt',c:'SELECT city, …',t:'בתוצאה יופיעו העיר ומספר הלקוחות. מותר לבחור <code>city</code> כי היא מופיעה ב-GROUP BY, ולכן יש לה ערך אחד בכל קבוצה.'},
+   {k:'ord',c:'ORDER BY customer_count DESC',t:'מיון יורד: העיר עם הכי הרבה לקוחות ראשונה.'}],
+  steps:['<b>קריאה:</b> המנוע עובר על 17 השורות של customers.','<b>GROUP BY:</b> כל שורה נכנסת לקבוצה של העיר שלה. אם עוד אין קבוצה לעיר, נפתחת חדשה.',
+   '<b>COUNT(*):</b> סופרים את השורות בכל קבוצה.','<b>בניית התוצאה:</b> כל קבוצה הופכת לשורה אחת.','<b>ORDER BY:</b> ממיינים לפי מספר הלקוחות.'],
+  expect:'טבלה עם 2 עמודות: <code>city</code> ו-<code>customer_count</code>. תהיה בה שורה לכל עיר. סכום כל הספירות יהיה 17, כמו מספר הלקוחות.'});
+
+buildAnalysis('anB',{title:'הדגמה 2: מה השאילתה מבקשת?',
+  q:'<b>כמה הזמנות שלחה כל חברת שילוח, ומה סך דמי המשלוח שלהן?</b> החברה עם דמי המשלוח הגבוהים ביותר תופיע ראשונה.',
+  sql:[['sel',aK('SELECT')+' ship_via,'],['cnt','       '+aF('COUNT')+'(*)     '+aK('AS')+' order_count,'],['sum','       '+aF('SUM')+'(freight) '+aK('AS')+' total_freight'],['from',aK('FROM')+' orders'],['grp',aK('GROUP BY')+' ship_via'],['ord',aK('ORDER BY')+' total_freight '+aK('DESC')+';']],
+  parts:[
+   {k:'from',c:'FROM orders',t:'טבלת ההזמנות. בעמודה <code>ship_via</code> שמור <b>מספר</b> חברת השילוח (1, 2 או 3), ובעמודה <code>freight</code> דמי המשלוח.'},
+   {k:'grp',c:'GROUP BY ship_via',t:'קבוצה לכל חברת שילוח. אין צורך ב-JOIN, כי העמודה שלפיה מקבצים כבר נמצאת ב-orders.'},
+   {k:'cnt',c:'COUNT(*) AS order_count',t:'כמה הזמנות (שורות) יש בכל קבוצה.'},
+   {k:'sum',c:'SUM(freight) AS total_freight',t:'מחברים את דמי המשלוח של כל ההזמנות בקבוצה.'},
+   {k:'ord',c:'ORDER BY total_freight DESC',t:'מיון יורד לפי סכום דמי המשלוח, לא לפי מספר ההזמנות.'}],
+  steps:['<b>קריאה:</b> 12 ההזמנות הראשונות בטבלה.','<b>GROUP BY:</b> כל הזמנה נכנסת לקבוצה של חברת השילוח שלה.','<b>COUNT:</b> סופרים הזמנות בכל קבוצה.',
+   '<b>SUM:</b> מחברים את דמי המשלוח בכל קבוצה.','<b>בניית התוצאה:</b> שורה אחת לכל חברה.','<b>ORDER BY:</b> ממיינים לפי סכום דמי המשלוח.'],
+  expect:'טבלה עם 3 עמודות. יש 3 חברות שילוח, ולכן יהיו לכל היותר 3 שורות. בתוצאה יופיעו <b>מספרי</b> החברות ולא השמות שלהן, כי השמות נמצאים בטבלה אחרת (shippers).'});
+
+buildAnalysis('anC',{title:'הדגמה 3: מה השאילתה מבקשת?',
+  q:'אותה שאלה כמו בהדגמה 2, אבל <b>רק חברות שילוח שיש להן 4 הזמנות או יותר</b>.',
+  sql:[['sel',aK('SELECT')+' ship_via,'],['cnt','       '+aF('COUNT')+'(*)     '+aK('AS')+' order_count,'],['sum','       '+aF('SUM')+'(freight) '+aK('AS')+' total_freight'],['from',aK('FROM')+' orders'],['grp',aK('GROUP BY')+' ship_via'],
+       ['hav',aK('HAVING')+' '+aF('COUNT')+'(*) &gt;= '+aN(4)],['ord',aK('ORDER BY')+' order_count '+aK('DESC')+';']],
+  parts:[
+   {k:'from grp',c:'FROM orders … GROUP BY ship_via',t:'כמו בהדגמה 2: קבוצה לכל חברת שילוח.'},
+   {k:'cnt sum',c:'COUNT(*), SUM(freight)',t:'מחושבים לכל הקבוצות, גם לאלה שעוד יימחקו.'},
+   {k:'hav',c:'HAVING COUNT(*) >= 4',t:'<b>החלק החדש.</b> בודקים כל קבוצה: אם יש בה פחות מ-4 הזמנות, <b>הקבוצה כולה נמחקת</b>. התנאי משתמש ב-COUNT, ולכן הוא חייב לבוא אחרי הקיבוץ, ב-HAVING.'},
+   {k:'ord',c:'ORDER BY order_count DESC',t:'הפעם ממיינים לפי מספר ההזמנות.'}],
+  steps:['<b>GROUP BY:</b> 12 ההזמנות מתחלקות לקבוצות לפי חברת השילוח.','<b>COUNT ו-SUM:</b> מחושבים לכל קבוצה.','<b>HAVING:</b> כל קבוצה נבדקת מול התנאי <code>COUNT(*) >= 4</code>. קבוצה שלא עומדת בו נמחקת.',
+   '<b>בניית התוצאה:</b> רק מהקבוצות שנשארו.','<b>ORDER BY:</b> מיון לפי מספר ההזמנות.'],
+  expect:'אותן עמודות כמו בהדגמה 2, אבל <b>אולי פחות שורות</b>. הסכומים של הקבוצות שנשארו לא ישתנו, כי HAVING לא מוציא שורות מתוך קבוצה. הוא מוחק קבוצות שלמות.'});
+
+buildAnalysis('anD',{title:'הדגמה 4: מה השאילתה מבקשת?',
+  q:'אותה שאלה כמו בהדגמה 2, אבל <b>רק על הזמנות שדמי המשלוח שלהן גדולים מ-30</b>.',
+  sql:[['sel',aK('SELECT')+' ship_via,'],['cnt','       '+aF('COUNT')+'(*)     '+aK('AS')+' order_count,'],['sum','       '+aF('SUM')+'(freight) '+aK('AS')+' total_freight'],['from',aK('FROM')+' orders'],
+       ['where',aK('WHERE')+' freight &gt; '+aN(30)],['grp',aK('GROUP BY')+' ship_via'],['ord',aK('ORDER BY')+' total_freight '+aK('DESC')+';']],
+  parts:[
+   {k:'from',c:'FROM orders',t:'אותן 12 הזמנות.'},
+   {k:'where',c:'WHERE freight > 30',t:'<b>החלק החדש.</b> בודקים <b>כל שורה לבד</b>, עוד לפני שיש קבוצות. הזמנה שדמי המשלוח שלה 30 או פחות יוצאת, ולא תיכנס לאף קבוצה.'},
+   {k:'grp',c:'GROUP BY ship_via',t:'מקבצים רק את השורות שעברו את WHERE.'},
+   {k:'cnt sum',c:'COUNT(*), SUM(freight)',t:'סופרים ומחברים רק את השורות שנשארו. לכן התוצאות יהיו שונות מאלה של הדגמה 2.'},
+   {k:'ord',c:'ORDER BY total_freight DESC',t:'מיון יורד לפי סכום דמי המשלוח.'}],
+  steps:['<b>WHERE:</b> כל אחת מ-12 השורות נבדקת מול <code>freight > 30</code>. שורה שלא עומדת בתנאי יוצאת.','<b>GROUP BY:</b> רק השורות שנשארו נכנסות לקבוצות.',
+   '<b>COUNT ו-SUM:</b> מחושבים על מה שנשאר בכל קבוצה.','<b>בניית התוצאה:</b> שורה לכל קבוצה.','<b>ORDER BY:</b> מיון לפי סכום דמי המשלוח.'],
+  expect:'אותן עמודות כמו בהדגמה 2. מספר החברות עשוי להישאר זהה, אבל <b>הספירות והסכומים יהיו קטנים יותר</b>, כי חלק מההזמנות יצאו לפני החישוב. כדאי להשוות בסוף לתוצאה של הדגמה 2.'});
 
 /* ---------- deck nav ---------- */
 const slides=[...document.querySelectorAll('.slide')];let cur=0;

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מפתחות ראשיים וזרים – Northwind</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#1d2433;--mute:#6b7385;--line:#e2e5ee;--acc:#3b5bdb;--ok:#2f9e44;--bad:#e03131;--warn:#f08c00}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Rubik","Heebo",Arial,sans-serif}
+#deck{height:100%;overflow:hidden;position:relative}
+.slide{position:absolute;inset:0 0 58px 0;overflow-y:auto;padding:22px clamp(12px,3vw,40px) 30px;opacity:0;pointer-events:none;transform:translateX(-30px);transition:.35s}
+.slide.on{opacity:1;pointer-events:auto;transform:none}
+h1{font-size:clamp(26px,4.5vw,44px);margin:.2em 0 .3em}
+h2{font-size:clamp(20px,3vw,30px);margin:0 0 .5em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+h2 .tag{font-size:.55em;background:var(--acc);color:#fff;border-radius:20px;padding:3px 12px;font-weight:600}
+p{line-height:1.6;margin:.4em 0}
+.sub{color:var(--mute);font-size:clamp(15px,2vw,19px)}
+.big{font-size:clamp(16px,2.2vw,20px)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 2px 8px #1d243310}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.row>*{flex:1 1 280px;min-width:0}
+.cap{font-weight:700;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cap small{font-weight:400;color:var(--mute)}
+code{direction:ltr;unicode-bidi:embed;background:#eef1f8;border-radius:5px;padding:0 5px;font-family:Consolas,monospace;font-size:.92em}
+
+pre.sql{direction:ltr;text-align:left;background:#1e2230;color:#e6e8ef;border-radius:12px;padding:12px 14px;margin:0;font:15px/1.7 Consolas,"Courier New",monospace;overflow-x:auto}
+pre.sql .ln{display:block;border-radius:6px;padding:0 6px;transition:.3s}
+pre.sql.live .ln{opacity:.35}
+pre.sql.live .ln.hl{opacity:1;background:#3b5bdb55;box-shadow:inset 3px 0 0 #74c0fc}
+.kw{color:#74c0fc;font-weight:700}.fn{color:#ffd43b}.st{color:#b2f2bb}.num{color:#ffa8a8}
+
+/* stage chips */
+.stages{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.stages span{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;font-size:14px;color:var(--mute);transition:.3s}
+.stages span.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
+.stages span.done{background:#e7f0ff;color:var(--acc);border-color:#c5d4fb}
+
+/* tables */
+table.t{direction:ltr;border-collapse:separate;border-spacing:0;width:100%;font-size:14px;background:#fff;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+table.t th{background:#eef1f8;text-align:left;padding:6px 8px;font-size:12.5px;color:#3d4557;white-space:nowrap}
+table.t td{padding:4px 8px;border-top:1px solid var(--line);white-space:nowrap;transition:background .3s,opacity .3s}
+table.t td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+table.t tr{transition:transform .6s ease}
+.chip{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+tr.cur td{background:#fff3bf}
+tr.cur td:first-child{box-shadow:inset 4px 0 0 var(--warn)}
+tr.moved td{opacity:.28}
+td.city{font-weight:700}
+tr.new td{animation:pop .7s}
+@keyframes pop{0%{background:#ffec99}100%{}}
+.empty{color:var(--mute);font-style:italic;text-align:center;padding:14px}
+
+/* buckets */
+.buckets{display:flex;flex-wrap:wrap;gap:10px;direction:ltr}
+.bucket{flex:1 1 150px;border:2px solid var(--c);border-radius:12px;background:#fff;overflow:hidden;animation:bin .45s}
+@keyframes bin{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
+.bucket h4{margin:0;padding:6px 10px;background:var(--c);color:#fff;font-size:14px;display:flex;justify-content:space-between}
+.bucket ul{list-style:none;margin:0;padding:5px 10px;font-size:13px;line-height:1.85}
+.bucket li{display:flex;justify-content:space-between;gap:6px;white-space:nowrap;overflow:hidden}
+.bucket li span{overflow:hidden;text-overflow:ellipsis}
+.bucket li .cnum{flex:none;width:20px;height:20px;border-radius:50%;background:var(--c);color:#fff;font:700 12px/20px Arial;text-align:center;margin-top:3px;opacity:0;animation:cnt .3s forwards}
+@keyframes cnt{from{opacity:0;transform:scale(2)}to{opacity:1;transform:none}}
+.bucket .agg{border-top:2px dashed var(--c);padding:6px 10px;font:700 15px/1.5 Consolas,monospace;color:var(--c);opacity:0;animation:cnt .4s forwards}
+.bucket.done ul{opacity:.4}
+.ghost{position:fixed;z-index:50;pointer-events:none;background:#fff;border:2px solid var(--c);border-radius:8px;box-shadow:0 8px 24px #1d243340;
+  font-size:13px;padding:3px 8px;white-space:nowrap;overflow:hidden;direction:ltr}
+
+.say{min-height:3.4em;background:#fff;border:1px solid var(--line);border-right:5px solid var(--acc);border-radius:10px;padding:10px 14px;margin:10px 0;font-size:clamp(15px,2vw,18px);line-height:1.6}
+.say b.ok{color:var(--ok)}
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.ctrl button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer}
+.ctrl button:hover{border-color:var(--acc)}
+.ctrl button.pri{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:700}
+.prog{flex:1 1 90px;height:6px;background:#e2e5ee;border-radius:3px;overflow:hidden;min-width:60px}
+.prog i{display:block;height:100%;background:var(--acc);width:0;transition:.3s}
+.stepn{color:var(--mute);font-size:13px;direction:ltr}
+.counter{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--mute);margin-top:4px}
+.counter b{color:var(--ink);font-size:17px}
+.note{background:#fff9db;border:1px solid #ffe066;border-radius:10px;padding:10px 14px;margin-top:12px;line-height:1.6}
+details{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0}
+summary{cursor:pointer;font-weight:700;line-height:1.6}
+details p{margin:.5em 0 0}
+.ltr{direction:ltr;text-align:left;font-family:Consolas,monospace}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.flow div{background:#fff;border:1px solid var(--acc);border-radius:10px;padding:10px;line-height:1.5}
+.flow b{display:block;color:var(--acc)}
+
+nav{position:fixed;bottom:0;left:0;right:0;height:58px;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:14px;padding:0 10px;z-index:5}
+nav button{border:none;background:#eef1f8;border-radius:10px;padding:10px 16px;font:inherit;font-size:15px;cursor:pointer}
+nav button:hover{background:#dbe4ff}
+#count{color:var(--mute);min-width:150px;text-align:center;font-size:14px;white-space:nowrap}
+@media (max-width:600px){table.t{font-size:12.5px}table.t td,table.t th{padding:3px 5px}pre.sql{font-size:12.5px}#count{min-width:0;flex:1}}
+.site-back{color:var(--acc);font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap;margin-inline-end:auto}
+.site-back:hover{text-decoration:underline}
+#fs-slot{margin-inline-start:auto}
+@media (max-width:600px){.site-back{display:none}}
+.parts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}
+.part{background:#fff;border:1px solid var(--line);border-right:4px solid var(--acc);border-radius:10px;padding:8px 12px;cursor:pointer;transition:.2s;line-height:1.55;font-size:15px}
+.part.on{border-color:var(--acc);box-shadow:0 0 0 3px #3b5bdb22;background:#f3f6ff}
+.part code,ol.plan code,.an-note code{direction:ltr;unicode-bidi:embed;background:#eef1f8;border-radius:5px;padding:0 5px;font-family:Consolas,monospace;font-size:.92em}
+.part>code{display:block;width:fit-content;max-width:100%;margin-bottom:4px;font-weight:700;white-space:pre-wrap;text-align:left}
+pre.an-sql .ln{opacity:1}
+pre.an-sql .ln.hl{background:#3b5bdb55;box-shadow:inset 3px 0 0 #74c0fc}
+ol.plan{counter-reset:pl;list-style:none;padding:0;margin:6px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+ol.plan li{counter-increment:pl;background:#fff;border:1px solid var(--line);border-radius:10px;padding:32px 12px 10px;line-height:1.5;position:relative;font-size:15px}
+ol.plan li::before{content:counter(pl);position:absolute;top:7px;right:10px;width:22px;height:22px;border-radius:50%;background:var(--acc);color:#fff;font:700 12px/22px Arial;text-align:center}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<style>
+.say b.bad{color:var(--bad)} .say b.ok{color:var(--ok)}
+.pk{color:var(--warn);font-size:11px;margin-left:3px;font-weight:700}
+.fk{color:#0c8599;font-size:11px;margin-left:3px;font-weight:700}
+.duo{position:relative;display:flex;gap:110px;align-items:flex-start;direction:ltr}
+.duo>div{flex:1 1 0;min-width:0}
+.trio{position:relative;display:flex;gap:80px;align-items:flex-start;direction:ltr}
+.trio>div{flex:1 1 0;min-width:0}
+.quad{position:relative;display:flex;gap:58px;align-items:flex-start;direction:ltr}
+.quad>div{flex:1 1 0;min-width:0}
+.quad table.t td,.quad table.t th{padding:3px 6px;font-size:13px}
+@media (max-width:760px){.quad{flex-direction:column;gap:46px}.quad>div{width:100%}}
+.duo .cap,.trio .cap,.quad .cap{direction:rtl}
+@media (max-width:760px){.duo,.trio{flex-direction:column;gap:46px}.duo>div,.trio>div{width:100%}}
+svg.arrows{position:absolute;left:0;top:0;pointer-events:none;overflow:visible;z-index:3}
+svg.arrows path{fill:none;stroke-width:2.4;transition:stroke-dashoffset .9s ease}
+svg.arrows path.dim{opacity:.18}
+svg.arrows path.bad{stroke:#e03131 !important;stroke-dasharray:6 5 !important;stroke-dashoffset:0 !important}
+tr.hl td{background:#fff3bf !important}
+tr.cur td{background:#e7f0ff !important}
+tr.cur td:first-child{box-shadow:inset 4px 0 0 var(--acc)}
+tr.okrow td{background:#d3f9d8 !important}
+tr.badrow td{background:#ffe3e3 !important;color:#a33}
+tr.gone td{background:#ffe3e3 !important;color:#a33;text-decoration:line-through;opacity:.6}
+tr.dimrow td{opacity:.35}
+td.rep{font-weight:700}
+td.wrong{background:#ffc9c9 !important;color:#c92a2a;font-weight:800}
+td.colpk{background:#fff4e6 !important}
+td.colfk{background:#e3fafc !important}
+td.strike{color:#adb5bd;text-decoration:line-through}
+.cnt{display:inline-block;min-width:22px;border-radius:11px;color:#fff;font:700 11px/18px Arial;text-align:center;margin-left:6px;padding:0 5px}
+.stmt{direction:ltr;text-align:left;background:#1e2230;color:#e6e8ef;border-radius:10px;padding:10px 14px;font:14px/1.6 Consolas,monospace;margin:8px 0;min-height:46px}
+.res{display:inline-block;border-radius:8px;padding:4px 12px;font-weight:700;margin-top:4px}
+.res.ok{background:#d3f9d8;color:#1f6b2c}.res.no{background:#ffe3e3;color:#c92a2a}
+.map{width:100%;max-width:980px;display:block;margin:0 auto;direction:ltr}
+.map .box rect{fill:#fff;stroke:#c5cbd8;stroke-width:2;rx:12;transition:.3s}
+.map .box.on rect{stroke:var(--acc);stroke-width:3.5;fill:#f3f6ff}
+.map .box text{font-family:Consolas,monospace;font-size:13px;fill:#3d4557}
+.map .box text.tn{font:700 17px "Segoe UI",Arial;fill:#1d2433}
+.map .rel path{fill:none;stroke:#c5cbd8;stroke-width:2.5;transition:.3s}
+.map .rel text{font:12px Consolas,monospace;fill:#8a93a6;transition:.3s}
+.map .rel.on path{stroke:var(--acc);stroke-width:4.5}
+.map .rel.on text{fill:var(--acc);font-weight:700;font-size:13px}
+</style>
+<div id="deck">
+
+<section class="slide" data-title="פתיחה">
+  <p class="sub">מגמת מידע ונתונים · SQL על Northwind · שיעור 01</p>
+  <h1>מפתחות ראשיים ומפתחות זרים:<br>איך טבלאות מתקשרות זו לזו</h1>
+  <p class="big">מסד הנתונים Northwind בנוי מ-11 טבלאות. בטבלה <code>orders</code> אין את שם הלקוח, ובטבלה <code>order_details</code> אין את שם המוצר. ובכל זאת אפשר לדעת מי הזמין מה. בשיעור הזה נראה איך: בעזרת <b>מפתח ראשי</b> (Primary Key) ו<b>מפתח זר</b> (Foreign Key).</p>
+  <div class="flow" style="max-width:980px">
+    <div><b>1. למה מפצלים?</b>טבלה אחת גדולה ומה רע בה</div>
+    <div><b>2. מפתח ראשי</b>מזהה ייחודי לכל שורה</div>
+    <div><b>3. מפתח זר</b>חץ משורה אחת לשורה בטבלה אחרת</div>
+    <div><b>4. שלמות הנתונים</b>מה מסד הנתונים מונע</div>
+    <div><b>5. JOIN</b>הולכים בעקבות החץ</div>
+    <div><b>6. רבים-לרבים</b>טבלת קישור, ואיך מגיעים ממנה ללקוח</div>
+    <div><b>7. המפה</b>כל הקשרים ב-Northwind</div>
+  </div>
+  <p class="sub">ניווט: <b>הבא / הקודם</b> למטה או החצים במקלדת. בשקופיות המונפשות לוחצים <b>"צעד הבא"</b> או רווח.</p>
+</section>
+
+<section class="slide" data-title="הסבר: למה מפצלים?" id="exA"></section>
+<section class="slide" data-title="טבלה אחת או שתיים?">
+  <h2>טבלה אחת גדולה, או שתי טבלאות מקושרות?</h2>
+  <div class="row"><div style="flex:2 1 330px"><div class="ctrl" id="ctlA"></div><div class="say" id="sayA"></div></div></div>
+  <div class="duo" id="duoA"><div id="aL"></div><div id="aR"></div></div>
+</section>
+
+<section class="slide" data-title="הסבר: מפתח זר" id="exB"></section>
+<section class="slide" data-title="מפתח זר: החצים">
+  <h2>מפתח זר הוא חץ לשורה בטבלה אחרת</h2>
+  <div class="row"><div style="flex:2 1 330px"><div class="ctrl" id="ctlB"></div><div class="say" id="sayB"></div></div></div>
+  <div class="duo" id="duoB"><div><div class="cap">orders <small>8 הזמנות לדוגמה</small></div><table class="t" id="bO"></table></div><div><div class="cap">customers <small>5 לקוחות</small></div><table class="t" id="bC"></table></div></div>
+</section>
+
+<section class="slide" data-title="הסבר: שלמות הנתונים" id="exC"></section>
+<section class="slide" data-title="שלמות הנתונים">
+  <h2>מה מסד הנתונים לא מרשה לעשות?</h2>
+  <div class="row"><div style="flex:2 1 330px"><div class="ctrl" id="ctlC"></div><div class="say" id="sayC"></div></div>
+    <div style="flex:1 1 300px"><div class="stmt" id="stC"></div><div id="resC"></div></div></div>
+  <div class="duo" id="duoC"><div><div class="cap">orders</div><table class="t" id="cO"></table></div><div><div class="cap">customers</div><table class="t" id="cC"></table></div></div>
+</section>
+
+<section class="slide" data-title="ניתוח: JOIN לפי מפתח זר" id="exD"></section>
+<section class="slide" data-title="JOIN בעקבות החץ">
+  <h2>JOIN: הולכים בעקבות המפתח הזר</h2>
+  <div class="row"><div style="flex:2 1 330px"><div class="ctrl" id="ctlD"></div><div class="say" id="sayD"></div></div>
+    <div style="flex:1 1 300px"><pre class="sql live" id="sqlD"></pre></div></div>
+  <div class="duo" id="duoD"><div><div class="cap">orders</div><table class="t" id="dO"></table></div><div><div class="cap">customers</div><table class="t" id="dC"></table></div></div>
+  <div style="margin-top:16px"><div class="cap">תוצאת ה-JOIN <small id="dN"></small></div><table class="t" id="dOut"></table></div>
+</section>
+
+<section class="slide" data-title="הסבר: רבים-לרבים" id="exE"></section>
+<section class="slide" data-title="טבלת קישור">
+  <h2>רבים-לרבים: הטבלה order_details</h2>
+  <div class="row"><div style="flex:2 1 330px"><div class="ctrl" id="ctlE"></div><div class="say" id="sayE"></div></div>
+    <div style="flex:1 1 300px"><pre class="sql live" id="sqlE"></pre></div></div>
+  <div class="trio" id="trioE"><div><div class="cap">orders</div><table class="t" id="eO"></table></div><div><div class="cap">order_details <small>טבלת הקישור</small></div><table class="t" id="eD"></table></div><div><div class="cap">products</div><table class="t" id="eP"></table></div></div>
+  <div id="eOutW" style="margin-top:16px"><div class="cap">תוצאת ה-JOIN של 3 הטבלאות <small>9 שורות</small></div><table class="t" id="eOut"></table></div>
+</section>
+
+<section class="slide" data-title="ניתוח: מי קנה מה?" id="exE2"></section>
+<section class="slide" data-title="מי קנה מה?">
+  <h2>מוסיפים את הלקוחות: מי קנה מה?</h2>
+  <div class="row"><div style="flex:2 1 330px"><div class="ctrl" id="ctlE2"></div><div class="say" id="sayE2"></div></div>
+    <div style="flex:1 1 300px"><pre class="sql live" id="sqlE2"></pre></div></div>
+  <div class="quad" id="quadE2"><div><div class="cap">customers</div><table class="t" id="qC"></table></div><div><div class="cap">orders</div><table class="t" id="qO"></table></div>
+    <div><div class="cap">order_details</div><table class="t" id="qD"></table></div><div><div class="cap">products</div><table class="t" id="qP"></table></div></div>
+  <div id="qOutW" style="margin-top:16px"><div class="cap">תוצאת ה-JOIN של 4 הטבלאות <small>9 שורות</small></div><table class="t" id="qOut"></table></div>
+</section>
+
+<section class="slide" data-title="מפת הקשרים">
+  <h2>כל המפתחות הזרים של Northwind</h2>
+  <div class="row"><div style="flex:2 1 330px"><div class="ctrl" id="ctlF"></div><div class="say" id="sayF"></div></div></div>
+  <svg class="map" id="mapF" viewBox="0 0 1130 560"></svg>
+</section>
+
+<section class="slide" data-title="סיכום ושאלות">
+  <h2>סיכום</h2>
+  <div class="flow">
+    <div><b>מפתח ראשי (PK)</b>עמודה שהערך שלה <u>ייחודי</u> בכל שורה. אין שתי שורות עם אותו ערך, והוא אף פעם לא ריק.</div>
+    <div><b>מפתח זר (FK)</b>עמודה שהערך שלה הוא ערך של מפתח ראשי <u>בטבלה אחרת</u>. הוא יכול לחזור הרבה פעמים.</div>
+    <div><b>רבים-לאחד</b>הרבה הזמנות ללקוח אחד. ה-FK נמצא בצד "הרבים" (orders).</div>
+    <div><b>רבים-לרבים</b>הזמנה עם הרבה מוצרים, ומוצר בהרבה הזמנות. פותרים עם טבלת קישור (order_details) עם שני מפתחות זרים.</div>
+    <div><b>JOIN</b>בתנאי ה-ON כותבים בדרך כלל <code>FK = PK</code>.</div>
+  </div>
+  <h2 style="margin-top:20px">שאלות לבדיקה</h2>
+  <details><summary>1. למה לא שומרים את שם הלקוח והעיר שלו בכל שורה בטבלה orders?</summary><p>כי אז אותם פרטים היו חוזרים בכל הזמנה של הלקוח (ל-AROUT יש 13 הזמנות). זה מבזבז מקום, וגרוע מזה: אם מעדכנים את העיר רק בחלק מהשורות, מקבלים נתונים סותרים. כשהפרטים נמצאים רק ב-customers, מעדכנים אותם במקום אחד.</p></details>
+  <details><summary>2. האם ערך יכול לחזור פעמיים בעמודה <code>orders.customer_id</code>? ובעמודה <code>customers.customer_id</code>?</summary><p>ב-<code>orders.customer_id</code> כן: זה מפתח זר, ולקוח אחד יכול להזמין הרבה פעמים. ב-<code>customers.customer_id</code> לא: זה מפתח ראשי, והוא חייב להיות ייחודי.</p></details>
+  <details><summary>3. מה יקרה אם ננסה להכניס הזמנה עם <code>customer_id = 'ZZZZZ'</code>, שלא קיים ב-customers?</summary><p>אם מוגדר מפתח זר והאכיפה פועלת, מסד הנתונים ידחה את הפקודה (FOREIGN KEY constraint failed). החץ לא מצביע על אף שורה.</p></details>
+  <details><summary>4. אפשר למחוק את הלקוח FISSA. למה אי אפשר למחוק את AROUT?</summary><p>ל-FISSA אין הזמנות, ולכן אף חץ לא מצביע עליו. על AROUT מצביעות הזמנות. אם נמחק אותו, הן יישארו "יתומות": יצביעו על לקוח שלא קיים.</p></details>
+  <details><summary>5. למה המפתח הראשי של order_details בנוי משתי עמודות?</summary><p>אף אחת מהן לא ייחודית לבד: הזמנה 10248 מופיעה 3 פעמים, ומוצר 11 מופיע ב-38 הזמנות. אבל <b>הצירוף</b> <code>(order_id, product_id)</code> ייחודי: אותו מוצר מופיע לכל היותר פעם אחת באותה הזמנה.</p></details>
+  <details><summary>6. איזו עמודה מקשרת בין products ל-categories? כתבו את ה-JOIN.</summary><p class="ltr">SELECT p.product_name, c.category_name<br>FROM products AS p<br>JOIN categories AS c ON p.category_id = c.category_id;</p><p>‏<code>products.category_id</code> הוא המפתח הזר, ו-<code>categories.category_id</code> הוא המפתח הראשי.</p></details>
+  <details><summary>7. ל-AROUT יש 13 הזמנות. כמה שורות של AROUT יהיו בתוצאה של JOIN בין orders ל-customers?</summary><p>13 שורות, אחת לכל הזמנה. בכל אחת מהן יופיעו שוב השם והעיר של AROUT. ה-JOIN "משכפל" את פרטי הלקוח רק בתוצאה, לא במסד הנתונים.</p></details>
+  <details><summary>9. איך מוצאים את שמות הלקוחות שקנו Tofu? אילו טבלאות צריך, ובאיזה סדר?</summary><p>צריך ללכת בשרשרת: products ← order_details ← orders ← customers. מתחילים מהמוצר, עוברים לשורות ההזמנה שלו, משם להזמנות, ומשם ללקוחות.</p><p class="ltr">SELECT DISTINCT c.company_name<br>FROM products AS p<br>JOIN order_details AS od ON od.product_id = p.product_id<br>JOIN orders AS o ON o.order_id = od.order_id<br>JOIN customers AS c ON c.customer_id = o.customer_id<br>WHERE p.product_name = 'Tofu';</p></details>
+  <details><summary>10. העמודה <code>employees.reports_to</code> היא מפתח זר שמצביע על <code>employees.employee_id</code>, באותה טבלה. מה היא מתארת?</summary><p>את המנהל של כל עובד. גם המנהל הוא עובד, ולכן החץ מצביע לשורה אחרת באותה טבלה. לעובד הבכיר ביותר אין מנהל, ולכן אצלו הערך ריק (NULL).</p></details>
+</section>
+
+</div>
+<nav><a class="site-back" href="index.html#lessons">→ חזרה לנושא: מצגות לשיעור</a><button id="prev">→ הקודם</button><span id="count"></span><button id="next">הבא ←</button><span id="fs-slot"></span></nav>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s);
+const f2=x=>x.toFixed(2);
+const kw=s=>`<span class="kw">${s}</span>`,fn=s=>`<span class="fn">${s}</span>`,nm=s=>`<span class="num">${s}</span>`,st=s=>`<span class="st">${s}</span>`;
+const lines=(L,act)=>L.map(([k,h])=>`<span class="ln ${act&&act.includes(k)?'hl':''}">${h}</span>`).join('');
+/* ---------- query-analysis slides (shown before each animation) ---------- */
+const aK=s=>`<span class="kw">${s}</span>`,aF=s=>`<span class="fn">${s}</span>`,aN=s=>`<span class="num">${s}</span>`;
+function buildAnalysis(id,a){
+  const el=document.getElementById(id);
+  el.innerHTML=`<h2>${a.title} <span class="tag">ניתוח השאילתה</span></h2>
+  <p class="big"><b>השאלה:</b> ${a.q}</p>
+  <div class="row" style="margin-top:8px">
+    <div style="flex:1 1 300px"><div class="cap">השאילתה</div><pre class="sql an-sql">${a.sql.map(([k,h])=>`<span class="ln" data-k="${k}">${h}</span>`).join('')}</pre>
+      <div class="note"><b>מה נקבל בסוף?</b> ${a.expect}</div></div>
+    <div style="flex:1.3 1 340px"><div class="cap">מה אומר כל חלק בשאילתה? <small>מעבר עם העכבר מסמן את השורה בשאילתה</small></div>
+      <div class="parts">${a.parts.map(p=>`<div class="part" data-k="${p.k}"><code>${p.c}</code><span>${p.t}</span></div>`).join('')}</div></div>
+  </div>
+  <div class="cap" style="margin-top:14px">מה המנוע צריך לעשות, לפי הסדר <small>את זה נראה בהנפשה בשקף הבא</small></div>
+  <ol class="plan">${a.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+  el.querySelectorAll('.part').forEach(p=>{const ks=p.dataset.k.split(' ');
+    const on=v=>{el.querySelectorAll('.part').forEach(x=>x.classList.remove('on'));p.classList.toggle('on',v);
+      el.querySelectorAll('.an-sql .ln').forEach(l=>l.classList.toggle('hl',v&&ks.includes(l.dataset.k)));};
+    p.addEventListener('mouseenter',()=>on(true));p.addEventListener('mouseleave',()=>on(false));
+    p.addEventListener('click',()=>on(!p.classList.contains('on')));});
+}
+
+function buildExplain(id,a){
+  const el=document.getElementById(id);
+  el.innerHTML=`<h2>${a.title} <span class="tag">הסבר לפני ההנפשה</span></h2>
+  <p class="big">${a.idea}</p>
+  <div class="cap" style="margin-top:10px">מושגים</div>
+  <div class="parts">${a.terms.map(p=>`<div class="part"><code>${p.c}</code><span>${p.t}</span></div>`).join('')}</div>
+  <div class="cap" style="margin-top:14px">מה נראה בהנפשה, לפי הסדר <small>בשקף הבא</small></div>
+  <ol class="plan">${a.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+  <div class="note"><b>מה נבין בסוף?</b> ${a.expect}</div>`;
+}
+
+/* ---------- data (sql-practice.com, northwind.db) ---------- */
+const CUS=[['ALFKI','Alfreds Futterkiste','Berlin','Germany',6],['ANATR','Ana Trujillo Emparedados y helados','México D.F.','Mexico',4],
+ ['ANTON','Antonio Moreno Taquería','México D.F.','Mexico',7],['AROUT','Around the Horn','London','UK',13],['FISSA','FISSA Fabrica Inter. Salchichas S.A.','Madrid','Spain',0]];
+const ORD=[[10308,'ANATR','2016-09-18'],[10355,'AROUT','2016-11-15'],[10365,'ANTON','2016-11-27'],[10383,'AROUT','2016-12-16'],
+ [10453,'AROUT','2017-02-21'],[10625,'ANATR','2017-08-08'],[10643,'ALFKI','2017-08-25'],[10692,'ALFKI','2017-10-03']];
+const COL={ALFKI:'#3b5bdb',ANATR:'#d6336c',ANTON:'#e8590c',AROUT:'#2f9e44',FISSA:'#7048e8',ZZZZZ:'#e03131'};
+const cus=id=>CUS.find(c=>c[0]===id);
+const chip=id=>`<span class="chip" style="background:${COL[id]||'#adb5bd'}"></span>`;
+const chip0=id=>`<span class="chip" style="background:${({VINET:'#3b5bdb',TOMSP:'#d6336c',LILAS:'#2f9e44',FOLKO:'#e8590c',PICCO:'#7048e8',ANTON:'#0c8599'})[id]||'#adb5bd'}"></span>`;
+const cut=(s,n)=>s.length>n?s.slice(0,n-1)+'…':s;
+
+/* ---------- arrows overlay ---------- */
+function drawArrows(box,list){
+  let svg=box.querySelector('svg.arrows');
+  if(!svg){svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('class','arrows');box.appendChild(svg);}
+  const B=box.getBoundingClientRect();svg.setAttribute('width',box.scrollWidth);svg.setAttribute('height',box.scrollHeight);
+  svg.innerHTML='';
+  list.forEach(a=>{
+    if(!a.from)return;const r1=a.from.getBoundingClientRect();
+    let x1,y1=r1.top+r1.height/2-B.top,x2,y2;
+    if(a.to){const r2=a.to.getBoundingClientRect();y2=r2.top+r2.height/2-B.top;
+      const right=r2.left+r2.width/2>r1.left+r1.width/2,vert=Math.abs(r2.left-r1.left)<40;
+      if(vert){x1=r1.left+r1.width*0.85-B.left;x2=r2.left+r2.width*0.85-B.left;y1=(r2.top>r1.top?r1.bottom:r1.top)-B.top;y2=(r2.top>r1.top?r2.top:r2.bottom)-B.top;}
+      else if(right){x1=r1.right-B.left;x2=r2.left-B.left;}else{x1=r1.left-B.left;x2=r2.right-B.left;}}
+    else{x1=r1.right-B.left;x2=x1+60;y2=y1-26;}
+    const dx=Math.max(30,Math.abs(x2-x1)*0.5),sgn=x2>=x1?1:-1;
+    const vertical=a.to&&Math.abs(x2-x1)<60;
+    const d=vertical?`M${x1},${y1} C${x1+50},${y1+(y2-y1)*0.3} ${x2+50},${y2-(y2-y1)*0.3} ${x2},${y2}`:`M${x1},${y1} C${x1+sgn*dx},${y1} ${x2-sgn*dx},${y2} ${x2},${y2}`;
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',d);p.setAttribute('stroke',a.color||'#3b5bdb');
+    if(a.cls)p.setAttribute('class',a.cls);svg.appendChild(p);
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',x1);c.setAttribute('cy',y1);c.setAttribute('r',4);c.setAttribute('fill',a.cls==='bad'?'#e03131':a.color);if(a.cls==='dim')c.setAttribute('opacity','.18');svg.appendChild(c);
+    if(a.to){const t=document.createElementNS('http://www.w3.org/2000/svg','polygon');const ux=vertical?0:sgn,uy=vertical?(y2>y1?1:-1):0;
+      const px=-uy,py=ux;t.setAttribute('points',`${x2},${y2} ${x2-ux*10+px*5},${y2-uy*10+py*5} ${x2-ux*10-px*5},${y2-uy*10-py*5}`);
+      t.setAttribute('fill',a.cls==='bad'?'#e03131':a.color);if(a.cls==='dim')t.setAttribute('opacity','.18');svg.appendChild(t);}
+    else{const q=document.createElementNS('http://www.w3.org/2000/svg','text');q.setAttribute('x',x2+6);q.setAttribute('y',y2+6);q.setAttribute('fill','#e03131');q.setAttribute('font-size','22');q.setAttribute('font-weight','800');q.textContent='?';svg.appendChild(q);}
+    if(a.anim&&a.cls!=='bad'){const L=p.getTotalLength();p.style.strokeDasharray=L;p.style.strokeDashoffset=L;p.getBoundingClientRect();p.style.strokeDashoffset=0;}
+  });
+}
+
+/* ---------- ghosts ---------- */
+function flyRect(a,to,html,color,delay,done){
+  const g=document.createElement('div');g.className='ghost';g.innerHTML=html;g.style.setProperty('--c',color);
+  Object.assign(g.style,{left:a.left+'px',top:a.top+'px',width:a.width+'px',height:a.height+'px'});document.documentElement.appendChild(g);
+  const b=to.getBoundingClientRect();
+  const an=g.animate([{left:a.left+'px',top:a.top+'px',width:a.width+'px',height:a.height+'px'},{left:b.left+'px',top:b.top+'px',width:b.width+'px',height:b.height+'px'}],
+    {duration:800,delay:delay||0,easing:'cubic-bezier(.5,0,.2,1)',fill:'both'});
+  an.onfinish=()=>{g.remove();done&&done();};
+}
+function union(cells){const r=cells.map(c=>c.getBoundingClientRect());const l=Math.min(...r.map(x=>x.left)),t=Math.min(...r.map(x=>x.top));
+  return {left:l,top:t,width:Math.max(...r.map(x=>x.right))-l,height:Math.max(...r.map(x=>x.bottom))-t};}
+function clearGhosts(){document.querySelectorAll('.ghost').forEach(g=>g.remove());document.querySelectorAll('[style*="visibility: hidden"]').forEach(e=>e.style.visibility='');}
+
+/* ---------- stepper ---------- */
+const steppers=[];
+function mkStepper(ctlSel,TOT,render,speed){
+  let step=0,timer=null;const ctl=$(ctlSel);
+  ctl.innerHTML='<button data-a="reset">⟲ התחלה</button><button data-a="prev">→ אחורה</button><button data-a="next" class="pri">צעד הבא ←</button><button data-a="play">▶ נגן</button><div class="prog"><i></i></div><span class="stepn"></span>';
+  const playB=$('[data-a=play]',ctl);
+  const stop=()=>{clearTimeout(timer);timer=null;playB.textContent='▶ נגן';};
+  const go=x=>{const p=step;step=Math.max(0,Math.min(TOT,x));clearGhosts();render(step,p);$('.prog i',ctl).style.width=100*step/TOT+'%';$('.stepn',ctl).textContent=step+' / '+TOT;};
+  const tick=()=>{if(step>=TOT){stop();return;}go(step+1);timer=setTimeout(tick,speed||2400);};
+  ctl.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;
+    if(a==='reset'){stop();go(0);}else if(a==='prev'){stop();go(step-1);}else if(a==='next')go(step+1);
+    else if(a==='play'){if(timer)stop();else{if(step>=TOT)go(0);playB.textContent='⏸ עצור';timer=setTimeout(tick,200);}}});
+  const o={slide:ctl.closest('.slide'),next:()=>go(step+1),stop,redraw:()=>render(step,-9)};steppers.push(o);go(0);return o;
+}
+
+/* ================= A: one table or two ================= */
+buildExplain('exA',{title:'למה מפצלים מידע לכמה טבלאות?',
+  idea:'נניח שהיינו שומרים את כל המידע על הזמנות בטבלה אחת: מספר הזמנה, תאריך, ובאותה שורה גם השם, העיר והמדינה של הלקוח. זה נראה פשוט, אבל יש בזה שתי בעיות. הפתרון הוא לפצל לשתי טבלאות ולקשר ביניהן.',
+  terms:[{c:'חזרה (כפילות)',t:'אותם פרטים של לקוח נכתבים שוב ושוב, פעם בכל הזמנה שלו.'},
+   {c:'שגיאת עדכון',t:'כשפרט משתנה (למשל העיר), צריך לעדכן אותו בכל השורות. אם שוכחים שורה אחת, הנתונים סותרים זה את זה.'},
+   {c:'מפתח ראשי · Primary Key',t:'עמודה שמזהה כל שורה באופן <b>ייחודי</b>. בטבלה customers זו <code>customer_id</code>.'},
+   {c:'מפתח זר · Foreign Key',t:'עמודה שמכילה ערך של מפתח ראשי <b>מטבלה אחרת</b>. בטבלה orders זו <code>customer_id</code>.'}],
+  steps:['טבלה אחת עם הזמנות ופרטי לקוחות.','מסמנים את הפרטים שחוזרים.','מראים מה קורה כשמעדכנים רק חלק מהשורות.','מוציאים את פרטי הלקוחות לטבלה נפרדת.','מסמנים את המפתח הראשי.','מסמנים את המפתח הזר שמחבר בין הטבלאות.'],
+  expect:'בסוף יהיו לנו שתי טבלאות. פרטי כל לקוח כתובים <b>פעם אחת בלבד</b>, ובכל הזמנה נשאר רק מספר הלקוח, <code>customer_id</code>.'});
+
+mkStepper('#ctlA',5,(s,prev)=>{
+  const rep={};ORD.forEach(o=>rep[o[1]]=(rep[o[1]]||0)+1);
+  const L=$('#aL'),R=$('#aR');
+  let before=null;
+  if(s===3&&prev===2){before={};ORD.forEach((o,i)=>{if(!before[o[1]]){const tr=$('#aF'+i);if(tr)before[o[1]]=union([...tr.querySelectorAll('td.cust')]);}});}
+  if(s<3){
+    L.innerHTML=`<div class="cap">orders_with_customers <small>טבלה אחת, בלי פיצול</small></div><table class="t"><tr><th>order_id</th><th>order_date</th><th>customer_id</th><th>company_name</th><th>city</th><th>country</th></tr>${ORD.map((o,i)=>{const c=cus(o[1]);
+      const wrong=s===2&&i===1;const r=s>=1?`style="background:${COL[o[1]]}1a"`:'';
+      return `<tr id="aF${i}"><td>${o[0]}</td><td>${o[2]}</td><td>${chip(o[1])}${o[1]}</td><td class="cust ${s>=1?'rep':''}" ${r}>${cut(c[1],22)}${s>=1&&rep[o[1]]>1&&ORD.findIndex(x=>x[1]===o[1])===i?`<span class="cnt" style="background:${COL[o[1]]}">×${rep[o[1]]}</span>`:''}</td><td class="cust ${wrong?'wrong':''}" ${wrong?'':r}>${wrong?'Paris':c[2]}</td><td class="cust" ${r}>${c[3]}</td></tr>`;}).join('')}</table>`;
+    R.innerHTML='';
+  }else{
+    L.innerHTML=`<div class="cap">orders <small>נשארו רק פרטי ההזמנה</small></div><table class="t"><tr><th>order_id${s>=4?'<span class="pk">🔑 PK</span>':''}</th><th>order_date</th><th>customer_id${s>=5?'<span class="fk">🔗 FK</span>':''}</th></tr>${ORD.map(o=>
+      `<tr><td class="${s>=4?'colpk':''}">${o[0]}</td><td>${o[2]}</td><td class="${s>=5?'colfk':''}">${chip(o[1])}${o[1]}</td></tr>`).join('')}</table>`;
+    const used=[...new Set(ORD.map(o=>o[1]))].sort();
+    R.innerHTML=`<div class="cap">customers <small>כל לקוח פעם אחת</small></div><table class="t"><tr><th>customer_id${s>=4?'<span class="pk">🔑 PK</span>':''}</th><th>company_name</th><th>city</th><th>country</th></tr>${used.map(id=>{const c=cus(id);
+      return `<tr id="aC${id}"><td class="${s>=4?'colpk':''}">${chip(id)}${id}</td><td>${cut(c[1],22)}</td><td>${c[2]}</td><td>${c[3]}</td></tr>`;}).join('')}</table>`;
+    if(before)used.forEach((id,k)=>{const tr=$('#aC'+id);if(!tr||!before[id])return;tr.style.visibility='hidden';flyRect(before[id],tr,`${cut(cus(id)[1],20)} · ${cus(id)[2]}`,COL[id],k*150,()=>tr.style.visibility='');});
+  }
+  $('#sayA').innerHTML=['כך היו נראות 8 הזמנות אם כל המידע היה בטבלה אחת. בכל שורה יש פרטי הזמנה (<code>order_id</code>, <code>order_date</code>) וגם פרטי לקוח (<code>company_name</code>, <code>city</code>, <code>country</code>).',
+   '<b>בעיה 1: חזרות.</b> הצבעים מראים שאותם פרטי לקוח כתובים שוב ושוב. Around the Horn מופיע 3 פעמים כאן. בטבלה המלאה יש לו 13 הזמנות, כלומר 13 עותקים של אותו שם ואותה עיר.',
+   '<b>בעיה 2: שגיאת עדכון.</b> נניח ש-Around the Horn עבר לפריז, ומישהו עדכן רק את השורה של הזמנה 10355. עכשיו באותה טבלה כתוב <b class="bad">Paris</b> בשורה אחת ו-London בשתיים אחרות. איזו עיר נכונה? אי אפשר לדעת.',
+   '<b>הפתרון: פיצול.</b> מוציאים את פרטי הלקוחות לטבלה חדשה, <code>customers</code>, שבה כל לקוח מופיע <b>פעם אחת</b>. ב-orders נשאר רק <code>customer_id</code>, וזה מספיק כדי לדעת מי הלקוח.',
+   '<b>מפתח ראשי (🔑 PK):</b> ב-customers העמודה <code>customer_id</code> מזהה כל לקוח. הערך שלה <u>ייחודי</u>: אין שני לקוחות עם אותו מזהה. גם ב-orders יש מפתח ראשי: <code>order_id</code>.',
+   '<b>מפתח זר (🔗 FK):</b> העמודה <code>orders.customer_id</code> מכילה ערכים של המפתח הראשי של customers. היא "מצביעה" על הלקוח. בעמודה הזו ערך <u>יכול לחזור</u>, כי ללקוח יש כמה הזמנות. ועכשיו, אם לקוח עובר עיר, מעדכנים <b>שורה אחת</b> ב-customers.'][s];
+},3000);
+
+/* ================= B: FK arrows ================= */
+buildAnalysis('exB',{title:'איך מגדירים מפתח זר?',
+  q:'איך מסד הנתונים יודע ש-<code>orders.customer_id</code> מצביע על <code>customers.customer_id</code>? מגדירים את זה כשיוצרים את הטבלאות, עם <code>PRIMARY KEY</code> ו-<code>REFERENCES</code>.',
+  sql:[['t1',kw('CREATE TABLE')+' customers ('],['pk1','  customer_id  TEXT '+kw('PRIMARY KEY')+','],['c1','  company_name TEXT,'],['c1','  city         TEXT, …'],['t1',');'],['',' '],
+       ['t2',kw('CREATE TABLE')+' orders ('],['pk2','  order_id    INTEGER '+kw('PRIMARY KEY')+','],['fk','  customer_id TEXT '+kw('REFERENCES')+' customers(customer_id),'],['c2','  order_date  DATE, …'],['t2',');']],
+  parts:[{k:'t1 pk1 c1',c:'CREATE TABLE customers',t:'טבלת הלקוחות. כל שורה היא לקוח אחד.'},
+   {k:'pk1',c:'customer_id TEXT PRIMARY KEY',t:'<b>מפתח ראשי.</b> מסד הנתונים לא ירשה שני לקוחות עם אותו <code>customer_id</code>, ולא ירשה ערך ריק.'},
+   {k:'t2 pk2 c2',c:'CREATE TABLE orders',t:'טבלת ההזמנות. גם לה יש מפתח ראשי: <code>order_id</code>.'},
+   {k:'fk',c:'customer_id … REFERENCES customers(customer_id)',t:'<b>מפתח זר.</b> כל ערך בעמודה הזו חייב להיות <code>customer_id</code> שקיים בטבלה customers. מותר לו לחזור.'}],
+  steps:['מציגים 8 הזמנות ו-5 לקוחות.','לכל הזמנה מציירים חץ מה-<code>customer_id</code> שלה ללקוח המתאים.','סופרים כמה חצים מגיעים לכל לקוח.','רואים לקוח שאף חץ לא מגיע אליו.'],
+  expect:'נראה שהקשר הוא <b>רבים-לאחד</b>: הרבה הזמנות יכולות להצביע על אותו לקוח, אבל כל הזמנה מצביעה על <b>לקוח אחד בדיוק</b>. (כאן מוצגת הגדרה לדוגמה. ב-SQLite, למשל באתר sql-practice, האכיפה של מפתחות זרים פועלת רק אחרי <code>PRAGMA foreign_keys = ON</code>.)'});
+
+const N=ORD.length;
+const stB=mkStepper('#ctlB',N+1,(s,prev)=>{
+  const k=Math.min(s,N),cur=s>=1&&s<=N?s-1:-1,hits={};ORD.slice(0,k).forEach(o=>hits[o[1]]=(hits[o[1]]||0)+1);
+  $('#bO').innerHTML='<tr><th>order_id <span class="pk">🔑 PK</span></th><th>order_date</th><th>customer_id <span class="fk">🔗 FK</span></th></tr>'+ORD.map((o,i)=>
+    `<tr class="${i===cur?'cur':''}"><td>${o[0]}</td><td>${o[2]}</td><td class="colfk" id="bOf${i}">${chip(o[1])}${o[1]}</td></tr>`).join('');
+  $('#bC').innerHTML='<tr><th>customer_id <span class="pk">🔑 PK</span></th><th>company_name</th><th>city</th></tr>'+CUS.map(c=>
+    `<tr class="${cur>=0&&ORD[cur][1]===c[0]?'hl':''} ${s>N&&!hits[c[0]]?'dimrow':''}"><td class="colpk" id="bCk${c[0]}">${chip(c[0])}${c[0]}${hits[c[0]]?`<span class="cnt" style="background:${COL[c[0]]}">×${hits[c[0]]}</span>`:''}</td><td>${cut(c[1],22)}</td><td>${c[2]}</td></tr>`).join('');
+  drawArrows($('#duoB'),ORD.slice(0,k).map((o,i)=>({from:$('#bOf'+i),to:$('#bCk'+o[1]),color:COL[o[1]],anim:i===cur&&s===prev+1})));
+  $('#sayB').innerHTML=s===0?'משמאל ההזמנות, מימין הלקוחות. בכל הזמנה העמודה <code>customer_id</code> היא מפתח זר. לחצו <b>"צעד הבא"</b> כדי לצייר את החץ של כל הזמנה.':
+   cur>=0?`הזמנה <b>${ORD[cur][0]}</b>: הערך ב-<code>orders.customer_id</code> הוא <b>${ORD[cur][1]}</b> ← החץ מצביע על השורה ב-customers שבה <code>customer_id = '${ORD[cur][1]}'</code>, הלקוח <b style="color:${COL[ORD[cur][1]]}">${cus(ORD[cur][1])[1]}</b>.`+(hits[ORD[cur][1]]>1?` זה כבר החץ ה-${hits[ORD[cur][1]]} שמגיע ללקוח הזה.`:''):
+   '<b>קשר רבים-לאחד:</b> מכל הזמנה יוצא <u>חץ אחד בדיוק</u>, אבל ללקוח יכולים להגיע כמה חצים. ל-AROUT מגיעים 3 חצים כאן (בטבלה המלאה 13). ל-<b>FISSA</b> לא מגיע אף חץ, כי אין לו הזמנות, וזה מותר. המפתח הזר נמצא תמיד בצד של ה"רבים": בטבלה orders.';
+},1600);
+
+/* ================= C: integrity ================= */
+buildAnalysis('exC',{title:'שלמות הנתונים: מה המפתח הזר מונע?',
+  q:'כשמוגדר מפתח זר, מסד הנתונים שומר שכל חץ יצביע על שורה שקיימת. נריץ ארבע פקודות ונראה אילו מהן הוא מאשר ואילו הוא דוחה.',
+  sql:[['i1',kw('INSERT INTO')+' orders (order_id, customer_id, order_date)'],['i1','  '+kw('VALUES')+' ('+nm(11100)+', '+st("'ALFKI'")+', '+st("'2018-05-06'")+');'],
+       ['i2',kw('INSERT INTO')+' orders (order_id, customer_id, order_date)'],['i2','  '+kw('VALUES')+' ('+nm(11101)+', '+st("'ZZZZZ'")+', '+st("'2018-05-06'")+');'],
+       ['d1',kw('DELETE FROM')+' customers '+kw('WHERE')+' customer_id = '+st("'AROUT'")+';'],['d2',kw('DELETE FROM')+' customers '+kw('WHERE')+' customer_id = '+st("'FISSA'")+';']],
+  parts:[{k:'i1',c:"INSERT … 'ALFKI'",t:'הוספת הזמנה ללקוח שקיים. החץ מוצא את השורה שלו, ולכן הפקודה <b>תתקבל</b>.'},
+   {k:'i2',c:"INSERT … 'ZZZZZ'",t:'הוספת הזמנה ללקוח שלא קיים. לחץ אין לאן להצביע, ולכן הפקודה <b>תידחה</b>.'},
+   {k:'d1',c:"DELETE … 'AROUT'",t:'מחיקת לקוח שיש לו הזמנות. ההזמנות שלו היו נשארות "יתומות", ולכן הפקודה <b>תידחה</b>.'},
+   {k:'d2',c:"DELETE … 'FISSA'",t:'מחיקת לקוח שאין לו הזמנות. אף חץ לא מצביע עליו, ולכן הפקודה <b>תתקבל</b>.'}],
+  steps:['מוסיפים הזמנה ל-ALFKI.','מנסים להוסיף הזמנה ל-ZZZZZ.','מנסים למחוק את AROUT.','מוחקים את FISSA.','מסכמים את הכלל.'],
+  expect:'הכלל פשוט: <b>כל ערך של מפתח זר חייב להתאים לערך קיים של המפתח הראשי.</b> כל פקודה שהייתה שוברת את הכלל נדחית. (מספרי ההזמנות 11100 ו-11101 הם לדוגמה בלבד ולא קיימים בטבלה.)'});
+
+const CC=['ALFKI','ANATR','ANTON','AROUT','FISSA'];
+mkStepper('#ctlC',5,(s,prev)=>{
+  const rows=ORD.map(o=>({o,cls:''}));
+  if(s>=1)rows.push({o:[11100,'ALFKI','2018-05-06'],cls:s===1?'okrow new':''});
+  if(s===2)rows.push({o:[11101,'ZZZZZ','2018-05-06'],cls:'badrow',bad:1});
+  const cust=CC.filter(id=>!(s>=5&&id==='FISSA'));
+  $('#cO').innerHTML='<tr><th>order_id</th><th>order_date</th><th>customer_id <span class="fk">🔗 FK</span></th></tr>'+rows.map((r,i)=>
+    `<tr class="${r.cls}"><td>${r.o[0]}</td><td>${r.o[2]}</td><td class="colfk" id="cOf${i}">${chip(r.o[1])}${r.o[1]}</td></tr>`).join('');
+  $('#cC').innerHTML='<tr><th>customer_id <span class="pk">🔑 PK</span></th><th>company_name</th></tr>'+cust.map(id=>
+    `<tr class="${s===3&&id==='AROUT'?'badrow':''} ${s===4&&id==='FISSA'?'gone':''}"><td class="colpk" id="cCk${id}">${chip(id)}${id}</td><td>${cut(cus(id)[1],24)}</td></tr>`).join('');
+  drawArrows($('#duoC'),rows.map((r,i)=>({from:$('#cOf'+i),to:r.bad?null:$('#cCk'+r.o[1]),color:COL[r.o[1]],cls:r.bad?'bad':(s===3&&r.o[1]==='AROUT')?'bad':(s===3?'dim':''),anim:s===1&&i===rows.length-1&&prev===0})));
+  const ST=['',"INSERT INTO orders (order_id, customer_id, order_date)\nVALUES (11100, 'ALFKI', '2018-05-06');","INSERT INTO orders (order_id, customer_id, order_date)\nVALUES (11101, 'ZZZZZ', '2018-05-06');",
+   "DELETE FROM customers WHERE customer_id = 'AROUT';","DELETE FROM customers WHERE customer_id = 'FISSA';",'PRAGMA foreign_keys = ON;  -- SQLite'];
+  $('#stC').innerHTML=s?ST[s].replace(/\n/g,'<br>'):'<span style="color:#8a93a6">-- כאן תופיע הפקודה</span>';
+  $('#resC').innerHTML=['','<span class="res ok">✔ הפקודה התקבלה</span>','<span class="res no">✘ FOREIGN KEY constraint failed</span>','<span class="res no">✘ FOREIGN KEY constraint failed</span>','<span class="res ok">✔ הפקודה התקבלה</span>',''][s];
+  $('#sayC').innerHTML=['לפנינו 8 הזמנות ו-5 לקוחות, וכל החצים מצביעים על לקוחות קיימים. נריץ ארבע פקודות ונראה מה מסד הנתונים עושה עם כל אחת.',
+   '<b>הוספת הזמנה ל-ALFKI:</b> המנוע בודק שב-customers יש שורה עם <code>customer_id = \'ALFKI\'</code>. יש, ולכן ההזמנה החדשה נוספת והחץ שלה מצביע על Alfreds Futterkiste.',
+   '<b>הוספת הזמנה ל-ZZZZZ:</b> ב-customers אין לקוח כזה. החץ לא מצביע על אף שורה, ולכן מסד הנתונים <b class="bad">דוחה</b> את הפקודה. ההזמנה לא נכנסת לטבלה.',
+   '<b>מחיקת AROUT:</b> שלוש הזמנות מצביעות עליו (החצים האדומים). אם נמחק אותו, הן יצביעו על לקוח שלא קיים, ויהיו "הזמנות יתומות". לכן מסד הנתונים <b class="bad">דוחה</b> את המחיקה.',
+   '<b>מחיקת FISSA:</b> אף חץ לא מצביע עליו, כי אין לו הזמנות. אפשר למחוק אותו בלי לפגוע באף שורה, ולכן <b class="ok">הפקודה מתקבלת</b>.',
+   '<b>הכלל:</b> כל ערך של מפתח זר חייב להתאים לערך קיים של המפתח הראשי. ב-SQLite (כמו באתר sql-practice) האכיפה כבויה כברירת מחדל, ומפעילים אותה עם <code>PRAGMA foreign_keys = ON</code>. אפשר גם להגדיר <code>ON DELETE CASCADE</code>: אז מחיקת לקוח מוחקת אוטומטית גם את ההזמנות שלו.'][s];
+},3200);
+
+/* ================= D: JOIN along the FK ================= */
+const SQLD=[['sel',kw('SELECT')+' o.order_id, o.order_date, c.company_name, c.city'],['from',kw('FROM')+' orders '+kw('AS')+' o'],['join',kw('JOIN')+' customers '+kw('AS')+' c'],['on','  '+kw('ON')+' o.customer_id = c.customer_id;']];
+buildAnalysis('exD',{title:'השאילתה: מי הזמין כל הזמנה?',
+  q:'לכל הזמנה רוצים לראות את המספר, התאריך, <b>שם הלקוח ועיר הלקוח</b>. השם והעיר נמצאים ב-customers, אז צריך ללכת בעקבות המפתח הזר.',
+  sql:SQLD,
+  parts:[{k:'from',c:'FROM orders AS o',t:'מתחילים מההזמנות. <code>o</code> הוא כינוי קצר.'},
+   {k:'join',c:'JOIN customers AS c',t:'מצרפים את טבלת הלקוחות, עם הכינוי <code>c</code>.'},
+   {k:'on',c:'ON o.customer_id = c.customer_id',t:'<b>תנאי ה-ON הוא בדיוק החץ:</b> המפתח הזר בצד אחד שווה למפתח הראשי בצד השני. <code>FK = PK</code>.'},
+   {k:'sel',c:'SELECT o.order_id, o.order_date, c.company_name, c.city',t:'שתי עמודות מכל טבלה. שם הטבלה (הכינוי) לפני כל עמודה אומר מאיפה היא באה.'}],
+  steps:['לוקחים הזמנה.','הולכים בעקבות החץ שלה ללקוח.','מחברים את שתי השורות לשורה אחת בתוצאה.','חוזרים על זה לכל ההזמנות.'],
+  expect:'שורה לכל הזמנה, כלומר 8 שורות, עם 4 עמודות. לקוח עם כמה הזמנות יופיע בכמה שורות. FISSA לא יופיע, כי אין לו הזמנות.'});
+$('#sqlD').innerHTML=lines(SQLD);
+mkStepper('#ctlD',N+1,(s,prev)=>{
+  const k=Math.min(s,N),cur=s>=1&&s<=N?s-1:-1;
+  $('#sqlD').innerHTML=lines(SQLD,s===0?['from','join']:s>N?['sel']:['on']);
+  $('#dO').innerHTML='<tr><th>order_id</th><th>order_date</th><th>customer_id <span class="fk">🔗 FK</span></th></tr>'+ORD.map((o,i)=>
+    `<tr id="dOr${i}" class="${i===cur?'cur':''}"><td>${o[0]}</td><td>${o[2]}</td><td class="colfk" id="dOf${i}">${chip(o[1])}${o[1]}</td></tr>`).join('');
+  $('#dC').innerHTML='<tr><th>customer_id <span class="pk">🔑 PK</span></th><th>company_name</th><th>city</th></tr>'+CUS.map(c=>
+    `<tr id="dCr${c[0]}" class="${cur>=0&&ORD[cur][1]===c[0]?'hl':''} ${s>N&&c[0]==='FISSA'?'dimrow':''}"><td class="colpk" id="dCk${c[0]}">${chip(c[0])}${c[0]}</td><td>${cut(c[1],22)}</td><td>${c[2]}</td></tr>`).join('');
+  drawArrows($('#duoD'),ORD.slice(0,k).map((o,i)=>({from:$('#dOf'+i),to:$('#dCk'+o[1]),color:COL[o[1]],cls:i===cur||s>N?'':'dim',anim:i===cur&&s===prev+1})));
+  $('#dOut').innerHTML='<tr><th>order_id</th><th>order_date</th><th>company_name</th><th>city</th></tr>'+(k?ORD.slice(0,k).map((o,i)=>{const c=cus(o[1]);
+    return `<tr id="dR${i}"><td class="pc">${o[0]}</td><td class="pc">${o[2]}</td><td class="cc">${chip(o[1])}${cut(c[1],26)}</td><td class="cc">${c[2]}</td></tr>`;}).join(''):'<tr><td colspan="4" class="empty">עדיין ריקה</td></tr>');
+  $('#dN').textContent=k?k+' שורות':'';
+  if(cur>=0&&s===prev+1){const row=$('#dR'+cur),cells=[...row.children];row.style.visibility='hidden';let n=2;const fin=()=>{if(--n===0)row.style.visibility='';};
+    const sl=row.closest('.slide'),rb=row.getBoundingClientRect().bottom,lim=window.innerHeight-70;if(rb>lim)sl.scrollTop+=rb-lim;
+    flyRect(union([...$('#dOr'+cur).children].slice(0,2)),cells[0],`${ORD[cur][0]} · ${ORD[cur][2]}`,'#3b5bdb',600,fin);
+    flyRect(union([...$('#dCr'+ORD[cur][1]).children].slice(1,3)),cells[2],`${cut(cus(ORD[cur][1])[1],20)} · ${cus(ORD[cur][1])[2]}`,COL[ORD[cur][1]],800,fin);}
+  $('#sayD').innerHTML=s===0?'המנוע עובר על ההזמנות. לכל הזמנה הוא הולך בעקבות החץ של <code>customer_id</code>, ומדביק את פרטי הלקוח לפרטי ההזמנה.':
+   cur>=0?`הזמנה <b>${ORD[cur][0]}</b>: ‏<code>o.customer_id = '${ORD[cur][1]}'</code> ← החץ מוביל ללקוח <b style="color:${COL[ORD[cur][1]]}">${cus(ORD[cur][1])[1]}</b> מ-${cus(ORD[cur][1])[2]}. ‏<code>order_id</code> ו-<code>order_date</code> באים מההזמנה, ו-<code>company_name</code> ו-<code>city</code> מהלקוח.`:
+   '<b>סיום:</b> 8 שורות, אחת לכל הזמנה. פרטי Around the Horn מופיעים 3 פעמים <b>בתוצאה</b>, אבל במסד הנתונים הם שמורים פעם אחת. ה-JOIN מרכיב אותם מחדש בכל פעם שמבקשים. FISSA לא בתוצאה, כי אף הזמנה לא מצביעה עליו.';
+},2400);
+
+/* ================= E: many-to-many ================= */
+const EO=[[10248,'VINET','2016-07-04'],[10249,'TOMSP','2016-07-05'],[10296,'LILAS','2016-09-03'],[10327,'FOLKO','2016-10-11'],[10353,'PICCO','2016-11-13'],[10365,'ANTON','2016-11-27']];
+const EP=[[11,'Queso Cabrales'],[14,'Tofu'],[42,'Singaporean Hokkien Fried Mee'],[51,'Manjimup Dried Apples'],[72,'Mozzarella di Giovanni']];
+const ED=[[10248,11,12],[10248,42,10],[10248,72,5],[10249,14,9],[10249,51,40],[10296,11,12],[10327,11,50],[10353,11,12],[10365,11,24]];
+const PC={11:'#e8590c',14:'#2f9e44',42:'#3b5bdb',51:'#d6336c',72:'#7048e8'};
+buildAnalysis('exE',{title:'רבים-לרבים: הזמנות ומוצרים',
+  q:'בהזמנה אחת יכולים להיות <b>הרבה מוצרים</b>, ומוצר אחד יכול להופיע ב<b>הרבה הזמנות</b>. עמודה אחת של מפתח זר לא מספיקה בשביל זה. הפתרון הוא טבלה שלישית: <b>טבלת קישור</b>.',
+  sql:[['t',kw('CREATE TABLE')+' order_details ('],['f1','  order_id   INTEGER '+kw('REFERENCES')+' orders(order_id),'],['f2','  product_id INTEGER '+kw('REFERENCES')+' products(product_id),'],['c','  quantity   INTEGER,'],['c','  discount   DECIMAL,'],['pk','  '+kw('PRIMARY KEY')+' (order_id, product_id)'],['t',');']],
+  parts:[{k:'t c',c:'order_details',t:'כל שורה היא <b>מוצר אחד בתוך הזמנה אחת</b>, עם הכמות וההנחה.'},
+   {k:'f1',c:'order_id REFERENCES orders',t:'מפתח זר ראשון: לאיזו הזמנה השורה שייכת.'},
+   {k:'f2',c:'product_id REFERENCES products',t:'מפתח זר שני: איזה מוצר הוזמן.'},
+   {k:'pk',c:'PRIMARY KEY (order_id, product_id)',t:'<b>מפתח ראשי מורכב.</b> אף עמודה לא ייחודית לבד, אבל הצירוף שלהן ייחודי: אותו מוצר מופיע לכל היותר פעם אחת באותה הזמנה.'}],
+  steps:['מציגים 6 הזמנות, 9 שורות מ-order_details ו-5 מוצרים.','מכל שורה ב-order_details מציירים <b>שני חצים</b>: להזמנה ולמוצר.','מסמנים הזמנה אחת עם כמה מוצרים.','מסמנים מוצר אחד בכמה הזמנות.','בונים את תוצאת ה-JOIN של 3 הטבלאות.'],
+  expect:'נראה שבין orders ל-products אין חץ ישיר. כל הקשר עובר דרך order_details: <b>שני קשרים של רבים-לאחד</b> יוצרים יחד קשר של <b>רבים-לרבים</b>. בסוף נקבל טבלה עם <b>שורה לכל שורה ב-order_details</b> (9 שורות), ובה מספר ההזמנה, הלקוח, שם המוצר והכמות.'});
+const SQLE=[['sel',kw('SELECT')+' o.order_id, o.customer_id, p.product_name, od.quantity'],['from',kw('FROM')+' order_details '+kw('AS')+' od'],
+ ['j1',kw('JOIN')+' orders   '+kw('AS')+' o '+kw('ON')+' o.order_id = od.order_id'],['j2',kw('JOIN')+' products '+kw('AS')+' p '+kw('ON')+' p.product_id = od.product_id;']];
+const NE=ED.length;
+mkStepper('#ctlE',NE+3,(s,prev)=>{
+  const k=Math.min(s,NE),cur=s>=1&&s<=NE?s-1:-1,mO=s===NE+1,mP=s===NE+2,fin=s===NE+3;
+  $('#sqlE').innerHTML=lines(SQLE,s===0?['from']:cur>=0?['j1','j2']:fin?['sel','j1','j2']:['j1','j2']);
+  $('#eOutW').style.display=fin?'':'none';
+  $('#eOut').innerHTML='<tr><th>order_id</th><th>customer_id</th><th>product_name</th><th>quantity</th></tr>'+ED.map(d=>{const o=EO.find(x=>x[0]===d[0]),pp=EP.find(x=>x[0]===d[1]);
+    return `<tr class="new"><td class="cc">${d[0]}</td><td class="cc">${o[1]}</td><td class="pc"><span class="chip" style="background:${PC[d[1]]}"></span>${pp[1]}</td><td class="n">${d[2]}</td></tr>`;}).join('');
+  if(fin&&prev===s-1){const t=$('#eOutW'),sl=t.closest('.slide');setTimeout(()=>{const rb=t.getBoundingClientRect().bottom,lim=window.innerHeight-70;if(rb>lim)sl.scrollTop+=rb-lim;},50);}
+  const inD=d=>mO?d[0]===10248:mP?d[1]===11:false;
+  $('#eO').innerHTML='<tr><th>order_id <span class="pk">🔑</span></th><th>customer_id</th></tr>'+EO.map(o=>
+    `<tr class="${(cur>=0&&ED[cur][0]===o[0])||(mO&&o[0]===10248)||(mP&&ED.some(d=>d[1]===11&&d[0]===o[0]))?'hl':''}"><td class="colpk">${o[0]}</td><td id="eOk${o[0]}">${o[1]}</td></tr>`).join('');
+  $('#eP').innerHTML='<tr><th>product_id <span class="pk">🔑</span></th><th>product_name</th></tr>'+EP.map(p=>
+    `<tr class="${(cur>=0&&ED[cur][1]===p[0])||(mP&&p[0]===11)||(mO&&ED.some(d=>d[0]===10248&&d[1]===p[0]))?'hl':''}"><td class="colpk" id="ePk${p[0]}"><span class="chip" style="background:${PC[p[0]]}"></span>${p[0]}</td><td>${cut(p[1],22)}</td></tr>`).join('');
+  $('#eD').innerHTML='<tr><th>order_id <span class="fk">🔗</span></th><th>quantity</th><th>product_id <span class="fk">🔗</span></th></tr>'+ED.map((d,i)=>
+    `<tr class="${i===cur?'cur':''} ${(mO||mP)&&!inD(d)?'dimrow':''} ${(mO||mP)&&inD(d)?'hl':''}"><td class="colfk" id="eDo${i}">${d[0]}</td><td class="n">${d[2]}</td><td class="colfk" id="eDp${i}">${d[1]}</td></tr>`).join('');
+  const A=[];ED.slice(0,k).forEach((d,i)=>{const dim=(mO||mP)?!inD(d):(cur>=0&&i!==cur);
+    A.push({from:$('#eDo'+i),to:$('#eOk'+d[0]),color:'#495057',cls:dim?'dim':'',anim:i===cur&&s===prev+1});
+    A.push({from:$('#eDp'+i),to:$('#ePk'+d[1]),color:PC[d[1]],cls:dim?'dim':'',anim:i===cur&&s===prev+1});});
+  drawArrows($('#trioE'),A);
+  $('#sayE').innerHTML=s===0?'באמצע טבלת הקישור <code>order_details</code>. בכל שורה יש <b>שני מפתחות זרים</b>: <code>order_id</code> מצביע על הזמנה (משמאל), ו-<code>product_id</code> מצביע על מוצר (מימין).':
+   cur>=0?`שורה: הזמנה <b>${ED[cur][0]}</b>, מוצר <b>${ED[cur][1]}</b>, כמות ${ED[cur][2]}. ‏חץ אחד הולך להזמנה ${ED[cur][0]}, וחץ שני הולך למוצר <b>${EP.find(p=>p[0]===ED[cur][1])[1]}</b>.`:
+   fin?'<b>תוצאת ה-JOIN:</b> המנוע עובר על 9 השורות של order_details. לכל שורה הוא הולך בעקבות <b>שני החצים</b>: אל ההזמנה, ומשם מקבל את <code>customer_id</code>, ואל המוצר, ומשם מקבל את <code>product_name</code>. כך נוצרת שורה אחת בתוצאה לכל שורה ב-order_details. הזמנה 10248 מופיעה 3 פעמים, ו-Queso Cabrales מופיע 5 פעמים. בשקף הבא נוסיף גם את שם הלקוח.':
+   mO?'<b>הזמנה אחת ← כמה מוצרים:</b> להזמנה 10248 יש 3 שורות ב-order_details, ולכן היא קשורה ל-3 מוצרים: Queso Cabrales, Singaporean Hokkien Fried Mee ו-Mozzarella di Giovanni.':
+   '<b>מוצר אחד ← כמה הזמנות:</b> ‏Queso Cabrales (מוצר 11) מופיע כאן ב-5 הזמנות שונות, ובטבלה המלאה ב-38 הזמנות. כך שני קשרים של רבים-לאחד יוצרים יחד קשר של <b>רבים-לרבים</b> בין orders ל-products.';
+},1800);
+
+/* ================= E2: customers + orders + order_details + products ================= */
+const QC=[['VINET','Vins et alcools Chevalier','France'],['TOMSP','Toms Spezialitäten','Germany'],['LILAS','LILA-Supermercado','Venezuela'],
+ ['FOLKO','Folk och fä HB','Sweden'],['PICCO','Piccolo und mehr','Austria'],['ANTON','Antonio Moreno Taquería','Mexico']];
+const QCOL={VINET:'#3b5bdb',TOMSP:'#d6336c',LILAS:'#2f9e44',FOLKO:'#e8590c',PICCO:'#7048e8',ANTON:'#0c8599'};
+const qcName=id=>QC.find(c=>c[0]===id)[1];
+const qOrd=id=>EO.find(o=>o[0]===id);
+const SQLE2=[['sel',kw('SELECT')+' c.company_name, o.order_id, p.product_name, od.quantity'],['from',kw('FROM')+' order_details '+kw('AS')+' od'],
+ ['j1',kw('JOIN')+' orders    '+kw('AS')+' o '+kw('ON')+' o.order_id = od.order_id'],['j2',kw('JOIN')+' customers '+kw('AS')+' c '+kw('ON')+' c.customer_id = o.customer_id'],
+ ['j3',kw('JOIN')+' products  '+kw('AS')+' p '+kw('ON')+' p.product_id = od.product_id;']];
+buildAnalysis('exE2',{title:'אותה דוגמה, עם הלקוחות',
+  q:'בשקף הקודם ראינו אילו מוצרים יש בכל הזמנה. אבל <b>מי</b> הזמין? שם הלקוח נמצא ב-<code>customers</code>, והדרך אליו עוברת דרך <code>orders</code>. כך נראה שרשרת של <b>שלושה מפתחות זרים</b>, ונענה על שתי שאלות: מי קנה את Queso Cabrales, ומה קנה Vins et alcools Chevalier?',
+  sql:SQLE2,
+  parts:[{k:'from',c:'FROM order_details AS od',t:'מתחילים מטבלת הקישור: כל שורה היא מוצר אחד בהזמנה אחת.'},
+   {k:'j1',c:'JOIN orders ON o.order_id = od.order_id',t:'מפתח זר 1: משורת ההזמנה להזמנה עצמה.'},
+   {k:'j2',c:'JOIN customers ON c.customer_id = o.customer_id',t:'מפתח זר 2: מההזמנה ללקוח. כאן נמצא <code>company_name</code>.'},
+   {k:'j3',c:'JOIN products ON p.product_id = od.product_id',t:'מפתח זר 3: משורת ההזמנה למוצר. כאן נמצא <code>product_name</code>.'},
+   {k:'sel',c:'SELECT c.company_name, o.order_id, p.product_name, od.quantity',t:'עמודה אחת מכל טבלה. ביחד הן עונות על השאלה "מי קנה מה, ובאיזו כמות".'}],
+  steps:['מציגים 4 טבלאות: customers, orders, order_details, products.','מציירים את החצים מכל הזמנה ללקוח שלה.','מציירים את החצים מ-order_details להזמנות.','מציירים את החצים מ-order_details למוצרים.',
+   'הולכים "אחורה" ממוצר ללקוחות שקנו אותו.','הולכים "קדימה" מלקוח למוצרים שקנה.','בונים את תוצאת ה-JOIN של 4 הטבלאות.'],
+  expect:'שורה לכל שורה ב-order_details, כלומר 9 שורות, עם שם הלקוח, מספר ההזמנה, שם המוצר והכמות. נראה שבין customers ל-products אין חץ ישיר: הדרך עוברת דרך orders ו-order_details.'});
+const QOUT=ED.map(d=>{const o=qOrd(d[0]);return [qcName(o[1]),d[0],EP.find(p=>p[0]===d[1])[1],d[2],o[1],d[1]];});
+mkStepper('#ctlE2',6,(s,prev)=>{
+  const fP=s===4,fC=s===5;   // follow product 11 / customer VINET
+  const odOn=d=>fP?d[1]===11:fC?d[0]===10248:true;
+  const ordOn=o=>fP?ED.some(d=>d[1]===11&&d[0]===o[0]):fC?o[0]===10248:true;
+  const cusOn=c=>fP?EO.some(o=>o[1]===c[0]&&ED.some(d=>d[1]===11&&d[0]===o[0])):fC?c[0]==='VINET':true;
+  const prOn=p=>fP?p[0]===11:fC?ED.some(d=>d[0]===10248&&d[1]===p[0]):true;
+  const focus=fP||fC;
+  $('#sqlE2').innerHTML=lines(SQLE2,[['from'],['j2'],['j1'],['j3'],['j1','j2','j3'],['j1','j2','j3'],['sel','j1','j2','j3']][s]);
+  $('#qC').innerHTML='<tr><th>customer_id 🔑</th><th>company_name</th></tr>'+QC.map(c=>
+    `<tr class="${focus?(cusOn(c)?'hl':'dimrow'):''}"><td class="colpk">${chip0(c[0])}${c[0]}</td><td id="qCk${c[0]}">${cut(c[1],18)}</td></tr>`).join('');
+  $('#qO').innerHTML='<tr><th>customer_id 🔗</th><th>order_id 🔑</th></tr>'+EO.map(o=>
+    `<tr class="${focus?(ordOn(o)?'hl':'dimrow'):''}"><td class="colfk" id="qOf${o[0]}">${chip0(o[1])}${o[1]}</td><td class="colpk" id="qOk${o[0]}">${o[0]}</td></tr>`).join('');
+  $('#qD').innerHTML='<tr><th>order_id 🔗</th><th>quantity</th><th>product_id 🔗</th></tr>'+ED.map((d,i)=>
+    `<tr class="${focus?(odOn(d)?'hl':'dimrow'):''}"><td class="colfk" id="qDo${i}">${d[0]}</td><td class="n">${d[2]}</td><td class="colfk" id="qDp${i}">${d[1]}</td></tr>`).join('');
+  $('#qP').innerHTML='<tr><th>product_id 🔑</th><th>product_name</th></tr>'+EP.map(p=>
+    `<tr class="${focus?(prOn(p)?'hl':'dimrow'):''}"><td class="colpk" id="qPk${p[0]}"><span class="chip" style="background:${PC[p[0]]}"></span>${p[0]}</td><td>${cut(p[1],18)}</td></tr>`).join('');
+  const A=[];
+  if(s>=1)EO.forEach(o=>A.push({from:$('#qOf'+o[0]),to:$('#qCk'+o[1]),color:QCOL[o[1]],cls:focus&&!ordOn(o)?'dim':'',anim:s===1&&prev===0}));
+  if(s>=2)ED.forEach((d,i)=>A.push({from:$('#qDo'+i),to:$('#qOk'+d[0]),color:'#495057',cls:focus&&!odOn(d)?'dim':'',anim:s===2&&prev===1}));
+  if(s>=3)ED.forEach((d,i)=>A.push({from:$('#qDp'+i),to:$('#qPk'+d[1]),color:PC[d[1]],cls:focus&&!odOn(d)?'dim':'',anim:s===3&&prev===2}));
+  drawArrows($('#quadE2'),A);
+  $('#qOutW').style.display=s>=6?'':'none';
+  $('#qOut').innerHTML='<tr><th>company_name</th><th>order_id</th><th>product_name</th><th>quantity</th></tr>'+QOUT.map(r=>
+    `<tr class="new"><td class="cc">${chip0(r[4])}${r[0]}</td><td>${r[1]}</td><td class="pc"><span class="chip" style="background:${PC[r[5]]}"></span>${r[2]}</td><td class="n">${r[3]}</td></tr>`).join('');
+  if(s===6&&prev===5){const t=$('#qOutW'),sl=t.closest('.slide');setTimeout(()=>{const rb=t.getBoundingClientRect().bottom,lim=window.innerHeight-70;if(rb>lim)sl.scrollTop+=rb-lim;},50);}
+  const buyers=[...new Set(ED.filter(d=>d[1]===11).map(d=>qcName(qOrd(d[0])[1])))];
+  $('#sayE2').innerHTML=['אותה דוגמה כמו בשקף הקודם, ועכשיו גם עם הלקוחות. משמאל לימין: <code>customers</code> ← <code>orders</code> ← <code>order_details</code> → <code>products</code>. בטבלה orders העמודה <code>customer_id</code> מוצגת ראשונה, כדי שהחץ יצא ממנה ישר ללקוח.',
+   '<b>מפתח זר 1: ‏orders.customer_id.</b> כל הזמנה מצביעה על הלקוח שלה. כאן לכל לקוח יש הזמנה אחת, אבל בטבלה המלאה ללקוח יש הרבה הזמנות.',
+   '<b>מפתח זר 2: ‏order_details.order_id.</b> כל שורה ב-order_details מצביעה על ההזמנה שלה. להזמנה 10248 מגיעים 3 חצים: יש בה 3 מוצרים.',
+   '<b>מפתח זר 3: ‏order_details.product_id.</b> כל שורה מצביעה על המוצר שלה. עכשיו כל שורה ב-order_details מחוברת גם לאחור (הזמנה ← לקוח) וגם קדימה (מוצר).',
+   `<b>מי קנה את Queso Cabrales?</b> מתחילים מהמוצר (מימין) והולכים נגד כיוון החצים: מוצר 11 ← 5 שורות ב-order_details ← 5 הזמנות ← <b>5 לקוחות</b>: ${buyers.join(', ')}.`,
+   '<b>מה קנה Vins et alcools Chevalier?</b> מתחילים מהלקוח (משמאל): ‏VINET ← הזמנה 10248 ← 3 שורות ב-order_details ← <b>3 מוצרים</b>: Queso Cabrales, Singaporean Hokkien Fried Mee ו-Mozzarella di Giovanni.',
+   '<b>JOIN של 4 טבלאות:</b> זו בדיוק הדרך שעשינו בעיניים. לכל שורה ב-order_details המנוע הולך בעקבות 3 החצים ומרכיב שורה אחת: <b>מי</b> (company_name), <b>באיזו הזמנה</b> (order_id), <b>מה</b> (product_name) <b>וכמה</b> (quantity). התוצאה נבדקה באתר sql-practice.'][s];
+},3000);
+
+/* ================= F: Northwind map ================= */
+const TB={customers:[20,40,'93 שורות','🔑 customer_id'],orders:[360,40,'830 שורות','🔑 order_id'],employees:[700,40,'9 שורות','🔑 employee_id'],
+ shippers:[700,235,'3 שורות','🔑 shipper_id'],order_details:[360,235,'2,155 שורות','🔑 (order_id, product_id)'],
+ categories:[20,420,'8 שורות','🔑 category_id'],products:[360,420,'77 שורות','🔑 product_id'],suppliers:[700,420,'29 שורות','🔑 supplier_id']};
+const W=240,H=96;
+const REL=[['orders','customers','customer_id','orders.customer_id ← customers','לכל הזמנה יש לקוח אחד, וללקוח יש הרבה הזמנות.'],
+ ['orders','employees','employee_id','orders.employee_id ← employees','לכל הזמנה יש עובד אחד שטיפל בה, ולעובד יש הרבה הזמנות.'],
+ ['orders','shippers','ship_via','orders.ship_via ← shippers','לכל הזמנה יש חברת שילוח אחת. שימו לב: שם העמודה <code>ship_via</code> שונה משם המפתח הראשי <code>shipper_id</code>. השמות לא חייבים להיות זהים.'],
+ ['order_details','orders','order_id','order_details.order_id ← orders','כל שורה ב-order_details שייכת להזמנה אחת. להזמנה יש כמה שורות (כמה מוצרים).'],
+ ['order_details','products','product_id','order_details.product_id ← products','כל שורה ב-order_details מתייחסת למוצר אחד. יחד עם הקשר הקודם זה יוצר רבים-לרבים בין הזמנות למוצרים.'],
+ ['products','categories','category_id','products.category_id ← categories','לכל מוצר יש קטגוריה אחת, ובקטגוריה יש הרבה מוצרים.'],
+ ['products','suppliers','supplier_id','products.supplier_id ← suppliers','לכל מוצר יש ספק אחד, ולספק יש כמה מוצרים.'],
+ ['employees','employees','reports_to','employees.reports_to ← employees','מפתח זר <b>לאותה טבלה</b>: העמודה <code>reports_to</code> מכילה את ה-<code>employee_id</code> של המנהל של העובד.']];
+function anchor(t,side){const [x,y]=TB[t];return side==='l'?[x,y+H/2]:side==='r'?[x+W,y+H/2]:side==='t'?[x+W/2,y]:[x+W/2,y+H];}
+function relPath(a,b){
+  if(a===b){const [x,y]=TB[a];return `M${x+W},${y+28} C${x+W+80},${y+4} ${x+W+80},${y+H-4} ${x+W},${y+H-28}`;}
+  const A=TB[a],B=TB[b];let p,q;
+  if(Math.abs(A[1]-B[1])<10){p=anchor(a,A[0]<B[0]?'r':'l');q=anchor(b,A[0]<B[0]?'l':'r');}
+  else if(Math.abs(A[0]-B[0])<10){p=anchor(a,A[1]<B[1]?'b':'t');q=anchor(b,A[1]<B[1]?'t':'b');}
+  else{p=anchor(a,'r');q=anchor(b,'l');}
+  const mx=(p[0]+q[0])/2;return `M${p[0]},${p[1]} C${mx},${p[1]} ${mx},${q[1]} ${q[0]},${q[1]}`;
+}
+function midOf(a,b){if(a===b){const [x,y]=TB[a];return [x+W+66,y+H/2+4];}const A=TB[a],B=TB[b];
+  return [(A[0]+B[0])/2+W/2+(Math.abs(A[1]-B[1])<10?0:8),(A[1]+B[1])/2+H/2-(Math.abs(A[1]-B[1])<10?8:0)];}
+$('#mapF').innerHTML='<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8a93a6"/></marker><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3b5bdb"/></marker></defs>'+
+  REL.map((r,i)=>{const [mx,my]=midOf(r[0],r[1]);return `<g class="rel" id="rel${i}"><path d="${relPath(r[0],r[1])}" marker-end="url(#ah)"/><text x="${mx}" y="${my}" text-anchor="${r[0]===r[1]?'start':'middle'}">${r[2]}</text></g>`;}).join('')+
+  Object.entries(TB).map(([n,[x,y,c,k]])=>`<g class="box" id="box_${n}"><rect x="${x}" y="${y}" width="${W}" height="${H}" rx="12"/><text class="tn" x="${x+14}" y="${y+28}">${n}</text><text x="${x+14}" y="${y+52}">${k}</text><text x="${x+14}" y="${y+76}" fill="#8a93a6">${c}</text></g>`).join('');
+mkStepper('#ctlF',REL.length+1,(s)=>{
+  REL.forEach((r,i)=>{const g=$('#rel'+i),on=s===i+1||s>REL.length;g.classList.toggle('on',on);g.querySelector('path').setAttribute('marker-end',on?'url(#ah2)':'url(#ah)');});
+  Object.keys(TB).forEach(n=>$('#box_'+n).classList.toggle('on',s>=1&&s<=REL.length&&(REL[s-1][0]===n||REL[s-1][1]===n)));
+  $('#sayF').innerHTML=s===0?'זו המפה של 8 הטבלאות המרכזיות ב-Northwind. כל קו הוא מפתח זר: הוא יוצא מהטבלה שבה נמצאת עמודת ה-FK, והחץ מצביע על הטבלה שבה נמצא המפתח הראשי. ליד כל קו כתוב שם העמודה. לחצו <b>"צעד הבא"</b> כדי לעבור על הקשרים אחד-אחד.':
+   s<=REL.length?`<b><code>${REL[s-1][3].split(' ←')[0]}</code> ← <code>${REL[s-1][1]}</code>:</b> ${REL[s-1][4]}`:
+   '<b>כל הקשרים יחד.</b> ‏orders נמצאת במרכז: היא מצביעה על הלקוח, העובד וחברת השילוח. ‏order_details מחברת בין הזמנות למוצרים. מכל טבלה אפשר להגיע לכל טבלה אחרת דרך מפתחות זרים, ובדיוק כך בונים JOIN בין כמה טבלאות.';
+},2600);
+
+/* ---------- deck nav ---------- */
+const slides=[...document.querySelectorAll('.slide')];let cur=0;
+function show(i){cur=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,j)=>s.classList.toggle('on',j===cur));
+  steppers.forEach(d=>d.stop());clearGhosts();
+  $('#count').textContent=`${cur+1} / ${slides.length} · ${slides[cur].dataset.title}`;slides[cur].scrollTop=0;
+  const d=steppers.find(x=>x.slide===slides[cur]);if(d)setTimeout(d.redraw,420);}
+const curDemo=()=>steppers.find(d=>d.slide===slides[cur]);
+$('#prev').onclick=()=>show(cur-1);$('#next').onclick=()=>show(cur+1);
+addEventListener('resize',()=>{const d=curDemo();if(d)d.redraw();});
+document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='PageDown')show(cur+1);else if(e.key==='ArrowRight'||e.key==='PageUp')show(cur-1);
+  else if((e.key===' '||e.key==='Enter')&&curDemo()){e.preventDefault();curDemo().next();}});
+let tx=null;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+document.addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>80&&!e.target.closest('table,pre,.duo,.trio,svg'))show(dx>0?cur+1:cur-1);tx=null;});
+show(0);
+</script>
+</body>
+</html>

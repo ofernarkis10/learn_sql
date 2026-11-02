@@ -129,6 +129,16 @@ nav button:hover{background:#dbe4ff}
 .site-back:hover{text-decoration:underline}
 #fs-slot{margin-inline-start:auto}
 @media (max-width:600px){.site-back{display:none}}
+.parts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}
+.part{background:#fff;border:1px solid var(--line);border-right:4px solid var(--acc);border-radius:10px;padding:8px 12px;cursor:pointer;transition:.2s;line-height:1.55;font-size:15px}
+.part.on{border-color:var(--acc);box-shadow:0 0 0 3px #3b5bdb22;background:#f3f6ff}
+.part code,ol.plan code,.an-note code{direction:ltr;unicode-bidi:embed;background:#eef1f8;border-radius:5px;padding:0 5px;font-family:Consolas,monospace;font-size:.92em}
+.part>code{display:block;width:fit-content;max-width:100%;margin-bottom:4px;font-weight:700;white-space:pre-wrap;text-align:left}
+pre.an-sql .ln{opacity:1}
+pre.an-sql .ln.hl{background:#3b5bdb55;box-shadow:inset 3px 0 0 #74c0fc}
+ol.plan{counter-reset:pl;list-style:none;padding:0;margin:6px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+ol.plan li{counter-increment:pl;background:#fff;border:1px solid var(--line);border-radius:10px;padding:32px 12px 10px;line-height:1.5;position:relative;font-size:15px}
+ol.plan li::before{content:counter(pl);position:absolute;top:7px;right:10px;width:22px;height:22px;border-radius:50%;background:var(--acc);color:#fff;font:700 12px/22px Arial;text-align:center}
 </style>
 <script src="font-size.js"></script>
 </head>
@@ -156,6 +166,8 @@ nav button:hover{background:#dbe4ff}
 </section>
 
 <!-- 3 -->
+<section class="slide" data-title="ניתוח השאילתה" id="anQ1"></section>
+
 <section class="slide" data-title="סדר הביצוע">
   <h2>סדר הכתיבה ≠ סדר הביצוע</h2>
   <p>כותבים <code>SELECT</code> ראשון, אבל המנוע מבצע אותו כמעט בסוף. זה הסדר הלוגי:</p>
@@ -241,7 +253,7 @@ nav button:hover{background:#dbe4ff}
   <h2>סיכום: הדרך מהטבלאות לתוצאה</h2>
   <div class="flow" id="flowSum"></div>
   <h2 style="margin-top:22px">שאלות לבדיקה</h2>
-  <details><summary>1. כמה השוואות ביצע ה-Nested Loop Join, ולמה?</summary><p>8 הזמנות × 5 לקוחות = 40 השוואות. כל שורה בטבלה החיצונית מושווית לכל שורה בטבלה הפנימית. בטבלאות גדולות זה יקר מאוד, ולכן מנועים משתמשים באינדקסים או ב-Hash Join.</p></details>
+  <details><summary>1. כמה השוואות ביצע ה-Nested Loop Join, ולמה?</summary><p>8 הזמנות × 5 לקוחות = 40 השוואות. כל שורה בטבלה החיצונית מושווית לכל שורה בטבלה הפנימית. בטבלאות גדולות זה הרבה מאוד השוואות.</p></details>
   <details><summary>2. למה הלקוח FISSA לא מופיע בתוצאה? איך גורמים לו להופיע?</summary><p>ב-INNER JOIN נשארות רק שורות שנמצאה להן התאמה, ול-FISSA אין הזמנות. עם <code>customers c LEFT JOIN orders o</code> הוא יופיע, ובעמודות של orders יהיה NULL.</p></details>
   <details><summary>3. מה תהיה התוצאה אם נשנה ל-<code>HAVING COUNT(o.order_id) &gt;= 3</code>?</summary><p>תישאר שורה אחת בלבד: Alfreds Futterkiste עם 3 הזמנות ומשלוח כולל של 114.42.</p></details>
   <details><summary>4. למה <code>WHERE order_count &gt;= 2</code> לא עובד?</summary><p>WHERE מתבצע לפני GROUP BY ולפני SELECT. בשלב הזה עדיין אין קבוצות, וגם הכינוי order_count עוד לא הוגדר. (חלק מהמנועים, כמו MySQL ו-SQLite, מתירים כינוי ב-HAVING כהרחבה לתקן.)</p></details>
@@ -364,7 +376,7 @@ stepper('#ctlJoin',TOT+1,s=>{
   if(cur>=0){ps[1].className='hl';ps[2].className='hl';if(match)ps[3].className='ok';}
   let t;
   if(s===0)t='המנוע עובר על כל הזמנה ב-<code>orders</code> (הלולאה החיצונית). לכל הזמנה הוא סורק את כל <code>customers</code> (הלולאה הפנימית) ובודק את תנאי ה-<code>ON</code>. לחצו <b>"צעד הבא"</b>, או <b>"להזמנה הבאה"</b> כדי לדלג.';
-  else if(s>TOT)t=`<b>סיום:</b> ${TOT} השוואות (8×5) ו-${res.length} שורות בתוצאה. הלקוח <b>FISSA</b> לא התאים לאף הזמנה, ולכן ב-INNER JOIN הוא <b class="bad">לא מופיע</b> בכלל.<br>💡 במנוע אמיתי יש אינדקס על המפתח הראשי <code>customer_id</code>, ולכן המנוע קופץ ישר ללקוח הנכון במקום לסרוק את כולם.`;
+  else if(s>TOT)t=`<b>סיום:</b> ${TOT} השוואות (8×5) ו-${res.length} שורות בתוצאה. הלקוח <b>FISSA</b> לא התאים לאף הזמנה, ולכן ב-INNER JOIN הוא <b class="bad">לא מופיע</b> בכלל.`;
   else{t=`הזמנה <b>${o[0]}</b>: משווים <code>o.customer_id = ${o[1]}</code> מול <code>c.customer_id = ${c.id}</code> ← `+
      (match?'<b class="ok">✔ שווה! מוסיפים שורה משולבת לתוצאה</b>':'<b class="bad">✘ לא שווה, ממשיכים ללקוח הבא</b>');
     if(ci===M-1)t+='<br>סיימנו לסרוק את customers עבור ההזמנה הזו. עוברים להזמנה הבאה.';}
@@ -444,6 +456,48 @@ stepper('#ctlSel',2,s=>{
    '<b>SELECT</b>: המנוע בוחר את העמודות להצגה ונותן להן <b>כינויים</b> עם <code>AS</code>, למשל <code>order_count</code> ו-<code>total_freight</code>.',
    '<b>ORDER BY</b>: ממיינים לפי <code>order_count</code> בסדר יורד. בתיקו (שתיים-שתיים) מכריע <code>total_freight</code>. מכיוון ש-ORDER BY מתבצע <u>אחרי</u> SELECT, מותר להשתמש בו בכינויים. 🎉 זו התוצאה הסופית!'][s];
 });
+
+/* ---------- query-analysis slides (shown before each animation) ---------- */
+const aK=s=>`<span class="kw">${s}</span>`,aF=s=>`<span class="fn">${s}</span>`,aN=s=>`<span class="num">${s}</span>`;
+function buildAnalysis(id,a){
+  const el=document.getElementById(id);
+  el.innerHTML=`<h2>${a.title} <span class="tag">ניתוח השאילתה</span></h2>
+  <p class="big"><b>השאלה:</b> ${a.q}</p>
+  <div class="row" style="margin-top:8px">
+    <div style="flex:1 1 300px"><div class="cap">השאילתה</div><pre class="sql an-sql">${a.sql.map(([k,h])=>`<span class="ln" data-k="${k}">${h}</span>`).join('')}</pre>
+      <div class="note"><b>מה נקבל בסוף?</b> ${a.expect}</div></div>
+    <div style="flex:1.3 1 340px"><div class="cap">מה אומר כל חלק בשאילתה? <small>מעבר עם העכבר מסמן את השורה בשאילתה</small></div>
+      <div class="parts">${a.parts.map(p=>`<div class="part" data-k="${p.k}"><code>${p.c}</code><span>${p.t}</span></div>`).join('')}</div></div>
+  </div>
+  <div class="cap" style="margin-top:14px">מה המנוע צריך לעשות, לפי הסדר <small>את זה נראה בהנפשה בשקף הבא</small></div>
+  <ol class="plan">${a.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+  el.querySelectorAll('.part').forEach(p=>{const ks=p.dataset.k.split(' ');
+    const on=v=>{el.querySelectorAll('.part').forEach(x=>x.classList.remove('on'));p.classList.toggle('on',v);
+      el.querySelectorAll('.an-sql .ln').forEach(l=>l.classList.toggle('hl',v&&ks.includes(l.dataset.k)));};
+    p.addEventListener('mouseenter',()=>on(true));p.addEventListener('mouseleave',()=>on(false));
+    p.addEventListener('click',()=>on(!p.classList.contains('on')));});
+}
+
+buildAnalysis('anQ1',{title:'לפני ההדגמה: מה השאילתה מבקשת?',
+  q:'לכל לקוח שיש לו <b>לפחות 2 הזמנות</b>: מה שמו, כמה הזמנות יש לו, ומה סך דמי המשלוח (<code>freight</code>) של ההזמנות שלו? הלקוחות עם הכי הרבה הזמנות יופיעו ראשונים.',
+  sql:[['sel',aK('SELECT')+' c.company_name,'],['cnt','       '+aF('COUNT')+'(o.order_id) '+aK('AS')+' order_count,'],['sum','       '+aF('SUM')+'(o.freight)   '+aK('AS')+' total_freight'],
+       ['from',aK('FROM')+' orders o'],['join',aK('JOIN')+' customers c '+aK('ON')+' o.customer_id = c.customer_id'],['grp',aK('GROUP BY')+' c.company_name'],
+       ['hav',aK('HAVING')+' '+aF('COUNT')+'(o.order_id) &gt;= '+aN(2)],['ord',aK('ORDER BY')+' order_count '+aK('DESC')+', total_freight '+aK('DESC')+';']],
+  parts:[
+   {k:'from',c:'FROM orders o',t:'מתחילים מטבלת ההזמנות. כל שורה היא הזמנה אחת. האות <code>o</code> היא כינוי קצר לטבלה.'},
+   {k:'join',c:'JOIN customers c ON o.customer_id = c.customer_id',t:'שם הלקוח לא נמצא ב-orders אלא ב-customers. ה-<code>ON</code> אומר איך מתאימים: הזמנה מתחברת ללקוח שיש לו אותו <code>customer_id</code>.'},
+   {k:'grp',c:'GROUP BY c.company_name',t:'רוצים שורה אחת <b>לכל לקוח</b>, לא לכל הזמנה. לכן מקבצים את ההזמנות לפי שם הלקוח.'},
+   {k:'cnt sum',c:'COUNT(o.order_id), SUM(o.freight)',t:'פונקציות צבירה. לכל קבוצה (לקוח) הן סופרות את ההזמנות ומחברות את דמי המשלוח.'},
+   {k:'hav',c:'HAVING COUNT(o.order_id) >= 2',t:'משאירים רק לקוחות עם 2 הזמנות לפחות. זה תנאי על <b>קבוצה</b> ועל פונקציית צבירה, ולכן HAVING ולא WHERE.'},
+   {k:'sel cnt sum',c:'SELECT … AS order_count, … AS total_freight',t:'מה יוצג בתוצאה: שם הלקוח ושני החישובים. <code>AS</code> נותן שם לעמודה מחושבת.'},
+   {k:'ord',c:'ORDER BY order_count DESC, total_freight DESC',t:'מיון יורד לפי מספר ההזמנות. אם יש תיקו, מכריעים לפי דמי המשלוח.'}],
+  steps:['<b>JOIN:</b> לכל הזמנה מוצאים את הלקוח שלה ומדביקים את השורות. נקבל טבלת ביניים עם שורה לכל הזמנה.',
+   '<b>GROUP BY:</b> מחלקים את טבלת הביניים לקבוצות, קבוצה לכל לקוח.',
+   '<b>COUNT ו-SUM:</b> בכל קבוצה סופרים הזמנות ומחברים דמי משלוח.',
+   '<b>HAVING:</b> מוחקים קבוצות שיש בהן פחות מ-2 הזמנות.',
+   '<b>SELECT:</b> בוחרים את 3 העמודות ונותנים להן שמות.',
+   '<b>ORDER BY:</b> ממיינים את השורות שנשארו.'],
+  expect:'טבלה עם 3 עמודות: <code>company_name</code>, <code>order_count</code>, <code>total_freight</code>. תהיה בה שורה אחת לכל לקוח שעבר את התנאי של HAVING. בשקפים הבאים נראה כל שלב בנפרד, לפי סדר הביצוע.'});
 
 /* ---------- deck navigation ---------- */
 const slides=[...document.querySelectorAll('.slide')];let cur=0;
