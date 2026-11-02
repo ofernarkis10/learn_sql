@@ -214,8 +214,8 @@ table.cmp th{text-align:right}
   <details><summary>4. למה <code>WHERE COUNT(*) &gt;= 4</code> הוא שגיאה?</summary><p>WHERE מתבצע לפני GROUP BY. בשלב הזה עדיין אין קבוצות, ולכן אין מה לספור. תנאי על פונקציית צבירה חייב להיות ב-HAVING.</p></details>
   <details><summary>5. בהדגמה 4: למה ל-ship_via 2 יש עכשיו רק 3 הזמנות ולא 5?</summary><p>WHERE הוציא את 10254 (22.98) ואת 10256 (13.97) עוד לפני הקיבוץ, כי דמי המשלוח שלהן לא גדולים מ-30. לכן הן לא נספרו ולא נכנסו לסכום.</p></details>
   <details><summary>6. מה תהיה התוצאה של <code>WHERE freight &gt; 30 … HAVING COUNT(*) &gt;= 4</code>?</summary><p>תוצאה ריקה. אחרי WHERE לכל חברה נשארו לכל היותר 3 הזמנות, ולכן אף קבוצה לא עומדת בתנאי של HAVING.</p></details>
-  <details><summary>7. איך מחשבים את עלות המשלוח <b>הממוצעת</b> לכל חברת שילוח? חשבו לחברה 1.</summary><p class="ltr">SELECT ship_via, AVG(freight) AS avg_freight<br>FROM orders<br>GROUP BY ship_via;</p><p>לחברה 1: ‏193.46 ÷ 3 ≈ 64.49. שימו לב: AVG = SUM ÷ COUNT.</p></details>
-  <details><summary>8. קיבלנו מספרים (1, 2, 3) ולא שמות חברות. איך מקבלים את השמות?</summary><p>שמות החברות שמורים בטבלה <code>shippers</code>. צריך JOIN בין <code>orders.ship_via</code> ל-<code>shippers.shipper_id</code> ולקבץ לפי <code>shippers.company_name</code>.</p><p class="ltr">SELECT s.company_name, COUNT(*), SUM(o.freight)<br>FROM orders o JOIN shippers s ON o.ship_via = s.shipper_id<br>GROUP BY s.company_name;</p></details>
+  <details><summary>7. איך מחשבים את עלות המשלוח <b>הממוצעת</b> לכל חברת שילוח? חשבו לחברה 1.</summary><p class="ltr">SELECT ship_via, ROUND(AVG(freight), 2) AS avg_freight<br>FROM orders<br>GROUP BY ship_via;</p><p>לחברה 1: ‏193.46 ÷ 3 ≈ 64.49. שימו לב: AVG = SUM ÷ COUNT.</p></details>
+  <details><summary>8. קיבלנו מספרים (1, 2, 3) ולא שמות חברות. איך מקבלים את השמות?</summary><p>שמות החברות שמורים בטבלה <code>shippers</code>. צריך JOIN בין <code>orders.ship_via</code> ל-<code>shippers.shipper_id</code> ולקבץ לפי <code>shippers.company_name</code>.</p><p class="ltr">SELECT s.company_name, COUNT(*) AS order_count, ROUND(SUM(o.freight), 2) AS total_freight<br>FROM orders AS o JOIN shippers AS s ON o.ship_via = s.shipper_id<br>GROUP BY s.company_name;</p></details>
 </section>
 
 </div>
@@ -407,7 +407,7 @@ const ordBase={rows:orders,key:r=>r[2],keyName:'ship_via',keyLabel:k=>`ship_via 
         {name:'SUM',short:'SUM',mark:'value',calc:rs=>rs.reduce((a,r)=>a+r[3],0),fmt:v=>f2(v)}],
   resCols:[{h:'ship_via',f:g=>g.k},{h:'order_count',f:g=>g.v[0]},{h:'total_freight',f:g=>f2(g.v[1])}],resGhost:g=>`ship_via ${g.k} · ${g.v[0]} · ${f2(g.v[1])}`,
   row:r=>`הזמנה <b>${r[0]}</b> נשלחה עם <b>ship_via = ${r[2]}</b> (משלוח ${f2(r[3])})`};
-const SEL=[['sel',kw('SELECT')+' ship_via,'],['a0','       '+fn('COUNT')+'(*)     '+kw('AS')+' order_count,'],['a1','       '+fn('SUM')+'(freight) '+kw('AS')+' total_freight'],['from',kw('FROM')+' orders']];
+const SEL=[['sel',kw('SELECT')+' ship_via,'],['a0','       '+fn('COUNT')+'(*)     '+kw('AS')+' order_count,'],['a1','       '+fn('ROUND')+'('+fn('SUM')+'(freight), '+nm(2)+') '+kw('AS')+' total_freight'],['from',kw('FROM')+' orders']];
 
 /* ---------- demo 2: orders by ship_via ---------- */
 makeDemo({...ordBase,id:'demoB',sql0:'sqlB0',title:'הדגמה 2: הזמנות לפי חברת שילוח <span class="tag">orders · בלי JOIN</span>',
@@ -497,12 +497,12 @@ buildAnalysis('anA',{title:'הדגמה 1: מה השאילתה מבקשת?',
 
 buildAnalysis('anB',{title:'הדגמה 2: מה השאילתה מבקשת?',
   q:'<b>כמה הזמנות שלחה כל חברת שילוח, ומה סך דמי המשלוח שלהן?</b> החברה עם דמי המשלוח הגבוהים ביותר תופיע ראשונה.',
-  sql:[['sel',aK('SELECT')+' ship_via,'],['cnt','       '+aF('COUNT')+'(*)     '+aK('AS')+' order_count,'],['sum','       '+aF('SUM')+'(freight) '+aK('AS')+' total_freight'],['from',aK('FROM')+' orders'],['grp',aK('GROUP BY')+' ship_via'],['ord',aK('ORDER BY')+' total_freight '+aK('DESC')+';']],
+  sql:[['sel',aK('SELECT')+' ship_via,'],['cnt','       '+aF('COUNT')+'(*)     '+aK('AS')+' order_count,'],['sum','       '+aF('ROUND')+'('+aF('SUM')+'(freight), '+aN(2)+') '+aK('AS')+' total_freight'],['from',aK('FROM')+' orders'],['grp',aK('GROUP BY')+' ship_via'],['ord',aK('ORDER BY')+' total_freight '+aK('DESC')+';']],
   parts:[
    {k:'from',c:'FROM orders',t:'טבלת ההזמנות. בעמודה <code>ship_via</code> שמור <b>מספר</b> חברת השילוח (1, 2 או 3), ובעמודה <code>freight</code> דמי המשלוח.'},
    {k:'grp',c:'GROUP BY ship_via',t:'קבוצה לכל חברת שילוח. אין צורך ב-JOIN, כי העמודה שלפיה מקבצים כבר נמצאת ב-orders.'},
    {k:'cnt',c:'COUNT(*) AS order_count',t:'כמה הזמנות (שורות) יש בכל קבוצה.'},
-   {k:'sum',c:'SUM(freight) AS total_freight',t:'מחברים את דמי המשלוח של כל ההזמנות בקבוצה.'},
+   {k:'sum',c:'ROUND(SUM(freight), 2) AS total_freight',t:'מחברים את דמי המשלוח של כל ההזמנות בקבוצה. <code>ROUND(…, 2)</code> מעגל לשתי ספרות, כי בלי זה SQLite מציג לפעמים סכום עם הרבה ספרות, כמו 19246.86999999999.'},
    {k:'ord',c:'ORDER BY total_freight DESC',t:'מיון יורד לפי סכום דמי המשלוח, לא לפי מספר ההזמנות.'}],
   steps:['<b>קריאה:</b> 12 ההזמנות הראשונות בטבלה.','<b>GROUP BY:</b> כל הזמנה נכנסת לקבוצה של חברת השילוח שלה.','<b>COUNT:</b> סופרים הזמנות בכל קבוצה.',
    '<b>SUM:</b> מחברים את דמי המשלוח בכל קבוצה.','<b>בניית התוצאה:</b> שורה אחת לכל חברה.','<b>ORDER BY:</b> ממיינים לפי סכום דמי המשלוח.'],
@@ -510,11 +510,11 @@ buildAnalysis('anB',{title:'הדגמה 2: מה השאילתה מבקשת?',
 
 buildAnalysis('anC',{title:'הדגמה 3: מה השאילתה מבקשת?',
   q:'אותה שאלה כמו בהדגמה 2, אבל <b>רק חברות שילוח שיש להן 4 הזמנות או יותר</b>.',
-  sql:[['sel',aK('SELECT')+' ship_via,'],['cnt','       '+aF('COUNT')+'(*)     '+aK('AS')+' order_count,'],['sum','       '+aF('SUM')+'(freight) '+aK('AS')+' total_freight'],['from',aK('FROM')+' orders'],['grp',aK('GROUP BY')+' ship_via'],
+  sql:[['sel',aK('SELECT')+' ship_via,'],['cnt','       '+aF('COUNT')+'(*)     '+aK('AS')+' order_count,'],['sum','       '+aF('ROUND')+'('+aF('SUM')+'(freight), '+aN(2)+') '+aK('AS')+' total_freight'],['from',aK('FROM')+' orders'],['grp',aK('GROUP BY')+' ship_via'],
        ['hav',aK('HAVING')+' '+aF('COUNT')+'(*) &gt;= '+aN(4)],['ord',aK('ORDER BY')+' order_count '+aK('DESC')+';']],
   parts:[
    {k:'from grp',c:'FROM orders … GROUP BY ship_via',t:'כמו בהדגמה 2: קבוצה לכל חברת שילוח.'},
-   {k:'cnt sum',c:'COUNT(*), SUM(freight)',t:'מחושבים לכל הקבוצות, גם לאלה שעוד יימחקו.'},
+   {k:'cnt sum',c:'COUNT(*), ROUND(SUM(freight), 2)',t:'מחושבים לכל הקבוצות, גם לאלה שעוד יימחקו.'},
    {k:'hav',c:'HAVING COUNT(*) >= 4',t:'<b>החלק החדש.</b> בודקים כל קבוצה: אם יש בה פחות מ-4 הזמנות, <b>הקבוצה כולה נמחקת</b>. התנאי משתמש ב-COUNT, ולכן הוא חייב לבוא אחרי הקיבוץ, ב-HAVING.'},
    {k:'ord',c:'ORDER BY order_count DESC',t:'הפעם ממיינים לפי מספר ההזמנות.'}],
   steps:['<b>GROUP BY:</b> 12 ההזמנות מתחלקות לקבוצות לפי חברת השילוח.','<b>COUNT ו-SUM:</b> מחושבים לכל קבוצה.','<b>HAVING:</b> כל קבוצה נבדקת מול התנאי <code>COUNT(*) >= 4</code>. קבוצה שלא עומדת בו נמחקת.',
@@ -523,13 +523,13 @@ buildAnalysis('anC',{title:'הדגמה 3: מה השאילתה מבקשת?',
 
 buildAnalysis('anD',{title:'הדגמה 4: מה השאילתה מבקשת?',
   q:'אותה שאלה כמו בהדגמה 2, אבל <b>רק על הזמנות שדמי המשלוח שלהן גדולים מ-30</b>.',
-  sql:[['sel',aK('SELECT')+' ship_via,'],['cnt','       '+aF('COUNT')+'(*)     '+aK('AS')+' order_count,'],['sum','       '+aF('SUM')+'(freight) '+aK('AS')+' total_freight'],['from',aK('FROM')+' orders'],
+  sql:[['sel',aK('SELECT')+' ship_via,'],['cnt','       '+aF('COUNT')+'(*)     '+aK('AS')+' order_count,'],['sum','       '+aF('ROUND')+'('+aF('SUM')+'(freight), '+aN(2)+') '+aK('AS')+' total_freight'],['from',aK('FROM')+' orders'],
        ['where',aK('WHERE')+' freight &gt; '+aN(30)],['grp',aK('GROUP BY')+' ship_via'],['ord',aK('ORDER BY')+' total_freight '+aK('DESC')+';']],
   parts:[
    {k:'from',c:'FROM orders',t:'אותן 12 הזמנות.'},
    {k:'where',c:'WHERE freight > 30',t:'<b>החלק החדש.</b> בודקים <b>כל שורה לבד</b>, עוד לפני שיש קבוצות. הזמנה שדמי המשלוח שלה 30 או פחות יוצאת, ולא תיכנס לאף קבוצה.'},
    {k:'grp',c:'GROUP BY ship_via',t:'מקבצים רק את השורות שעברו את WHERE.'},
-   {k:'cnt sum',c:'COUNT(*), SUM(freight)',t:'סופרים ומחברים רק את השורות שנשארו. לכן התוצאות יהיו שונות מאלה של הדגמה 2.'},
+   {k:'cnt sum',c:'COUNT(*), ROUND(SUM(freight), 2)',t:'סופרים ומחברים רק את השורות שנשארו. לכן התוצאות יהיו שונות מאלה של הדגמה 2.'},
    {k:'ord',c:'ORDER BY total_freight DESC',t:'מיון יורד לפי סכום דמי המשלוח.'}],
   steps:['<b>WHERE:</b> כל אחת מ-12 השורות נבדקת מול <code>freight > 30</code>. שורה שלא עומדת בתנאי יוצאת.','<b>GROUP BY:</b> רק השורות שנשארו נכנסות לקבוצות.',
    '<b>COUNT ו-SUM:</b> מחושבים על מה שנשאר בכל קבוצה.','<b>בניית התוצאה:</b> שורה לכל קבוצה.','<b>ORDER BY:</b> מיון לפי סכום דמי המשלוח.'],

@@ -395,7 +395,7 @@ mkStepper('#ctlA',5,(s,prev)=>{
 buildAnalysis('exB',{title:'איך מגדירים מפתח זר?',
   q:'איך מסד הנתונים יודע ש-<code>orders.customer_id</code> מצביע על <code>customers.customer_id</code>? מגדירים את זה כשיוצרים את הטבלאות, עם <code>PRIMARY KEY</code> ו-<code>REFERENCES</code>.',
   sql:[['t1',kw('CREATE TABLE')+' customers ('],['pk1','  customer_id  TEXT '+kw('PRIMARY KEY')+','],['c1','  company_name TEXT,'],['c1','  city         TEXT, …'],['t1',');'],['',' '],
-       ['t2',kw('CREATE TABLE')+' orders ('],['pk2','  order_id    INTEGER '+kw('PRIMARY KEY')+','],['fk','  customer_id TEXT '+kw('REFERENCES')+' customers(customer_id),'],['c2','  order_date  DATE, …'],['t2',');']],
+       ['t2',kw('CREATE TABLE')+' orders ('],['pk2','  order_id    INT '+kw('PRIMARY KEY')+','],['fk','  customer_id TEXT '+kw('REFERENCES')+' customers(customer_id),'],['c2','  order_date  DATE, …'],['t2',');']],
   parts:[{k:'t1 pk1 c1',c:'CREATE TABLE customers',t:'טבלת הלקוחות. כל שורה היא לקוח אחד.'},
    {k:'pk1',c:'customer_id TEXT PRIMARY KEY',t:'<b>מפתח ראשי.</b> מסד הנתונים לא ירשה שני לקוחות עם אותו <code>customer_id</code>, ולא ירשה ערך ריק.'},
    {k:'t2 pk2 c2',c:'CREATE TABLE orders',t:'טבלת ההזמנות. גם לה יש מפתח ראשי: <code>order_id</code>.'},
@@ -491,7 +491,7 @@ const ED=[[10248,11,12],[10248,42,10],[10248,72,5],[10249,14,9],[10249,51,40],[1
 const PC={11:'#e8590c',14:'#2f9e44',42:'#3b5bdb',51:'#d6336c',72:'#7048e8'};
 buildAnalysis('exE',{title:'רבים-לרבים: הזמנות ומוצרים',
   q:'בהזמנה אחת יכולים להיות <b>הרבה מוצרים</b>, ומוצר אחד יכול להופיע ב<b>הרבה הזמנות</b>. עמודה אחת של מפתח זר לא מספיקה בשביל זה. הפתרון הוא טבלה שלישית: <b>טבלת קישור</b>.',
-  sql:[['t',kw('CREATE TABLE')+' order_details ('],['f1','  order_id   INTEGER '+kw('REFERENCES')+' orders(order_id),'],['f2','  product_id INTEGER '+kw('REFERENCES')+' products(product_id),'],['c','  quantity   INTEGER,'],['c','  discount   DECIMAL,'],['pk','  '+kw('PRIMARY KEY')+' (order_id, product_id)'],['t',');']],
+  sql:[['t',kw('CREATE TABLE')+' order_details ('],['f1','  order_id   INT '+kw('REFERENCES')+' orders(order_id),'],['f2','  product_id INT '+kw('REFERENCES')+' products(product_id),'],['c','  quantity   INT,'],['c','  discount   DECIMAL,'],['pk','  '+kw('PRIMARY KEY')+' (order_id, product_id)'],['t',');']],
   parts:[{k:'t c',c:'order_details',t:'כל שורה היא <b>מוצר אחד בתוך הזמנה אחת</b>, עם הכמות וההנחה.'},
    {k:'f1',c:'order_id REFERENCES orders',t:'מפתח זר ראשון: לאיזו הזמנה השורה שייכת.'},
    {k:'f2',c:'product_id REFERENCES products',t:'מפתח זר שני: איזה מוצר הוזמן.'},

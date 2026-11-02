@@ -210,7 +210,7 @@ ol.plan li::before{content:counter(pl);position:absolute;top:7px;right:10px;widt
     <div><pre class="sql all" id="sqlLJ"></pre><div class="say" id="sayLJ"></div></div>
     <div><div class="cap">תוצאה <small id="ljN"></small></div><table class="t" id="ljRes"></table></div>
   </div>
-  <div class="note">💡 ב-LEFT JOIN, הביטוי <code>COUNT(o.order_id)</code> ייתן ל-FISSA <b>0</b> כי COUNT על עמודה מדלג על NULL. לעומת זאת <code>COUNT(*)</code> ייתן <b>1</b>, כי הוא סופר שורות.</div>
+  <div class="note">💡 ב-LEFT JOIN, הביטוי <code>COUNT(o.order_id)</code> ייתן ל-FISSA <b>0</b> כי COUNT על עמודה מדלג על NULL. לעומת זאת <code>COUNT(*)</code> ייתן <b>1</b>, כי הוא סופר שורות.<br>💻 באתר sql-practice, על הטבלה המלאה, LEFT JOIN יחזיר 4 לקוחות בלי הזמנות: FISSA, PARIS ושתי שורות בדיקה (VALON ו-Val2).</div>
 </section>
 
 <!-- 6 -->
@@ -257,7 +257,7 @@ ol.plan li::before{content:counter(pl);position:absolute;top:7px;right:10px;widt
   <details><summary>2. למה הלקוח FISSA לא מופיע בתוצאה? איך גורמים לו להופיע?</summary><p>ב-INNER JOIN נשארות רק שורות שנמצאה להן התאמה, ול-FISSA אין הזמנות. עם <code>customers c LEFT JOIN orders o</code> הוא יופיע, ובעמודות של orders יהיה NULL.</p></details>
   <details><summary>3. מה תהיה התוצאה אם נשנה ל-<code>HAVING COUNT(o.order_id) &gt;= 3</code>?</summary><p>תישאר שורה אחת בלבד: Alfreds Futterkiste עם 3 הזמנות ומשלוח כולל של 114.42.</p></details>
   <details><summary>4. למה <code>WHERE order_count &gt;= 2</code> לא עובד?</summary><p>WHERE מתבצע לפני GROUP BY ולפני SELECT. בשלב הזה עדיין אין קבוצות, וגם הכינוי order_count עוד לא הוגדר. (חלק מהמנועים, כמו MySQL ו-SQLite, מתירים כינוי ב-HAVING כהרחבה לתקן.)</p></details>
-  <details><summary>5. כתבו שאילתה שמציגה לכל <b>מדינה</b> את מספר ההזמנות שלה.</summary><p style="direction:ltr;text-align:left;font-family:Consolas,monospace">SELECT c.country, COUNT(o.order_id) AS order_count<br>FROM orders o JOIN customers c ON o.customer_id = c.customer_id<br>GROUP BY c.country;</p></details>
+  <details><summary>5. כתבו שאילתה שמציגה לכל <b>מדינה</b> את מספר ההזמנות שלה.</summary><p style="direction:ltr;text-align:left;font-family:Consolas,monospace">SELECT c.country, COUNT(o.order_id) AS order_count<br>FROM orders AS o JOIN customers AS c ON o.customer_id = c.customer_id<br>GROUP BY c.country;</p></details>
 </section>
 
 </div>
@@ -288,9 +288,9 @@ const $=s=>document.querySelector(s);
 const SQL=[
  ['sel','<span class="kw">SELECT</span> c.company_name,'],
  ['sel','       <span class="fn">COUNT</span>(o.order_id) <span class="kw">AS</span> order_count,'],
- ['sel','       <span class="fn">SUM</span>(o.freight)   <span class="kw">AS</span> total_freight'],
- ['from','<span class="kw">FROM</span> orders o'],
- ['join','<span class="kw">JOIN</span> customers c <span class="kw">ON</span> o.customer_id = c.customer_id'],
+ ['sel','       <span class="fn">ROUND</span>(<span class="fn">SUM</span>(o.freight), <span class="num">2</span>) <span class="kw">AS</span> total_freight'],
+ ['from','<span class="kw">FROM</span> orders <span class="kw">AS</span> o'],
+ ['join','<span class="kw">JOIN</span> customers <span class="kw">AS</span> c <span class="kw">ON</span> o.customer_id = c.customer_id'],
  ['grp','<span class="kw">GROUP BY</span> c.company_name'],
  ['hav','<span class="kw">HAVING</span> <span class="fn">COUNT</span>(o.order_id) &gt;= <span class="num">2</span>'],
  ['ord','<span class="kw">ORDER BY</span> order_count <span class="kw">DESC</span>, total_freight <span class="kw">DESC</span>;']];
@@ -388,7 +388,7 @@ stepper('#ctlJoin',TOT+1,s=>{
 function renderLJ(kind){
   document.querySelectorAll('#togJ button').forEach(b=>b.classList.toggle('on',b.dataset.j===kind));
   $('#sqlLJ').innerHTML=`<span class="ln"><span class="kw">SELECT</span> c.customer_id, c.company_name, o.order_id</span>`+
-   `<span class="ln"><span class="kw">FROM</span> customers c</span><span class="ln hl"><span class="kw">${kind} JOIN</span> orders o</span>`+
+   `<span class="ln"><span class="kw">FROM</span> customers <span class="kw">AS</span> c</span><span class="ln hl"><span class="kw">${kind} JOIN</span> orders <span class="kw">AS</span> o</span>`+
    `<span class="ln">  <span class="kw">ON</span> c.customer_id = o.customer_id;</span>`;
   const rows=[];customers.forEach(c=>{const os=orders.filter(o=>o[1]===c.id);
     if(os.length)os.forEach(o=>rows.push({c,o}));else if(kind==='LEFT')rows.push({c,o:null});});
@@ -480,14 +480,14 @@ function buildAnalysis(id,a){
 
 buildAnalysis('anQ1',{title:'לפני ההדגמה: מה השאילתה מבקשת?',
   q:'לכל לקוח שיש לו <b>לפחות 2 הזמנות</b>: מה שמו, כמה הזמנות יש לו, ומה סך דמי המשלוח (<code>freight</code>) של ההזמנות שלו? הלקוחות עם הכי הרבה הזמנות יופיעו ראשונים.',
-  sql:[['sel',aK('SELECT')+' c.company_name,'],['cnt','       '+aF('COUNT')+'(o.order_id) '+aK('AS')+' order_count,'],['sum','       '+aF('SUM')+'(o.freight)   '+aK('AS')+' total_freight'],
-       ['from',aK('FROM')+' orders o'],['join',aK('JOIN')+' customers c '+aK('ON')+' o.customer_id = c.customer_id'],['grp',aK('GROUP BY')+' c.company_name'],
+  sql:[['sel',aK('SELECT')+' c.company_name,'],['cnt','       '+aF('COUNT')+'(o.order_id) '+aK('AS')+' order_count,'],['sum','       '+aF('ROUND')+'('+aF('SUM')+'(o.freight), '+aN(2)+') '+aK('AS')+' total_freight'],
+       ['from',aK('FROM')+' orders '+aK('AS')+' o'],['join',aK('JOIN')+' customers '+aK('AS')+' c '+aK('ON')+' o.customer_id = c.customer_id'],['grp',aK('GROUP BY')+' c.company_name'],
        ['hav',aK('HAVING')+' '+aF('COUNT')+'(o.order_id) &gt;= '+aN(2)],['ord',aK('ORDER BY')+' order_count '+aK('DESC')+', total_freight '+aK('DESC')+';']],
   parts:[
-   {k:'from',c:'FROM orders o',t:'מתחילים מטבלת ההזמנות. כל שורה היא הזמנה אחת. האות <code>o</code> היא כינוי קצר לטבלה.'},
-   {k:'join',c:'JOIN customers c ON o.customer_id = c.customer_id',t:'שם הלקוח לא נמצא ב-orders אלא ב-customers. ה-<code>ON</code> אומר איך מתאימים: הזמנה מתחברת ללקוח שיש לו אותו <code>customer_id</code>.'},
+   {k:'from',c:'FROM orders AS o',t:'מתחילים מטבלת ההזמנות. כל שורה היא הזמנה אחת. <code>AS o</code> נותן לטבלה כינוי קצר, <code>o</code>.'},
+   {k:'join',c:'JOIN customers AS c ON o.customer_id = c.customer_id',t:'שם הלקוח לא נמצא ב-orders אלא ב-customers. ה-<code>ON</code> אומר איך מתאימים: הזמנה מתחברת ללקוח שיש לו אותו <code>customer_id</code>.'},
    {k:'grp',c:'GROUP BY c.company_name',t:'רוצים שורה אחת <b>לכל לקוח</b>, לא לכל הזמנה. לכן מקבצים את ההזמנות לפי שם הלקוח.'},
-   {k:'cnt sum',c:'COUNT(o.order_id), SUM(o.freight)',t:'פונקציות צבירה. לכל קבוצה (לקוח) הן סופרות את ההזמנות ומחברות את דמי המשלוח.'},
+   {k:'cnt sum',c:'COUNT(o.order_id), ROUND(SUM(o.freight), 2)',t:'פונקציות צבירה. לכל קבוצה (לקוח) הן סופרות את ההזמנות ומחברות את דמי המשלוח. <code>ROUND(…, 2)</code> מעגל לשתי ספרות, כי בלי זה SQLite מציג לפעמים סכום כמו 6683.700000000001.'},
    {k:'hav',c:'HAVING COUNT(o.order_id) >= 2',t:'משאירים רק לקוחות עם 2 הזמנות לפחות. זה תנאי על <b>קבוצה</b> ועל פונקציית צבירה, ולכן HAVING ולא WHERE.'},
    {k:'sel cnt sum',c:'SELECT … AS order_count, … AS total_freight',t:'מה יוצג בתוצאה: שם הלקוח ושני החישובים. <code>AS</code> נותן שם לעמודה מחושבת.'},
    {k:'ord',c:'ORDER BY order_count DESC, total_freight DESC',t:'מיון יורד לפי מספר ההזמנות. אם יש תיקו, מכריעים לפי דמי המשלוח.'}],
