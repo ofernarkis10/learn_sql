@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GROUP BY צעד אחר צעד – Northwind</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#1d2433;--mute:#6b7385;--line:#e2e5ee;--acc:#3b5bdb;--ok:#2f9e44;--bad:#e03131;--warn:#f08c00}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Rubik","Heebo",Arial,sans-serif}
+#deck{height:100%;overflow:hidden;position:relative}
+.slide{position:absolute;inset:0 0 58px 0;overflow-y:auto;padding:22px clamp(12px,3vw,40px) 30px;opacity:0;pointer-events:none;transform:translateX(-30px);transition:.35s}
+.slide.on{opacity:1;pointer-events:auto;transform:none}
+h1{font-size:clamp(26px,4.5vw,44px);margin:.2em 0 .3em}
+h2{font-size:clamp(20px,3vw,30px);margin:0 0 .5em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+h2 .tag{font-size:.55em;background:var(--acc);color:#fff;border-radius:20px;padding:3px 12px;font-weight:600}
+p{line-height:1.6;margin:.4em 0}
+.sub{color:var(--mute);font-size:clamp(15px,2vw,19px)}
+.big{font-size:clamp(16px,2.2vw,20px)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 2px 8px #1d243310}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.row>*{flex:1 1 280px;min-width:0}
+.cap{font-weight:700;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cap small{font-weight:400;color:var(--mute)}
+code{direction:ltr;unicode-bidi:embed;background:#eef1f8;border-radius:5px;padding:0 5px;font-family:Consolas,monospace;font-size:.92em}
+
+pre.sql{direction:ltr;text-align:left;background:#1e2230;color:#e6e8ef;border-radius:12px;padding:12px 14px;margin:0;font:15px/1.7 Consolas,"Courier New",monospace;overflow-x:auto}
+pre.sql .ln{display:block;border-radius:6px;padding:0 6px;transition:.3s}
+pre.sql.live .ln{opacity:.35}
+pre.sql.live .ln.hl{opacity:1;background:#3b5bdb55;box-shadow:inset 3px 0 0 #74c0fc}
+.kw{color:#74c0fc;font-weight:700}.fn{color:#ffd43b}.st{color:#b2f2bb}.num{color:#ffa8a8}
+
+/* stage chips */
+.stages{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.stages span{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;font-size:14px;color:var(--mute);transition:.3s}
+.stages span.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
+.stages span.done{background:#e7f0ff;color:var(--acc);border-color:#c5d4fb}
+
+/* tables */
+table.t{direction:ltr;border-collapse:separate;border-spacing:0;width:100%;font-size:14px;background:#fff;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+table.t th{background:#eef1f8;text-align:left;padding:6px 8px;font-size:12.5px;color:#3d4557;white-space:nowrap}
+table.t td{padding:4px 8px;border-top:1px solid var(--line);white-space:nowrap;transition:background .3s,opacity .3s}
+table.t td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+table.t tr{transition:transform .6s ease}
+.chip{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+tr.cur td{background:#fff3bf}
+tr.cur td:first-child{box-shadow:inset 4px 0 0 var(--warn)}
+tr.moved td{opacity:.28}
+td.city{font-weight:700}
+tr.new td{animation:pop .7s}
+@keyframes pop{0%{background:#ffec99}100%{}}
+.empty{color:var(--mute);font-style:italic;text-align:center;padding:14px}
+
+/* buckets */
+.buckets{display:flex;flex-wrap:wrap;gap:10px;direction:ltr}
+.bucket{flex:1 1 150px;border:2px solid var(--c);border-radius:12px;background:#fff;overflow:hidden;animation:bin .45s}
+@keyframes bin{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
+.bucket h4{margin:0;padding:6px 10px;background:var(--c);color:#fff;font-size:14px;display:flex;justify-content:space-between}
+.bucket ul{list-style:none;margin:0;padding:5px 10px;font-size:13px;line-height:1.85}
+.bucket li{display:flex;justify-content:space-between;gap:6px;white-space:nowrap;overflow:hidden}
+.bucket li span{overflow:hidden;text-overflow:ellipsis}
+.bucket li .cnum{flex:none;width:20px;height:20px;border-radius:50%;background:var(--c);color:#fff;font:700 12px/20px Arial;text-align:center;margin-top:3px;opacity:0;animation:cnt .3s forwards}
+@keyframes cnt{from{opacity:0;transform:scale(2)}to{opacity:1;transform:none}}
+.bucket .agg{border-top:2px dashed var(--c);padding:6px 10px;font:700 15px/1.5 Consolas,monospace;color:var(--c);opacity:0;animation:cnt .4s forwards}
+.bucket.done ul{opacity:.4}
+.ghost{position:fixed;z-index:50;pointer-events:none;background:#fff;border:2px solid var(--c);border-radius:8px;box-shadow:0 8px 24px #1d243340;
+  font-size:13px;padding:3px 8px;white-space:nowrap;overflow:hidden;direction:ltr}
+
+.say{min-height:3.4em;background:#fff;border:1px solid var(--line);border-right:5px solid var(--acc);border-radius:10px;padding:10px 14px;margin:10px 0;font-size:clamp(15px,2vw,18px);line-height:1.6}
+.say b.ok{color:var(--ok)}
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.ctrl button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer}
+.ctrl button:hover{border-color:var(--acc)}
+.ctrl button.pri{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:700}
+.prog{flex:1 1 90px;height:6px;background:#e2e5ee;border-radius:3px;overflow:hidden;min-width:60px}
+.prog i{display:block;height:100%;background:var(--acc);width:0;transition:.3s}
+.stepn{color:var(--mute);font-size:13px;direction:ltr}
+.counter{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--mute);margin-top:4px}
+.counter b{color:var(--ink);font-size:17px}
+.note{background:#fff9db;border:1px solid #ffe066;border-radius:10px;padding:10px 14px;margin-top:12px;line-height:1.6}
+details{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0}
+summary{cursor:pointer;font-weight:700;line-height:1.6}
+details p{margin:.5em 0 0}
+.ltr{direction:ltr;text-align:left;font-family:Consolas,monospace}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.flow div{background:#fff;border:1px solid var(--acc);border-radius:10px;padding:10px;line-height:1.5}
+.flow b{display:block;color:var(--acc)}
+
+nav{position:fixed;bottom:0;left:0;right:0;height:58px;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:14px;padding:0 10px;z-index:5}
+nav button{border:none;background:#eef1f8;border-radius:10px;padding:10px 16px;font:inherit;font-size:15px;cursor:pointer}
+nav button:hover{background:#dbe4ff}
+#count{color:var(--mute);min-width:150px;text-align:center;font-size:14px;white-space:nowrap}
+@media (max-width:600px){table.t{font-size:12.5px}table.t td,table.t th{padding:3px 5px}pre.sql{font-size:12.5px}#count{min-width:0;flex:1}}
+.site-back{color:var(--acc);font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap;margin-inline-end:auto}
+.site-back:hover{text-decoration:underline}
+#fs-slot{margin-inline-start:auto}
+@media (max-width:600px){.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<style>
+.bucket li .v{border-radius:4px;padding:0 4px;transition:.3s;font-family:Consolas,monospace}
+.bucket li .v.hl{animation:vhl .35s forwards}
+@keyframes vhl{to{background:var(--c);color:#fff}}
+.bucket h4 small{font-weight:400;opacity:.85}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:13px;color:var(--mute)}
+.legend span{background:#fff;border:1px solid var(--line);border-radius:8px;padding:2px 8px}
+</style>
+<div id="deck">
+
+<section class="slide" data-title="פתיחה">
+  <p class="sub">מגמת מידע ונתונים · SQL על Northwind</p>
+  <h1>GROUP BY צעד אחר צעד</h1>
+  <p class="big">נראה איך מנוע ה-SQL לוקח טבלה, מחלק את השורות לקבוצות, מחשב פונקציות צבירה לכל קבוצה ובונה טבלת תוצאה חדשה. שתי הדגמות, שתיהן על טבלה אחת ובלי JOIN:</p>
+  <div class="row" style="margin-top:12px">
+    <div class="card"><div class="cap">הדגמה 1: כמה לקוחות יש בכל עיר?</div><pre class="sql" id="sqlA0"></pre></div>
+    <div class="card"><div class="cap">הדגמה 2: הזמנות לפי חברת שילוח</div><pre class="sql" id="sqlB0"></pre></div>
+  </div>
+  <div class="flow" style="max-width:900px">
+    <div><b>1. הנתונים</b>הטבלה כפי שהיא</div>
+    <div><b>2. בניית קבוצות</b>דלי אחד לכל ערך</div>
+    <div><b>3. חישוב</b>COUNT / SUM בכל קבוצה</div>
+    <div><b>4. בניית התוצאה</b>שורה אחת לכל קבוצה</div>
+    <div><b>5. מיון</b>ORDER BY</div>
+  </div>
+  <p class="sub">ניווט: <b>הבא / הקודם</b> למטה או החצים במקלדת. בשקופיות המונפשות לוחצים <b>"צעד הבא"</b> או רווח.</p>
+</section>
+
+<section class="slide demo" data-title="הדגמה 1: לקוחות לפי עיר" id="demoA"></section>
+<section class="slide demo" data-title="הדגמה 2: הזמנות לפי חברת שילוח" id="demoB"></section>
+
+<section class="slide" data-title="סיכום ושאלות">
+  <h2>מה ראינו?</h2>
+  <div class="flow">
+    <div><b>הדגמה 1</b>17 לקוחות ← 5 קבוצות לפי city ← COUNT(*)</div>
+    <div><b>הדגמה 2</b>12 הזמנות ← 3 קבוצות לפי ship_via ← COUNT(*) ו-SUM(freight)</div>
+    <div><b>בשתיהן</b>כל קבוצה הפכה לשורה אחת בתוצאה</div>
+  </div>
+  <div class="note"><b>הכלל החשוב:</b> אחרי GROUP BY כל קבוצה הופכת לשורה אחת. לכן ב-SELECT מותר לכתוב רק עמודות שמופיעות ב-GROUP BY או פונקציות צבירה (<code>COUNT</code>, <code>SUM</code>, <code>AVG</code>, <code>MIN</code>, <code>MAX</code>). אי אפשר לבחור <code>company_name</code> בהדגמה 1, כי לעיר London יש 6 שמות שונים ואין לה ערך אחד.</div>
+  <h2 style="margin-top:20px">שאלות לבדיקה</h2>
+  <details><summary>1. כמה שורות תהיינה בהדגמה 1 אם נקבץ לפי <code>country</code> במקום <code>city</code>?</summary><p>5 שורות: UK 6, Mexico 5, Spain 3, France 2, Germany 1. במדגם הזה לכל מדינה יש עיר אחת בלבד, ולכן מספר הקבוצות לא השתנה. בטבלה המלאה זה לא כך: בגרמניה, למשל, יש לקוחות מכמה ערים.</p></details>
+  <details><summary>2. כתבו שאילתה שמציגה רק ערים עם 3 לקוחות או יותר.</summary><p class="ltr">SELECT city, COUNT(*) AS customer_count<br>FROM customers<br>GROUP BY city<br>HAVING COUNT(*) &gt;= 3;</p><p>במדגם: London 6, México D.F. 5, Madrid 3.</p></details>
+  <details><summary>3. בהדגמה 2: אילו חברות שילוח יישארו עם <code>HAVING SUM(freight) &gt; 200</code>?</summary><p>ship_via 3 (265.87) ו-ship_via 2 (212.25). חברה 1 (193.46) תסונן החוצה.</p></details>
+  <details><summary>4. איך מחשבים את עלות המשלוח <b>הממוצעת</b> לכל חברת שילוח? חשבו לחברה 1.</summary><p class="ltr">SELECT ship_via, AVG(freight) AS AvgFreight<br>FROM orders<br>GROUP BY ship_via;</p><p>לחברה 1: ‏193.46 ÷ 3 ≈ 64.49. שימו לב: AVG = SUM ÷ COUNT.</p></details>
+  <details><summary>5. בהדגמה 2 קיבלנו מספרים (1, 2, 3) ולא שמות חברות. איך מקבלים את השמות?</summary><p>שמות החברות שמורים בטבלה <code>shippers</code>. צריך JOIN בין <code>orders.ship_via</code> ל-<code>shippers.shipper_id</code> ולקבץ לפי <code>shippers.company_name</code>.</p><p class="ltr">SELECT s.company_name, COUNT(*), SUM(o.freight)<br>FROM orders o JOIN shippers s ON o.ship_via = s.shipper_id<br>GROUP BY s.company_name;</p></details>
+  <details><summary>6. למה השאילתה <code>SELECT city, company_name, COUNT(*) FROM customers GROUP BY city</code> שגויה?</summary><p>כי <code>company_name</code> לא נמצאת ב-GROUP BY ואינה פונקציית צבירה. בכל קבוצה יש כמה שמות שונים, והמנוע לא יודע איזה מהם להציג.</p></details>
+</section>
+
+</div>
+<nav><a class="site-back" href="index.html#lessons">→ חזרה לנושא: מצגות לשיעור</a><button id="prev">→ הקודם</button><span id="count"></span><button id="next">הבא ←</button><span id="fs-slot"></span></nav>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s);
+const f2=x=>x.toFixed(2);
+const kw=s=>`<span class="kw">${s}</span>`,fn=s=>`<span class="fn">${s}</span>`;
+
+/* ---------- generic GROUP BY demo engine ---------- */
+const demos=[];
+function makeDemo(cfg){
+  const root=$('#'+cfg.id),P=cfg.id;
+  const rows=cfg.rows,N=rows.length,A=cfg.aggs.length,col=k=>cfg.color[k];
+  const chip=k=>`<span class="chip" style="background:${col(k)}"></span>`;
+  const groups=[];rows.forEach((r,i)=>{const k=cfg.key(r);let g=groups.find(x=>x.k===k);if(!g){g={k,rows:[]};groups.push(g);}g.rows.push(i);});
+  groups.forEach(g=>g.v=cfg.aggs.map(a=>a.calc(g.rows.map(i=>rows[i]))));
+  const sorted=[...groups].sort(cfg.sort);
+  const S_RES=N+A+1,S_ORD=N+A+2,TOTAL=S_ORD;
+  const sqlHTML=(act=[])=>cfg.sql.map(([k,h])=>`<span class="ln ${act.includes(k)?'hl':''}">${h}</span>`).join('');
+  const aggNames=cfg.aggs.map(a=>a.short).join(' ו-');
+  root.innerHTML=`<h2>${cfg.title}</h2>
+   <div class="stages"><span>1. הנתונים</span><span>2. בניית קבוצות</span><span>3. חישוב ${aggNames}</span><span>4. בניית התוצאה</span><span>5. מיון</span></div>
+   <div class="row"><div style="flex:2 1 330px"><div class="ctrl"></div><div class="say"></div>
+     <div class="counter"><span>שורות שעובדו: <b class="cRows">0</b>/${N}</span><span>קבוצות: <b class="cGrp">0</b></span><span>שורות בתוצאה: <b class="cRes">0</b></span></div></div>
+     <div style="flex:1 1 270px"><pre class="sql live"></pre>${cfg.legend||''}</div></div>
+   <div class="row" style="margin-top:12px">
+     <div style="flex:1 1 330px"><div class="cap">${cfg.srcCap}</div><table class="t src"></table></div>
+     <div style="flex:1.2 1 330px"><div class="cap">קבוצות לפי <code>${cfg.keyName}</code></div><div class="buckets"></div>
+       <div class="resWrap" style="margin-top:14px"><div class="cap">טבלת התוצאה</div><table class="t res"></table></div></div></div>`;
+  const E=c=>$('.'+c,root);
+
+  function render(s,prev){
+    clearGhosts();
+    const fwd=s===prev+1,moved=Math.min(s,N),cur=s>=1&&s<=N?s-1:-1,aggShown=Math.max(0,Math.min(A,s-N));
+    const stage=s===0?0:s<=N?1:s<=N+A?2:s===S_RES?3:4;
+    root.querySelectorAll('.stages span').forEach((e,i)=>e.className=i===stage?'on':i<stage?'done':'');
+    const hl=stage===2?cfg.hl.agg[aggShown-1]:[cfg.hl.data,cfg.hl.build,null,cfg.hl.res,cfg.hl.ord][stage];
+    E('sql').innerHTML=sqlHTML(hl);
+
+    E('src').innerHTML='<tr>'+cfg.cols.map(c=>`<th>${c.h}</th>`).join('')+'</tr>'+rows.map((r,i)=>
+      `<tr id="${P}s${i}" class="${i===cur?'cur':i<moved?'moved':''}">`+cfg.cols.map(c=>`<td class="${c.cls||''}">${c.key?chip(cfg.key(r)):''}${c.f(r)}</td>`).join('')+'</tr>').join('');
+
+    const bk=[];for(let i=0;i<moved;i++){const k=cfg.key(rows[i]);let b=bk.find(x=>x.k===k);if(!b){b={k,rows:[]};bk.push(b);}b.rows.push(i);}
+    const justAgg=stage===2&&fwd?aggShown-1:-1;   // index of aggregate being revealed now
+    E('buckets').innerHTML=bk.length?bk.map((b,bi)=>{
+      const g=groups.find(x=>x.k===b.k);
+      const lis=b.rows.map((i,j)=>{
+        let marks='';
+        cfg.aggs.forEach((a,ai)=>{if(ai<aggShown&&a.mark==='count'){const d=ai===justAgg?bi*0.15+j*0.28:0;marks+=`<b class="cnum" style="animation-delay:${d}s">${j+1}</b>`;}});
+        const valOn=cfg.aggs.some((a,ai)=>ai<aggShown&&a.mark==='value'),vi=cfg.aggs.findIndex(a=>a.mark==='value');
+        const vd=vi===justAgg?bi*0.15+j*0.3:0;
+        return `<li id="${P}b${i}">${cfg.li(rows[i],valOn?`class="v hl" style="animation-delay:${vd}s"`:'class="v"')}${marks}</li>`;}).join('');
+      const aggs=cfg.aggs.slice(0,aggShown).map((a,ai)=>{const d=ai===justAgg?bi*0.15+b.rows.length*0.3:0;
+        return `<div class="agg" style="animation-delay:${d}s">${a.name} = ${a.fmt(g.v[ai])}</div>`;}).join('');
+      return `<div class="bucket ${s>=S_RES?'done':''}" id="${P}k${bi}" style="--c:${col(b.k)}"><h4><span>${cfg.keyLabel(b.k)}</span><span>${aggShown?'':b.rows.length}</span></h4><ul>${lis}</ul>${aggs}</div>`;}).join('')
+      :'<div class="empty" style="direction:rtl;flex:1">עדיין אין קבוצות. הן ייבנו תוך כדי מעבר על השורות.</div>';
+    root.querySelectorAll('.bucket').forEach((el,bi)=>{if(!(fwd&&cur>=0&&bk[bi].rows[0]===cur))el.style.animation='none';});
+
+    const rs=s>=S_RES?(s>=S_ORD?sorted:groups):[];
+    E('resWrap').style.display=s>=S_RES?'':'none';
+    flip(E('res'),'<tr>'+cfg.resCols.map(c=>`<th>${c.h}</th>`).join('')+'</tr>'+rs.map(g=>
+      `<tr data-k="${g.k}" id="${P}r${groups.indexOf(g)}">`+cfg.resCols.map((c,ci)=>`<td class="${ci?'n':'city'}">${ci?'':chip(g.k)}${c.f(g)}</td>`).join('')+'</tr>').join(''));
+    E('cRows').textContent=moved;E('cGrp').textContent=bk.length;E('cRes').textContent=rs.length;
+
+    let t;
+    if(s===0)t=cfg.say.data;
+    else if(cur>=0){const r=rows[cur],k=cfg.key(r),first=groups.find(g=>g.k===k).rows[0]===cur,n=bk.find(b=>b.k===k).rows.length;
+      t=`<b>שלב 2 – בניית קבוצות:</b> ${cfg.say.row(r)} ← `+(first?'<b class="ok">עוד אין קבוצה לערך הזה, יוצרים קבוצה חדשה</b>':`נכנסת לקבוצה הקיימת (עכשיו יש בה ${n} שורות)`);}
+    else if(stage===2)t=cfg.say.agg[aggShown-1];
+    else if(s===S_RES)t=cfg.say.res;
+    else t=cfg.say.ord;
+    E('say').innerHTML=t;
+
+    if(fwd){
+      if(cur>=0)fly($('#'+P+'s'+cur),$('#'+P+'b'+cur),cfg.ghost(rows[cur]),col(cfg.key(rows[cur])));
+      if(s===S_RES)groups.forEach((g,bi)=>fly($('#'+P+'k'+bi+' h4'),$('#'+P+'r'+bi),cfg.resGhost(g),col(g.k),bi*180));
+    }
+  }
+
+  let step=0,timer=null;const ctl=E('ctrl');
+  ctl.innerHTML='<button data-a="reset">⟲ התחלה</button><button data-a="prev">→ אחורה</button><button data-a="next" class="pri">צעד הבא ←</button><button data-a="play">▶ נגן</button><button data-a="skip">⏭ לשלב הבא</button><div class="prog"><i></i></div><span class="stepn"></span>';
+  const playB=$('[data-a=play]',ctl);
+  const stop=()=>{clearTimeout(timer);timer=null;playB.textContent='▶ נגן';};
+  const go=n=>{const p=step;step=Math.max(0,Math.min(TOTAL,n));render(step,p);
+    $('.prog i',ctl).style.width=100*step/TOTAL+'%';$('.stepn',ctl).textContent=step+' / '+TOTAL;};
+  const tick=()=>{if(step>=TOTAL){stop();return;}go(step+1);timer=setTimeout(tick,step>=N?2600:1100);};
+  ctl.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;
+    if(a==='reset'){stop();go(0);}else if(a==='prev'){stop();go(step-1);}else if(a==='next')go(step+1);
+    else if(a==='skip'){stop();go(step<N?N:step+1);}
+    else if(a==='play'){if(timer)stop();else{if(step>=TOTAL)go(0);playB.textContent='⏸ עצור';timer=setTimeout(tick,200);}}});
+  const d={slide:root,next:()=>go(step+1),stop,refresh:()=>go(step)};demos.push(d);go(0);
+  $('#'+cfg.sql0).innerHTML=cfg.sql.map(([k,h])=>`<span class="ln">${h}</span>`).join('');
+}
+
+function fly(from,to,html,color,delay=0){
+  if(!from||!to)return;
+  const a=from.getBoundingClientRect(),b=to.getBoundingClientRect();
+  const g=document.createElement('div');g.className='ghost';g.innerHTML=html;g.style.setProperty('--c',color);
+  Object.assign(g.style,{left:a.left+'px',top:a.top+'px',width:a.width+'px',height:a.height+'px'});
+  document.documentElement.appendChild(g);to.style.visibility='hidden';
+  const an=g.animate([{left:a.left+'px',top:a.top+'px',width:a.width+'px',height:a.height+'px'},
+     {left:b.left+'px',top:b.top+'px',width:b.width+'px',height:b.height+'px'}],{duration:750,delay,easing:'cubic-bezier(.5,0,.2,1)',fill:'both'});
+  an.onfinish=()=>{g.remove();to.style.visibility='';};
+}
+function clearGhosts(){document.querySelectorAll('.ghost').forEach(g=>g.remove());document.querySelectorAll('[style*="visibility: hidden"]').forEach(e=>e.style.visibility='');}
+function flip(tbl,html){
+  const old={};tbl.querySelectorAll('tr[data-k]').forEach(r=>old[r.dataset.k]=r.getBoundingClientRect().top);
+  tbl.innerHTML=html;
+  tbl.querySelectorAll('tr[data-k]').forEach(r=>{const o=old[r.dataset.k];if(o==null)return;const d=o-r.getBoundingClientRect().top;if(!d)return;
+    r.style.transition='none';r.style.transform=`translateY(${d}px)`;r.getBoundingClientRect();r.style.transition='';r.style.transform='';});
+}
+
+/* ---------- demo 1: customers by city ---------- */
+const customers=[
+ ['ALFKI','Alfreds Futterkiste','Berlin','Germany'],['ANATR','Ana Trujillo Emparedados y helados','México D.F.','Mexico'],
+ ['ANTON','Antonio Moreno Taquería','México D.F.','Mexico'],['AROUT','Around the Horn','London','UK'],
+ ['BOLID','Bólido Comidas preparadas','Madrid','Spain'],['BSBEV',"B's Beverages",'London','UK'],
+ ['CENTC','Centro comercial Moctezuma','México D.F.','Mexico'],['CONSH','Consolidated Holdings','London','UK'],
+ ['EASTC','Eastern Connection','London','UK'],['FISSA','FISSA Fabrica Inter. Salchichas S.A.','Madrid','Spain'],
+ ['NORTS','North/South','London','UK'],['PARIS','Paris spécialités','Paris','France'],
+ ['PERIC','Pericles Comidas clásicas','México D.F.','Mexico'],['ROMEY','Romero y tomillo','Madrid','Spain'],
+ ['SEVES','Seven Seas Imports','London','UK'],['SPECD','Spécialités du monde','Paris','France'],
+ ['TORTU','Tortuga Restaurante','México D.F.','Mexico']];
+const short=s=>s.length>24?s.slice(0,23)+'…':s;
+makeDemo({id:'demoA',sql0:'sqlA0',title:'הדגמה 1: כמה לקוחות יש בכל עיר? <span class="tag">customers</span>',
+  rows:customers,key:r=>r[2],keyName:'city',keyLabel:k=>k,
+  color:{'Berlin':'#7048e8','México D.F.':'#d6336c','London':'#3b5bdb','Madrid':'#e8590c','Paris':'#2f9e44'},
+  srcCap:'customers <small>17 לקוחות מתוך הטבלה</small>',
+  cols:[{h:'customer_id',f:r=>r[0]},{h:'company_name',f:r=>short(r[1])},{h:'city',f:r=>r[2],cls:'city',key:1},{h:'country',f:r=>r[3]}],
+  li:(r,v)=>`<span>${r[0]}</span>`,ghost:r=>`${r[0]} · ${r[2]}`,
+  aggs:[{name:'COUNT(*)',short:'COUNT',mark:'count',calc:rs=>rs.length,fmt:v=>v}],
+  sql:[['sel',kw('SELECT')+' city,'],['a0','       '+fn('COUNT')+'(*) '+kw('AS')+' customer_count'],['from',kw('FROM')+' customers'],
+       ['grp',kw('GROUP BY')+' city'],['ord',kw('ORDER BY')+' customer_count '+kw('DESC')+';']],
+  hl:{data:['from'],build:['grp'],agg:[['a0']],res:['sel','a0'],ord:['ord']},
+  sort:(a,b)=>b.v[0]-a.v[0],
+  resCols:[{h:'city',f:g=>g.k},{h:'customer_count',f:g=>g.v[0]}],resGhost:g=>`${g.k} · ${g.v[0]}`,
+  say:{data:'<b>שלב 1 – הנתונים:</b> זו טבלת <code>customers</code> כפי שהיא שמורה, 17 שורות בסדר של customer_id. הערים מעורבבות. המנוע יעבור על השורות אחת אחרי השנייה.',
+       row:r=>`הלקוח <b>${r[0]}</b> מהעיר <b>${r[2]}</b>`,
+       agg:['<b>שלב 3 – ספירה:</b> כל השורות חולקו ל-<b>5 קבוצות</b>. עכשיו <code>COUNT(*)</code> סופר את השורות <u>בתוך כל קבוצה בנפרד</u>.'],
+       res:'<b>שלב 4 – בניית התוצאה:</b> כל קבוצה מתכווצת ל<b>שורה אחת</b>: שם העיר ותוצאת הספירה. מ-17 שורות קיבלנו 5. הסדר בינתיים הוא הסדר שבו נוצרו הקבוצות.',
+       ord:'<b>שלב 5 – מיון:</b> <code>ORDER BY customer_count DESC</code> מסדר את התוצאה מהעיר עם הכי הרבה לקוחות לעיר עם הכי מעט. 🎉 זו התוצאה הסופית!'}});
+
+/* ---------- demo 2: orders by ship_via ---------- */
+const orders=[[10248,'VINET',3,32.38],[10249,'TOMSP',1,11.61],[10250,'HANAR',2,65.83],[10251,'VICTE',1,41.34],
+ [10252,'SUPRD',2,51.30],[10253,'HANAR',2,58.17],[10254,'CHOPS',2,22.98],[10255,'RICSU',3,148.33],
+ [10256,'WELLI',2,13.97],[10257,'HILAA',3,81.91],[10258,'ERNSH',1,140.51],[10259,'CENTC',3,3.25]];
+makeDemo({id:'demoB',sql0:'sqlB0',title:'הדגמה 2: הזמנות לפי חברת שילוח <span class="tag">orders · בלי JOIN</span>',
+  rows:orders,key:r=>r[2],keyName:'ship_via',keyLabel:k=>`ship_via = ${k}`,
+  color:{1:'#0c8599',2:'#e8590c',3:'#7048e8'},
+  srcCap:'orders <small>12 ההזמנות הראשונות בטבלה</small>',
+  cols:[{h:'order_id',f:r=>r[0]},{h:'customer_id',f:r=>r[1]},{h:'ship_via',f:r=>r[2],cls:'city',key:1},{h:'freight',f:r=>f2(r[3]),cls:'n'}],
+  li:(r,v)=>`<span>${r[0]}</span><span ${v}>${f2(r[3])}</span>`,ghost:r=>`${r[0]} · ship_via ${r[2]} · ${f2(r[3])}`,
+  aggs:[{name:'COUNT(*)',short:'COUNT',mark:'count',calc:rs=>rs.length,fmt:v=>v},
+        {name:'SUM',short:'SUM',mark:'value',calc:rs=>rs.reduce((a,r)=>a+r[3],0),fmt:v=>f2(v)}],
+  sql:[['sel',kw('SELECT')+' ship_via,'],['a0','       '+fn('COUNT')+'(*)     '+kw('AS')+' order_count,'],['a1','       '+fn('SUM')+'(freight) '+kw('AS')+' total_freight'],
+       ['from',kw('FROM')+' orders'],['grp',kw('GROUP BY')+' ship_via'],['ord',kw('ORDER BY')+' total_freight '+kw('DESC')+';']],
+  hl:{data:['from'],build:['grp'],agg:[['a0'],['a1']],res:['sel','a0','a1'],ord:['ord']},
+  legend:'<div class="legend">מפתח מטבלת shippers: <span>1 = Speedy Express</span><span>2 = United Package</span><span>3 = Federal Shipping</span></div>',
+  sort:(a,b)=>b.v[1]-a.v[1],
+  resCols:[{h:'ship_via',f:g=>g.k},{h:'order_count',f:g=>g.v[0]},{h:'total_freight',f:g=>f2(g.v[1])}],resGhost:g=>`ship_via ${g.k} · ${g.v[0]} · ${f2(g.v[1])}`,
+  say:{data:'<b>שלב 1 – הנתונים:</b> אלה 12 ההזמנות הראשונות בטבלת <code>orders</code>. בעמודה <code>ship_via</code> שמור <b>מספר</b> חברת השילוח (מפתח זר לטבלת shippers). אין צורך ב-JOIN, כי מקבצים לפי עמודה שכבר נמצאת ב-orders.',
+       row:r=>`הזמנה <b>${r[0]}</b> נשלחה עם <b>ship_via = ${r[2]}</b> (משלוח ${f2(r[3])})`,
+       agg:['<b>שלב 3א – ספירה:</b> 12 ההזמנות חולקו ל-<b>3 קבוצות</b>. <code>COUNT(*)</code> סופר כמה הזמנות יש בכל קבוצה.',
+            '<b>שלב 3ב – סכום:</b> <code>SUM(freight)</code> מחבר את עלויות המשלוח המסומנות <u>בתוך כל קבוצה</u>. לדוגמה, לחברה 1: ‏11.61 + 41.34 + 140.51 = 193.46.'],
+       res:'<b>שלב 4 – בניית התוצאה:</b> כל קבוצה הופכת ל<b>שורה אחת</b> עם שלוש עמודות: מספר החברה, מספר ההזמנות וסכום המשלוח. מ-12 שורות קיבלנו 3.',
+       ord:'<b>שלב 5 – מיון:</b> <code>ORDER BY total_freight DESC</code> שם ראשונה את החברה עם עלות המשלוח הכוללת הגבוהה ביותר. שימו לב: לחברה 2 יש הכי הרבה הזמנות, אבל לחברה 3 יש הכי הרבה עלות. 🎉'}});
+
+/* ---------- deck nav ---------- */
+const slides=[...document.querySelectorAll('.slide')];let cur=0;
+function show(i){cur=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,j)=>s.classList.toggle('on',j===cur));
+  demos.forEach(d=>d.stop());clearGhosts();
+  $('#count').textContent=`${cur+1} / ${slides.length} · ${slides[cur].dataset.title}`;slides[cur].scrollTop=0;}
+const curDemo=()=>demos.find(d=>d.slide===slides[cur]);
+$('#prev').onclick=()=>show(cur-1);$('#next').onclick=()=>show(cur+1);
+document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='PageDown')show(cur+1);else if(e.key==='ArrowRight'||e.key==='PageUp')show(cur-1);
+  else if((e.key===' '||e.key==='Enter')&&curDemo()){e.preventDefault();curDemo().next();}});
+let tx=null;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+document.addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>80&&!e.target.closest('table,pre,.buckets'))show(dx>0?cur+1:cur-1);tx=null;});
+show(0);
+</script>
+</body>
+</html>

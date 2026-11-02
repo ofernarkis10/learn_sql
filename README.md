@@ -30,6 +30,8 @@ The pages are in Hebrew (right-to-left); SQL code is left-to-right. Every query 
 | Northwind database | `database-01-tables.html` | Short reference: the 11 tables, field names and types only |
 | | `database-02-schema.html` | Detailed reference: relationship map, keys, a description and an example value for every field, notes on the data |
 | SQL formula sheet | `formulas-01-sql-sheet.html` | Statement structure, order of execution, functions, JOIN, CASE, subqueries, SQLite vs SQL Server, common mistakes |
+| Lessons (מצגות לשיעור) | `lessons-01-join-groupby.html` | Animated presentation: how the engine runs one query on `orders` and `customers` step by step (nested-loop `JOIN`, `INNER` vs `LEFT JOIN`, `GROUP BY`, `HAVING`, `SELECT`, `ORDER BY`), with review questions |
+| | `lessons-02-groupby-steps.html` | Animated presentation of `GROUP BY` without `JOIN`: customers by city (`COUNT(*)`) and orders by shipper (`COUNT(*)`, `SUM(freight)`), with review questions |
 | Practice | `practice-01-30-questions.html` | 30 graded questions, each on two pages (question; query, result and detailed explanation). Slides or document view |
 | | `practice-02-90-questions.html` | 90 questions parallel to the 30 (three per question), same format, no subqueries |
 | | `practice-03-25-questions.html` | 25 of the 90 questions, questions only, with the structure of the tables each one needs. Print-ready. **Hidden:** not listed in `index.html`; open it by its file name |
@@ -59,7 +61,7 @@ All the question sets are graded in the same five stages: aggregate functions, `
 | `lead` | Text under the title of the topic view | May be longer than `desc` |
 | `items` | The topic's documents | See below |
 
-Current topic ids: `database`, `formulas`, `practice`, `assignments`.
+Current topic ids: `database`, `formulas`, `lessons`, `practice`, `assignments`.
 
 ### The data: documents
 
@@ -85,6 +87,7 @@ learn_sql/
 ├── index.html                       all navigation: home page, topic lists (#<topic-id>) and search (#q=…)
 ├── database-NN-<name>.html          Northwind database reference (01 short tables, 02 detailed schema)
 ├── formulas-NN-<name>.html          SQL formula sheet
+├── lessons-NN-<name>.html           animated presentations for class (01 JOIN and GROUP BY, 02 GROUP BY step by step)
 ├── practice-NN-<name>.html          practice question sets (01 thirty, 02 ninety, 03 twenty-five)
 ├── assignments-NN-<name>.html       homework (01 questions)
 ├── font-size.js                     text-size control shown on every page
@@ -92,7 +95,7 @@ learn_sql/
 └── LICENSE                          CC0 1.0 Universal
 ```
 
-Every page is a single self-contained HTML file: styles and scripts are inline, there is no framework, and the only external resource is Google Fonts (Rubik, Assistant, JetBrains Mono). Pages support light and dark mode automatically. The one shared file is `font-size.js`, which adds a text-size control (א− / 100% / א+, from 85% to 200%) to every page; the chosen size is remembered across pages and visits in the same browser. The pages set their sizes in `px`, so the control scales the whole page with CSS `zoom`. In the question viewers the control sits in the top bar (an element with `id="fs-slot"`); on other pages it floats in the bottom-left corner.
+Every page is a single self-contained HTML file: styles and scripts are inline, there is no framework, and the only external resource is Google Fonts (Rubik, Assistant, JetBrains Mono). Pages support light and dark mode automatically. The one shared file is `font-size.js`, which adds a text-size control (א− / 100% / א+, from 85% to 200%) to every page; the chosen size is remembered across pages and visits in the same browser. The pages set their sizes in `px`, so the control scales the whole page with CSS `zoom`. In the question viewers and the presentations the control sits in the navigation bar (an element with `id="fs-slot"`); on other pages it floats in the bottom-left corner.
 
 ## Adding a new page
 

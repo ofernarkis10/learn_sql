@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>איך מנוע SQL מבצע JOIN ו-GROUP BY</title>
+<style>
+:root{
+  --bg:#f6f7fb; --card:#fff; --ink:#1d2433; --mute:#6b7385; --line:#e2e5ee;
+  --acc:#3b5bdb; --ok:#2f9e44; --bad:#e03131; --warn:#f08c00;
+  --ALFKI:#3b5bdb; --ANATR:#d6336c; --AROUT:#2f9e44; --BERGS:#e8590c; --FISSA:#7048e8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+  font-family:"Segoe UI","Rubik","Heebo",Arial,sans-serif}
+#deck{height:100%;overflow:hidden;position:relative}
+.slide{position:absolute;inset:0 0 58px 0;overflow-y:auto;padding:22px clamp(12px,3vw,40px) 30px;
+  opacity:0;pointer-events:none;transform:translateX(-30px);transition:.35s}
+.slide.on{opacity:1;pointer-events:auto;transform:none}
+h1{font-size:clamp(26px,4.5vw,44px);margin:.2em 0 .3em}
+h2{font-size:clamp(20px,3vw,30px);margin:0 0 .5em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+h2 .tag{font-size:.55em;background:var(--acc);color:#fff;border-radius:20px;padding:3px 12px;font-weight:600}
+p{line-height:1.6;margin:.4em 0}
+.sub{color:var(--mute);font-size:clamp(15px,2vw,19px)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 2px 8px #1d243310}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.row>*{flex:1 1 280px;min-width:0}
+.cap{font-weight:700;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cap small{font-weight:400;color:var(--mute)}
+
+/* SQL code */
+pre.sql{direction:ltr;text-align:left;background:#1e2230;color:#e6e8ef;border-radius:12px;padding:12px 14px;margin:0;
+  font:14px/1.65 Consolas,"Courier New",monospace;overflow-x:auto}
+pre.sql .ln{display:block;border-radius:6px;padding:0 6px;transition:.3s;opacity:.55}
+pre.sql.all .ln{opacity:1}
+pre.sql .ln.hl{opacity:1;background:#3b5bdb55;box-shadow:inset 3px 0 0 #74c0fc}
+pre.sql .ln.dim{opacity:.3}
+.kw{color:#74c0fc;font-weight:700}.fn{color:#ffd43b}.st{color:#b2f2bb}.num{color:#ffa8a8}
+.badge{display:inline-block;min-width:22px;text-align:center;border-radius:11px;background:#ffd43b;color:#1e2230;
+  font:700 12px/22px Arial;margin-left:8px;transform:scale(0);transition:.3s}
+.badge.on{transform:scale(1)}
+
+/* tables */
+table.t{direction:ltr;border-collapse:separate;border-spacing:0;width:100%;font-size:14px;background:#fff;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+table.t th{background:#eef1f8;text-align:left;padding:6px 8px;font-size:12.5px;color:#3d4557;white-space:nowrap}
+table.t td{padding:5px 8px;border-top:1px solid var(--line);white-space:nowrap;transition:background .3s,opacity .3s}
+table.t td.n{text-align:right;font-variant-numeric:tabular-nums}
+table.t tr{transition:transform .5s ease}
+.pk{color:var(--warn);font-size:11px;margin-left:3px}
+.chip{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+tr.outer td{background:#e7f0ff}
+tr.outer td:first-child{box-shadow:inset 4px 0 0 var(--acc)}
+tr.done td{opacity:.45}
+tr.inner td{background:#fff3bf}
+tr.match td{background:#d3f9d8 !important}
+tr.miss td{background:#ffe3e3 !important}
+tr.new td{animation:pop .7s}
+tr.null td.nl{color:var(--bad);font-style:italic;font-weight:700}
+tr.fail td{background:#ffe3e3;text-decoration:line-through;color:#a33}
+tr.pass td{background:#ebfbee}
+tr.moved td{opacity:.25}
+tr.cur td{background:#fff3bf}
+th.alias{background:#d0ebff !important;color:#1c4f8a;animation:pop .7s}
+@keyframes pop{0%{transform:scale(.92);background:#ffec99}100%{transform:none}}
+.empty{color:var(--mute);font-style:italic;text-align:center;padding:12px}
+
+/* narration */
+.say{min-height:3.4em;background:#fff;border:1px solid var(--line);border-right:5px solid var(--acc);border-radius:10px;
+  padding:10px 14px;margin:12px 0;font-size:clamp(15px,2vw,18px);line-height:1.6}
+.say b.ok{color:var(--ok)}.say b.bad{color:var(--bad)}
+.say code,.note code,p code,li code,summary code{direction:ltr;unicode-bidi:embed;background:#eef1f8;border-radius:5px;padding:0 5px;font-family:Consolas,monospace;font-size:.92em}
+
+/* controls */
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.ctrl button,.tog button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer}
+.ctrl button:hover,.tog button:hover{border-color:var(--acc)}
+.ctrl button.pri{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:700}
+.prog{flex:1 1 90px;height:6px;background:#e2e5ee;border-radius:3px;overflow:hidden;min-width:60px}
+.prog i{display:block;height:100%;background:var(--acc);width:0;transition:.3s}
+.stepn{color:var(--mute);font-size:13px;direction:ltr}
+.tog{display:flex;gap:8px;margin:8px 0}
+.tog button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+
+/* pseudo code */
+pre.pseudo{direction:ltr;text-align:left;background:#fff;border:1px dashed #b8c0d6;border-radius:10px;padding:8px 10px;margin:0;font:13px/1.6 Consolas,monospace}
+pre.pseudo span{display:block;border-radius:5px;padding:0 4px;transition:.25s}
+pre.pseudo span.hl{background:#fff3bf}
+pre.pseudo span.ok{background:#d3f9d8}
+.counter{font-size:13px;color:var(--mute);margin-top:6px}
+.counter b{color:var(--ink);font-size:16px}
+
+/* buckets */
+.buckets{display:flex;flex-wrap:wrap;gap:10px;direction:ltr}
+.bucket{flex:1 1 150px;border:2px solid var(--c);border-radius:12px;background:#fff;overflow:hidden;animation:pop .6s}
+.bucket h4{margin:0;padding:6px 10px;background:var(--c);color:#fff;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bucket ul{list-style:none;margin:0;padding:6px 10px;font:13px/1.8 Consolas,monospace}
+.bucket li{display:flex;justify-content:space-between}
+.bucket li.new{animation:slidein .6s}
+@keyframes slidein{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
+.bucket .agg{border-top:1px dashed var(--c);padding:6px 10px;font:700 13px/1.6 Consolas,monospace;color:var(--c);animation:slidein .6s}
+.bucket.collapsed ul{opacity:.35}
+
+/* order slide */
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px}
+.flow div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;transition:.3s;opacity:.45}
+.flow div.on{opacity:1;border-color:var(--acc);box-shadow:0 0 0 3px #3b5bdb22}
+.flow div b{display:block;direction:ltr;text-align:right;font-family:Consolas,monospace;color:var(--acc)}
+.note{background:#fff9db;border:1px solid #ffe066;border-radius:10px;padding:10px 14px;margin-top:12px;line-height:1.6}
+details{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0}
+summary{cursor:pointer;font-weight:700;line-height:1.6}
+details p{margin:.5em 0 0;color:#2b3a55}
+.big{font-size:clamp(16px,2.2vw,20px)}
+ul.plain{line-height:1.9;padding-inline-start:20px}
+
+/* nav */
+nav{position:fixed;bottom:0;left:0;right:0;height:58px;background:#fff;border-top:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;gap:14px;padding:0 10px;z-index:5}
+nav button{border:none;background:#eef1f8;border-radius:10px;padding:10px 16px;font:inherit;font-size:15px;cursor:pointer}
+nav button:hover{background:#dbe4ff}
+#count{color:var(--mute);min-width:150px;text-align:center;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dots{display:flex;gap:5px}
+.dots i{width:8px;height:8px;border-radius:50%;background:#d0d5e2;cursor:pointer}
+.dots i.on{background:var(--acc)}
+@media (max-width:600px){
+  table.t{font-size:12.5px} table.t td,table.t th{padding:4px 5px}
+  pre.sql{font-size:12px} #count{min-width:0;flex:1} .dots{display:none}
+}
+.site-back{color:var(--acc);font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap;margin-inline-end:auto}
+.site-back:hover{text-decoration:underline}
+#fs-slot{margin-inline-start:auto}
+@media (max-width:600px){.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div id="deck">
+
+<!-- 1 -->
+<section class="slide" data-title="פתיחה">
+  <p class="sub">מגמת מידע ונתונים · SQL על Northwind</p>
+  <h1>מה מנוע ה-SQL עושה<br>כשהוא מריץ JOIN ו-GROUP BY?</h1>
+  <p class="big">אנחנו כותבים מה אנחנו רוצים לקבל. המנוע מחליט איך להגיע לזה, ועושה את זה בשלבים.<br>במצגת נעקוב אחרי השאילתה הזו שלב אחר שלב:</p>
+  <div class="card" style="max-width:720px;margin-top:14px"><pre class="sql all" data-sql></pre></div>
+  <p class="sub" style="margin-top:14px">ניווט: כפתורי <b>הבא / הקודם</b> למטה או החצים במקלדת. בשקופיות המונפשות לוחצים <b>"צעד הבא"</b> או רווח.</p>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-title="הטבלאות">
+  <h2>הטבלאות שלנו <span class="tag">דוגמה מוקטנת מ-Northwind</span></h2>
+  <p>לכל הזמנה ב-<code>orders</code> יש <code>customer_id</code>, מפתח זר (FK) שמצביע על המפתח הראשי (PK) של <code>customers</code>. הצבע מראה לאיזה לקוח שייכת כל הזמנה.</p>
+  <div class="row" style="margin-top:12px">
+    <div><div class="cap">customers <small>5 שורות</small></div><table class="t" id="tCust"></table></div>
+    <div><div class="cap">orders <small>8 שורות</small></div><table class="t" id="tOrd"></table></div>
+  </div>
+  <div class="note">שימו לב ללקוח <b>FISSA</b>: אין לו אף הזמנה. נראה בהמשך מה זה עושה לתוצאה.</div>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-title="סדר הביצוע">
+  <h2>סדר הכתיבה ≠ סדר הביצוע</h2>
+  <p>כותבים <code>SELECT</code> ראשון, אבל המנוע מבצע אותו כמעט בסוף. זה הסדר הלוגי:</p>
+  <div class="row">
+    <div><pre class="sql" id="sqlOrder"></pre></div>
+    <div>
+      <div class="ctrl" id="ctlOrder"></div>
+      <div class="say" id="sayOrder"></div>
+    </div>
+  </div>
+  <div class="flow" id="flowOrder"></div>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-title="JOIN – לולאה מקוננת">
+  <h2>שלב 1: JOIN <span class="tag">Nested Loop Join</span></h2>
+  <div class="row">
+    <div style="flex:2 1 320px">
+      <div class="ctrl" id="ctlJoin"></div>
+      <div class="say" id="sayJoin"></div>
+    </div>
+    <div style="flex:1 1 240px">
+      <pre class="pseudo" id="pseudo"><span>for each row o in orders:</span><span>  for each row c in customers:</span><span>    if o.customer_id == c.customer_id:</span><span>      output (o, c)</span></pre>
+      <div class="counter">השוואות: <b id="cmpN">0</b> · שורות בתוצאה: <b id="resN">0</b></div>
+    </div>
+  </div>
+  <div class="row">
+    <div style="flex:1 1 220px"><div class="cap">orders o <small>לולאה חיצונית</small></div><table class="t" id="jOrd"></table></div>
+    <div style="flex:1 1 260px"><div class="cap">customers c <small>לולאה פנימית</small></div><table class="t" id="jCust"></table></div>
+  </div>
+  <div style="margin-top:14px"><div class="cap">טבלת ביניים: תוצאת ה-JOIN</div><table class="t" id="jRes"></table></div>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-title="INNER מול LEFT">
+  <h2>INNER JOIN מול LEFT JOIN</h2>
+  <p>הפעם מתחילים מ-<code>customers</code>. מה קורה ללקוח שאין לו אף הזמנה?</p>
+  <div class="tog" id="togJ"><button data-j="INNER" class="on">INNER JOIN</button><button data-j="LEFT">LEFT JOIN</button></div>
+  <div class="row">
+    <div><pre class="sql all" id="sqlLJ"></pre><div class="say" id="sayLJ"></div></div>
+    <div><div class="cap">תוצאה <small id="ljN"></small></div><table class="t" id="ljRes"></table></div>
+  </div>
+  <div class="note">💡 ב-LEFT JOIN, הביטוי <code>COUNT(o.order_id)</code> ייתן ל-FISSA <b>0</b> כי COUNT על עמודה מדלג על NULL. לעומת זאת <code>COUNT(*)</code> ייתן <b>1</b>, כי הוא סופר שורות.</div>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-title="GROUP BY">
+  <h2>שלב 2: GROUP BY <span class="tag">חלוקה לקבוצות</span></h2>
+  <div class="row">
+    <div style="flex:2 1 320px"><div class="ctrl" id="ctlGrp"></div><div class="say" id="sayGrp"></div></div>
+    <div style="flex:1 1 260px"><pre class="sql" id="sqlGrp"></pre></div>
+  </div>
+  <div class="row" style="margin-top:6px">
+    <div style="flex:1 1 260px"><div class="cap">טבלת הביניים (אחרי JOIN)</div><table class="t" id="gSrc"></table></div>
+    <div style="flex:1.4 1 300px"><div class="cap">קבוצות לפי <code>c.company_name</code></div><div class="buckets" id="gBk"></div></div>
+  </div>
+  <div style="margin-top:14px" id="gOutWrap"><div class="cap">אחרי GROUP BY: שורה אחת לכל קבוצה</div><table class="t" id="gOut"></table></div>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-title="HAVING">
+  <h2>שלב 3: HAVING <span class="tag">סינון קבוצות</span></h2>
+  <div class="row">
+    <div style="flex:2 1 320px"><div class="ctrl" id="ctlHav"></div><div class="say" id="sayHav"></div></div>
+    <div style="flex:1 1 260px"><pre class="sql" id="sqlHav"></pre></div>
+  </div>
+  <div class="cap" style="margin-top:6px">הקבוצות</div><table class="t" id="hTbl"></table>
+  <div class="note"><b>WHERE מול HAVING:</b> ‏<code>WHERE</code> מסנן <u>שורות</u> לפני החלוקה לקבוצות. <code>HAVING</code> מסנן <u>קבוצות</u> אחרי שחושבו פונקציות הצבירה. לכן תנאי כמו <code>COUNT(...) &gt;= 2</code> חייב להיות ב-HAVING.</div>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-title="SELECT + ORDER BY">
+  <h2>שלבים 4–5: SELECT ו-ORDER BY</h2>
+  <div class="row">
+    <div style="flex:2 1 320px"><div class="ctrl" id="ctlSel"></div><div class="say" id="saySel"></div></div>
+    <div style="flex:1 1 260px"><pre class="sql" id="sqlSel"></pre></div>
+  </div>
+  <div class="cap" style="margin-top:6px">התוצאה</div><table class="t" id="sTbl"></table>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-title="סיכום ושאלות">
+  <h2>סיכום: הדרך מהטבלאות לתוצאה</h2>
+  <div class="flow" id="flowSum"></div>
+  <h2 style="margin-top:22px">שאלות לבדיקה</h2>
+  <details><summary>1. כמה השוואות ביצע ה-Nested Loop Join, ולמה?</summary><p>8 הזמנות × 5 לקוחות = 40 השוואות. כל שורה בטבלה החיצונית מושווית לכל שורה בטבלה הפנימית. בטבלאות גדולות זה יקר מאוד, ולכן מנועים משתמשים באינדקסים או ב-Hash Join.</p></details>
+  <details><summary>2. למה הלקוח FISSA לא מופיע בתוצאה? איך גורמים לו להופיע?</summary><p>ב-INNER JOIN נשארות רק שורות שנמצאה להן התאמה, ול-FISSA אין הזמנות. עם <code>customers c LEFT JOIN orders o</code> הוא יופיע, ובעמודות של orders יהיה NULL.</p></details>
+  <details><summary>3. מה תהיה התוצאה אם נשנה ל-<code>HAVING COUNT(o.order_id) &gt;= 3</code>?</summary><p>תישאר שורה אחת בלבד: Alfreds Futterkiste עם 3 הזמנות ומשלוח כולל של 114.42.</p></details>
+  <details><summary>4. למה <code>WHERE order_count &gt;= 2</code> לא עובד?</summary><p>WHERE מתבצע לפני GROUP BY ולפני SELECT. בשלב הזה עדיין אין קבוצות, וגם הכינוי order_count עוד לא הוגדר. (חלק מהמנועים, כמו MySQL ו-SQLite, מתירים כינוי ב-HAVING כהרחבה לתקן.)</p></details>
+  <details><summary>5. כתבו שאילתה שמציגה לכל <b>מדינה</b> את מספר ההזמנות שלה.</summary><p style="direction:ltr;text-align:left;font-family:Consolas,monospace">SELECT c.country, COUNT(o.order_id) AS order_count<br>FROM orders o JOIN customers c ON o.customer_id = c.customer_id<br>GROUP BY c.country;</p></details>
+</section>
+
+</div>
+<nav><a class="site-back" href="index.html#lessons">→ חזרה לנושא: מצגות לשיעור</a>
+  <button id="prev">→ הקודם</button>
+  <span id="count"></span>
+  <div class="dots" id="dots"></div>
+  <button id="next">הבא ←</button><span id="fs-slot"></span>
+</nav>
+
+<script>
+/* ---------- data (sample subset of Northwind) ---------- */
+const customers=[
+ {id:'ALFKI',name:'Alfreds Futterkiste',country:'Germany'},
+ {id:'ANATR',name:'Ana Trujillo Emparedados',country:'Mexico'},
+ {id:'AROUT',name:'Around the Horn',country:'UK'},
+ {id:'BERGS',name:'Berglunds snabbköp',country:'Sweden'},
+ {id:'FISSA',name:'FISSA Fabrica Inter.',country:'Spain'}];
+const orders=[[10278,'BERGS',92.69],[10308,'ANATR',1.61],[10355,'AROUT',41.95],[10383,'AROUT',34.24],
+ [10625,'ANATR',43.90],[10643,'ALFKI',29.46],[10692,'ALFKI',61.02],[10702,'ALFKI',23.94]];
+const C=Object.fromEntries(customers.map(c=>[c.id,c]));
+const N=orders.length,M=customers.length;
+const f2=x=>x.toFixed(2);
+const chip=id=>`<span class="chip" style="background:var(--${id})"></span>`;
+const $=s=>document.querySelector(s);
+
+/* ---------- SQL text ---------- */
+const SQL=[
+ ['sel','<span class="kw">SELECT</span> c.company_name,'],
+ ['sel','       <span class="fn">COUNT</span>(o.order_id) <span class="kw">AS</span> order_count,'],
+ ['sel','       <span class="fn">SUM</span>(o.freight)   <span class="kw">AS</span> total_freight'],
+ ['from','<span class="kw">FROM</span> orders o'],
+ ['join','<span class="kw">JOIN</span> customers c <span class="kw">ON</span> o.customer_id = c.customer_id'],
+ ['grp','<span class="kw">GROUP BY</span> c.company_name'],
+ ['hav','<span class="kw">HAVING</span> <span class="fn">COUNT</span>(o.order_id) &gt;= <span class="num">2</span>'],
+ ['ord','<span class="kw">ORDER BY</span> order_count <span class="kw">DESC</span>, total_freight <span class="kw">DESC</span>;']];
+function sqlHTML(active=[],badges={}){
+  return SQL.map(([k,h])=>{
+    const cls=active.length?(active.includes(k)?'hl':'dim'):'';
+    const b=k in badges?`<span class="badge ${badges[k]?'on':''}">${badges[k]||''}</span>`:'';
+    return `<span class="ln ${cls}" data-k="${k}">${b}${h}</span>`;}).join('');
+}
+document.querySelectorAll('[data-sql]').forEach(e=>e.innerHTML=sqlHTML());
+$('#sqlGrp').innerHTML=sqlHTML(['grp','sel']);
+$('#sqlHav').innerHTML=sqlHTML(['hav']);
+
+/* ---------- stepper ---------- */
+const steppers=[];
+function stepper(ctlSel,total,render,opts={}){
+  const bar=$(ctlSel);let s=0,timer=null;
+  bar.innerHTML=`<button data-a="reset">⟲ התחלה</button><button data-a="prev">→ אחורה</button>`+
+   `<button data-a="next" class="pri">צעד הבא ←</button><button data-a="play">▶ נגן</button>${opts.extra||''}`+
+   `<div class="prog"><i></i></div><span class="stepn"></span>`;
+  const playB=bar.querySelector('[data-a=play]');
+  const stop=()=>{clearInterval(timer);timer=null;playB.textContent='▶ נגן';};
+  const go=n=>{s=Math.max(0,Math.min(total,n));render(s);
+    bar.querySelector('.prog i').style.width=(100*s/total)+'%';
+    bar.querySelector('.stepn').textContent=s+' / '+total; if(s>=total&&timer)stop();};
+  bar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;
+    if(a==='reset'){stop();go(0);}else if(a==='prev'){stop();go(s-1);}else if(a==='next'){go(s+1);}
+    else if(a==='play'){if(timer)stop();else{if(s>=total)go(0);timer=setInterval(()=>go(s+1),opts.speed||1100);playB.textContent='⏸ עצור';}}
+    else if(opts.on&&opts.on[a]){stop();go(opts.on[a](s));}});
+  const st={go,stop,next:()=>go(s+1),slide:bar.closest('.slide')};steppers.push(st);go(0);return st;
+}
+
+/* ---------- FLIP for row reordering ---------- */
+function flip(tbl,html){
+  const old={};tbl.querySelectorAll('tr[data-k]').forEach(r=>old[r.dataset.k]=r.getBoundingClientRect().top);
+  tbl.innerHTML=html;
+  tbl.querySelectorAll('tr[data-k]').forEach(r=>{const o=old[r.dataset.k];if(o==null)return;
+    const d=o-r.getBoundingClientRect().top;if(!d)return;
+    r.style.transition='none';r.style.transform=`translateY(${d}px)`;r.getBoundingClientRect();
+    r.style.transition='';r.style.transform='';});
+}
+
+/* ---------- slide 2: tables ---------- */
+$('#tCust').innerHTML='<tr><th>customer_id<span class="pk">🔑PK</span></th><th>company_name</th><th>country</th></tr>'+
+ customers.map(c=>`<tr><td>${chip(c.id)}${c.id}</td><td>${c.name}</td><td>${c.country}</td></tr>`).join('');
+$('#tOrd').innerHTML='<tr><th>order_id<span class="pk">🔑PK</span></th><th>customer_id<span class="pk">🔗FK</span></th><th>freight</th></tr>'+
+ orders.map(o=>`<tr><td>${o[0]}</td><td>${chip(o[1])}${o[1]}</td><td class="n">${f2(o[2])}</td></tr>`).join('');
+
+/* ---------- slide 3: logical order ---------- */
+const ORD=[
+ {k:['from','join'],t:'FROM … JOIN … ON',d:'המנוע מתחיל מהמקור: אילו טבלאות משתתפות ואיך מחברים אותן. נוצרת <b>טבלת ביניים</b> אחת. (אם הייתה <code>WHERE</code>, היא הייתה מסננת שורות מיד אחרי השלב הזה.)'},
+ {k:['grp'],t:'GROUP BY',d:'מחלקים את שורות טבלת הביניים ל<b>קבוצות</b>, אחת לכל ערך של <code>c.company_name</code>.'},
+ {k:['hav'],t:'HAVING',d:'מסננים <b>קבוצות שלמות</b> לפי תנאי על פונקציית צבירה.'},
+ {k:['sel'],t:'SELECT',d:'רק עכשיו בוחרים את העמודות להצגה, מחשבים <code>COUNT</code> ו-<code>SUM</code> לכל קבוצה ונותנים <b>כינויים</b> (AS).'},
+ {k:['ord'],t:'ORDER BY',d:'ממיינים את התוצאה הסופית. כאן כבר אפשר להשתמש בכינויים מה-SELECT, כמו <code>order_count</code>.'}];
+$('#flowOrder').innerHTML=ORD.map((o,i)=>`<div><b>${i+1}. ${o.t}</b>${o.d.replace(/<[^>]+>/g,'').split('.')[0]}.</div>`).join('');
+$('#flowSum').innerHTML=ORD.map((o,i)=>`<div class="on"><b>${i+1}. ${o.t}</b>${['טבלת ביניים: 8 שורות','4 קבוצות','3 קבוצות נשארו','3 שורות, 3 עמודות','מיון: Alfreds ראשון'][i]}</div>`).join('');
+stepper('#ctlOrder',5,s=>{
+  const badges={};ORD.forEach((o,i)=>o.k.forEach(k=>badges[k]=i<s?i+1:0));
+  $('#sqlOrder').innerHTML=sqlHTML(s?ORD[s-1].k:[],badges);
+  $('#sayOrder').innerHTML=s?`<b>${s}. ${ORD[s-1].t}</b>: ${ORD[s-1].d}`:'לחצו <b>"צעד הבא"</b> כדי לראות באיזה סדר המנוע מבצע את חלקי השאילתה. המספרים הצהובים יופיעו ליד כל שורה.';
+  document.querySelectorAll('#flowOrder div').forEach((d,i)=>d.classList.toggle('on',i<s));
+});
+
+/* ---------- slide 4: nested loop join ---------- */
+const TOT=N*M;
+const joinRes=[];orders.forEach(o=>customers.forEach(c=>{if(o[1]===c.id)joinRes.push({o,c});}));
+function nextOrder(s){if(s===0)return M;const end=(Math.floor((s-1)/M)+1)*M;return end===s?Math.min(s+M,TOT):end;}
+stepper('#ctlJoin',TOT+1,s=>{
+  const cur=s>=1&&s<=TOT?s-1:-1, k=Math.min(s,TOT);
+  const oi=cur>=0?Math.floor(cur/M):(s>TOT?N:-1), ci=cur>=0?cur%M:-1;
+  const o=cur>=0?orders[oi]:null,c=cur>=0?customers[ci]:null,match=o&&o[1]===c.id;
+  $('#jOrd').innerHTML='<tr><th>order_id</th><th>customer_id</th><th>freight</th></tr>'+orders.map((r,i)=>
+    `<tr class="${i===oi&&cur>=0?'outer':i<oi?'done':''}"><td>${r[0]}</td><td>${chip(r[1])}${r[1]}</td><td class="n">${f2(r[2])}</td></tr>`).join('');
+  $('#jCust').innerHTML='<tr><th>customer_id</th><th>company_name</th></tr>'+customers.map((r,i)=>
+    `<tr class="${i===ci?(match?'match':'miss'):''}"><td>${chip(r.id)}${r.id}</td><td>${r.name}</td></tr>`).join('');
+  const res=[];for(let t=0;t<k;t++){const a=orders[Math.floor(t/M)],b=customers[t%M];if(a[1]===b.id)res.push({a,b,t});}
+  $('#jRes').innerHTML='<tr><th>o.order_id</th><th>o.customer_id</th><th>o.freight</th><th>c.customer_id</th><th>c.company_name</th></tr>'+
+    (res.length?res.map(r=>`<tr class="${r.t===cur?'new':''}"><td>${r.a[0]}</td><td>${chip(r.a[1])}${r.a[1]}</td><td class="n">${f2(r.a[2])}</td><td>${r.b.id}</td><td>${r.b.name}</td></tr>`).join('')
+     :'<tr><td colspan="5" class="empty">עדיין ריק</td></tr>');
+  $('#cmpN').textContent=k;$('#resN').textContent=res.length;
+  const ps=document.querySelectorAll('#pseudo span');ps.forEach(e=>e.className='');
+  if(cur>=0){ps[1].className='hl';ps[2].className='hl';if(match)ps[3].className='ok';}
+  let t;
+  if(s===0)t='המנוע עובר על כל הזמנה ב-<code>orders</code> (הלולאה החיצונית). לכל הזמנה הוא סורק את כל <code>customers</code> (הלולאה הפנימית) ובודק את תנאי ה-<code>ON</code>. לחצו <b>"צעד הבא"</b>, או <b>"להזמנה הבאה"</b> כדי לדלג.';
+  else if(s>TOT)t=`<b>סיום:</b> ${TOT} השוואות (8×5) ו-${res.length} שורות בתוצאה. הלקוח <b>FISSA</b> לא התאים לאף הזמנה, ולכן ב-INNER JOIN הוא <b class="bad">לא מופיע</b> בכלל.<br>💡 במנוע אמיתי יש אינדקס על המפתח הראשי <code>customer_id</code>, ולכן המנוע קופץ ישר ללקוח הנכון במקום לסרוק את כולם.`;
+  else{t=`הזמנה <b>${o[0]}</b>: משווים <code>o.customer_id = ${o[1]}</code> מול <code>c.customer_id = ${c.id}</code> ← `+
+     (match?'<b class="ok">✔ שווה! מוסיפים שורה משולבת לתוצאה</b>':'<b class="bad">✘ לא שווה, ממשיכים ללקוח הבא</b>');
+    if(ci===M-1)t+='<br>סיימנו לסרוק את customers עבור ההזמנה הזו. עוברים להזמנה הבאה.';}
+  $('#sayJoin').innerHTML=t;
+},{speed:700,extra:'<button data-a="skip">⏭ להזמנה הבאה</button><button data-a="end">⏩ לסוף</button>',
+   on:{skip:nextOrder,end:()=>TOT+1}});
+
+/* ---------- slide 5: inner vs left ---------- */
+function renderLJ(kind){
+  document.querySelectorAll('#togJ button').forEach(b=>b.classList.toggle('on',b.dataset.j===kind));
+  $('#sqlLJ').innerHTML=`<span class="ln"><span class="kw">SELECT</span> c.customer_id, c.company_name, o.order_id</span>`+
+   `<span class="ln"><span class="kw">FROM</span> customers c</span><span class="ln hl"><span class="kw">${kind} JOIN</span> orders o</span>`+
+   `<span class="ln">  <span class="kw">ON</span> c.customer_id = o.customer_id;</span>`;
+  const rows=[];customers.forEach(c=>{const os=orders.filter(o=>o[1]===c.id);
+    if(os.length)os.forEach(o=>rows.push({c,o}));else if(kind==='LEFT')rows.push({c,o:null});});
+  $('#ljRes').innerHTML='<tr><th>customer_id</th><th>company_name</th><th>order_id</th></tr>'+rows.map(r=>
+    `<tr class="${r.o?'':'null new'}"><td>${chip(r.c.id)}${r.c.id}</td><td>${r.c.name}</td><td class="nl">${r.o?r.o[0]:'NULL'}</td></tr>`).join('');
+  $('#ljN').textContent=rows.length+' שורות';
+  $('#sayLJ').innerHTML=kind==='INNER'?'<b>INNER JOIN</b> משאיר רק שורות שנמצאה להן התאמה בשני הצדדים. ל-FISSA אין הזמנות, ולכן הוא <b class="bad">נעלם</b>.'
+   :'<b>LEFT JOIN</b> שומר את <u>כל</u> השורות מהטבלה השמאלית (customers). ללקוח בלי התאמה המנוע ממלא את העמודות של orders ב-<b class="bad">NULL</b>.';
+}
+$('#togJ').addEventListener('click',e=>{const b=e.target.closest('button');if(b)renderLJ(b.dataset.j);});
+renderLJ('INNER');
+
+/* ---------- slide 6: group by ---------- */
+const groups=[];const gIndex={};
+joinRes.forEach(r=>{const n=r.c.name;if(!(n in gIndex)){gIndex[n]=groups.length;groups.push({id:r.c.id,name:n,rows:[]});}groups[gIndex[n]].rows.push(r.o);});
+groups.forEach(g=>{g.cnt=g.rows.length;g.sum=g.rows.reduce((a,o)=>a+o[2],0);});
+stepper('#ctlGrp',N+2,s=>{
+  const moved=Math.min(s,N),cur=s>=1&&s<=N?s-1:-1;
+  $('#gSrc').innerHTML='<tr><th>o.order_id</th><th>o.freight</th><th>c.company_name</th></tr>'+joinRes.map((r,i)=>
+    `<tr class="${i===cur?'cur':i<moved?'moved':''}"><td>${r.o[0]}</td><td class="n">${f2(r.o[2])}</td><td>${chip(r.c.id)}${r.c.name}</td></tr>`).join('');
+  const bk={};const orderB=[];
+  for(let i=0;i<moved;i++){const r=joinRes[i];if(!bk[r.c.name]){bk[r.c.name]={id:r.c.id,rows:[]};orderB.push(r.c.name);}bk[r.c.name].rows.push({o:r.o,i});}
+  $('#gBk').innerHTML=orderB.length?orderB.map(n=>{const b=bk[n];const g=groups[gIndex[n]];
+    return `<div class="bucket ${s>N+1?'collapsed':''}" style="--c:var(--${b.id})"><h4>${n}</h4><ul>`+
+      b.rows.map(x=>`<li class="${x.i===cur?'new':''}"><span>${x.o[0]}</span><span>${f2(x.o[2])}</span></li>`).join('')+'</ul>'+
+      (s>N?`<div class="agg">COUNT = ${g.cnt}<br>SUM = ${f2(g.sum)}</div>`:'')+'</div>';}).join('')
+    :'<div class="empty" style="direction:rtl">עדיין אין קבוצות</div>';
+  $('#gOutWrap').style.display=s>N+1?'':'none';
+  $('#gOut').innerHTML='<tr><th>c.company_name</th><th>COUNT(o.order_id)</th><th>SUM(o.freight)</th></tr>'+groups.map(g=>
+    `<tr class="new"><td>${chip(g.id)}${g.name}</td><td class="n">${g.cnt}</td><td class="n">${f2(g.sum)}</td></tr>`).join('');
+  let t;
+  if(s===0)t='המנוע לוקח את טבלת הביניים שיצר ה-JOIN ועובר עליה שורה אחרי שורה. כל שורה נכנסת ל"דלי" לפי הערך של <code>c.company_name</code>.';
+  else if(cur>=0){const r=joinRes[cur];const first=joinRes.findIndex(x=>x.c.name===r.c.name)===cur;
+    t=`הזמנה <b>${r.o[0]}</b> שייכת ל-<b>${r.c.name}</b> ← `+(first?'<b class="ok">אין עדיין קבוצה כזו, פותחים קבוצה חדשה</b>':'מצטרפת לקבוצה הקיימת');}
+  else if(s===N+1)t='כל השורות חולקו ל-<b>4 קבוצות</b>. עכשיו מחשבים לכל קבוצה בנפרד את פונקציות הצבירה: <code>COUNT</code> סופר הזמנות ו-<code>SUM</code> מסכם את דמי המשלוח.';
+  else t='כל קבוצה <b>מתכווצת לשורה אחת</b>. זו הסיבה שב-SELECT מותר להופיע רק עמודות שב-GROUP BY או פונקציות צבירה: לכל קבוצה יש להן ערך אחד בלבד.';
+  $('#sayGrp').innerHTML=t;
+});
+
+/* ---------- slide 7: having ---------- */
+stepper('#ctlHav',groups.length+1,s=>{
+  const G=groups.length,checked=Math.min(s,G),cur=s>=1&&s<=G?s-1:-1;
+  const vis=s>G?groups.filter(g=>g.cnt>=2):groups;
+  flip($('#hTbl'),'<tr><th>c.company_name</th><th>COUNT(o.order_id)</th><th>SUM(o.freight)</th><th>COUNT ≥ 2 ?</th></tr>'+vis.map(g=>{
+    const i=groups.indexOf(g),ok=g.cnt>=2,done=i<checked;
+    return `<tr data-k="${g.id}" class="${done?(ok?'pass':'fail'):''} ${i===cur?'new':''}"><td>${chip(g.id)}${g.name}</td><td class="n">${g.cnt}</td><td class="n">${f2(g.sum)}</td><td>${done?(ok?'✔':'✘'):''}</td></tr>`;}).join(''));
+  let t;
+  if(s===0)t='ל-HAVING מגיעות <b>4 קבוצות</b>. המנוע בודק כל קבוצה מול התנאי <code>COUNT(o.order_id) &gt;= 2</code>.';
+  else if(cur>=0){const g=groups[cur];t=`<b>${g.name}</b>: COUNT = ${g.cnt} ← `+(g.cnt>=2?'<b class="ok">✔ עומדת בתנאי, נשארת</b>':'<b class="bad">✘ לא עומדת בתנאי, הקבוצה נמחקת</b>');}
+  else t='נשארו <b>3 קבוצות</b>. Berglunds snabbköp הוסר כי יש לו רק הזמנה אחת.';
+  $('#sayHav').innerHTML=t;
+});
+
+/* ---------- slide 8: select + order by ---------- */
+const kept=groups.filter(g=>g.cnt>=2);
+const sorted=[...kept].sort((a,b)=>b.cnt-a.cnt||b.sum-a.sum);
+stepper('#ctlSel',2,s=>{
+  $('#sqlSel').innerHTML=sqlHTML(s===0?[]:s===1?['sel']:['ord']);
+  const rows=s===2?sorted:kept;
+  const h=s>=1?'<tr><th class="alias">company_name</th><th class="alias">order_count</th><th class="alias">total_freight</th></tr>'
+             :'<tr><th>c.company_name</th><th>COUNT(o.order_id)</th><th>SUM(o.freight)</th></tr>';
+  flip($('#sTbl'),h+rows.map(g=>`<tr data-k="${g.id}"><td>${chip(g.id)}${g.name}</td><td class="n">${g.cnt}</td><td class="n">${f2(g.sum)}</td></tr>`).join(''));
+  $('#saySel').innerHTML=[
+   'אלה 3 הקבוצות שעברו את HAVING. הן עדיין בסדר שבו נוצרו, וזה סדר מקרי מבחינתנו.',
+   '<b>SELECT</b>: המנוע בוחר את העמודות להצגה ונותן להן <b>כינויים</b> עם <code>AS</code>, למשל <code>order_count</code> ו-<code>total_freight</code>.',
+   '<b>ORDER BY</b>: ממיינים לפי <code>order_count</code> בסדר יורד. בתיקו (שתיים-שתיים) מכריע <code>total_freight</code>. מכיוון ש-ORDER BY מתבצע <u>אחרי</u> SELECT, מותר להשתמש בו בכינויים. 🎉 זו התוצאה הסופית!'][s];
+});
+
+/* ---------- deck navigation ---------- */
+const slides=[...document.querySelectorAll('.slide')];let cur=0;
+$('#dots').innerHTML=slides.map((_,i)=>`<i data-i="${i}"></i>`).join('');
+function show(i){cur=Math.max(0,Math.min(slides.length-1,i));
+  slides.forEach((s,j)=>s.classList.toggle('on',j===cur));steppers.forEach(st=>st.stop());
+  document.querySelectorAll('#dots i').forEach((d,j)=>d.classList.toggle('on',j===cur));
+  $('#count').textContent=`${cur+1} / ${slides.length} · ${slides[cur].dataset.title}`;
+  slides[cur].scrollTop=0;}
+$('#prev').onclick=()=>show(cur-1);$('#next').onclick=()=>show(cur+1);
+$('#dots').onclick=e=>{if(e.target.dataset.i)show(+e.target.dataset.i);};
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft'||e.key==='PageDown')show(cur+1);
+  else if(e.key==='ArrowRight'||e.key==='PageUp')show(cur-1);
+  else if(e.key===' '||e.key==='Enter'){const st=steppers.find(x=>x.slide===slides[cur]);if(st){e.preventDefault();st.next();}}});
+let tx=null;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+document.addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;
+  if(Math.abs(dx)>80&&!e.target.closest('table,pre,.buckets'))show(dx>0?cur+1:cur-1);tx=null;});
+show(0);
+</script>
+</body>
+</html>
