@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>הנתונים של Northwind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a 1600x900 slide stage scaled to the window (presentation), or all slides stacked (document). RTL. */
+:root {
+  --bg: #E9EDF2;
+  --page: #FCFCFD;
+  --ink: #172033;
+  --muted: #556074;
+  --line: #D6DBE3;
+  --soft: #E4E9F1;
+  --accent: #2457C5;
+  --warm: #A34E16;
+  --deep: #14213D;
+  --deep-ink: #E9EEF8;
+  --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --font-body: "Assistant", "Arial Hebrew", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B1017; --page: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --soft: #1F2836;
+    --accent: #84A9FF; --warm: #F0A46F; --deep: #0E1626; --deep-ink: #E7EBF2; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B1017; --page: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --soft: #1F2836;
+  --accent: #84A9FF; --warm: #F0A46F; --deep: #0E1626; --deep-ink: #E7EBF2; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); display: flex; flex-direction: column; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--page); }
+button, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--soft); padding: 1px 7px; border-radius: 5px; direction: ltr; unicode-bidi: isolate; white-space: nowrap; }
+
+/* bar */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--page); border-bottom: 1px solid var(--line);
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.bar-in { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; max-width: 1600px; margin: 0 auto; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+.brand span { font-weight: 400; color: var(--muted); }
+.spacer { flex: 1; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: none; padding: 6px 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--page); }
+.btn { border: 1px solid var(--line); background: var(--page); border-radius: 8px; padding: 6px 14px; cursor: pointer; }
+.btn:disabled { opacity: .4; cursor: default; }
+.where { font-variant-numeric: tabular-nums; color: var(--muted); min-width: 64px; text-align: center; }
+.notes-btn[aria-pressed="true"] { background: var(--soft); }
+
+/* stage */
+main { flex: 1; min-height: 0; position: relative; }
+.deck { position: absolute; inset: 0; }
+.slide { width: 1600px; height: 900px; background: var(--page); position: absolute; top: 0; left: 0; transform-origin: 0 0; overflow: hidden; display: none; direction: rtl; border-radius: 6px; box-shadow: 0 6px 30px rgba(20, 33, 61, .12); }
+.slide.on { display: block; }
+.slide > .in { position: absolute; inset: 0; padding: 64px 88px 88px; display: flex; flex-direction: column; gap: 26px; }
+.foot { position: absolute; left: 88px; right: 88px; bottom: 30px; display: flex; justify-content: space-between; font-size: 18px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.notes { display: none; }
+body.shownotes .slide .notes { display: block; position: absolute; left: 88px; right: 88px; bottom: 64px; background: var(--soft); border-radius: 10px; padding: 12px 18px; font-size: 20px; color: var(--ink); }
+
+/* document view */
+body.doc main { overflow-y: auto; }
+body.doc .deck { position: relative; inset: auto; padding-block: 24px 48px; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+body.doc .slot { position: relative; flex: none; }
+body.doc .slide { display: block; }
+
+/* type */
+.eyebrow { font-size: 20px; font-weight: 700; letter-spacing: .08em; color: var(--accent); }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+h1 { font-size: 92px; line-height: 1.05; font-weight: 700; letter-spacing: -1px; }
+h1 span { display: block; font-weight: 400; font-size: 60px; color: var(--accent); margin-top: 10px; }
+h2 { font-size: 50px; line-height: 1.15; font-weight: 700; }
+h3 { font-size: 26px; line-height: 1.25; font-weight: 500; }
+p { margin: 0; font-size: 26px; line-height: 1.5; }
+.lead { font-size: 32px; color: var(--muted); max-width: 1180px; }
+.note { font-size: 23px; color: var(--muted); border-right: 4px solid var(--warm); padding-right: 16px; margin-top: auto; }
+.k, .key { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--warm); background: transparent; }
+.tname { font-size: .82em; background: var(--soft); color: var(--accent); padding: 2px 12px; }
+
+/* cover */
+.slide.cover { background: var(--deep); color: var(--deep-ink); }
+.slide.cover .in { justify-content: center; gap: 34px; padding: 96px 120px; }
+.slide.cover .eyebrow { color: #F0A46F; }
+.slide.cover h1 span { color: #9CB8FF; }
+.slide.cover .lead { color: #B8C4DA; }
+.slide.cover code { background: rgba(255, 255, 255, .1); color: var(--deep-ink); }
+.facts { display: flex; gap: 56px; margin-top: 18px; }
+.facts div { display: flex; flex-direction: column; border-top: 2px solid rgba(255, 255, 255, .25); padding-top: 14px; min-width: 170px; }
+.facts b { font-family: var(--font-display); font-size: 64px; line-height: 1; }
+.facts span { font-size: 22px; color: #B8C4DA; margin-top: 8px; }
+
+/* two columns, stats */
+.two { display: grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: start; }
+.text { display: flex; flex-direction: column; gap: 18px; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.stats div { background: var(--soft); border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.stats b { font-family: var(--font-display); font-size: 46px; line-height: 1.05; color: var(--accent); overflow-wrap: anywhere; }
+.stats span { font-size: 21px; color: var(--muted); line-height: 1.35; }
+
+/* process */
+.flow { display: flex; align-items: stretch; gap: 10px; margin-top: 10px; }
+.step { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 12px; padding: 20px 18px; display: flex; flex-direction: column; gap: 10px; background: var(--page); }
+.step .n { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: var(--page); display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 22px; }
+.step h3 { font-size: 28px; font-weight: 700; }
+.step p { font-size: 21px; color: var(--muted); line-height: 1.4; flex: 1; }
+.step code { font-size: 15px; white-space: normal; align-self: flex-start; }
+.arr { align-self: center; font-size: 34px; color: var(--muted); }
+
+/* data tables */
+table { border-collapse: collapse; }
+.data { font-size: 23px; align-self: start; }
+.data.wide { width: 100%; }
+.data th { text-align: right; font-size: 18px; font-weight: 700; color: var(--muted); padding: 8px 14px; border-bottom: 2px solid var(--ink); }
+.data td { padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.35; }
+.data td.num { text-align: left; font-variant-numeric: tabular-nums; direction: ltr; }
+.data tr.tot td { font-weight: 700; border-bottom: 0; border-top: 2px solid var(--ink); }
+.data.map td { font-size: 24px; }
+.data.map .old { color: var(--muted); background: none; }
+.arrc { color: var(--muted); text-align: center; }
+.rules { margin: 0; padding-right: 30px; display: flex; flex-direction: column; gap: 14px; font-size: 25px; line-height: 1.45; }
+
+/* column tables on the table slides */
+.tgrid { display: grid; grid-template-columns: 330px 1fr; gap: 40px; align-items: start; flex: 1; min-height: 0; }
+.tnotes { margin: 0; padding-right: 24px; display: flex; flex-direction: column; gap: 16px; font-size: 23px; line-height: 1.45; color: var(--muted); }
+.tnotes code { white-space: normal; }
+.tnotes code.blk { display: block; margin-top: 8px; padding: 8px 10px; font-size: 16px; line-height: 1.5; text-align: left; }
+.cols { width: 100%; font-size: 20px; }
+.cols th { text-align: right; font-size: 16px; font-weight: 700; color: var(--muted); padding: 6px 10px; border-bottom: 2px solid var(--ink); }
+.cols td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.35; }
+.cols .cn { font-family: var(--font-mono); font-weight: 600; font-size: 17px; direction: ltr; text-align: left; white-space: nowrap; }
+.cols .ct { font-family: var(--font-mono); font-size: 15px; color: var(--muted); direction: ltr; text-align: left; }
+.cols .ck { white-space: nowrap; }
+.cols code { font-size: 15px; }
+.cols.sm { font-size: 18px; }
+.halves { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+.half { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.half h3 { font-size: 24px; display: flex; flex-direction: column; gap: 6px; }
+.half h3 span { font-family: var(--font-body); font-size: 20px; color: var(--muted); font-weight: 400; }
+
+/* ERD */
+.erd { position: relative; width: 1344px; height: 600px; direction: ltr; margin-inline: auto; }
+.erd .lines { position: absolute; inset: 0; }
+.erd .lines path { fill: none; stroke: var(--muted); stroke-width: 2; }
+.tb { position: absolute; background: var(--page); border: 1.5px solid var(--ink); border-radius: 8px; overflow: hidden; }
+.tb .h { background: var(--deep); color: var(--deep-ink); font-family: var(--font-mono); font-weight: 600; font-size: 17px; padding: 8px 12px; height: 40px; }
+.tb .f { display: flex; gap: 8px; align-items: center; height: 28px; padding: 0 12px; font-size: 15px; }
+.tb .f code { background: none; padding: 0; font-size: 15px; }
+.tb .f .k { min-width: 22px; font-size: 13px; }
+
+/* example + quirks cards */
+.example { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.card { background: var(--soft); border-radius: 12px; padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.card h3 { font-size: 22px; font-weight: 700; color: var(--accent); }
+.card p { font-size: 21px; line-height: 1.4; }
+.card code { white-space: normal; font-size: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.grid3 .card { padding: 24px 26px; }
+.grid3 .card h3 { font-size: 26px; }
+.grid3 .card p { font-size: 22px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media print { .bar { display: none; } }
+</style>
+<style>
+/* Back link to the page's topic in index.html */
+.site-back{color:var(--accent);font-family:var(--font-body,"Assistant","Arial Hebrew",Arial,sans-serif);font-weight:600;font-size:15px;text-decoration:none;width:fit-content;white-space:nowrap}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.wrap > .site-back{display:block;margin-bottom:12px}
+@media print{.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="bar" dir="rtl">
+  <div class="bar-in">
+    <a class="site-back" href="index.html#database">→ חזרה לנושא: מסד הנתונים Northwind</a>
+    <div class="brand">הנתונים של Northwind <span>· northwind.db · sql-practice.com</span></div>
+    <div class="spacer"></div>
+    <span id="fs-slot"></span>
+    <button type="button" class="btn" id="prev">→ הקודם</button>
+    <div class="where" id="where"></div>
+    <button type="button" class="btn" id="next">הבא ←</button>
+    <button type="button" class="btn notes-btn" id="notes" aria-pressed="false">הערות למורה</button>
+    <div class="seg" role="group" aria-label="תצוגה">
+      <button type="button" id="v-slides" aria-pressed="true">מצגת</button>
+      <button type="button" id="v-doc" aria-pressed="false">מסמך</button>
+    </div>
+  </div>
+</div>
+
+<main><div class="deck" id="deck">
+<section class="slide cover" id="s1" data-n="1"><div class="in">
+<div class="eyebrow">SQL · מגמת מידע ונתונים · sql-practice.com</div>
+<h1>Northwind Traders<br><span>החברה והנתונים שלה</span></h1>
+<p class="lead">מה החברה עושה, אילו טבלאות יש בבסיס הנתונים <code>northwind.db</code>, מה הקשרים ביניהן ואילו ערכים יש בכל עמודה.</p>
+<div class="facts">
+  <div><b>11</b><span>טבלאות</span></div>
+  <div><b>830</b><span>הזמנות</span></div>
+  <div><b>77</b><span>מוצרים</span></div>
+  <div><b>22</b><span>חודשים של נתונים</span></div>
+</div></div><aside class="notes">פתיחה. Northwind הוא בסיס הנתונים שעליו אנחנו מתרגלים SQL. לפני שכותבים שאילתות צריך להבין את העסק: מה נמכר, למי, ואיך זה נשמר בטבלאות.</aside></section>
+<section class="slide content" id="s2" data-n="2"><div class="in">
+<div class="eyebrow">החברה</div>
+<h2>Northwind היא סיטונאית של מזון מיוחד</h2>
+<div class="two">
+  <div class="text">
+    <p>Northwind Traders היא חברה בדיונית. Microsoft בנתה אותה כבסיס נתונים לדוגמה ל־Access ול־SQL Server, והיא משמשת עד היום ללימוד SQL.</p>
+    <p>החברה <b>קונה</b> מוצרי מזון מיצרנים בכל העולם, כמו גבינות מצרפת ומאיטליה, בירות מגרמניה, דגים מסקנדינביה ורטבים מארצות הברית, ו<b>מוכרת</b> אותם בכמויות גדולות לעסקי מזון: מסעדות, חנויות מעדנים ורשתות.</p>
+    <p>היא מתווכת בין היצרן לחנות: מחזיקה מלאי, מקבלת הזמנות ושולחת אותן ללקוחות בעזרת חברות משלוחים.</p>
+  </div>
+  <div class="stats">
+    <div><b>29</b><span>ספקים ב־16 מדינות</span></div>
+    <div><b>91</b><span>לקוחות ב־21 מדינות</span></div>
+    <div><b>9</b><span>עובדי מכירות בסיאטל ובלונדון</span></div>
+    <div><b>3</b><span>חברות משלוחים</span></div>
+  </div>
+</div></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">2 / 18</span></div><aside class="notes">באתר יש 93 שורות בטבלת הלקוחות, אבל שתיים מהן שורות בדיקה. לכן כתוב כאן 91 לקוחות.</aside></section>
+<section class="slide content" id="s3" data-n="3"><div class="in">
+<div class="eyebrow">הפעילות העסקית</div>
+<h2>מסלול של מוצר: מהספק ועד הלקוח</h2>
+<div class="flow"><div class="step"><div class="n">1</div><h3>ספק</h3><p>מייצר את המוצר ומוכר אותו ל־Northwind</p><code>suppliers</code></div><div class="arr">←</div><div class="step"><div class="n">2</div><h3>מוצר</h3><p>נכנס למלאי, עם מחיר וקטגוריה</p><code>products · categories</code></div><div class="arr">←</div><div class="step"><div class="n">3</div><h3>לקוח</h3><p>מסעדה או חנות שמזמינה סחורה</p><code>customers</code></div><div class="arr">←</div><div class="step"><div class="n">4</div><h3>הזמנה</h3><p>תאריך, ומוצרים בכמות ובהנחה</p><code>orders · order_details</code></div><div class="arr">←</div><div class="step"><div class="n">5</div><h3>עובד מכירות</h3><p>מטפל בהזמנה ובלקוח</p><code>employees</code></div><div class="arr">←</div><div class="step"><div class="n">6</div><h3>חברת משלוחים</h3><p>מביאה את הסחורה ללקוח</p><code>shippers</code></div></div>
+<p class="note">כל שלב בעסק נשמר בטבלה משלו. שאילתה טובה מתחילה בשאלה: באיזה שלב נמצא המידע שאני צריך?</p></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">3 / 18</span></div><aside class="notes">עוברים על השלבים מימין לשמאל. בכל שלב שואלים: איזו טבלה שומרת את המידע הזה?</aside></section>
+<section class="slide content" id="s4" data-n="4"><div class="in">
+<div class="eyebrow">הפעילות במספרים</div>
+<h2>830 הזמנות במשך 22 חודשים</h2>
+<div class="two">
+  <table class="data">
+    <tr><th>שנה</th><th>תקופה</th><th>הזמנות</th><th>מכירות</th></tr>
+    <tr><td>2016</td><td>יולי עד דצמבר</td><td class="num">152</td><td class="num">260,265</td></tr>
+    <tr><td>2017</td><td>שנה מלאה</td><td class="num">408</td><td class="num">652,814</td></tr>
+    <tr><td>2018</td><td>ינואר עד 6 במאי</td><td class="num">270</td><td class="num">440,624</td></tr>
+    <tr class="tot"><td>סך הכול</td><td></td><td class="num">830</td><td class="num">1,353,703</td></tr>
+  </table>
+  <div class="stats">
+    <div><b>2,155</b><span>שורות הזמנה, 2.6 בממוצע להזמנה</span></div>
+    <div><b>1,631</b><span>סכום ממוצע של הזמנה</span></div>
+    <div><b>USA</b><span>המדינה עם הכי הרבה מכירות: 261,513</span></div>
+    <div><b>Côte de Blaye</b><span>המוצר עם הכי הרבה מכירות: 153,897</span></div>
+  </div>
+</div>
+<p class="note">רק 2017 היא שנה מלאה. כשמשווים שנים, צריך לזכור ש־2016 ו־2018 חלקיות.</p></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">4 / 18</span></div><aside class="notes">המכירות מחושבות כמחיר מ־products כפול כמות כפול (1 פחות הנחה). המכירות גדלו: בארבעת החודשים הראשונים של 2018 נמכר כמעט כמו בכל 2017.</aside></section>
+<section class="slide content" id="s5" data-n="5"><div class="in">
+<div class="eyebrow">מה מוכרים</div>
+<h2>77 מוצרים ב־8 קטגוריות</h2>
+<table class="data wide"><tr><th>category_name</th><th>מה יש בה</th><th>מוצרים</th><th>מחיר ממוצע</th></tr><tr><td><code>Beverages</code></td><td>משקאות: שתייה קלה, קפה, תה ובירה</td><td class="num">12</td><td class="num">37.98</td></tr><tr><td><code>Condiments</code></td><td>רטבים, ממרחים ותבלינים</td><td class="num">12</td><td class="num">23.06</td></tr><tr><td><code>Confections</code></td><td>קינוחים, ממתקים ולחמים מתוקים</td><td class="num">13</td><td class="num">25.16</td></tr><tr><td><code>Dairy Products</code></td><td>גבינות</td><td class="num">10</td><td class="num">28.73</td></tr><tr><td><code>Grains/Cereals</code></td><td>לחם, קרקרים, פסטה ודגנים</td><td class="num">7</td><td class="num">20.25</td></tr><tr><td><code>Meat/Poultry</code></td><td>בשר ועוף מוכנים</td><td class="num">6</td><td class="num">54.01</td></tr><tr><td><code>Produce</code></td><td>פירות יבשים וטופו</td><td class="num">5</td><td class="num">32.37</td></tr><tr><td><code>Seafood</code></td><td>דגים ואצות</td><td class="num">12</td><td class="num">20.68</td></tr></table>
+<p class="note">ההבדלים במחיר גדולים: הכי זול <code>Geitost</code> ב־2.5, והכי יקר <code>Côte de Blaye</code> ב־263.5.</p></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">5 / 18</span></div></section>
+<section class="slide content" id="s6" data-n="6"><div class="in">
+<div class="eyebrow">מבנה הנתונים</div>
+<h2>11 טבלאות והקשרים ביניהן</h2>
+<div class="erd"><svg class="lines" width="1344" height="600" viewBox="0 0 1344 600" aria-hidden="true"><path d="M992 82.0 H1024"/><path d="M656 54.0 H688"/><path d="M352 82.0 H320"/><path d="M840 190 V250"/><path d="M992 138.0 H1000 V304.0 H1024"/><path d="M320 82.0 H336 V304.0 H352"/><path d="M168 162 V250"/><path d="M992 332.0 h20 V304.0 H992"/><path d="M840 470 V384"/><path d="M688 552.0 H656"/><path d="M352 552.0 H320"/></svg><div class="tb" style="left:1024px;top:0px;width:304px"><div class="h">customers</div><div class="f"><span class="k">PK</span><code>customer_id</code></div><div class="f"><span class="k"></span><code>company_name</code></div><div class="f"><span class="k"></span><code>country</code></div></div><div class="tb" style="left:688px;top:0px;width:304px"><div class="h">orders</div><div class="f"><span class="k">PK</span><code>order_id</code></div><div class="f"><span class="k">FK</span><code>customer_id</code></div><div class="f"><span class="k">FK</span><code>employee_id</code></div><div class="f"><span class="k">FK</span><code>ship_via</code></div><div class="f"><span class="k"></span><code>order_date</code></div></div><div class="tb" style="left:352px;top:0px;width:304px"><div class="h">order_details</div><div class="f"><span class="k">FK</span><code>order_id</code></div><div class="f"><span class="k">FK</span><code>product_id</code></div><div class="f"><span class="k"></span><code>quantity</code></div><div class="f"><span class="k"></span><code>discount</code></div></div><div class="tb" style="left:16px;top:0px;width:304px"><div class="h">products</div><div class="f"><span class="k">PK</span><code>product_id</code></div><div class="f"><span class="k">FK</span><code>supplier_id</code></div><div class="f"><span class="k">FK</span><code>category_id</code></div><div class="f"><span class="k"></span><code>unit_price</code></div></div><div class="tb" style="left:1024px;top:250px;width:304px"><div class="h">shippers</div><div class="f"><span class="k">PK</span><code>shipper_id</code></div><div class="f"><span class="k"></span><code>company_name</code></div></div><div class="tb" style="left:688px;top:250px;width:304px"><div class="h">employees</div><div class="f"><span class="k">PK</span><code>employee_id</code></div><div class="f"><span class="k">FK</span><code>reports_to</code></div><div class="f"><span class="k"></span><code>last_name</code></div></div><div class="tb" style="left:352px;top:250px;width:304px"><div class="h">suppliers</div><div class="f"><span class="k">PK</span><code>supplier_id</code></div><div class="f"><span class="k"></span><code>company_name</code></div><div class="f"><span class="k"></span><code>country</code></div></div><div class="tb" style="left:16px;top:250px;width:304px"><div class="h">categories</div><div class="f"><span class="k">PK</span><code>category_id</code></div><div class="f"><span class="k"></span><code>category_name</code></div></div><div class="tb" style="left:688px;top:470px;width:304px"><div class="h">employee_territories</div><div class="f"><span class="k">FK</span><code>employee_id</code></div><div class="f"><span class="k">FK</span><code>territory_id</code></div></div><div class="tb" style="left:352px;top:470px;width:304px"><div class="h">territories</div><div class="f"><span class="k">PK</span><code>territory_id</code></div><div class="f"><span class="k">FK</span><code>region_id</code></div></div><div class="tb" style="left:16px;top:470px;width:304px"><div class="h">regions</div><div class="f"><span class="k">PK</span><code>region_id</code></div><div class="f"><span class="k"></span><code>region_description</code></div></div></div>
+<p class="note">קו מחבר מפתח זר (<span class="k">FK</span>) למפתח הראשי (<span class="k">PK</span>) של טבלה אחרת. <code>reports_to</code> מחבר את employees לעצמה.</p></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">6 / 18</span></div><aside class="notes">מימין לשמאל בשורה העליונה: לקוח, הזמנה, שורת הזמנה, מוצר. זו השרשרת המרכזית. מתחת: הטבלאות שמתארות את ההזמנה והמוצר.</aside></section>
+<section class="slide content" id="s7" data-n="7"><div class="in">
+<div class="eyebrow">פורמט השמות ב־sql-practice.com</div>
+<h2>אותיות קטנות וקו תחתון בין מילים</h2>
+<div class="two">
+  <ol class="rules">
+    <li><b>אותיות קטנות בלבד</b>, וקו תחתון בין מילים: <code>order_details</code>, <code>unit_price</code>.</li>
+    <li><b>שם טבלה ברבים:</b> <code>customers</code>, <code>orders</code>, <code>products</code>.</li>
+    <li><b>מפתח ראשי</b> הוא שם הטבלה ביחיד ועוד <code>_id</code>: <code>customer_id</code>, <code>order_id</code>.</li>
+    <li><b>מפתח זר</b> נקרא בדרך כלל כמו המפתח שהוא מצביע עליו. שני יוצאים מהכלל: <code>ship_via</code> ו־<code>reports_to</code>.</li>
+    <li><b>תאריכים</b> שמורים כטקסט בתבנית <code>YYYY-MM-DD</code>.</li>
+  </ol>
+  <table class="data map"><tr><th>Northwind המקורי</th><th></th><th>sql-practice.com</th></tr><tr><td><code class="old">Customers</code></td><td class="arrc">←</td><td><code>customers</code></td></tr><tr><td><code class="old">[Order Details]</code></td><td class="arrc">←</td><td><code>order_details</code></td></tr><tr><td><code class="old">CustomerID</code></td><td class="arrc">←</td><td><code>customer_id</code></td></tr><tr><td><code class="old">UnitPrice</code></td><td class="arrc">←</td><td><code>unit_price</code></td></tr><tr><td><code class="old">ShipVia</code></td><td class="arrc">←</td><td><code>ship_via</code></td></tr><tr><td><code class="old">ReportsTo</code></td><td class="arrc">←</td><td><code>reports_to</code></td></tr></table>
+</div></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">7 / 18</span></div><aside class="notes">בספרים ובאתרים אחרים רואים את השמות המקוריים, עם אותיות גדולות. באתר שלנו כותבים רק את הגרסה בצד שמאל.</aside></section>
+<section class="slide table" id="t-customers" data-n="8"><div class="in">
+<div class="eyebrow">טבלה · 93 שורות</div>
+<h2><code class="tname">customers</code> הלקוחות: עסקי מזון שקונים מ־Northwind</h2>
+<div class="tgrid"><ul class="tnotes"><li>כל שורה היא לקוח עסקי אחד: מסעדה, חנות מעדנים או רשת מזון.</li><li>שתי שורות (<code>VALON</code>, <code>Val2 </code>) הן שורות בדיקה של האתר, כמעט בלי נתונים.</li></ul><table class="cols"><tr><th>עמודה</th><th>סוג</th><th>מפתח</th><th>תחום הערכים</th></tr><tr><td class="cn">customer_id</td><td class="ct">TEXT</td><td class="ck"><span class=key>PK</span></td><td>קוד של 5 אותיות, למשל <code>VINET</code>, <code>ALFKI</code></td></tr><tr><td class="cn">company_name</td><td class="ct">TEXT</td><td class="ck"></td><td>שם העסק, למשל <code>QUICK-Stop</code></td></tr><tr><td class="cn">contact_name</td><td class="ct">TEXT</td><td class="ck"></td><td>שם איש הקשר</td></tr><tr><td class="cn">contact_title</td><td class="ct">TEXT</td><td class="ck"></td><td>תפקיד: <code>Owner</code>, <code>Sales Representative</code> ועוד</td></tr><tr><td class="cn">address<br>city<br>postal_code</td><td class="ct">TEXT</td><td class="ck"></td><td>כתובת. המיקוד הוא טקסט, כי יש בו אותיות (<code>WX1 6LT</code>)</td></tr><tr><td class="cn">region</td><td class="ct">TEXT</td><td class="ck"></td><td>אזור בעולם, 9 ערכים: <code>Western Europe</code> (28), <code>South America</code>…</td></tr><tr><td class="cn">country</td><td class="ct">TEXT</td><td class="ck"></td><td>21 מדינות. הכי הרבה: <code>USA</code> (13), <code>Germany</code>, <code>France</code> (11)</td></tr><tr><td class="cn">phone<br>fax</td><td class="ct">TEXT</td><td class="ck"></td><td>בפורמט של כל מדינה. <code>fax</code> ריק אצל חלק מהלקוחות</td></tr></table></div></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">8 / 18</span></div></section>
+<section class="slide table" id="t-orders" data-n="9"><div class="in">
+<div class="eyebrow">טבלה · 830 שורות</div>
+<h2><code class="tname">orders</code> ההזמנות: מי הזמין, מי טיפל, מתי ואיך נשלח</h2>
+<div class="tgrid"><ul class="tnotes"><li>כל שורה היא הזמנה אחת. המוצרים שבה נמצאים ב־order_details.</li><li><code>ship_via</code> מצביע על <code>shippers.shipper_id</code>: השם שונה, התפקיד מפתח זר.</li></ul><table class="cols"><tr><th>עמודה</th><th>סוג</th><th>מפתח</th><th>תחום הערכים</th></tr><tr><td class="cn">order_id</td><td class="ct">INTEGER</td><td class="ck"><span class=key>PK</span></td><td>מספר רץ, מ־<code>10248</code> עד <code>11077</code></td></tr><tr><td class="cn">customer_id</td><td class="ct">TEXT</td><td class="ck"><span class=key>FK</span></td><td>הלקוח שהזמין ← customers</td></tr><tr><td class="cn">employee_id</td><td class="ct">INTEGER</td><td class="ck"><span class=key>FK</span></td><td>העובד שטיפל, 1 עד 9 ← employees</td></tr><tr><td class="cn">order_date</td><td class="ct">DATETIME</td><td class="ck"></td><td><code>2016-07-04</code> עד <code>2018-05-06</code></td></tr><tr><td class="cn">required_date</td><td class="ct">DATETIME</td><td class="ck"></td><td>התאריך שהלקוח צריך את הסחורה: 14 עד 42 יום אחרי ההזמנה</td></tr><tr><td class="cn">shipped_date</td><td class="ct">DATETIME</td><td class="ck"></td><td>ריק (<code>NULL</code>) ב־21 הזמנות שלא נשלחו. 37 נשלחו באיחור</td></tr><tr><td class="cn">ship_via</td><td class="ct">INTEGER</td><td class="ck"><span class=key>FK</span></td><td>חברת המשלוחים, 1 עד 3 ← shippers</td></tr><tr><td class="cn">freight</td><td class="ct">NUMERIC</td><td class="ck"></td><td>דמי משלוח: <code>0.02</code> עד <code>1007.64</code></td></tr><tr><td class="cn">ship_name<br>ship_address<br>ship_city<br>ship_postal_code</td><td class="ct">TEXT</td><td class="ck"></td><td>לאן נשלחה ההזמנה</td></tr><tr><td class="cn">ship_region<br>ship_country</td><td class="ct">TEXT</td><td class="ck"></td><td>9 אזורים בעולם, 21 מדינות</td></tr></table></div></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">9 / 18</span></div></section>
+<section class="slide table" id="t-order_details" data-n="10"><div class="in">
+<div class="eyebrow">טבלה · 2,155 שורות</div>
+<h2><code class="tname">order_details</code> שורות ההזמנה: איזה מוצר, כמה ובאיזו הנחה</h2>
+<div class="tgrid"><ul class="tnotes"><li>כל שורה היא מוצר אחד בתוך הזמנה אחת. להזמנה יש בממוצע 2.6 שורות.</li><li>באתר אין כאן מחיר. את סכום השורה מחשבים אחרי JOIN עם products: <code class=blk>p.unit_price * od.quantity * (1 - od.discount)</code></li></ul><table class="cols"><tr><th>עמודה</th><th>סוג</th><th>מפתח</th><th>תחום הערכים</th></tr><tr><td class="cn">order_id</td><td class="ct">INTEGER</td><td class="ck"><span class=key>PK · FK</span></td><td>ההזמנה ← orders</td></tr><tr><td class="cn">product_id</td><td class="ct">INTEGER</td><td class="ck"><span class=key>PK · FK</span></td><td>המוצר ← products. יחד עם order_id: מפתח מורכב</td></tr><tr><td class="cn">quantity</td><td class="ct">INTEGER</td><td class="ck"></td><td>כמות: <code>1</code> עד <code>130</code>, החציון 20</td></tr><tr><td class="cn">discount</td><td class="ct">REAL</td><td class="ck"></td><td>שבר בין 0 ל־1: <code>0</code> (1,317 שורות), <code>0.05</code>, <code>0.1</code>, <code>0.15</code>, <code>0.2</code>, <code>0.25</code>. רק 8 שורות עם ערך אחר</td></tr></table></div></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">10 / 18</span></div></section>
+<section class="slide table" id="t-products" data-n="11"><div class="in">
+<div class="eyebrow">טבלה · 77 שורות</div>
+<h2><code class="tname">products</code> המוצרים: מה החברה מוכרת, במחיר ובמלאי</h2>
+<div class="tgrid"><ul class="tnotes"><li>כל שורה היא מוצר אחד, מספק אחד ובקטגוריה אחת.</li><li><code>products.unit_price</code> הוא המחיר היחיד בבסיס הנתונים.</li></ul><table class="cols"><tr><th>עמודה</th><th>סוג</th><th>מפתח</th><th>תחום הערכים</th></tr><tr><td class="cn">product_id</td><td class="ct">INTEGER</td><td class="ck"><span class=key>PK</span></td><td>1 עד 77</td></tr><tr><td class="cn">product_name</td><td class="ct">TEXT</td><td class="ck"></td><td>למשל <code>Chai</code>, <code>Côte de Blaye</code></td></tr><tr><td class="cn">supplier_id</td><td class="ct">INTEGER</td><td class="ck"><span class=key>FK</span></td><td>הספק ← suppliers</td></tr><tr><td class="cn">category_id</td><td class="ct">INTEGER</td><td class="ck"><span class=key>FK</span></td><td>הקטגוריה ← categories</td></tr><tr><td class="cn">quantity_per_unit</td><td class="ct">TEXT</td><td class="ck"></td><td>תיאור האריזה, טקסט חופשי: <code>10 boxes x 20 bags</code></td></tr><tr><td class="cn">unit_price</td><td class="ct">NUMERIC</td><td class="ck"></td><td><code>2.5</code> עד <code>263.5</code>, ממוצע 28.87</td></tr><tr><td class="cn">units_in_stock</td><td class="ct">INTEGER</td><td class="ck"></td><td>במלאי: <code>0</code> עד <code>125</code></td></tr><tr><td class="cn">units_on_order</td><td class="ct">INTEGER</td><td class="ck"></td><td>בהזמנה מהספק: <code>0</code> עד <code>100</code></td></tr><tr><td class="cn">reorder_level</td><td class="ct">INTEGER</td><td class="ck"></td><td>סף הזמנה מחדש: <code>0</code> עד <code>30</code>. 18 מוצרים כבר מתחתיו</td></tr><tr><td class="cn">discontinued</td><td class="ct">INTEGER</td><td class="ck"></td><td>דגל: <code>0</code> נמכר, <code>1</code> הופסק (8 מוצרים)</td></tr></table></div></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">11 / 18</span></div></section>
+<section class="slide table" id="t-employees" data-n="12"><div class="in">
+<div class="eyebrow">טבלה · 9 שורות</div>
+<h2><code class="tname">employees</code> העובדים: צוות המכירות בסיאטל ובלונדון</h2>
+<div class="tgrid"><ul class="tnotes"><li><code>reports_to</code> מצביע על עובד אחר באותה טבלה: זה מבנה הארגון.</li><li>Andrew Fuller הוא סגן נשיא המכירות. Steven Buchanan מנהל את הצוות בלונדון.</li></ul><table class="cols"><tr><th>עמודה</th><th>סוג</th><th>מפתח</th><th>תחום הערכים</th></tr><tr><td class="cn">employee_id</td><td class="ct">INTEGER</td><td class="ck"><span class=key>PK</span></td><td>1 עד 9</td></tr><tr><td class="cn">last_name<br>first_name</td><td class="ct">TEXT</td><td class="ck"></td><td>למשל <code>Davolio</code>, <code>Nancy</code></td></tr><tr><td class="cn">title</td><td class="ct">TEXT</td><td class="ck"></td><td>4 ערכים: <code>Sales Representative</code> (6), <code>Sales Manager</code>…</td></tr><tr><td class="cn">title_of_courtesy</td><td class="ct">TEXT</td><td class="ck"></td><td><code>Ms.</code>, <code>Mr.</code>, <code>Mrs.</code>, <code>Dr.</code></td></tr><tr><td class="cn">birth_date<br>hire_date</td><td class="ct">DATE</td><td class="ck"></td><td>לידה 1957–1986, קליטה <code>2012-04-01</code> עד <code>2014-11-15</code></td></tr><tr><td class="cn">address<br>city<br>region<br>postal_code<br>country</td><td class="ct">TEXT</td><td class="ck"></td><td><code>Seattle</code>, <code>London</code>… · <code>USA</code> או <code>UK</code></td></tr><tr><td class="cn">home_phone<br>extension</td><td class="ct">TEXT</td><td class="ck"></td><td>טלפון בבית ושלוחה במשרד</td></tr><tr><td class="cn">reports_to</td><td class="ct">INTEGER</td><td class="ck"><span class=key>FK</span></td><td>המנהל הישיר ← employees. ריק אצל <code>Andrew Fuller</code></td></tr></table></div></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">12 / 18</span></div></section>
+<section class="slide table" id="s13" data-n="13"><div class="in">
+<div class="eyebrow">טבלאות עזר</div>
+<h2>הקטגוריות והספקים</h2>
+<div class="halves"><div class="half"><h3><code class="tname">categories</code> <span>8 שורות · הקטגוריות של המוצרים</span></h3><table class="cols sm"><tr><th>עמודה</th><th>סוג</th><th>מפתח</th><th>תחום הערכים</th></tr><tr><td class="cn">category_id</td><td class="ct">INTEGER</td><td class="ck"><span class=key>PK</span></td><td>1 עד 8</td></tr><tr><td class="cn">category_name</td><td class="ct">TEXT</td><td class="ck"></td><td><code>Beverages</code>, <code>Seafood</code>…</td></tr><tr><td class="cn">description</td><td class="ct">TEXT</td><td class="ck"></td><td>תיאור קצר באנגלית</td></tr></table></div><div class="half"><h3><code class="tname">suppliers</code> <span>29 שורות · הספקים: היצרנים שמהם קונים</span></h3><table class="cols sm"><tr><th>עמודה</th><th>סוג</th><th>מפתח</th><th>תחום הערכים</th></tr><tr><td class="cn">supplier_id</td><td class="ct">INTEGER</td><td class="ck"><span class=key>PK</span></td><td>1 עד 29</td></tr><tr><td class="cn">company_name<br>contact_name<br>contact_title</td><td class="ct">TEXT</td><td class="ck"></td><td>שם הספק ואיש הקשר</td></tr><tr><td class="cn">address<br>city<br>region<br>postal_code</td><td class="ct">TEXT</td><td class="ck"></td><td>כתובת</td></tr><tr><td class="cn">country</td><td class="ct">TEXT</td><td class="ck"></td><td>16 מדינות. אצל ספק 9: <code>Sweden </code> עם רווח בסוף</td></tr><tr><td class="cn">phone<br>fax<br>home_page</td><td class="ct">TEXT</td><td class="ck"></td><td><code>home_page</code> ריק אצל רוב הספקים</td></tr></table></div></div></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">13 / 18</span></div></section>
+<section class="slide table" id="s14" data-n="14"><div class="in">
+<div class="eyebrow">טבלאות עזר</div>
+<h2>המשלוחים והאזורים של העובדים</h2>
+<div class="halves"><div class="half"><h3><code class="tname">shippers</code> <span>3 שורות · חברות המשלוחים</span></h3><table class="cols sm"><tr><th>עמודה</th><th>סוג</th><th>מפתח</th><th>תחום הערכים</th></tr><tr><td class="cn">shipper_id</td><td class="ct">INTEGER</td><td class="ck"><span class=key>PK</span></td><td>1 עד 3. ב־orders העמודה נקראת <code>ship_via</code></td></tr><tr><td class="cn">company_name</td><td class="ct">TEXT</td><td class="ck"></td><td><code>Speedy Express</code>, <code>United Package</code>, <code>Federal Shipping</code></td></tr><tr><td class="cn">phone</td><td class="ct">TEXT</td><td class="ck"></td><td>למשל <code>(503) 555-9831</code></td></tr></table></div><div class="half"><h3><code class="tname">territories · regions · employee_territories</code> <span>53 · 4 · 49 שורות · האזורים שבהם עובדים אנשי המכירות</span></h3><table class="cols sm"><tr><th>עמודה</th><th>סוג</th><th>מפתח</th><th>תחום הערכים</th></tr><tr><td class="cn">territory_id</td><td class="ct">TEXT</td><td class="ck"><span class=key>PK</span></td><td>territories: מיקוד אמריקאי, למשל <code>01581</code></td></tr><tr><td class="cn">territory_description</td><td class="ct">TEXT</td><td class="ck"></td><td>territories: שם העיר, למשל <code>Boston</code></td></tr><tr><td class="cn">region_id</td><td class="ct">INTEGER</td><td class="ck"><span class=key>PK · FK</span></td><td>המפתח של regions, ומפתח זר ב־territories</td></tr><tr><td class="cn">region_description</td><td class="ct">TEXT</td><td class="ck"></td><td>regions: 4 ערכים, <code>Eastern</code>, <code>Westerns</code>, <code>Northern</code>, <code>Southern</code></td></tr><tr><td class="cn">employee_id<br>territory_id</td><td class="ct">INTEGER · TEXT</td><td class="ck"><span class=key>PK · FK</span></td><td>employee_territories: איזה עובד אחראי על איזה אזור</td></tr></table></div></div></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">14 / 18</span></div></section>
+<section class="slide content" id="s15" data-n="15"><div class="in">
+<div class="eyebrow">Domains</div>
+<h2>התחום של עמודה: אילו ערכים מותרים בה</h2>
+<table class="data wide"><tr><th>סוג התחום</th><th>מה הוא אומר</th><th>עמודות לדוגמה</th></tr><tr><td><b>מזהה</b></td><td>מספר או קוד שמזהה שורה אחת</td><td><code>order_id, customer_id</code></td></tr><tr><td><b>ערך מרשימה סגורה</b></td><td>מעט ערכים שחוזרים, טוב לקיבוץ</td><td><code>country, region, title, category_name</code></td></tr><tr><td><b>טקסט חופשי</b></td><td>שם או תיאור, כמעט לא חוזר</td><td><code>company_name, address, quantity_per_unit</code></td></tr><tr><td><b>כמות שלמה</b></td><td>ספירה של יחידות, לא שלילית</td><td><code>quantity, units_in_stock, reorder_level</code></td></tr><tr><td><b>סכום כסף</b></td><td>מספר עשרוני</td><td><code>unit_price, freight</code></td></tr><tr><td><b>שבר</b></td><td>מספר בין 0 ל־1</td><td><code>discount</code></td></tr><tr><td><b>תאריך</b></td><td>טקסט בתבנית YYYY-MM-DD</td><td><code>order_date, shipped_date, hire_date</code></td></tr><tr><td><b>דגל</b></td><td>רק 0 או 1</td><td><code>discontinued</code></td></tr></table>
+<p class="note">התחום קובע מה עושים עם העמודה: על סכום כסף מחשבים <code>SUM</code> ו־<code>AVG</code>, לפי ערך מרשימה סגורה מקבצים ב־<code>GROUP BY</code>, ותאריך מסננים בטווח.</p></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">15 / 18</span></div><aside class="notes">Domain הוא קבוצת הערכים שעמודה יכולה לקבל. הסוג (TEXT, INTEGER) הוא רק חלק מזה. גם country וגם company_name הם TEXT, אבל רק לפי country הגיוני לקבץ.</aside></section>
+<section class="slide content" id="s16" data-n="16"><div class="in">
+<div class="eyebrow">דוגמה מקצה לקצה</div>
+<h2>הזמנה <code>10248</code>: לאן כל פרט שמור</h2>
+<div class="example">
+  <div class="card"><h3>orders</h3><p>הזמנה <code>10248</code> מ־<code>2016-07-04</code>, נדרשה עד <code>2016-08-01</code>, נשלחה ב־<code>2016-07-16</code>. דמי משלוח <code>32.38</code>.</p></div>
+  <div class="card"><h3>customers · <code>VINET</code></h3><p>Vins et alcools Chevalier, עיר Reims, צרפת.</p></div>
+  <div class="card"><h3>employees · <code>5</code></h3><p>Steven Buchanan, מנהל המכירות בלונדון.</p></div>
+  <div class="card"><h3>shippers · <code>3</code></h3><p>Federal Shipping, לפי <code>ship_via = 3</code>.</p></div>
+</div>
+<table class="data wide">
+  <tr><th>order_details: product_id</th><th>products: product_name</th><th>quantity</th><th>unit_price</th><th>סכום השורה</th></tr>
+  <tr><td class="num">11</td><td><code>Queso Cabrales</code></td><td class="num">12</td><td class="num">21.00</td><td class="num">252.00</td></tr>
+  <tr><td class="num">42</td><td><code>Singaporean Hokkien Fried Mee</code></td><td class="num">10</td><td class="num">14.00</td><td class="num">140.00</td></tr>
+  <tr><td class="num">72</td><td><code>Mozzarella di Giovanni</code></td><td class="num">5</td><td class="num">34.80</td><td class="num">174.00</td></tr>
+  <tr class="tot"><td>סך ההזמנה</td><td></td><td class="num">27</td><td></td><td class="num">566.00</td></tr>
+</table></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">16 / 18</span></div><aside class="notes">הזמנה אחת משתמשת בחמש טבלאות. כדי לראות את כל זה בשאילתה אחת צריך JOIN.</aside></section>
+<section class="slide content" id="s17" data-n="17"><div class="in">
+<div class="eyebrow">לפני שכותבים שאילתות</div>
+<h2>שישה דברים שכדאי לדעת על הנתונים</h2>
+<div class="grid3"><div class="card"><h3>שורות בדיקה</h3><p>בטבלת customers יש <code>VALON</code> ו־<code>Val2 </code>, כמעט ריקות. 4 לקוחות לא הזמינו אף פעם.</p></div><div class="card"><h3>רווחים מיותרים</h3><p><code>Sweden </code> אצל ספק 9, ו־region_description ו־territory_description מרופדים ברווחים. <code>TRIM</code> מנקה אותם.</p></div><div class="card"><h3>שגיאת כתיב</h3><p>אזור 2 נקרא <code>Westerns</code> ולא Western.</p></div><div class="card"><h3>ערכים חסרים</h3><p>21 הזמנות בלי <code>shipped_date</code>. בודקים עם <code>IS NULL</code>.</p></div><div class="card"><h3>תאריכים מוזזים</h3><p>באתר התאריכים מאוחרים ב־20 שנה מהמקור: 2016–2018 במקום 1996–1998.</p></div><div class="card"><h3>המחיר במקום אחד</h3><p>אין מחיר ב־order_details. סכום של הזמנה דורש JOIN עם products.</p></div></div></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">17 / 18</span></div></section>
+<section class="slide content" id="s18" data-n="18"><div class="in">
+<div class="eyebrow">מהעסק לשאילתה</div>
+<h2>שאלות שההנהלה של Northwind שואלת</h2>
+<table class="data wide"><tr><th>השאלה</th><th>הטבלאות</th><th>מה צריך / התשובה</th></tr><tr><td><b>כמה מכרנו בכל חודש?</b></td><td><code>orders + order_details + products</code></td><td><code>GROUP BY, SUM</code></td></tr><tr><td><b>מי הלקוחות הגדולים?</b></td><td><code>customers + orders + order_details + products</code></td><td><code>QUICK-Stop, Ernst Handel</code></td></tr><tr><td><b>איזה עובד מכר הכי הרבה?</b></td><td><code>employees + orders</code></td><td><code>Margaret Peacock, 156 הזמנות</code></td></tr><tr><td><b>אילו מוצרים צריך להזמין מחדש?</b></td><td><code>products</code></td><td><code>units_in_stock &lt; reorder_level: 18</code></td></tr><tr><td><b>איזו חברת משלוחים הכי מהירה?</b></td><td><code>orders + shippers</code></td><td><code>julianday, AVG</code></td></tr></table>
+<p class="note">את כל השאלות האלה אפשר לפתור באתר sql-practice.com. בחרו בשורה העליונה את <code>northwind.db</code>.</p></div><div class="foot"><span>Northwind · sql-practice.com</span><span dir="ltr">18 / 18</span></div></section>
+</div></main>
+
+<script>
+const deck = document.getElementById("deck");
+const slides = [...deck.querySelectorAll(".slide")];
+const main = document.querySelector("main");
+let cur = 0;
+const W = 1600, H = 900;
+
+function layout() {
+  const doc = document.body.classList.contains("doc");
+  if (doc) {
+    const s = Math.min(1, (main.clientWidth - 32) / W);
+    slides.forEach(el => {
+      let slot = el.parentElement.classList.contains("slot") ? el.parentElement : null;
+      if (!slot) { slot = document.createElement("div"); slot.className = "slot"; el.before(slot); slot.appendChild(el); }
+      slot.style.width = W * s + "px"; slot.style.height = H * s + "px";
+      el.style.transform = `scale(${s})`;
+    });
+  } else {
+    slides.forEach(el => { if (el.parentElement.classList.contains("slot")) { const slot = el.parentElement; slot.before(el); slot.remove(); } });
+    const pad = 24;
+    const s = Math.min((main.clientWidth - pad * 2) / W, (main.clientHeight - pad * 2) / H);
+    const x = (main.clientWidth - W * s) / 2, y = (main.clientHeight - H * s) / 2;
+    slides.forEach(el => el.style.transform = `translate(${x}px, ${y}px) scale(${s})`);
+  }
+}
+function show(i, scroll) {
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((el, k) => el.classList.toggle("on", k === cur));
+  document.getElementById("where").textContent = `${cur + 1} / ${slides.length}`;
+  document.getElementById("prev").disabled = cur === 0;
+  document.getElementById("next").disabled = cur === slides.length - 1;
+  if (document.body.classList.contains("doc") && scroll) slides[cur].scrollIntoView({ block: "start" });
+  const id = slides[cur].id;
+  if (location.hash.slice(1) !== id) history.replaceState(null, "", "#" + id);
+}
+function setView(v) {
+  document.body.classList.toggle("doc", v === "doc");
+  document.getElementById("v-slides").setAttribute("aria-pressed", v === "slides");
+  document.getElementById("v-doc").setAttribute("aria-pressed", v === "doc");
+  try { localStorage.setItem("nwdeck-view", v); } catch (e) {}
+  layout(); show(cur, true);
+}
+document.getElementById("prev").onclick = () => show(cur - 1);
+document.getElementById("next").onclick = () => show(cur + 1);
+document.getElementById("v-slides").onclick = () => setView("slides");
+document.getElementById("v-doc").onclick = () => setView("doc");
+document.getElementById("notes").onclick = e => { const on = document.body.classList.toggle("shownotes"); e.currentTarget.setAttribute("aria-pressed", on); };
+document.addEventListener("keydown", e => {
+  if (document.body.classList.contains("doc")) return;
+  if (e.target.closest("button") && (e.key === " " || e.key === "Enter")) return;
+  if (["ArrowLeft", "PageDown", " "].includes(e.key)) { e.preventDefault(); show(cur + 1); }
+  else if (["ArrowRight", "PageUp", "Backspace"].includes(e.key)) { e.preventDefault(); show(cur - 1); }
+  else if (e.key === "Home") show(0);
+  else if (e.key === "End") show(slides.length - 1);
+});
+window.addEventListener("resize", layout);
+window.addEventListener("hashchange", () => { const k = slides.findIndex(s => s.id === location.hash.slice(1)); if (k >= 0 && k !== cur) show(k, true); });
+let view = "slides";
+try { view = localStorage.getItem("nwdeck-view") || "slides"; } catch (e) {}
+const start = slides.findIndex(s => s.id === location.hash.slice(1));
+if (start > 0) cur = start;
+setView(view === "doc" ? "doc" : "slides");
+</script>
+</body>
+</html>
