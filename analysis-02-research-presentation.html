@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>שאלות מחקר על Northwind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a 1600x900 slide stage scaled to the window (presentation), or all slides stacked (document). RTL. */
+:root {
+  --bg: #E9EDF2;
+  --page: #FCFCFD;
+  --ink: #172033;
+  --muted: #556074;
+  --line: #D6DBE3;
+  --soft: #E4E9F1;
+  --accent: #2457C5;
+  --warm: #A34E16;
+  --deep: #14213D;
+  --deep-ink: #E9EEF8;
+  --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --font-body: "Assistant", "Arial Hebrew", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B1017; --page: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --soft: #1F2836;
+    --accent: #84A9FF; --warm: #F0A46F; --deep: #0E1626; --deep-ink: #E7EBF2; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B1017; --page: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --soft: #1F2836;
+  --accent: #84A9FF; --warm: #F0A46F; --deep: #0E1626; --deep-ink: #E7EBF2; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); display: flex; flex-direction: column; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--page); }
+button, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--soft); padding: 1px 7px; border-radius: 5px; direction: ltr; unicode-bidi: isolate; white-space: nowrap; }
+
+/* bar */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--page); border-bottom: 1px solid var(--line);
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.bar-in { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; max-width: 1600px; margin: 0 auto; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+.brand span { font-weight: 400; color: var(--muted); }
+.spacer { flex: 1; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: none; padding: 6px 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--page); }
+.btn { border: 1px solid var(--line); background: var(--page); border-radius: 8px; padding: 6px 14px; cursor: pointer; }
+.btn:disabled { opacity: .4; cursor: default; }
+.where { font-variant-numeric: tabular-nums; color: var(--muted); min-width: 64px; text-align: center; }
+.notes-btn[aria-pressed="true"] { background: var(--soft); }
+
+/* stage */
+main { flex: 1; min-height: 0; position: relative; }
+.deck { position: absolute; inset: 0; }
+.slide { width: 1600px; height: 900px; background: var(--page); position: absolute; top: 0; left: 0; transform-origin: 0 0; overflow: hidden; display: none; direction: rtl; border-radius: 6px; box-shadow: 0 6px 30px rgba(20, 33, 61, .12); }
+.slide.on { display: block; }
+.slide > .in { position: absolute; inset: 0; padding: 64px 88px 88px; display: flex; flex-direction: column; gap: 26px; }
+.foot { position: absolute; left: 88px; right: 88px; bottom: 30px; display: flex; justify-content: space-between; font-size: 18px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.notes { display: none; }
+body.shownotes .slide .notes { display: block; position: absolute; left: 88px; right: 88px; bottom: 64px; background: var(--soft); border-radius: 10px; padding: 12px 18px; font-size: 20px; color: var(--ink); }
+
+/* document view */
+body.doc main { overflow-y: auto; }
+body.doc .deck { position: relative; inset: auto; padding-block: 24px 48px; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+body.doc .slot { position: relative; flex: none; }
+body.doc .slide { display: block; }
+
+/* type */
+.eyebrow { font-size: 20px; font-weight: 700; letter-spacing: .08em; color: var(--accent); }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+h1 { font-size: 92px; line-height: 1.05; font-weight: 700; letter-spacing: -1px; }
+h1 span { display: block; font-weight: 400; font-size: 60px; color: var(--accent); margin-top: 10px; }
+h2 { font-size: 50px; line-height: 1.15; font-weight: 700; }
+h3 { font-size: 26px; line-height: 1.25; font-weight: 500; }
+p { margin: 0; font-size: 26px; line-height: 1.5; }
+.lead { font-size: 32px; color: var(--muted); max-width: 1180px; }
+.note { font-size: 23px; color: var(--muted); border-right: 4px solid var(--warm); padding-right: 16px; margin-top: auto; }
+.k, .key { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--warm); background: transparent; }
+.tname { font-size: .82em; background: var(--soft); color: var(--accent); padding: 2px 12px; }
+
+/* cover */
+.slide.cover { background: var(--deep); color: var(--deep-ink); }
+.slide.cover .in { justify-content: center; gap: 34px; padding: 96px 120px; }
+.slide.cover .eyebrow { color: #F0A46F; }
+.slide.cover h1 span { color: #9CB8FF; }
+.slide.cover .lead { color: #B8C4DA; }
+.slide.cover code { background: rgba(255, 255, 255, .1); color: var(--deep-ink); }
+.facts { display: flex; gap: 56px; margin-top: 18px; }
+.facts div { display: flex; flex-direction: column; border-top: 2px solid rgba(255, 255, 255, .25); padding-top: 14px; min-width: 170px; }
+.facts b { font-family: var(--font-display); font-size: 64px; line-height: 1; }
+.facts span { font-size: 22px; color: #B8C4DA; margin-top: 8px; }
+
+/* two columns, stats */
+.two { display: grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: start; }
+.text { display: flex; flex-direction: column; gap: 18px; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.stats div { background: var(--soft); border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.stats b { font-family: var(--font-display); font-size: 46px; line-height: 1.05; color: var(--accent); overflow-wrap: anywhere; }
+.stats span { font-size: 21px; color: var(--muted); line-height: 1.35; }
+
+/* process */
+.flow { display: flex; align-items: stretch; gap: 10px; margin-top: 10px; }
+.step { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 12px; padding: 20px 18px; display: flex; flex-direction: column; gap: 10px; background: var(--page); }
+.step .n { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: var(--page); display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 22px; }
+.step h3 { font-size: 28px; font-weight: 700; }
+.step p { font-size: 21px; color: var(--muted); line-height: 1.4; flex: 1; }
+.step code { font-size: 15px; white-space: normal; align-self: flex-start; }
+.arr { align-self: center; font-size: 34px; color: var(--muted); }
+
+/* data tables */
+table { border-collapse: collapse; }
+.data { font-size: 23px; align-self: start; }
+.data.wide { width: 100%; }
+.data th { text-align: right; font-size: 18px; font-weight: 700; color: var(--muted); padding: 8px 14px; border-bottom: 2px solid var(--ink); }
+.data td { padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.35; }
+.data td.num { text-align: left; font-variant-numeric: tabular-nums; direction: ltr; }
+.data tr.tot td { font-weight: 700; border-bottom: 0; border-top: 2px solid var(--ink); }
+.data.map td { font-size: 24px; }
+.data.map .old { color: var(--muted); background: none; }
+.arrc { color: var(--muted); text-align: center; }
+.rules { margin: 0; padding-right: 30px; display: flex; flex-direction: column; gap: 14px; font-size: 25px; line-height: 1.45; }
+
+/* column tables on the table slides */
+.tgrid { display: grid; grid-template-columns: 330px 1fr; gap: 40px; align-items: start; flex: 1; min-height: 0; }
+.tnotes { margin: 0; padding-right: 24px; display: flex; flex-direction: column; gap: 16px; font-size: 23px; line-height: 1.45; color: var(--muted); }
+.tnotes code { white-space: normal; }
+.tnotes code.blk { display: block; margin-top: 8px; padding: 8px 10px; font-size: 16px; line-height: 1.5; text-align: left; }
+.cols { width: 100%; font-size: 20px; }
+.cols th { text-align: right; font-size: 16px; font-weight: 700; color: var(--muted); padding: 6px 10px; border-bottom: 2px solid var(--ink); }
+.cols td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.35; }
+.cols .cn { font-family: var(--font-mono); font-weight: 600; font-size: 17px; direction: ltr; text-align: left; white-space: nowrap; }
+.cols .ct { font-family: var(--font-mono); font-size: 15px; color: var(--muted); direction: ltr; text-align: left; }
+.cols .ck { white-space: nowrap; }
+.cols code { font-size: 15px; }
+.cols.sm { font-size: 18px; }
+.halves { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+.half { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.half h3 { font-size: 24px; display: flex; flex-direction: column; gap: 6px; }
+.half h3 span { font-family: var(--font-body); font-size: 20px; color: var(--muted); font-weight: 400; }
+
+/* ERD */
+.erd { position: relative; width: 1344px; height: 600px; direction: ltr; margin-inline: auto; }
+.erd .lines { position: absolute; inset: 0; }
+.erd .lines path { fill: none; stroke: var(--muted); stroke-width: 2; }
+.tb { position: absolute; background: var(--page); border: 1.5px solid var(--ink); border-radius: 8px; overflow: hidden; }
+.tb .h { background: var(--deep); color: var(--deep-ink); font-family: var(--font-mono); font-weight: 600; font-size: 17px; padding: 8px 12px; height: 40px; }
+.tb .f { display: flex; gap: 8px; align-items: center; height: 28px; padding: 0 12px; font-size: 15px; }
+.tb .f code { background: none; padding: 0; font-size: 15px; }
+.tb .f .k { min-width: 22px; font-size: 13px; }
+
+/* example + quirks cards */
+.example { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.card { background: var(--soft); border-radius: 12px; padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.card h3 { font-size: 22px; font-weight: 700; color: var(--accent); }
+.card p { font-size: 21px; line-height: 1.4; }
+.card code { white-space: normal; font-size: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.grid3 .card { padding: 24px 26px; }
+.grid3 .card h3 { font-size: 26px; }
+.grid3 .card p { font-size: 22px; }
+
+/* research deck */
+:root { --ok: #2E7D4F; --no: #B23A3A; --part: #A36A16; --ok-soft: #E3F1E8; --no-soft: #F6E1E1; --part-soft: #F6ECDA; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ok: #7FD3A0; --no: #F19A9A; --part: #F0C27F; --ok-soft: #1C3226; --no-soft: #3A2222; --part-soft: #3A2F1C; } }
+:root[data-theme="dark"] { --ok: #7FD3A0; --no: #F19A9A; --part: #F0C27F; --ok-soft: #1C3226; --no-soft: #3A2222; --part-soft: #3A2F1C; }
+.code-dark { background: #172033; }
+h2.big { font-size: 60px; line-height: 1.12; max-width: 1300px; }
+.slide.question .in { gap: 30px; }
+.why { font-size: 28px; color: var(--muted); max-width: 1250px; }
+.hyp { border-right: 6px solid var(--accent); background: var(--soft); border-radius: 10px; padding: 18px 24px; display: flex; flex-direction: column; gap: 6px; max-width: 1300px; }
+.hyp b { font-size: 20px; color: var(--accent); letter-spacing: .04em; }
+.hyp span { font-size: 32px; font-family: var(--font-display); font-weight: 500; line-height: 1.3; }
+.vars { display: flex; gap: 18px; }
+.vars div { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; }
+.vars b { font-size: 18px; color: var(--muted); }
+.vars span { font-size: 24px; line-height: 1.35; }
+.tabs { font-size: 22px; color: var(--muted); }
+.tabs code { font-size: 18px; }
+.slide.calc .in { gap: 18px; padding-top: 52px; }
+.slide.calc h2 { font-size: 36px; }
+.calc { display: grid; grid-template-columns: 1.05fr 1fr; gap: 32px; align-items: start; flex: 1; min-height: 0; }
+.sqlcol { min-width: 0; }
+pre.sql { margin: 0; direction: ltr; text-align: left; background: #172033; color: #E7EBF2; border-radius: 10px; padding: 16px 18px; font-family: var(--font-mono); font-size: 14.5px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+pre.sql code { background: none; padding: 0; color: inherit; font-size: inherit; white-space: inherit; }
+.kw { color: #8DB2FF; font-weight: 600; } .fn { color: #F3A6D5; } .str { color: #A8E6A3; } .num { color: #9FE3D6; }
+.rescol { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+table.res { direction: ltr; border-collapse: collapse; width: 100%; font-size: 18px; font-variant-numeric: tabular-nums; }
+table.res th { font-family: var(--font-mono); font-size: 14px; color: var(--muted); text-align: left; padding: 5px 8px; border-bottom: 2px solid var(--ink); }
+table.res td { padding: 5px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+table.res .n { text-align: right; }
+table.res.small { font-size: 16px; }
+table.res.small td { padding: 3px 8px; }
+.txt { margin: 0; padding-right: 24px; display: flex; flex-direction: column; gap: 8px; font-size: 21px; line-height: 1.4; }
+.txt code { font-size: 15px; white-space: normal; }
+.verdict { display: flex; gap: 12px; align-items: baseline; font-size: 22px; font-weight: 600; border-radius: 10px; padding: 10px 14px; }
+.verdict span { font-size: 16px; font-weight: 700; border-radius: 99px; padding: 2px 12px; color: var(--page); white-space: nowrap; }
+.v-ok { background: var(--ok-soft); } .v-ok span, .pill.v-ok { background: var(--ok); }
+.v-no { background: var(--no-soft); } .v-no span, .pill.v-no { background: var(--no); }
+.v-part { background: var(--part-soft); } .v-part span, .pill.v-part { background: var(--part); }
+.pill { color: var(--page); font-size: 17px; font-weight: 700; border-radius: 99px; padding: 2px 14px; white-space: nowrap; }
+.fx { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.fx .card { padding: 14px 18px; gap: 6px; }
+.fx h3 { font-size: 22px; }
+code.blk { display: block; direction: ltr; text-align: left; white-space: normal; font-size: 16px; background: none; padding: 0; color: var(--ink); }
+table.sum { width: 100%; border-collapse: collapse; font-size: 23px; }
+table.sum th { text-align: right; font-size: 17px; color: var(--muted); padding: 6px 12px; border-bottom: 2px solid var(--ink); }
+table.sum td { padding: 10px 12px; border-bottom: 1px solid var(--line); }
+table.sum td.n { font-family: var(--font-display); font-weight: 700; color: var(--accent); width: 50px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media print { .bar { display: none; } }
+</style>
+<style>
+/* Back link to the page's topic in index.html */
+.site-back{color:var(--accent);font-family:var(--font-body,"Assistant","Arial Hebrew",Arial,sans-serif);font-weight:600;font-size:15px;text-decoration:none;width:fit-content;white-space:nowrap}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.wrap > .site-back{display:block;margin-bottom:12px}
+@media print{.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="bar" dir="rtl">
+  <div class="bar-in">
+    <a class="site-back" href="index.html#analysis">→ חזרה לנושא: ניתוח נתונים</a>
+    <div class="brand">שאלות מחקר על Northwind <span>· SQL · sql-practice.com</span></div>
+    <div class="spacer"></div>
+    <span id="fs-slot"></span>
+    <button type="button" class="btn" id="prev">→ הקודם</button>
+    <div class="where" id="where"></div>
+    <button type="button" class="btn" id="next">הבא ←</button>
+    <button type="button" class="btn notes-btn" id="notes" aria-pressed="false">הערות למורה</button>
+    <div class="seg" role="group" aria-label="תצוגה">
+      <button type="button" id="v-slides" aria-pressed="true">מצגת</button>
+      <button type="button" id="v-doc" aria-pressed="false">מסמך</button>
+    </div>
+  </div>
+</div>
+
+<main><div class="deck" id="deck">
+<section class="slide cover" id="s1" data-n="1"><div class="in">
+<div class="eyebrow">ניתוח נתונים · SQL · sql-practice.com</div>
+<h1>שאלות מחקר על Northwind<br><span>מהשאלה לתשובה, בעזרת SQL</span></h1>
+<p class="lead">18 שאלות מחקר. לכל שאלה: ההשערה והמשתנים, השאילתה שמחשבת את הפרמטרים הסטטיסטיים, התוצאה מהאתר והמסקנה.</p>
+<div class="facts"><div><b>18</b><span>שאלות</span></div><div><b>5</b><span>סוגי שאלות</span></div><div><b>830</b><span>הזמנות</span></div></div></div></section>
+<section class="slide content" id="s2" data-n="2"><div class="in">
+<div class="eyebrow">ארגז הכלים</div>
+<h2>הפרמטרים הסטטיסטיים ב־SQL</h2>
+<div class="fx"><div class="card"><h3>ממוצע · חציון</h3><code class="blk">AVG(x) · MEDIAN(x)</code></div><div class="card"><h3>סטיית תקן</h3><code class="blk">STDEV(x)</code></div><div class="card"><h3>מקדם שונות</h3><code class="blk">STDEV(x) / AVG(x)</code></div><div class="card"><h3>מקדם צידוד</h3><code class="blk">3 * (AVG(x) - MEDIAN(x)) / STDEV(x)</code></div><div class="card"><h3>אחוז שמקיים תנאי</h3><code class="blk">100.0 * AVG(תנאי)</code></div><div class="card"><h3>רבעון תחתון</h3><code class="blk">LOWER_QUARTILE(x)</code></div><div class="card"><h3>שיפוע b</h3><code class="blk">(AVG(x*y) - AVG(x)*AVG(y)) / (AVG(x*x) - AVG(x)*AVG(x))</code></div><div class="card"><h3>חותך a</h3><code class="blk">AVG(y) - b * AVG(x)</code></div><div class="card"><h3>מקדם מתאם r</h3><code class="blk">(AVG(x*y) - AVG(x)*AVG(y)) / SQRT((AVG(x*x) - AVG(x)*AVG(x)) * (AVG(y*y) - AVG(y)*AVG(y)))</code></div><div class="card"><h3>טבלת עזר</h3><code class="blk">WITH t AS (SELECT ... AS x, ... AS y FROM ... GROUP BY ...)</code></div></div>
+<p class="note">R² = r · r. חיזוי: ŷ = a + b · x. כל השאילתות בנויות מאותן נוסחאות, על טבלת עזר עם שורה לכל תצפית.</p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">2 / 40</span></div><aside class="notes">השקף הזה מרכז את כל הנוסחאות שבמצגת. בכל שקף חישוב מופיעה אחת מהן או כמה.</aside></section>
+<section class="slide question" id="q1" data-n="3"><div class="in">
+<div class="eyebrow">שאלה 1 · קשר בין משתנים · בינוני</div>
+<h2 class="big">האם דמי המשלוח תלויים בסכום ההזמנה?</h2>
+<p class="why">אם דמי המשלוח עולים יחד עם סכום ההזמנה, החברה יכולה להעריך מראש כמה יעלה המשלוח של הזמנה חדשה.</p>
+<div class="hyp"><b>השערה</b><span>ככל שסכום ההזמנה גבוה יותר, דמי המשלוח גבוהים יותר.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>הזמנה (830)</span></div><div><b>משתנה בלתי תלוי</b><span>סכום ההזמנה</span></div><div><b>משתנה תלוי</b><span>דמי המשלוח (freight)</span></div></div>
+<p class="tabs">טבלאות: <code>orders</code> <code>order_details</code> <code>products</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">3 / 40</span></div></section>
+<section class="slide calc" id="a1" data-n="4"><div class="in">
+<div class="eyebrow">שאלה 1 · החישוב</div>
+<h2>האם דמי המשלוח תלויים בסכום ההזמנה?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> o.order_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> x, o.freight <span class="kw">AS</span> y
+  <span class="kw">FROM</span> orders <span class="kw">AS</span> o
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> o.order_id
+)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
+       <span class="fn">AVG</span>(x) <span class="kw">AS</span> mean_x, <span class="fn">AVG</span>(y) <span class="kw">AS</span> mean_y,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) <span class="kw">AS</span> slope,
+       <span class="fn">AVG</span>(y) - (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) * <span class="fn">AVG</span>(x) <span class="kw">AS</span> intercept,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / <span class="fn">SQRT</span>((<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x))
+              * (<span class="fn">AVG</span>(y * y) - <span class="fn">AVG</span>(y) * <span class="fn">AVG</span>(y))) <span class="kw">AS</span> r
+<span class="kw">FROM</span> t;</code></pre></div>
+  <div class="rescol"><table class="res"><tr><th class="n">n</th><th class="n">mean_x</th><th class="n">mean_y</th><th class="n">slope</th><th class="n">intercept</th><th class="n">r</th></tr><tr><td class="n">830</td><td class="n">1630.97</td><td class="n">78.24</td><td class="n">0.0444</td><td class="n">5.909</td><td class="n">0.746</td></tr></table><ul class="txt"><li>קו הרגרסיה: <bdi dir="ltr">ŷ = 5.91 + 0.0444x</bdi>. על כל 100 בסכום ההזמנה מוסיפים כ־4.44 לדמי המשלוח.</li><li><bdi dir="ltr">r = 0.75</bdi> ו־<bdi dir="ltr">R² = 0.56</bdi>: הסכום מסביר יותר ממחצית מהשונות בדמי המשלוח.</li><li>חיזוי: להזמנה של 1,000 כ־50.26, ולהזמנה של 5,000 כ־227.66.</li><li>בלי 13 ההזמנות שמעל 10,000 r נשאר 0.74. הקשר לא נובע מהחריגים.</li></ul><p class="verdict v-ok"><span>התאשרה</span>ההשערה התאשרה: קשר חיובי חזק</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">4 / 40</span></div></section>
+<section class="slide question" id="q2" data-n="5"><div class="in">
+<div class="eyebrow">שאלה 2 · קשר בין משתנים · בסיסי</div>
+<h2 class="big">האם הנחה גדולה יותר גורמת ללקוחות לקנות כמות גדולה יותר?</h2>
+<p class="why">הנחה עולה כסף לחברה. אם היא לא מגדילה את הכמות, אולי לא כדאי לתת אותה.</p>
+<div class="hyp"><b>השערה</b><span>בשורות הזמנה עם הנחה גבוהה יותר הכמות גדולה יותר.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>שורת הזמנה (2,155)</span></div><div><b>משתנה בלתי תלוי</b><span>ההנחה (discount)</span></div><div><b>משתנה תלוי</b><span>הכמות (quantity)</span></div></div>
+<p class="tabs">טבלאות: <code>order_details</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">5 / 40</span></div></section>
+<section class="slide calc" id="a2" data-n="6"><div class="in">
+<div class="eyebrow">שאלה 2 · החישוב</div>
+<h2>האם הנחה גדולה יותר גורמת ללקוחות לקנות כמות גדולה יותר?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">SELECT</span> <span class="fn">AVG</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> discount &gt; <span class="num">0</span> <span class="kw">THEN</span> quantity <span class="kw">END</span>) <span class="kw">AS</span> mean_q_disc,
+       <span class="fn">AVG</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> discount = <span class="num">0</span> <span class="kw">THEN</span> quantity <span class="kw">END</span>) <span class="kw">AS</span> mean_q_full,
+       (<span class="fn">AVG</span>(discount * quantity) - <span class="fn">AVG</span>(discount) * <span class="fn">AVG</span>(quantity))
+         / <span class="fn">SQRT</span>((<span class="fn">AVG</span>(discount * discount) - <span class="fn">AVG</span>(discount) * <span class="fn">AVG</span>(discount))
+              * (<span class="fn">AVG</span>(quantity * quantity) - <span class="fn">AVG</span>(quantity) * <span class="fn">AVG</span>(quantity))) <span class="kw">AS</span> r
+<span class="kw">FROM</span> order_details;</code></pre></div>
+  <div class="rescol"><table class="res"><tr><th class="n">mean_q_disc</th><th class="n">mean_q_full</th><th class="n">r</th></tr><tr><td class="n">27.11</td><td class="n">21.72</td><td class="n">0.129</td></tr></table><table class="res"><tr><th class="n">discount</th><th class="n">lines</th><th class="n">avg_qty</th></tr><tr><td class="n">0</td><td class="n">1317</td><td class="n">21.7</td></tr><tr><td class="n">0.05</td><td class="n">185</td><td class="n">28.0</td></tr><tr><td class="n">0.10</td><td class="n">173</td><td class="n">25.2</td></tr><tr><td class="n">0.15</td><td class="n">157</td><td class="n">28.4</td></tr><tr><td class="n">0.20</td><td class="n">161</td><td class="n">27.0</td></tr><tr><td class="n">0.25</td><td class="n">154</td><td class="n">28.2</td></tr></table><ul class="txt"><li>בשורות עם הנחה הכמות הממוצעת גבוהה בכ־5.4 יחידות.</li><li>אבל גודל ההנחה כמעט לא משנה: בין 5% ל־25% הכמות נשארת בין 25 ל־28.</li><li><bdi dir="ltr">r = 0.13</bdi> ו־<bdi dir="ltr">R² = 0.02</bdi>: הקשר הלינארי חלש מאוד.</li></ul><p class="verdict v-part"><span>חלקית</span>התאשרה בחלקה: יש הנחה ← קצת יותר, גודל ההנחה לא משנה</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">6 / 40</span></div></section>
+<section class="slide question" id="q3" data-n="7"><div class="in">
+<div class="eyebrow">שאלה 3 · קשר בין משתנים · בינוני</div>
+<h2 class="big">האם מוצרים זולים נמכרים ביותר יחידות?</h2>
+<p class="why">המחיר הוא אחד הכלים העיקריים של חברה. השאלה בודקת אם הלקוחות של Northwind רגישים למחיר.</p>
+<div class="hyp"><b>השערה</b><span>ככל שמחיר המוצר נמוך יותר, נמכרות ממנו יותר יחידות.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>מוצר (77)</span></div><div><b>משתנה בלתי תלוי</b><span>מחיר המוצר (unit_price)</span></div><div><b>משתנה תלוי</b><span>סך היחידות שנמכרו</span></div></div>
+<p class="tabs">טבלאות: <code>products</code> <code>order_details</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">7 / 40</span></div></section>
+<section class="slide calc" id="a3" data-n="8"><div class="in">
+<div class="eyebrow">שאלה 3 · החישוב</div>
+<h2>האם מוצרים זולים נמכרים ביותר יחידות?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> p.product_id, p.unit_price <span class="kw">AS</span> x, <span class="fn">SUM</span>(od.quantity) <span class="kw">AS</span> y
+  <span class="kw">FROM</span> products <span class="kw">AS</span> p
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.product_id = p.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> p.product_id
+)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
+       <span class="fn">AVG</span>(x) <span class="kw">AS</span> mean_x, <span class="fn">AVG</span>(y) <span class="kw">AS</span> mean_y,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) <span class="kw">AS</span> slope,
+       <span class="fn">AVG</span>(y) - (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) * <span class="fn">AVG</span>(x) <span class="kw">AS</span> intercept,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / <span class="fn">SQRT</span>((<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x))
+              * (<span class="fn">AVG</span>(y * y) - <span class="fn">AVG</span>(y) * <span class="fn">AVG</span>(y))) <span class="kw">AS</span> r
+<span class="kw">FROM</span> t;</code></pre></div>
+  <div class="rescol"><table class="res"><tr><th class="n">n</th><th class="n">mean_x</th><th class="n">mean_y</th><th class="n">slope</th><th class="n">intercept</th><th class="n">r</th></tr><tr><td class="n">77</td><td class="n">28.87</td><td class="n">666.45</td><td class="n">-0.368</td><td class="n">677.07</td><td class="n">-0.038</td></tr></table><ul class="txt"><li><bdi dir="ltr">r = −0.04</bdi>: אין קשר בין מחיר המוצר ליחידות שנמכרו ממנו.</li><li>גם בלי שני המוצרים שמחירם מעל <bdi dir="ltr">100, r = −0.07</bdi> בלבד.</li><li>הלקוחות של Northwind הם עסקים, והם קונים מה שהם צריכים בלי קשר למחיר.</li></ul><p class="verdict v-no"><span>נדחתה</span>ההשערה נדחתה: אין קשר</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">8 / 40</span></div></section>
+<section class="slide question" id="q4" data-n="9"><div class="in">
+<div class="eyebrow">שאלה 4 · קשר בין משתנים · בינוני</div>
+<h2 class="big">האם לקוחות שמזמינים הרבה פעמים מזמינים גם הזמנות גדולות יותר?</h2>
+<p class="why">לקוח קבוע יכול להזמין הרבה הזמנות קטנות או מעט הזמנות גדולות. התשובה משפיעה על אופן הטיפול בלקוחות.</p>
+<div class="hyp"><b>השערה</b><span>ללקוחות עם יותר הזמנות יש סכום ממוצע גבוה יותר להזמנה.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>לקוח (89)</span></div><div><b>משתנה בלתי תלוי</b><span>מספר ההזמנות של הלקוח</span></div><div><b>משתנה תלוי</b><span>הסכום הממוצע להזמנה</span></div></div>
+<p class="tabs">טבלאות: <code>orders</code> <code>order_details</code> <code>products</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">9 / 40</span></div></section>
+<section class="slide calc" id="a4" data-n="10"><div class="in">
+<div class="eyebrow">שאלה 4 · החישוב</div>
+<h2>האם לקוחות שמזמינים הרבה פעמים מזמינים גם הזמנות גדולות יותר?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> o.customer_id,
+         <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> x,
+         <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) / <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> y
+  <span class="kw">FROM</span> orders <span class="kw">AS</span> o
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> o.customer_id
+)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
+       <span class="fn">AVG</span>(x) <span class="kw">AS</span> mean_x, <span class="fn">AVG</span>(y) <span class="kw">AS</span> mean_y,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) <span class="kw">AS</span> slope,
+       <span class="fn">AVG</span>(y) - (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) * <span class="fn">AVG</span>(x) <span class="kw">AS</span> intercept,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / <span class="fn">SQRT</span>((<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x))
+              * (<span class="fn">AVG</span>(y * y) - <span class="fn">AVG</span>(y) * <span class="fn">AVG</span>(y))) <span class="kw">AS</span> r
+<span class="kw">FROM</span> t;</code></pre></div>
+  <div class="rescol"><table class="res"><tr><th class="n">n</th><th class="n">mean_x</th><th class="n">mean_y</th><th class="n">slope</th><th class="n">intercept</th><th class="n">r</th></tr><tr><td class="n">89</td><td class="n">9.33</td><td class="n">1242.99</td><td class="n">108.37</td><td class="n">232.37</td><td class="n">0.748</td></tr></table><ul class="txt"><li><bdi dir="ltr">r = 0.75</bdi>: לקוחות שמזמינים יותר פעמים מזמינים גם הזמנות גדולות יותר.</li><li>על כל הזמנה נוספת הסכום הממוצע להזמנה עולה בכ־108.</li><li>בין מספר ההזמנות לסך הקניות <bdi dir="ltr">r = 0.89</bdi>, חזק יותר: סך הקניות הוא מספר ההזמנות כפול הסכום הממוצע, ושניהם עולים יחד.</li></ul><p class="verdict v-ok"><span>התאשרה</span>ההשערה התאשרה: קשר חיובי חזק</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">10 / 40</span></div></section>
+<section class="slide question" id="q5" data-n="11"><div class="in">
+<div class="eyebrow">שאלה 5 · קשר בין משתנים · מתקדם</div>
+<h2 class="big">האם הזמנות יקרות נשלחות מהר יותר?</h2>
+<p class="why">חברה רוצה שהלקוחות החשובים יקבלו שירות מהיר. השאלה בודקת אם זה קורה בפועל.</p>
+<div class="hyp"><b>השערה</b><span>ככל שסכום ההזמנה גבוה יותר, מספר הימים עד המשלוח קטן יותר.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>הזמנה שנשלחה (809)</span></div><div><b>משתנה בלתי תלוי</b><span>סכום ההזמנה</span></div><div><b>משתנה תלוי</b><span>ימים מההזמנה ועד המשלוח</span></div></div>
+<p class="tabs">טבלאות: <code>orders</code> <code>order_details</code> <code>products</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">11 / 40</span></div></section>
+<section class="slide calc" id="a5" data-n="12"><div class="in">
+<div class="eyebrow">שאלה 5 · החישוב</div>
+<h2>האם הזמנות יקרות נשלחות מהר יותר?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> o.order_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> x,
+         <span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date) <span class="kw">AS</span> y
+  <span class="kw">FROM</span> orders <span class="kw">AS</span> o
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">WHERE</span> o.shipped_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+  <span class="kw">GROUP</span> <span class="kw">BY</span> o.order_id
+)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
+       <span class="fn">AVG</span>(x) <span class="kw">AS</span> mean_x, <span class="fn">AVG</span>(y) <span class="kw">AS</span> mean_y,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) <span class="kw">AS</span> slope,
+       <span class="fn">AVG</span>(y) - (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) * <span class="fn">AVG</span>(x) <span class="kw">AS</span> intercept,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / <span class="fn">SQRT</span>((<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x))
+              * (<span class="fn">AVG</span>(y * y) - <span class="fn">AVG</span>(y) * <span class="fn">AVG</span>(y))) <span class="kw">AS</span> r
+<span class="kw">FROM</span> t;</code></pre></div>
+  <div class="rescol"><table class="res"><tr><th class="n">n</th><th class="n">mean_x</th><th class="n">mean_y</th><th class="n">slope</th><th class="n">intercept</th><th class="n">r</th></tr><tr><td class="n">809</td><td class="n">1641.24</td><td class="n">8.49</td><td class="n">0.0001</td><td class="n">8.32</td><td class="n">0.030</td></tr></table><ul class="txt"><li><bdi dir="ltr">r = 0.03</bdi>: אין קשר בין סכום ההזמנה למהירות המשלוח.</li><li>השיפוע כמעט אפס: הזמנה גדולה ב־10,000 נשלחת אחרי אותו מספר ימים.</li><li>כלומר, החברה לא נותנת עדיפות במשלוח להזמנות הגדולות.</li></ul><p class="verdict v-no"><span>נדחתה</span>ההשערה נדחתה: אין קשר</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">12 / 40</span></div></section>
+<section class="slide question" id="q6" data-n="13"><div class="in">
+<div class="eyebrow">שאלה 6 · השוואה בין קבוצות · בסיסי</div>
+<h2 class="big">איזו חברת משלוחים מהירה ועקבית יותר?</h2>
+<p class="why">Northwind משלמת לשלוש חברות משלוחים. המחקר יכול להמליץ באיזו מהן להשתמש יותר.</p>
+<div class="hyp"><b>השערה</b><span>יש הבדל בזמן המשלוח הממוצע בין שלוש החברות.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>הזמנה שנשלחה (809)</span></div><div><b>משתנה בלתי תלוי</b><span>חברת המשלוחים</span></div><div><b>משתנה תלוי</b><span>ימים מההזמנה ועד המשלוח</span></div></div>
+<p class="tabs">טבלאות: <code>orders</code> <code>shippers</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">13 / 40</span></div></section>
+<section class="slide calc" id="a6" data-n="14"><div class="in">
+<div class="eyebrow">שאלה 6 · החישוב</div>
+<h2>איזו חברת משלוחים מהירה ועקבית יותר?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">SELECT</span> s.company_name,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
+       <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date)), <span class="num">2</span>) <span class="kw">AS</span> mean_d,
+       <span class="fn">MEDIAN</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date)) <span class="kw">AS</span> median_d,
+       <span class="fn">ROUND</span>(<span class="fn">STDEV</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date)), <span class="num">2</span>) <span class="kw">AS</span> sd_d,
+       <span class="fn">ROUND</span>(<span class="fn">STDEV</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date))
+         / <span class="fn">AVG</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date)), <span class="num">2</span>) <span class="kw">AS</span> cv,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">AVG</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date) &lt;= <span class="num">7</span>), <span class="num">1</span>) <span class="kw">AS</span> pct_7d
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> shippers <span class="kw">AS</span> s <span class="kw">ON</span> s.shipper_id = o.ship_via
+<span class="kw">WHERE</span> o.shipped_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> s.company_name
+<span class="kw">ORDER</span> <span class="kw">BY</span> mean_d;</code></pre></div>
+  <div class="rescol"><table class="res small"><tr><th class="">company_name</th><th class="n">n</th><th class="n">mean_d</th><th class="n">median_d</th><th class="n">sd_d</th><th class="n">cv</th><th class="n">pct_7d</th></tr><tr><td class="">Federal Shipping</td><td class="n">249</td><td class="n">7.47</td><td class="n">6</td><td class="n">5.68</td><td class="n">0.76</td><td class="n">62.7</td></tr><tr><td class="">Speedy Express</td><td class="n">245</td><td class="n">8.57</td><td class="n">7</td><td class="n">6.78</td><td class="n">0.79</td><td class="n">58.4</td></tr><tr><td class="">United Package</td><td class="n">315</td><td class="n">9.23</td><td class="n">7</td><td class="n">7.6</td><td class="n">0.82</td><td class="n">55.2</td></tr></table><ul class="txt"><li>Federal Shipping הכי מהירה (7.47 ימים) וגם הכי עקבית <bdi dir="ltr">(cv = 0.76)</bdi>.</li><li>United Package הכי איטית והכי מפוזרת, ושולחת יותר הזמנות מכולן.</li><li>ההבדל בין הקיצוניות הוא כ־1.8 ימים, קטן מסטיית התקן (כ־6–7 ימים). ההבדל קיים אבל לא גדול.</li></ul><p class="verdict v-ok"><span>התאשרה</span>התאשרה: יש הבדל, אבל קטן</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">14 / 40</span></div></section>
+<section class="slide question" id="q7" data-n="15"><div class="in">
+<div class="eyebrow">שאלה 7 · השוואה בין קבוצות · בינוני</div>
+<h2 class="big">האם המשרד בסיאטל מוכר יותר מהמשרד בלונדון?</h2>
+<p class="why">לחברה יש שני משרדי מכירות. השאלה בודקת איפה כדאי להוסיף עובדים.</p>
+<div class="hyp"><b>השערה</b><span>המכירות לעובד במשרד בארצות הברית גבוהות מהמכירות לעובד בבריטניה.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>עובד (9), לפי משרד (2)</span></div><div><b>משתנה בלתי תלוי</b><span>המשרד (employees.country)</span></div><div><b>משתנה תלוי</b><span>מכירות, הזמנות וסכום ממוצע להזמנה</span></div></div>
+<p class="tabs">טבלאות: <code>employees</code> <code>orders</code> <code>order_details</code> <code>products</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">15 / 40</span></div></section>
+<section class="slide calc" id="a7" data-n="16"><div class="in">
+<div class="eyebrow">שאלה 7 · החישוב</div>
+<h2>האם המשרד בסיאטל מוכר יותר מהמשרד בלונדון?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">SELECT</span> e.country <span class="kw">AS</span> office,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> e.employee_id) <span class="kw">AS</span> emp,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> orders,
+       <span class="fn">ROUND</span>(<span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount))) <span class="kw">AS</span> sales,
+       <span class="fn">ROUND</span>(<span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) / <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> e.employee_id)) <span class="kw">AS</span> sales_per_emp,
+       <span class="fn">ROUND</span>(<span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) / <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id)) <span class="kw">AS</span> avg_order
+<span class="kw">FROM</span> employees <span class="kw">AS</span> e
+<span class="kw">JOIN</span> orders <span class="kw">AS</span> o <span class="kw">ON</span> o.employee_id = e.employee_id
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> e.country;</code></pre></div>
+  <div class="rescol"><table class="res"><tr><th class="">office</th><th class="n">emp</th><th class="n">orders</th><th class="n">sales</th><th class="n">sales_per_emp</th><th class="n">avg_order</th></tr><tr><td class="">UK</td><td class="n">4</td><td class="n">224</td><td class="n">367,045</td><td class="n">91,761</td><td class="n">1,639</td></tr><tr><td class="">USA</td><td class="n">5</td><td class="n">606</td><td class="n">986,658</td><td class="n">197,332</td><td class="n">1,628</td></tr></table><ul class="txt"><li>עובד בארה״ב מוכר בממוצע 197,332, יותר מכפול מעובד בבריטניה (91,761).</li><li>הסכום הממוצע של הזמנה כמעט זהה (1,628 מול 1,639). ההבדל בא ממספר ההזמנות: 121 לעובד בארה״ב מול 56 בבריטניה.</li><li>חמשת העובדים עם המכירות הגבוהות ביותר עובדים בארה״ב. Margaret Peacock מובילה עם 256,075.</li></ul><p class="verdict v-ok"><span>התאשרה</span>ההשערה התאשרה: יותר הזמנות לעובד, לא הזמנות גדולות יותר</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">16 / 40</span></div></section>
+<section class="slide question" id="q8" data-n="17"><div class="in">
+<div class="eyebrow">שאלה 8 · השוואה בין קבוצות · בינוני</div>
+<h2 class="big">באילו מדינות הלקוחות מזמינים הזמנות גדולות יותר?</h2>
+<p class="why">מדינות עם הזמנות גדולות יכולות להיות יעד לשיווק או לשירות מיוחד.</p>
+<div class="hyp"><b>השערה</b><span>הסכום הממוצע של הזמנה שונה ממדינה למדינה.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>מדינת לקוח (13 מדינות עם 20 הזמנות ומעלה)</span></div><div><b>משתנה בלתי תלוי</b><span>מדינת הלקוח</span></div><div><b>משתנה תלוי</b><span>הסכום הממוצע להזמנה</span></div></div>
+<p class="tabs">טבלאות: <code>customers</code> <code>orders</code> <code>order_details</code> <code>products</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">17 / 40</span></div></section>
+<section class="slide calc" id="a8" data-n="18"><div class="in">
+<div class="eyebrow">שאלה 8 · החישוב</div>
+<h2>באילו מדינות הלקוחות מזמינים הזמנות גדולות יותר?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> c.country, o.order_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> x
+  <span class="kw">FROM</span> customers <span class="kw">AS</span> c
+  <span class="kw">JOIN</span> orders <span class="kw">AS</span> o <span class="kw">ON</span> o.customer_id = c.customer_id
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> o.order_id
+)
+<span class="kw">SELECT</span> country, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> orders,
+       <span class="fn">ROUND</span>(<span class="fn">AVG</span>(x)) <span class="kw">AS</span> mean_order, <span class="fn">ROUND</span>(<span class="fn">MEDIAN</span>(x)) <span class="kw">AS</span> median_order
+<span class="kw">FROM</span> t
+<span class="kw">GROUP</span> <span class="kw">BY</span> country
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(*) &gt;= <span class="num">20</span>
+<span class="kw">ORDER</span> <span class="kw">BY</span> mean_order <span class="kw">DESC</span>;</code></pre></div>
+  <div class="rescol"><table class="res small"><tr><th class="">country</th><th class="n">orders</th><th class="n">mean_order</th><th class="n">median_order</th></tr><tr><td class="">Austria</td><td class="n">40</td><td class="n">3,432</td><td class="n">2,791</td></tr><tr><td class="">USA</td><td class="n">122</td><td class="n">2,144</td><td class="n">1,337</td></tr><tr><td class="">Germany</td><td class="n">122</td><td class="n">1,988</td><td class="n">1,360</td></tr><tr><td class="">Canada</td><td class="n">30</td><td class="n">1,860</td><td class="n">1,156</td></tr><tr><td class="">Sweden</td><td class="n">37</td><td class="n">1,531</td><td class="n">1,292</td></tr><tr><td class="">Brazil</td><td class="n">83</td><td class="n">1,381</td><td class="n">1,018</td></tr><tr><td class="">Venezuela</td><td class="n">46</td><td class="n">1,333</td><td class="n">1,389</td></tr><tr><td class="">France</td><td class="n">77</td><td class="n">1,159</td><td class="n">674</td></tr><tr><td class="">UK</td><td class="n">56</td><td class="n">1,127</td><td class="n">774</td></tr><tr><td class="">Finland</td><td class="n">22</td><td class="n">938</td><td class="n">636</td></tr><tr><td class="">Mexico</td><td class="n">28</td><td class="n">895</td><td class="n">686</td></tr><tr><td class="">Spain</td><td class="n">23</td><td class="n">818</td><td class="n">423</td></tr><tr><td class="">Italy</td><td class="n">28</td><td class="n">595</td><td class="n">448</td></tr></table><ul class="txt"><li>ההזמנה הממוצעת באוסטריה (3,432) גדולה פי 5.8 מאיטליה (595).</li><li>בכל המדינות כמעט הממוצע גדול מהחציון: בכל מדינה יש כמה הזמנות גדולות מאוד.</li><li>לפי החציון הסדר משתנה: ונצואלה עולה מעל ברזיל, שבדיה ובריטניה.</li></ul><p class="verdict v-ok"><span>התאשרה</span>ההשערה התאשרה: הבדלים גדולים בין המדינות</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">18 / 40</span></div></section>
+<section class="slide question" id="q9" data-n="19"><div class="in">
+<div class="eyebrow">שאלה 9 · השוואה בין קבוצות · בסיסי</div>
+<h2 class="big">האם החברה נותנת יותר הנחות בקטגוריות מסוימות?</h2>
+<p class="why">אם בקטגוריה מסוימת נותנים הרבה הנחות, אולי המחיר שלה גבוה מדי או שקשה למכור אותה.</p>
+<div class="hyp"><b>השערה</b><span>אחוז השורות עם הנחה שונה בין הקטגוריות.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>שורת הזמנה (2,155), לפי קטגוריה (8)</span></div><div><b>משתנה בלתי תלוי</b><span>הקטגוריה</span></div><div><b>משתנה תלוי</b><span>ההנחה הממוצעת ואחוז השורות עם הנחה</span></div></div>
+<p class="tabs">טבלאות: <code>order_details</code> <code>products</code> <code>categories</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">19 / 40</span></div></section>
+<section class="slide calc" id="a9" data-n="20"><div class="in">
+<div class="eyebrow">שאלה 9 · החישוב</div>
+<h2>האם החברה נותנת יותר הנחות בקטגוריות מסוימות?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">SELECT</span> c.category_name,
+       <span class="fn">ROUND</span>(<span class="fn">AVG</span>(od.discount), <span class="num">3</span>) <span class="kw">AS</span> avg_disc,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">AVG</span>(od.discount &gt; <span class="num">0</span>), <span class="num">1</span>) <span class="kw">AS</span> pct_disc,
+       <span class="fn">ROUND</span>(<span class="fn">AVG</span>(p.unit_price), <span class="num">2</span>) <span class="kw">AS</span> avg_price
+<span class="kw">FROM</span> order_details <span class="kw">AS</span> od
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">JOIN</span> categories <span class="kw">AS</span> c <span class="kw">ON</span> c.category_id = p.category_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> c.category_name
+<span class="kw">ORDER</span> <span class="kw">BY</span> pct_disc <span class="kw">DESC</span>;</code></pre></div>
+  <div class="rescol"><table class="res"><tr><th class="">category_name</th><th class="n">avg_disc</th><th class="n">pct_disc</th><th class="n">avg_price</th></tr><tr><td class="">Meat/Poultry</td><td class="n">0.064</td><td class="n">43.9</td><td class="n">45.86</td></tr><tr><td class="">Seafood</td><td class="n">0.060</td><td class="n">40.9</td><td class="n">20.11</td></tr><tr><td class="">Confections</td><td class="n">0.057</td><td class="n">40.1</td><td class="n">24.17</td></tr><tr><td class="">Condiments</td><td class="n">0.053</td><td class="n">39.4</td><td class="n">22.63</td></tr><tr><td class="">Beverages</td><td class="n">0.062</td><td class="n">39.1</td><td class="n">31.19</td></tr><tr><td class="">Dairy Products</td><td class="n">0.053</td><td class="n">38.8</td><td class="n">28.89</td></tr><tr><td class="">Produce</td><td class="n">0.045</td><td class="n">33.1</td><td class="n">37.38</td></tr><tr><td class="">Grains/Cereals</td><td class="n">0.045</td><td class="n">32.1</td><td class="n">22.67</td></tr></table><ul class="txt"><li>אחוז השורות עם הנחה נע בין 32% ל־44%: הבדל של כ־12 נקודות אחוז.</li><li>Meat/Poultry, הקטגוריה היקרה ביותר, מקבלת הכי הרבה הנחות. אבל Produce, היקרה השנייה, מקבלת מעט.</li><li>אין קשר ברור בין המחיר הממוצע לבין ההנחה.</li></ul><p class="verdict v-part"><span>חלקית</span>התאשרה בחלקה: יש הבדל, אבל מתון</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">20 / 40</span></div></section>
+<section class="slide question" id="q10" data-n="21"><div class="in">
+<div class="eyebrow">שאלה 10 · השוואה בין קבוצות · בסיסי</div>
+<h2 class="big">איזו חברת משלוחים מאחרת יותר?</h2>
+<p class="why">איחור במשלוח פוגע בלקוח. השאלה בודקת אם יש חברה שאחראית ליותר איחורים.</p>
+<div class="hyp"><b>השערה</b><span>אחוז ההזמנות שנשלחו אחרי התאריך הנדרש שונה בין החברות.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>הזמנה שנשלחה (809)</span></div><div><b>משתנה בלתי תלוי</b><span>חברת המשלוחים</span></div><div><b>משתנה תלוי</b><span>ההזמנה נשלחה באיחור (כן / לא)</span></div></div>
+<p class="tabs">טבלאות: <code>orders</code> <code>shippers</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">21 / 40</span></div></section>
+<section class="slide calc" id="a10" data-n="22"><div class="in">
+<div class="eyebrow">שאלה 10 · החישוב</div>
+<h2>איזו חברת משלוחים מאחרת יותר?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">SELECT</span> s.company_name,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> shipped,
+       <span class="fn">SUM</span>(o.shipped_date &gt; o.required_date) <span class="kw">AS</span> late,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">AVG</span>(o.shipped_date &gt; o.required_date), <span class="num">1</span>) <span class="kw">AS</span> pct_late,
+       <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> o.shipped_date &gt; o.required_date
+             <span class="kw">THEN</span> <span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.required_date) <span class="kw">END</span>), <span class="num">1</span>) <span class="kw">AS</span> days_late
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> shippers <span class="kw">AS</span> s <span class="kw">ON</span> s.shipper_id = o.ship_via
+<span class="kw">WHERE</span> o.shipped_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> s.company_name
+<span class="kw">ORDER</span> <span class="kw">BY</span> pct_late;</code></pre></div>
+  <div class="rescol"><table class="res"><tr><th class="">company_name</th><th class="n">shipped</th><th class="n">late</th><th class="n">pct_late</th><th class="n">days_late</th></tr><tr><td class="">Federal Shipping</td><td class="n">249</td><td class="n">9</td><td class="n">3.6</td><td class="n">5.6</td></tr><tr><td class="">Speedy Express</td><td class="n">245</td><td class="n">12</td><td class="n">4.9</td><td class="n">8.1</td></tr><tr><td class="">United Package</td><td class="n">315</td><td class="n">16</td><td class="n">5.1</td><td class="n">5.6</td></tr></table><ul class="txt"><li>37 הזמנות נשלחו באיחור, 4.6% מכל ההזמנות שנשלחו.</li><li>Federal Shipping מאחרת הכי מעט (3.6%). United Package הכי הרבה (5.1%).</li><li>ב־Speedy Express האיחורים ארוכים יותר: 8.1 ימים בממוצע.</li><li>עם 9 עד 16 איחורים בכל חברה, ההבדל קטן מכדי לקבוע שחברה אחת גרועה.</li></ul><p class="verdict v-part"><span>חלקית</span>התאשרה בחלקה: הבדל קטן, ומעט מקרים</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">22 / 40</span></div></section>
+<section class="slide question" id="q11" data-n="23"><div class="in">
+<div class="eyebrow">שאלה 11 · זמן ומגמה · בינוני</div>
+<h2 class="big">האם המכירות של Northwind גדלות לאורך הזמן?</h2>
+<p class="why">זו השאלה הראשונה שכל הנהלה שואלת: האם העסק צומח, ובאיזה קצב?</p>
+<div class="hyp"><b>השערה</b><span>סך המכירות בחודש עולה עם הזמן.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>חודש (22 חודשים מלאים)</span></div><div><b>משתנה בלתי תלוי</b><span>מספר החודש (1 = יולי 2016)</span></div><div><b>משתנה תלוי</b><span>סך המכירות בחודש</span></div></div>
+<p class="tabs">טבלאות: <code>orders</code> <code>order_details</code> <code>products</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">23 / 40</span></div></section>
+<section class="slide calc" id="a11" data-n="24"><div class="in">
+<div class="eyebrow">שאלה 11 · החישוב</div>
+<h2>האם המכירות של Northwind גדלות לאורך הזמן?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> (<span class="fn">YEAR</span>(o.order_date) - <span class="num">2016</span>) * <span class="num">12</span> + <span class="fn">MONTH</span>(o.order_date) - <span class="num">6</span> <span class="kw">AS</span> x,
+         <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> y
+  <span class="kw">FROM</span> orders <span class="kw">AS</span> o
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">WHERE</span> o.order_date &lt; <span class="str">&#x27;2018-05-01&#x27;</span>
+  <span class="kw">GROUP</span> <span class="kw">BY</span> x
+)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
+       <span class="fn">AVG</span>(x) <span class="kw">AS</span> mean_x, <span class="fn">AVG</span>(y) <span class="kw">AS</span> mean_y,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) <span class="kw">AS</span> slope,
+       <span class="fn">AVG</span>(y) - (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) * <span class="fn">AVG</span>(x) <span class="kw">AS</span> intercept,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / <span class="fn">SQRT</span>((<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x))
+              * (<span class="fn">AVG</span>(y * y) - <span class="fn">AVG</span>(y) * <span class="fn">AVG</span>(y))) <span class="kw">AS</span> r
+<span class="kw">FROM</span> t;</code></pre></div>
+  <div class="rescol"><table class="res"><tr><th class="n">n</th><th class="n">mean_x</th><th class="n">mean_y</th><th class="n">slope</th><th class="n">intercept</th><th class="n">r</th></tr><tr><td class="n">22</td><td class="n">11.5</td><td class="n">60,698.61</td><td class="n">2,861.98</td><td class="n">27,785.80</td><td class="n">0.746</td></tr></table><ul class="txt"><li>השיפוע: המכירות גדלות בממוצע ב־2,862 בכל חודש.</li><li><bdi dir="ltr">r = 0.75</bdi> ו־<bdi dir="ltr">R² = 0.56</bdi>: מגמת צמיחה ברורה, עם תנודות מחודש לחודש.</li><li>חיזוי: מאי 2018 (חודש <bdi dir="ltr">23) ≈ 93,611</bdi>, ואוגוסט 2018 (חודש <bdi dir="ltr">26) ≈ 102,197</bdi>.</li><li>אפריל 2018 (123,799) גבוה בהרבה מהקו: בתחילת 2018 הצמיחה מהירה יותר.</li></ul><p class="verdict v-ok"><span>התאשרה</span>ההשערה התאשרה: המכירות גדלות</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">24 / 40</span></div></section>
+<section class="slide question" id="q12" data-n="25"><div class="in">
+<div class="eyebrow">שאלה 12 · זמן ומגמה · בינוני</div>
+<h2 class="big">האם יש חודשים חזקים יותר בשנה?</h2>
+<p class="why">אם יש עונתיות, החברה יכולה להיערך מראש עם מלאי ועובדים.</p>
+<div class="hyp"><b>השערה</b><span>מספר ההזמנות הממוצע שונה בין חודשי השנה.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>חודש בשנה (12)</span></div><div><b>משתנה בלתי תלוי</b><span>החודש בשנה</span></div><div><b>משתנה תלוי</b><span>מספר ההזמנות הממוצע בחודש</span></div></div>
+<p class="tabs">טבלאות: <code>orders</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">25 / 40</span></div></section>
+<section class="slide calc" id="a12" data-n="26"><div class="in">
+<div class="eyebrow">שאלה 12 · החישוב</div>
+<h2>האם יש חודשים חזקים יותר בשנה?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">SELECT</span> <span class="fn">MONTH</span>(order_date) <span class="kw">AS</span> month,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> orders,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="fn">YEAR</span>(order_date)) <span class="kw">AS</span> years,
+       <span class="fn">ROUND</span>(<span class="num">1.0</span> * <span class="fn">COUNT</span>(*) / <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="fn">YEAR</span>(order_date)), <span class="num">1</span>) <span class="kw">AS</span> per_year
+<span class="kw">FROM</span> orders
+<span class="kw">WHERE</span> order_date &lt; <span class="str">&#x27;2018-05-01&#x27;</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> month
+<span class="kw">ORDER</span> <span class="kw">BY</span> per_year <span class="kw">DESC</span>;</code></pre></div>
+  <div class="rescol"><table class="res small"><tr><th class="n">month</th><th class="n">orders</th><th class="n">years</th><th class="n">per_year</th></tr><tr><td class="n">4</td><td class="n">105</td><td class="n">2</td><td class="n">52.5</td></tr><tr><td class="n">3</td><td class="n">103</td><td class="n">2</td><td class="n">51.5</td></tr><tr><td class="n">1</td><td class="n">88</td><td class="n">2</td><td class="n">44</td></tr><tr><td class="n">2</td><td class="n">83</td><td class="n">2</td><td class="n">41.5</td></tr><tr><td class="n">12</td><td class="n">79</td><td class="n">2</td><td class="n">39.5</td></tr><tr><td class="n">10</td><td class="n">64</td><td class="n">2</td><td class="n">32</td></tr><tr><td class="n">5</td><td class="n">32</td><td class="n">1</td><td class="n">32</td></tr><tr><td class="n">9</td><td class="n">60</td><td class="n">2</td><td class="n">30</td></tr><tr><td class="n">6</td><td class="n">30</td><td class="n">1</td><td class="n">30</td></tr><tr><td class="n">11</td><td class="n">59</td><td class="n">2</td><td class="n">29.5</td></tr><tr><td class="n">8</td><td class="n">58</td><td class="n">2</td><td class="n">29</td></tr><tr><td class="n">7</td><td class="n">55</td><td class="n">2</td><td class="n">27.5</td></tr></table><ul class="txt"><li>ינואר עד אפריל הם החודשים החזקים: 41 עד 52 הזמנות בשנה.</li><li>אבל החודשים האלה נכללים רק ב־2017 וב־2018, ויולי עד דצמבר רק ב־2016 וב־2017. לחודשים המאוחרים בנתונים יש יתרון, כי החברה צומחת.</li><li>כדי להפריד בין עונתיות לצמיחה צריך יותר שנים של נתונים.</li></ul><p class="verdict v-part"><span>חלקית</span>אי אפשר להכריע: הצמיחה מסתירה את העונתיות</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">26 / 40</span></div></section>
+<section class="slide question" id="q13" data-n="27"><div class="in">
+<div class="eyebrow">שאלה 13 · זמן ומגמה · מתקדם</div>
+<h2 class="big">האם החברה ממשיכה להשיג לקוחות חדשים?</h2>
+<p class="why">עסק צומח צריך לקוחות חדשים. השאלה בודקת אם הצמיחה באה מלקוחות חדשים או מלקוחות קיימים.</p>
+<div class="hyp"><b>השערה</b><span>מספר הלקוחות החדשים בכל חודש יורד עם הזמן.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>לקוח (89), לפי חודש ההזמנה הראשונה</span></div><div><b>משתנה בלתי תלוי</b><span>החודש</span></div><div><b>משתנה תלוי</b><span>מספר הלקוחות שהזמינו בפעם הראשונה</span></div></div>
+<p class="tabs">טבלאות: <code>orders</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">27 / 40</span></div></section>
+<section class="slide calc" id="a13" data-n="28"><div class="in">
+<div class="eyebrow">שאלה 13 · החישוב</div>
+<h2>האם החברה ממשיכה להשיג לקוחות חדשים?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> first <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> customer_id, <span class="fn">MIN</span>(order_date) <span class="kw">AS</span> first_order
+  <span class="kw">FROM</span> orders
+  <span class="kw">GROUP</span> <span class="kw">BY</span> customer_id
+)
+<span class="kw">SELECT</span> <span class="fn">SUBSTR</span>(first_order, <span class="num">1</span>, <span class="num">4</span>) || <span class="str">&#x27;-Q&#x27;</span>
+         || ((<span class="kw">CAST</span>(<span class="fn">SUBSTR</span>(first_order, <span class="num">6</span>, <span class="num">2</span>) <span class="kw">AS</span> <span class="kw">INTEGER</span>) + <span class="num">2</span>) / <span class="num">3</span>) <span class="kw">AS</span> quarter,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> new_customers
+<span class="kw">FROM</span> first
+<span class="kw">GROUP</span> <span class="kw">BY</span> quarter
+<span class="kw">ORDER</span> <span class="kw">BY</span> quarter;</code></pre></div>
+  <div class="rescol"><table class="res"><tr><th class="">quarter</th><th class="n">new_customers</th></tr><tr><td class="">2016-Q3</td><td class="n">43</td></tr><tr><td class="">2016-Q4</td><td class="n">24</td></tr><tr><td class="">2017-Q1</td><td class="n">8</td></tr><tr><td class="">2017-Q2</td><td class="n">8</td></tr><tr><td class="">2017-Q3</td><td class="n">4</td></tr><tr><td class="">2017-Q4</td><td class="n">1</td></tr><tr><td class="">2018-Q1</td><td class="n">1</td></tr></table><ul class="txt"><li>67 מתוך 89 הלקוחות מופיעים לראשונה ב־2016, ורק 22 מ־2017 והלאה.</li><li>חלק מהלקוחות של 2016 היו כנראה לקוחות עוד לפני תחילת הנתונים.</li><li>מסקנה: הצמיחה במכירות (שאלה 11) באה מלקוחות קיימים שקונים יותר, לא מלקוחות חדשים.</li></ul><p class="verdict v-ok"><span>התאשרה</span>ההשערה התאשרה: מספר הלקוחות החדשים יורד</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">28 / 40</span></div></section>
+<section class="slide question" id="q14" data-n="29"><div class="in">
+<div class="eyebrow">שאלה 14 · התפלגות וריכוז · בינוני</div>
+<h2 class="big">האם הסכום של הזמנה מתפלג נורמלית?</h2>
+<p class="why">הרבה כלים סטטיסטיים מניחים התפלגות נורמלית. לפני שמשתמשים בהם צריך לבדוק.</p>
+<div class="hyp"><b>השערה</b><span>הסכום של הזמנה מתפלג בקירוב נורמלית.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>הזמנה (830)</span></div><div><b>משתנה תלוי</b><span>סכום ההזמנה</span></div></div>
+<p class="tabs">טבלאות: <code>orders</code> <code>order_details</code> <code>products</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">29 / 40</span></div></section>
+<section class="slide calc" id="a14" data-n="30"><div class="in">
+<div class="eyebrow">שאלה 14 · החישוב</div>
+<h2>האם הסכום של הזמנה מתפלג נורמלית?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> o.order_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> x
+  <span class="kw">FROM</span> orders <span class="kw">AS</span> o
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> o.order_id
+),
+s <span class="kw">AS</span> (<span class="kw">SELECT</span> <span class="fn">AVG</span>(x) <span class="kw">AS</span> m, <span class="fn">STDEV</span>(x) <span class="kw">AS</span> sd <span class="kw">FROM</span> t)
+<span class="kw">SELECT</span> <span class="fn">ROUND</span>(m, <span class="num">2</span>) <span class="kw">AS</span> mean, <span class="fn">ROUND</span>(<span class="fn">MEDIAN</span>(x), <span class="num">2</span>) <span class="kw">AS</span> median,
+       <span class="fn">ROUND</span>(sd, <span class="num">2</span>) <span class="kw">AS</span> sd, <span class="fn">ROUND</span>(<span class="num">3</span> * (m - <span class="fn">MEDIAN</span>(x)) / sd, <span class="num">2</span>) <span class="kw">AS</span> skew,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">AVG</span>(x <span class="kw">BETWEEN</span> m - sd <span class="kw">AND</span> m + sd), <span class="num">1</span>) <span class="kw">AS</span> pct_1sd,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">AVG</span>(x <span class="kw">BETWEEN</span> m - <span class="num">2</span> * sd <span class="kw">AND</span> m + <span class="num">2</span> * sd), <span class="num">1</span>) <span class="kw">AS</span> pct_2sd,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">AVG</span>(x <span class="kw">BETWEEN</span> m - <span class="num">3</span> * sd <span class="kw">AND</span> m + <span class="num">3</span> * sd), <span class="num">1</span>) <span class="kw">AS</span> pct_3sd
+<span class="kw">FROM</span> t, s;</code></pre></div>
+  <div class="rescol"><table class="res small"><tr><th class=""></th><th class="n">mean</th><th class="n">median</th><th class="n">sd</th><th class="n">skew</th><th class="n">pct_1sd</th><th class="n">pct_2sd</th><th class="n">pct_3sd</th></tr><tr><td class="">x</td><td class="n">1630.97</td><td class="n">1052.93</td><td class="n">1962.93</td><td class="n">0.88</td><td class="n">90.6</td><td class="n">96.4</td><td class="n">97.8</td></tr><tr><td class="">LOG(x)</td><td class="n">6.84</td><td class="n">6.96</td><td class="n">1.14</td><td class="n">-0.31</td><td class="n">71.8</td><td class="n">94.6</td><td class="n">99.4</td></tr></table><ul class="txt"><li>הממוצע גדול מהחציון בכ־55%, ומקדם הצידוד 0.88: צידוד ימני חזק.</li><li>90.6% מההזמנות בטווח של סטיית תקן אחת, במקום 68%. ההתפלגות לא נורמלית.</li><li>אחרי LOG: צידוד של <bdi dir="ltr">−0.31</bdi> ו־71.8%, 94.6%, 99.4%. הלוגריתם של הסכום קרוב מאוד לנורמלי, כלומר ההתפלגות בקירוב לוג־נורמלית.</li><li>השורה השנייה היא אותה שאילתה עם LOG(SUM(...)) בטבלת העזר.</li></ul><p class="verdict v-no"><span>נדחתה</span>ההשערה נדחתה, אבל הלוגריתם קרוב לנורמלי</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">30 / 40</span></div></section>
+<section class="slide question" id="q15" data-n="31"><div class="in">
+<div class="eyebrow">שאלה 15 · התפלגות וריכוז · בינוני</div>
+<h2 class="big">האם מעט לקוחות אחראים לרוב המכירות?</h2>
+<p class="why">חברה שתלויה במעט לקוחות נמצאת בסיכון: אם לקוח גדול עוזב, המכירות נופלות.</p>
+<div class="hyp"><b>השערה</b><span>20% מהלקוחות אחראים ל־80% מהמכירות (כלל פרטו).</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>לקוח (89)</span></div><div><b>משתנה בלתי תלוי</b><span>דירוג הלקוח</span></div><div><b>משתנה תלוי</b><span>המכירות של הלקוח</span></div></div>
+<p class="tabs">טבלאות: <code>customers</code> <code>orders</code> <code>order_details</code> <code>products</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">31 / 40</span></div></section>
+<section class="slide calc" id="a15" data-n="32"><div class="in">
+<div class="eyebrow">שאלה 15 · החישוב</div>
+<h2>האם מעט לקוחות אחראים לרוב המכירות?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> o.customer_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> sales
+  <span class="kw">FROM</span> orders <span class="kw">AS</span> o
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> o.customer_id
+),
+r <span class="kw">AS</span> (<span class="kw">SELECT</span> sales, <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">ORDER</span> <span class="kw">BY</span> sales <span class="kw">DESC</span>) <span class="kw">AS</span> rn <span class="kw">FROM</span> t)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> customers,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">SUM</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> rn &lt;= <span class="num">10</span> <span class="kw">THEN</span> sales <span class="kw">END</span>) / <span class="fn">SUM</span>(sales), <span class="num">1</span>) <span class="kw">AS</span> top10,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">SUM</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> rn &lt;= <span class="num">18</span> <span class="kw">THEN</span> sales <span class="kw">END</span>) / <span class="fn">SUM</span>(sales), <span class="num">1</span>) <span class="kw">AS</span> top18,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">SUM</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> rn &lt;= <span class="num">30</span> <span class="kw">THEN</span> sales <span class="kw">END</span>) / <span class="fn">SUM</span>(sales), <span class="num">1</span>) <span class="kw">AS</span> top30
+<span class="kw">FROM</span> r;</code></pre></div>
+  <div class="rescol"><table class="res"><tr><th class="n">customers</th><th class="n">top10</th><th class="n">top18</th><th class="n">top30</th></tr><tr><td class="n">89</td><td class="n">44.5</td><td class="n">59.9</td><td class="n">76.2</td></tr></table><ul class="txt"><li>10 הלקוחות הגדולים (11%) מביאים 44.5% מהמכירות.</li><li>18 הלקוחות הגדולים (20%) מביאים 59.9%, לא 80%. כדי להגיע ל־76% צריך 30 לקוחות (34%).</li><li>יש ריכוז, אבל חלש יותר מכלל <bdi dir="ltr">80/20</bdi>.</li><li>ROW_NUMBER() OVER (ORDER BY sales DESC) נותן לכל לקוח את המקום שלו בדירוג.</li></ul><p class="verdict v-part"><span>חלקית</span>התאשרה בחלקה: 20% מביאים 60%</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">32 / 40</span></div></section>
+<section class="slide question" id="q16" data-n="33"><div class="in">
+<div class="eyebrow">שאלה 16 · התפלגות וריכוז · בסיסי</div>
+<h2 class="big">באילו קטגוריות יש בעיית מלאי?</h2>
+<p class="why">מוצר שהמלאי שלו ירד מתחת לסף ההזמנה מחדש עלול להיגמר. השאלה מזהה איפה צריך לטפל.</p>
+<div class="hyp"><b>השערה</b><span>רוב המוצרים שמתחת לסף ההזמנה נמצאים בכמה קטגוריות בלבד.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>מוצר (77), לפי קטגוריה (8)</span></div><div><b>משתנה בלתי תלוי</b><span>הקטגוריה</span></div><div><b>משתנה תלוי</b><span>מספר המוצרים מתחת לסף, ומספר המוצרים שהופסקו</span></div></div>
+<p class="tabs">טבלאות: <code>products</code> <code>categories</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">33 / 40</span></div></section>
+<section class="slide calc" id="a16" data-n="34"><div class="in">
+<div class="eyebrow">שאלה 16 · החישוב</div>
+<h2>באילו קטגוריות יש בעיית מלאי?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">SELECT</span> c.category_name,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> products,
+       <span class="fn">SUM</span>(p.units_in_stock &lt; p.reorder_level) <span class="kw">AS</span> below,
+       <span class="fn">SUM</span>(p.units_in_stock &lt; p.reorder_level <span class="kw">AND</span> p.discontinued = <span class="num">0</span>) <span class="kw">AS</span> below_active,
+       <span class="fn">SUM</span>(p.units_in_stock &lt; p.reorder_level <span class="kw">AND</span> p.discontinued = <span class="num">0</span>
+           <span class="kw">AND</span> p.units_on_order = <span class="num">0</span>) <span class="kw">AS</span> not_ordered
+<span class="kw">FROM</span> products <span class="kw">AS</span> p
+<span class="kw">JOIN</span> categories <span class="kw">AS</span> c <span class="kw">ON</span> c.category_id = p.category_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> c.category_name
+<span class="kw">ORDER</span> <span class="kw">BY</span> below <span class="kw">DESC</span>;</code></pre></div>
+  <div class="rescol"><table class="res"><tr><th class="">category_name</th><th class="n">products</th><th class="n">below</th><th class="n">below_active</th><th class="n">not_ordered</th></tr><tr><td class="">Confections</td><td class="n">13</td><td class="n">4</td><td class="n">4</td><td class="n">0</td></tr><tr><td class="">Seafood</td><td class="n">12</td><td class="n">3</td><td class="n">3</td><td class="n">1</td></tr><tr><td class="">Dairy Products</td><td class="n">10</td><td class="n">3</td><td class="n">3</td><td class="n">0</td></tr><tr><td class="">Beverages</td><td class="n">12</td><td class="n">3</td><td class="n">3</td><td class="n">0</td></tr><tr><td class="">Grains/Cereals</td><td class="n">7</td><td class="n">2</td><td class="n">2</td><td class="n">0</td></tr><tr><td class="">Condiments</td><td class="n">12</td><td class="n">2</td><td class="n">2</td><td class="n">0</td></tr><tr><td class="">Produce</td><td class="n">5</td><td class="n">1</td><td class="n">1</td><td class="n">0</td></tr><tr><td class="">Meat/Poultry</td><td class="n">6</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr></table><ul class="txt"><li>18 מוצרים מתחת לסף ההזמנה מחדש, והם מפוזרים בשבע קטגוריות. אף אחד מהם לא הופסק.</li><li>רק מוצר אחד (ב־Seafood) מתחת לסף ועדיין לא הוזמן מהספק. בכל השאר ההזמנה כבר בדרך.</li><li>החברה מטפלת במלאי: הבעיה כמעט לא קיימת.</li></ul><p class="verdict v-no"><span>נדחתה</span>ההשערה נדחתה: הבעיה מפוזרת ומטופלת</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">34 / 40</span></div></section>
+<section class="slide question" id="q17" data-n="35"><div class="in">
+<div class="eyebrow">שאלה 17 · שאלות עסקיות פתוחות · מתקדם</div>
+<h2 class="big">אילו לקוחות הפסיקו להזמין?</h2>
+<p class="why">לקוח שלא הזמין זמן רב עלול לעבור למתחרה. החברה רוצה לזהות אותו בזמן.</p>
+<div class="hyp"><b>השערה</b><span>יש קבוצה של לקוחות שלא הזמינו יותר מ־90 יום לפני סוף הנתונים.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>לקוח (89)</span></div><div><b>משתנה תלוי</b><span>ימים מאז ההזמנה האחרונה</span></div></div>
+<p class="tabs">טבלאות: <code>customers</code> <code>orders</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">35 / 40</span></div></section>
+<section class="slide calc" id="a17" data-n="36"><div class="in">
+<div class="eyebrow">שאלה 17 · החישוב</div>
+<h2>אילו לקוחות הפסיקו להזמין?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> customer_id, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
+         <span class="fn">julianday</span>(<span class="str">&#x27;2018-05-06&#x27;</span>) - <span class="fn">julianday</span>(<span class="fn">MAX</span>(order_date)) <span class="kw">AS</span> since,
+         (<span class="fn">julianday</span>(<span class="fn">MAX</span>(order_date)) - <span class="fn">julianday</span>(<span class="fn">MIN</span>(order_date)))
+           / (<span class="fn">COUNT</span>(*) - <span class="num">1</span>) <span class="kw">AS</span> gap
+  <span class="kw">FROM</span> orders
+  <span class="kw">GROUP</span> <span class="kw">BY</span> customer_id
+)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> customers,
+       <span class="fn">ROUND</span>(<span class="fn">MEDIAN</span>(gap)) <span class="kw">AS</span> median_gap,
+       <span class="fn">SUM</span>(since &gt; <span class="num">90</span>) <span class="kw">AS</span> over_90,
+       <span class="fn">SUM</span>(since &gt; <span class="num">180</span>) <span class="kw">AS</span> over_180,
+       <span class="fn">SUM</span>(since &gt; <span class="num">2</span> * gap) <span class="kw">AS</span> over_2gaps
+<span class="kw">FROM</span> t;</code></pre></div>
+  <div class="rescol"><table class="res"><tr><th class="n">customers</th><th class="n">median_gap</th><th class="n">over_90</th><th class="n">over_180</th><th class="n">over_2gaps</th></tr><tr><td class="n">89</td><td class="n">65</td><td class="n">16</td><td class="n">5</td><td class="n">6</td></tr></table><table class="res"><tr><th class="">customer_id</th><th class="n">orders</th><th class="n">days_since</th></tr><tr><td class="">CENTC</td><td class="n">1</td><td class="n">657</td></tr><tr><td class="">LAZYK</td><td class="n">2</td><td class="n">349</td></tr><tr><td class="">HUNGC</td><td class="n">5</td><td class="n">240</td></tr><tr><td class="">MEREP</td><td class="n">13</td><td class="n">188</td></tr><tr><td class="">FAMIA</td><td class="n">7</td><td class="n">187</td></tr></table><ul class="txt"><li>אצל לקוח טיפוסי עוברים 65 יום בין הזמנה להזמנה (חציון).</li><li>16 לקוחות לא הזמינו יותר מ־90 יום, ו־5 יותר מ־180 יום.</li><li>6 לקוחות לא הזמינו יותר מפי 2 מהמרווח הרגיל שלהם. אלה הלקוחות שכדאי לפנות אליהם קודם, למשל MEREP, עם 13 הזמנות ו־188 יום בלי הזמנה.</li></ul><p class="verdict v-ok"><span>התאשרה</span>ההשערה התאשרה: 16 לקוחות מעל 90 יום</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">36 / 40</span></div></section>
+<section class="slide question" id="q18" data-n="37"><div class="in">
+<div class="eyebrow">שאלה 18 · שאלות עסקיות פתוחות · מתקדם</div>
+<h2 class="big">אילו מוצרים כדאי להפסיק למכור?</h2>
+<p class="why">מוצר שכמעט לא נמכר תופס מלאי ומקום. השאלה בונה כלל להחלטה.</p>
+<div class="hyp"><b>השערה</b><span>יש מוצרים שגם המכירות שלהם וגם מספר ההזמנות שלהם נמוכים במיוחד.</span></div>
+<div class="vars"><div><b>יחידת תצפית</b><span>מוצר (77)</span></div><div><b>משתנה תלוי</b><span>מכירות, יחידות ומספר הזמנות</span></div></div>
+<p class="tabs">טבלאות: <code>products</code> <code>order_details</code></p></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">37 / 40</span></div></section>
+<section class="slide calc" id="a18" data-n="38"><div class="in">
+<div class="eyebrow">שאלה 18 · החישוב</div>
+<h2>אילו מוצרים כדאי להפסיק למכור?</h2>
+<div class="calc">
+  <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> p.product_name, p.discontinued,
+         <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> od.order_id) <span class="kw">AS</span> orders,
+         <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> sales
+  <span class="kw">FROM</span> products <span class="kw">AS</span> p
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.product_id = p.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> p.product_id
+),
+q <span class="kw">AS</span> (<span class="kw">SELECT</span> <span class="fn">LOWER_QUARTILE</span>(sales) <span class="kw">AS</span> qs, <span class="fn">LOWER_QUARTILE</span>(orders) <span class="kw">AS</span> qo <span class="kw">FROM</span> t)
+<span class="kw">SELECT</span> product_name, orders, <span class="fn">ROUND</span>(sales) <span class="kw">AS</span> sales, discontinued
+<span class="kw">FROM</span> t, q
+<span class="kw">WHERE</span> sales &lt;= qs <span class="kw">AND</span> orders &lt;= qo
+<span class="kw">ORDER</span> <span class="kw">BY</span> sales;</code></pre></div>
+  <div class="rescol"><table class="res small"><tr><th class="">product_name</th><th class="n">orders</th><th class="n">sales</th><th class="n">discontinued</th></tr><tr><td class="">Chocolade</td><td class="n">6</td><td class="n">1,555</td><td class="n">0</td></tr><tr><td class="">Genen Shouyu</td><td class="n">6</td><td class="n">1,862</td><td class="n">0</td></tr><tr><td class="">Laughing Lumberjack Lager</td><td class="n">10</td><td class="n">2,407</td><td class="n">0</td></tr><tr><td class="">Longlife Tofu</td><td class="n">13</td><td class="n">2,813</td><td class="n">0</td></tr><tr><td class="">Gravad lax</td><td class="n">6</td><td class="n">2,891</td><td class="n">0</td></tr><tr><td class="">Aniseed Syrup</td><td class="n">12</td><td class="n">3,240</td><td class="n">0</td></tr><tr><td class="">Valkoinen suklaa</td><td class="n">10</td><td class="n">3,742</td><td class="n">0</td></tr><tr><td class="">Louisiana Hot Spiced Okra</td><td class="n">8</td><td class="n">3,893</td><td class="n">0</td></tr><tr><td class="">Röd Kaviar</td><td class="n">14</td><td class="n">4,174</td><td class="n">0</td></tr><tr><td class="">Rogede sild</td><td class="n">14</td><td class="n">4,412</td><td class="n">0</td></tr><tr><td class="">Chef Anton&#x27;s Gumbo Mix</td><td class="n">10</td><td class="n">5,841</td><td class="n">1</td></tr></table><ul class="txt"><li>11 מוצרים נמצאים ברבע התחתון גם במכירות וגם במספר ההזמנות.</li><li>רק אחד מהם כבר הופסק. מתוך 8 המוצרים שהופסקו, 4 נמצאים בחצי העליון של המכירות, ו־Thüringer Rostbratwurst הוא השני בגודלו.</li><li>כלומר, החברה לא הפסיקה מוצרים בגלל מכירות נמוכות. בלי נתוני רווח אי אפשר לדעת מה היה הנימוק.</li></ul><p class="verdict v-ok"><span>התאשרה</span>ההשערה התאשרה: 11 מוצרים חלשים במיוחד</p></div>
+</div></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">38 / 40</span></div></section>
+<section class="slide content" id="s39" data-n="39"><div class="in">
+<div class="eyebrow">סיכום · 1–9</div>
+<h2>מה מצאנו</h2>
+<table class="sum"><tr><th>#</th><th>השאלה</th><th>ההשערה</th></tr><tr><td class="n">1</td><td>האם דמי המשלוח תלויים בסכום ההזמנה?</td><td><span class="pill v-ok">התאשרה</span></td></tr><tr><td class="n">2</td><td>האם הנחה גדולה יותר גורמת ללקוחות לקנות כמות גדולה יותר?</td><td><span class="pill v-part">חלקית</span></td></tr><tr><td class="n">3</td><td>האם מוצרים זולים נמכרים ביותר יחידות?</td><td><span class="pill v-no">נדחתה</span></td></tr><tr><td class="n">4</td><td>האם לקוחות שמזמינים הרבה פעמים מזמינים גם הזמנות גדולות יותר?</td><td><span class="pill v-ok">התאשרה</span></td></tr><tr><td class="n">5</td><td>האם הזמנות יקרות נשלחות מהר יותר?</td><td><span class="pill v-no">נדחתה</span></td></tr><tr><td class="n">6</td><td>איזו חברת משלוחים מהירה ועקבית יותר?</td><td><span class="pill v-ok">התאשרה</span></td></tr><tr><td class="n">7</td><td>האם המשרד בסיאטל מוכר יותר מהמשרד בלונדון?</td><td><span class="pill v-ok">התאשרה</span></td></tr><tr><td class="n">8</td><td>באילו מדינות הלקוחות מזמינים הזמנות גדולות יותר?</td><td><span class="pill v-ok">התאשרה</span></td></tr><tr><td class="n">9</td><td>האם החברה נותנת יותר הנחות בקטגוריות מסוימות?</td><td><span class="pill v-part">חלקית</span></td></tr></table></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">39 / 40</span></div></section>
+<section class="slide content" id="s40" data-n="40"><div class="in">
+<div class="eyebrow">סיכום · 10–18</div>
+<h2>מה מצאנו</h2>
+<table class="sum"><tr><th>#</th><th>השאלה</th><th>ההשערה</th></tr><tr><td class="n">10</td><td>איזו חברת משלוחים מאחרת יותר?</td><td><span class="pill v-part">חלקית</span></td></tr><tr><td class="n">11</td><td>האם המכירות של Northwind גדלות לאורך הזמן?</td><td><span class="pill v-ok">התאשרה</span></td></tr><tr><td class="n">12</td><td>האם יש חודשים חזקים יותר בשנה?</td><td><span class="pill v-part">חלקית</span></td></tr><tr><td class="n">13</td><td>האם החברה ממשיכה להשיג לקוחות חדשים?</td><td><span class="pill v-ok">התאשרה</span></td></tr><tr><td class="n">14</td><td>האם הסכום של הזמנה מתפלג נורמלית?</td><td><span class="pill v-no">נדחתה</span></td></tr><tr><td class="n">15</td><td>האם מעט לקוחות אחראים לרוב המכירות?</td><td><span class="pill v-part">חלקית</span></td></tr><tr><td class="n">16</td><td>באילו קטגוריות יש בעיית מלאי?</td><td><span class="pill v-no">נדחתה</span></td></tr><tr><td class="n">17</td><td>אילו לקוחות הפסיקו להזמין?</td><td><span class="pill v-ok">התאשרה</span></td></tr><tr><td class="n">18</td><td>אילו מוצרים כדאי להפסיק למכור?</td><td><span class="pill v-ok">התאשרה</span></td></tr></table></div><div class="foot"><span>Northwind · שאלות מחקר</span><span dir="ltr">40 / 40</span></div></section>
+</div></main>
+
+<script>
+const deck = document.getElementById("deck");
+const slides = [...deck.querySelectorAll(".slide")];
+const main = document.querySelector("main");
+let cur = 0;
+const W = 1600, H = 900;
+
+function layout() {
+  const doc = document.body.classList.contains("doc");
+  if (doc) {
+    const s = Math.min(1, (main.clientWidth - 32) / W);
+    slides.forEach(el => {
+      let slot = el.parentElement.classList.contains("slot") ? el.parentElement : null;
+      if (!slot) { slot = document.createElement("div"); slot.className = "slot"; el.before(slot); slot.appendChild(el); }
+      slot.style.width = W * s + "px"; slot.style.height = H * s + "px";
+      el.style.transform = `scale(${s})`;
+    });
+  } else {
+    slides.forEach(el => { if (el.parentElement.classList.contains("slot")) { const slot = el.parentElement; slot.before(el); slot.remove(); } });
+    const pad = 24;
+    const s = Math.min((main.clientWidth - pad * 2) / W, (main.clientHeight - pad * 2) / H);
+    const x = (main.clientWidth - W * s) / 2, y = (main.clientHeight - H * s) / 2;
+    slides.forEach(el => el.style.transform = `translate(${x}px, ${y}px) scale(${s})`);
+  }
+}
+function show(i, scroll) {
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((el, k) => el.classList.toggle("on", k === cur));
+  document.getElementById("where").textContent = `${cur + 1} / ${slides.length}`;
+  document.getElementById("prev").disabled = cur === 0;
+  document.getElementById("next").disabled = cur === slides.length - 1;
+  if (document.body.classList.contains("doc") && scroll) slides[cur].scrollIntoView({ block: "start" });
+  const id = slides[cur].id;
+  if (location.hash.slice(1) !== id) history.replaceState(null, "", "#" + id);
+}
+function setView(v) {
+  document.body.classList.toggle("doc", v === "doc");
+  document.getElementById("v-slides").setAttribute("aria-pressed", v === "slides");
+  document.getElementById("v-doc").setAttribute("aria-pressed", v === "doc");
+  try { localStorage.setItem("rdeck-view", v); } catch (e) {}
+  layout(); show(cur, true);
+}
+document.getElementById("prev").onclick = () => show(cur - 1);
+document.getElementById("next").onclick = () => show(cur + 1);
+document.getElementById("v-slides").onclick = () => setView("slides");
+document.getElementById("v-doc").onclick = () => setView("doc");
+document.getElementById("notes").onclick = e => { const on = document.body.classList.toggle("shownotes"); e.currentTarget.setAttribute("aria-pressed", on); };
+document.addEventListener("keydown", e => {
+  if (document.body.classList.contains("doc")) return;
+  if (e.target.closest("button") && (e.key === " " || e.key === "Enter")) return;
+  if (["ArrowLeft", "PageDown", " "].includes(e.key)) { e.preventDefault(); show(cur + 1); }
+  else if (["ArrowRight", "PageUp", "Backspace"].includes(e.key)) { e.preventDefault(); show(cur - 1); }
+  else if (e.key === "Home") show(0);
+  else if (e.key === "End") show(slides.length - 1);
+});
+window.addEventListener("resize", layout);
+window.addEventListener("hashchange", () => { const k = slides.findIndex(s => s.id === location.hash.slice(1)); if (k >= 0 && k !== cur) show(k, true); });
+let view = "slides";
+try { view = localStorage.getItem("rdeck-view") || "slides"; } catch (e) {}
+const start = slides.findIndex(s => s.id === location.hash.slice(1));
+if (start > 0) cur = start;
+setView(view === "doc" ? "doc" : "slides");
+</script>
+</body>
+</html>
