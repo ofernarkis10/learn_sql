@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>שאלות מחקר על Northwind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a reference booklet. Research method on top, an index, then one card per question grouped by kind. */
+:root {
+  --bg: #EEF1F5;
+  --sheet: #FCFCFD;
+  --ink: #172033;
+  --muted: #556074;
+  --line: #D6DBE3;
+  --soft: #E4E9F1;
+  --accent: #2457C5;
+  --warm: #A34E16;
+  --warm-soft: #F6E8DD;
+  --code-bg: #172033;
+  --code-fg: #E7EBF2;
+  --code-kw: #8DB2FF;
+  --code-fn: #F3A6D5;
+  --code-str: #A8E6A3;
+  --code-num: #9FE3D6;
+  --lv1: #2E7D4F; --lv2: #2457C5; --lv3: #A34E16;
+  --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --font-body: "Assistant", "Arial Hebrew", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --soft: #1F2836; --accent: #84A9FF;
+    --warm: #F0A46F; --warm-soft: #3A2A1E; --code-bg: #0B1017; --lv1: #7FD3A0; --lv2: #84A9FF; --lv3: #F0A46F; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --soft: #1F2836; --accent: #84A9FF;
+  --warm: #F0A46F; --warm-soft: #3A2A1E; --code-bg: #0B1017; --lv1: #7FD3A0; --lv2: #84A9FF; --lv3: #F0A46F; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.55; }
+.wrap { max-width: 1100px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sheet { background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; padding: clamp(18px, 3vw, 44px); display: flex; flex-direction: column; gap: 28px; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; line-height: 1.2; }
+h1 { font-size: clamp(30px, 4vw, 44px); }
+h2 { font-size: 26px; }
+h3 { font-size: 21px; font-weight: 500; }
+p { margin: 0; }
+a { color: var(--accent); }
+code { font-family: var(--font-mono); font-size: .85em; background: var(--soft); padding: 1px 6px; border-radius: 4px; direction: ltr; unicode-bidi: isolate; }
+.eyebrow { font-size: 14px; font-weight: 700; letter-spacing: .06em; color: var(--accent); }
+header.top { display: flex; flex-direction: column; gap: 10px; border-bottom: 3px double var(--line); padding-bottom: 18px; }
+.lead { font-size: 19px; color: var(--muted); max-width: 72ch; }
+.lbl { font-size: 13px; font-weight: 700; letter-spacing: .05em; color: var(--muted); margin-bottom: 6px; }
+
+/* method */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; counter-reset: s; }
+.steps li { counter-increment: s; border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.steps li::before { content: counter(s); font-family: var(--font-display); font-weight: 700; color: var(--accent); font-size: 20px; }
+.steps b { font-size: 16px; }
+.steps span { font-size: 15px; color: var(--muted); line-height: 1.4; }
+.levels { display: flex; flex-wrap: wrap; gap: 10px 22px; font-size: 16px; color: var(--muted); }
+.lv { font-size: 13px; font-weight: 700; border-radius: 99px; padding: 2px 10px; border: 1.5px solid currentColor; white-space: nowrap; }
+.lv1 { color: var(--lv1); } .lv2 { color: var(--lv2); } .lv3 { color: var(--lv3); }
+
+/* index */
+.idx { width: 100%; border-collapse: collapse; font-size: 16px; }
+.idx th { text-align: right; font-size: 13px; color: var(--muted); padding: 6px 8px; border-bottom: 2px solid var(--ink); }
+.idx td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.idx td.n { font-family: var(--font-display); font-weight: 700; color: var(--accent); width: 36px; }
+.idx a { color: inherit; text-decoration: none; }
+.idx a:hover, .idx a:focus-visible { color: var(--accent); text-decoration: underline; }
+.idxwrap { overflow-x: auto; }
+
+/* cards */
+h2.grp { border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin-top: 8px; scroll-margin-top: 12px; }
+.q { border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 12px; break-inside: avoid; }
+.q header { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.qn { font-family: var(--font-display); font-weight: 700; font-size: 26px; color: var(--accent); min-width: 30px; }
+.q h3 { flex: 1; min-width: 220px; }
+.why { color: var(--muted); }
+.vars { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 10px; }
+.vars div { background: var(--soft); border-radius: 8px; padding: 10px 12px; min-width: 0; }
+.vars dt { font-size: 13px; font-weight: 700; color: var(--muted); }
+.vars dd { margin: 0; font-size: 16px; }
+.vars div:first-child { grid-column: 1 / -1; }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+pre.sql { margin: 0; direction: ltr; text-align: left; background: var(--code-bg); color: var(--code-fg); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font-size: 14px; line-height: 1.55; }
+pre.sql code { background: none; padding: 0; font-size: inherit; color: inherit; }
+.kw { color: var(--code-kw); font-weight: 600; } .fn { color: var(--code-fn); } .str { color: var(--code-str); } .num { color: var(--code-num); }
+.an { margin: 0; padding-right: 22px; display: flex; flex-direction: column; gap: 6px; font-size: 16px; }
+.watch { background: var(--warm-soft); border-radius: 8px; padding: 10px 14px; font-size: 16px; }
+.watch b { color: var(--warm); }
+.ext { font-size: 16px; color: var(--muted); }
+.ext b { color: var(--ink); }
+
+/* limits + template */
+.box { border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; }
+.box ul { margin: 0; padding-right: 22px; display: flex; flex-direction: column; gap: 6px; }
+.tpl { width: 100%; border-collapse: collapse; font-size: 16px; }
+.tpl th { text-align: right; width: 30%; background: var(--soft); padding: 10px 12px; border: 1px solid var(--line); vertical-align: top; font-weight: 700; }
+.tpl td { border: 1px solid var(--line); padding: 10px 12px; height: 46px; color: var(--muted); }
+@media (max-width: 760px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cols { grid-template-columns: minmax(0, 1fr); } }
+@media print { body { background: none; } .sheet { border: 0; } }
+</style>
+<style>
+/* Back link to the page's topic in index.html */
+.site-back{color:var(--accent);font-family:var(--font-body,"Assistant","Arial Hebrew",Arial,sans-serif);font-weight:600;font-size:15px;text-decoration:none;width:fit-content;white-space:nowrap}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.wrap > .site-back{display:block;margin-bottom:12px}
+@media print{.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="wrap" dir="rtl">
+  <a class="site-back" href="index.html#analysis">→ חזרה לנושא: ניתוח נתונים</a>
+<div class="sheet">
+  <header class="top">
+    <div class="eyebrow">מגמת מידע ונתונים · SQL · Northwind ב־sql-practice.com</div>
+    <h1>מאגר שאלות מחקר על Northwind</h1>
+    <p class="lead">18 שאלות לעבודת חקר על הנתונים של חברת Northwind. לכל שאלה: השערה, משתנים, הטבלאות, שאילתה לאיסוף הנתונים ושיטת ניתוח. השאילתות רצות כמו שהן באתר <code>sql-practice.com</code> (בסיס הנתונים <code>northwind.db</code>). הן אוספות את הנתונים, והניתוח הוא העבודה שלכם.</p>
+  </header>
+
+  <section style="display:flex;flex-direction:column;gap:14px">
+    <h2>שלבי עבודת החקר</h2>
+    <ol class="steps">
+      <li><b>שאלת מחקר</b><span>שאלה אחת וממוקדת, שאפשר לענות עליה מהנתונים.</span></li>
+      <li><b>השערה</b><span>מה אתם מצפים לגלות, ולמה. מנסחים לפני שמריצים שאילתות.</span></li>
+      <li><b>משתנים</b><span>יחידת התצפית, המשתנה הבלתי תלוי והמשתנה התלוי.</span></li>
+      <li><b>איסוף נתונים</b><span>שאילתת SQL שמחזירה טבלה עם שורה לכל תצפית.</span></li>
+      <li><b>ניתוח</b><span>מדדי מרכז ופיזור, השוואת קבוצות, התפלגות או רגרסיה.</span></li>
+      <li><b>הצגה</b><span>טבלה או גרף שמראים את התוצאה העיקרית.</span></li>
+      <li><b>מסקנה</b><span>האם ההשערה התאשרה? מה זה אומר על העסק?</span></li>
+      <li><b>מגבלות</b><span>מה הנתונים לא מאפשרים לדעת. ראו את הרשימה בסוף הדף.</span></li>
+    </ol>
+    <div class="levels"><span><span class="lv lv1">בסיסי</span> טבלה אחת או שתיים, קיבוץ והשוואה</span><span><span class="lv lv2">בינוני</span> JOIN בין כמה טבלאות, רגרסיה או התפלגות</span><span><span class="lv lv3">מתקדם</span> טבלת עזר (WITH), החלטות על הגדרות, המלצה עסקית</span></div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:10px">
+    <h2>רשימת השאלות</h2>
+    <div class="idxwrap"><table class="idx"><tr><th>#</th><th>השאלה</th><th>סוג</th><th>רמה</th></tr><tr><td class="n">1</td><td><a href="#q1">האם דמי המשלוח תלויים בסכום ההזמנה?</a></td><td>קשר בין משתנים</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">2</td><td><a href="#q2">האם הנחה גדולה יותר גורמת ללקוחות לקנות כמות גדולה יותר?</a></td><td>קשר בין משתנים</td><td><span class="lv lv1">בסיסי</span></td></tr><tr><td class="n">3</td><td><a href="#q3">האם מוצרים זולים נמכרים ביותר יחידות?</a></td><td>קשר בין משתנים</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">4</td><td><a href="#q4">האם לקוחות שמזמינים הרבה פעמים מזמינים גם הזמנות גדולות יותר?</a></td><td>קשר בין משתנים</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">5</td><td><a href="#q5">האם הזמנות יקרות נשלחות מהר יותר?</a></td><td>קשר בין משתנים</td><td><span class="lv lv3">מתקדם</span></td></tr><tr><td class="n">6</td><td><a href="#q6">איזו חברת משלוחים מהירה ועקבית יותר?</a></td><td>השוואה בין קבוצות</td><td><span class="lv lv1">בסיסי</span></td></tr><tr><td class="n">7</td><td><a href="#q7">האם המשרד בסיאטל מוכר יותר מהמשרד בלונדון?</a></td><td>השוואה בין קבוצות</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">8</td><td><a href="#q8">באילו מדינות הלקוחות מזמינים הזמנות גדולות יותר?</a></td><td>השוואה בין קבוצות</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">9</td><td><a href="#q9">האם החברה נותנת יותר הנחות בקטגוריות מסוימות?</a></td><td>השוואה בין קבוצות</td><td><span class="lv lv1">בסיסי</span></td></tr><tr><td class="n">10</td><td><a href="#q10">איזו חברת משלוחים מאחרת יותר?</a></td><td>השוואה בין קבוצות</td><td><span class="lv lv1">בסיסי</span></td></tr><tr><td class="n">11</td><td><a href="#q11">האם המכירות של Northwind גדלות לאורך הזמן?</a></td><td>זמן ומגמה</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">12</td><td><a href="#q12">האם יש חודשים חזקים יותר בשנה?</a></td><td>זמן ומגמה</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">13</td><td><a href="#q13">האם החברה ממשיכה להשיג לקוחות חדשים?</a></td><td>זמן ומגמה</td><td><span class="lv lv3">מתקדם</span></td></tr><tr><td class="n">14</td><td><a href="#q14">האם הסכום של הזמנה מתפלג נורמלית?</a></td><td>התפלגות וריכוז</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">15</td><td><a href="#q15">האם מעט לקוחות אחראים לרוב המכירות?</a></td><td>התפלגות וריכוז</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">16</td><td><a href="#q16">באילו קטגוריות יש בעיית מלאי?</a></td><td>התפלגות וריכוז</td><td><span class="lv lv1">בסיסי</span></td></tr><tr><td class="n">17</td><td><a href="#q17">אילו לקוחות הפסיקו להזמין?</a></td><td>שאלות עסקיות פתוחות</td><td><span class="lv lv3">מתקדם</span></td></tr><tr><td class="n">18</td><td><a href="#q18">אילו מוצרים כדאי להפסיק למכור?</a></td><td>שאלות עסקיות פתוחות</td><td><span class="lv lv3">מתקדם</span></td></tr></table></div>
+  </section>
+
+<h2 class="grp" id="g-rel">קשר בין משתנים</h2>
+<article class="q" id="q1">
+  <header><span class="qn">1</span><h3>האם דמי המשלוח תלויים בסכום ההזמנה?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">אם דמי המשלוח עולים יחד עם סכום ההזמנה, החברה יכולה להעריך מראש כמה יעלה המשלוח של הזמנה חדשה.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>ככל שסכום ההזמנה גבוה יותר, דמי המשלוח גבוהים יותר.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>הזמנה (830)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>סכום ההזמנה</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>דמי המשלוח (freight)</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> o.order_id,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> order_value,
+       o.freight
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> o.order_id;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים ממוצע, חציון וסטיית תקן לכל אחד משני המשתנים.</li><li>מחשבים שיפוע, חותך ומקדם מתאם r, וכותבים את קו הרגרסיה.</li><li>מחשבים R² ומסבירים כמה מהשונות בדמי המשלוח הסכום מסביר.</li><li>חוזים את דמי המשלוח להזמנה של 1,000 ושל 5,000.</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> יש כמה הזמנות גדולות מאוד. בדקו אם הן משנות את הקו: הריצו שוב בלי ההזמנות שמעל 10,000.</p>
+  <p class="ext"><b>להרחבה:</b> האם הקשר זהה בכל חברת משלוחים? הוסיפו את ship_via ובדקו את r בכל קבוצה.</p>
+</article>
+<article class="q" id="q2">
+  <header><span class="qn">2</span><h3>האם הנחה גדולה יותר גורמת ללקוחות לקנות כמות גדולה יותר?</h3><span class="lv lv1">בסיסי</span></header>
+  <p class="why">הנחה עולה כסף לחברה. אם היא לא מגדילה את הכמות, אולי לא כדאי לתת אותה.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>בשורות הזמנה עם הנחה גבוהה יותר הכמות גדולה יותר.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>שורת הזמנה (2,155)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>ההנחה (discount)</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>הכמות (quantity)</dd></div>
+    <div><dt>טבלאות</dt><dd><code>order_details</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> discount, quantity
+<span class="kw">FROM</span> order_details;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>משווים את הכמות הממוצעת בשורות עם הנחה ובשורות בלי הנחה.</li><li>מחשבים כמות ממוצעת לכל רמת הנחה (0, 0.05, 0.1 …) בעזרת GROUP BY.</li><li>מחשבים מקדם מתאם r ושיפוע בין ההנחה לכמות.</li><li>מסיקים אם הקשר חזק, חלש או לא קיים.</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> בשאלה הזאת קשה להבחין בין סיבה לתוצאה. אולי מקבלים הנחה <b>בגלל</b> שקונים הרבה, ולא קונים הרבה בגלל ההנחה.</p>
+  <p class="ext"><b>להרחבה:</b> בדקו את הקשר בנפרד בכל קטגוריה.</p>
+</article>
+<article class="q" id="q3">
+  <header><span class="qn">3</span><h3>האם מוצרים זולים נמכרים ביותר יחידות?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">המחיר הוא אחד הכלים העיקריים של חברה. השאלה בודקת אם הלקוחות של Northwind רגישים למחיר.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>ככל שמחיר המוצר נמוך יותר, נמכרות ממנו יותר יחידות.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>מוצר (77)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>מחיר המוצר (unit_price)</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>סך היחידות שנמכרו</dd></div>
+    <div><dt>טבלאות</dt><dd><code>products</code> <code>order_details</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> p.product_name,
+       p.unit_price,
+       <span class="fn">SUM</span>(od.quantity) <span class="kw">AS</span> units_sold
+<span class="kw">FROM</span> products <span class="kw">AS</span> p
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.product_id = p.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> p.product_id;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים מדדי מרכז ופיזור לכל משתנה.</li><li>מחשבים r, שיפוע וחותך.</li><li>בודקים אם יש מוצרים חריגים במחיר (ציון תקן גדול מ־2), ומריצים שוב בלעדיהם.</li><li>מסבירים את הכיוון ואת העוצמה של הקשר.</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> יש רק 77 מוצרים, ומוצר יקר אחד (Côte de Blaye) יכול לשנות את התוצאה.</p>
+  <p class="ext"><b>להרחבה:</b> האם התשובה שונה כשמודדים את הפופולריות במספר ההזמנות ולא ביחידות?</p>
+</article>
+<article class="q" id="q4">
+  <header><span class="qn">4</span><h3>האם לקוחות שמזמינים הרבה פעמים מזמינים גם הזמנות גדולות יותר?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">לקוח קבוע יכול להזמין הרבה הזמנות קטנות או מעט הזמנות גדולות. התשובה משפיעה על אופן הטיפול בלקוחות.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>ללקוחות עם יותר הזמנות יש סכום ממוצע גבוה יותר להזמנה.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>לקוח (89)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>מספר ההזמנות של הלקוח</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>הסכום הממוצע להזמנה</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> o.customer_id,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> orders,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount))
+         / <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> avg_order_value
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> o.customer_id;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים r, שיפוע וחותך.</li><li>מחלקים את הלקוחות לשלוש קבוצות לפי מספר ההזמנות (1–5, 6–10, יותר מ־10) ומשווים את הסכום הממוצע.</li><li>משווים את התוצאה לקשר שבין מספר ההזמנות לסך הקניות. שם הקשר צפוי להיות חזק מאוד. למה?</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> סופרים הזמנות עם COUNT(DISTINCT o.order_id), כי אחרי JOIN כל הזמנה מופיעה כמה פעמים.</p>
+  <p class="ext"><b>להרחבה:</b> האם יש הבדל בין לקוחות מאירופה ללקוחות מאמריקה?</p>
+</article>
+<article class="q" id="q5">
+  <header><span class="qn">5</span><h3>האם הזמנות יקרות נשלחות מהר יותר?</h3><span class="lv lv3">מתקדם</span></header>
+  <p class="why">חברה רוצה שהלקוחות החשובים יקבלו שירות מהיר. השאלה בודקת אם זה קורה בפועל.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>ככל שסכום ההזמנה גבוה יותר, מספר הימים עד המשלוח קטן יותר.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>הזמנה שנשלחה (809)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>סכום ההזמנה</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>ימים מההזמנה ועד המשלוח</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> o.order_id,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> order_value,
+       <span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date) <span class="kw">AS</span> days
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">WHERE</span> o.shipped_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> o.order_id;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים r, שיפוע וחותך.</li><li>מחלקים את ההזמנות לרבעונים לפי הסכום (LOWER_QUARTILE, MEDIAN, UPPER_QUARTILE) ומשווים את ממוצע הימים בכל רבע.</li><li>בודקים את ההתפלגות של מספר הימים: האם היא נורמלית?</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> 21 הזמנות לא נשלחו, ו־shipped_date שלהן ריק. השאילתה מסננת אותן.</p>
+  <p class="ext"><b>להרחבה:</b> האם הזמנות שנשלחו באיחור הן דווקא הזמנות גדולות?</p>
+</article>
+<h2 class="grp" id="g-cmp">השוואה בין קבוצות</h2>
+<article class="q" id="q6">
+  <header><span class="qn">6</span><h3>איזו חברת משלוחים מהירה ועקבית יותר?</h3><span class="lv lv1">בסיסי</span></header>
+  <p class="why">Northwind משלמת לשלוש חברות משלוחים. המחקר יכול להמליץ באיזו מהן להשתמש יותר.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>יש הבדל בזמן המשלוח הממוצע בין שלוש החברות.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>הזמנה שנשלחה (809)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>חברת המשלוחים</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>ימים מההזמנה ועד המשלוח</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code> <code>shippers</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> s.company_name,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> orders,
+       <span class="fn">AVG</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date)) <span class="kw">AS</span> mean_days,
+       <span class="fn">MEDIAN</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date)) <span class="kw">AS</span> median_days,
+       <span class="fn">STDEV</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date)) <span class="kw">AS</span> sd_days
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> shippers <span class="kw">AS</span> s <span class="kw">ON</span> s.shipper_id = o.ship_via
+<span class="kw">WHERE</span> o.shipped_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> s.company_name;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>משווים ממוצע, חציון וסטיית תקן בין שלוש החברות.</li><li>מחשבים לכל חברה מקדם שונות (סטיית תקן חלקי ממוצע) כדי להשוות עקביות.</li><li>בודקים כמה אחוזים מההזמנות של כל חברה נשלחו תוך שבוע.</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> ההבדלים בין הממוצעים הם של יום או יומיים, וסטיית התקן גדולה. דונו אם ההבדל משמעותי.</p>
+  <p class="ext"><b>להרחבה:</b> הוסיפו את שאלה 10: איזו חברה מאחרת יותר?</p>
+</article>
+<article class="q" id="q7">
+  <header><span class="qn">7</span><h3>האם המשרד בסיאטל מוכר יותר מהמשרד בלונדון?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">לחברה יש שני משרדי מכירות. השאלה בודקת איפה כדאי להוסיף עובדים.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>המכירות לעובד במשרד בארצות הברית גבוהות מהמכירות לעובד בבריטניה.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>עובד (9), לפי משרד (2)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>המשרד (employees.country)</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>מכירות, הזמנות וסכום ממוצע להזמנה</dd></div>
+    <div><dt>טבלאות</dt><dd><code>employees</code> <code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> e.country <span class="kw">AS</span> office,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> e.employee_id) <span class="kw">AS</span> employees,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> orders,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> sales
+<span class="kw">FROM</span> employees <span class="kw">AS</span> e
+<span class="kw">JOIN</span> orders <span class="kw">AS</span> o <span class="kw">ON</span> o.employee_id = e.employee_id
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> e.country;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים לכל משרד את סך המכירות, מספר ההזמנות ומספר העובדים.</li><li>מחלקים במספר העובדים: מכירות לעובד והזמנות לעובד.</li><li>משווים גם את הסכום הממוצע של הזמנה בכל משרד.</li><li>מוסיפים טבלה לכל עובד: מכירות, הזמנות, תפקיד ותאריך קליטה.</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> יש רק 9 עובדים, ולכן עובד אחד חזק או חלש משנה את כל התוצאה. אל תכתבו מסקנה כללית מדי.</p>
+  <p class="ext"><b>להרחבה:</b> האם ותק העובד (hire_date) קשור למכירות שלו?</p>
+</article>
+<article class="q" id="q8">
+  <header><span class="qn">8</span><h3>באילו מדינות הלקוחות מזמינים הזמנות גדולות יותר?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">מדינות עם הזמנות גדולות יכולות להיות יעד לשיווק או לשירות מיוחד.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>הסכום הממוצע של הזמנה שונה ממדינה למדינה.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>מדינת לקוח (13 מדינות עם 20 הזמנות ומעלה)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>מדינת הלקוח</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>הסכום הממוצע להזמנה</dd></div>
+    <div><dt>טבלאות</dt><dd><code>customers</code> <code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> c.country,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> orders,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount))
+         / <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> avg_order_value
+<span class="kw">FROM</span> customers <span class="kw">AS</span> c
+<span class="kw">JOIN</span> orders <span class="kw">AS</span> o <span class="kw">ON</span> o.customer_id = c.customer_id
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> c.country
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) &gt;= <span class="num">20</span>
+<span class="kw">ORDER</span> <span class="kw">BY</span> avg_order_value <span class="kw">DESC</span>;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>משווים את הסכום הממוצע של הזמנה בכל מדינה.</li><li>בודקים גם את החציון בכל מדינה. האם הסדר משתנה?</li><li>בודקים כמה לקוחות יש בכל מדינה: האם מדינה אחת מבוססת על לקוח גדול אחד?</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> ה־HAVING משאיר רק מדינות עם 20 הזמנות לפחות. ממוצע של מעט הזמנות אינו אמין.</p>
+  <p class="ext"><b>להרחבה:</b> השוו בין אזורים בעולם (customers.region) במקום מדינות.</p>
+</article>
+<article class="q" id="q9">
+  <header><span class="qn">9</span><h3>האם החברה נותנת יותר הנחות בקטגוריות מסוימות?</h3><span class="lv lv1">בסיסי</span></header>
+  <p class="why">אם בקטגוריה מסוימת נותנים הרבה הנחות, אולי המחיר שלה גבוה מדי או שקשה למכור אותה.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>אחוז השורות עם הנחה שונה בין הקטגוריות.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>שורת הזמנה (2,155), לפי קטגוריה (8)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>הקטגוריה</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>ההנחה הממוצעת ואחוז השורות עם הנחה</dd></div>
+    <div><dt>טבלאות</dt><dd><code>order_details</code> <code>products</code> <code>categories</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> c.category_name,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> lines,
+       <span class="fn">AVG</span>(od.discount) <span class="kw">AS</span> avg_discount,
+       <span class="num">100.0</span> * <span class="fn">AVG</span>(od.discount &gt; <span class="num">0</span>) <span class="kw">AS</span> pct_discounted
+<span class="kw">FROM</span> order_details <span class="kw">AS</span> od
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">JOIN</span> categories <span class="kw">AS</span> c <span class="kw">ON</span> c.category_id = p.category_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> c.category_name;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>משווים בין הקטגוריות את ההנחה הממוצעת ואת אחוז השורות עם הנחה.</li><li>בודקים אם יש קשר בין המחיר הממוצע של הקטגוריה לבין ההנחה שלה.</li><li>מציגים את התוצאה בטבלה ממוינת.</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> <code>AVG(od.discount > 0)</code> הוא החלק של השורות שבהן יש הנחה, כי תנאי מחזיר 1 או 0.</p>
+  <p class="ext"><b>להרחבה:</b> האם יש לקוחות שמקבלים הנחה כמעט תמיד?</p>
+</article>
+<article class="q" id="q10">
+  <header><span class="qn">10</span><h3>איזו חברת משלוחים מאחרת יותר?</h3><span class="lv lv1">בסיסי</span></header>
+  <p class="why">איחור במשלוח פוגע בלקוח. השאלה בודקת אם יש חברה שאחראית ליותר איחורים.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>אחוז ההזמנות שנשלחו אחרי התאריך הנדרש שונה בין החברות.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>הזמנה שנשלחה (809)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>חברת המשלוחים</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>ההזמנה נשלחה באיחור (כן / לא)</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code> <code>shippers</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> s.company_name,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> shipped,
+       <span class="fn">SUM</span>(o.shipped_date &gt; o.required_date) <span class="kw">AS</span> late,
+       <span class="num">100.0</span> * <span class="fn">AVG</span>(o.shipped_date &gt; o.required_date) <span class="kw">AS</span> pct_late
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> shippers <span class="kw">AS</span> s <span class="kw">ON</span> s.shipper_id = o.ship_via
+<span class="kw">WHERE</span> o.shipped_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> s.company_name;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>סופרים לכל חברה כמה הזמנות נשלחו וכמה מהן באיחור.</li><li>מחשבים את אחוז האיחורים בכל חברה.</li><li>בודקים גם בכמה ימים, בממוצע, מאחרות ההזמנות המאוחרות.</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> איחור הוא <code>shipped_date &gt; required_date</code>. תאריכים בתבנית YYYY-MM-DD אפשר להשוות כמו טקסט.</p>
+  <p class="ext"><b>להרחבה:</b> האם האיחורים מתרכזים במדינות יעד מסוימות?</p>
+</article>
+<h2 class="grp" id="g-time">זמן ומגמה</h2>
+<article class="q" id="q11">
+  <header><span class="qn">11</span><h3>האם המכירות של Northwind גדלות לאורך הזמן?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">זו השאלה הראשונה שכל הנהלה שואלת: האם העסק צומח, ובאיזה קצב?</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>סך המכירות בחודש עולה עם הזמן.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>חודש (22 חודשים מלאים)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>מספר החודש (1 = יולי 2016)</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>סך המכירות בחודש</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> <span class="fn">SUBSTR</span>(o.order_date, <span class="num">1</span>, <span class="num">7</span>) <span class="kw">AS</span> ym,
+       (<span class="fn">YEAR</span>(o.order_date) - <span class="num">2016</span>) * <span class="num">12</span> + <span class="fn">MONTH</span>(o.order_date) - <span class="num">6</span> <span class="kw">AS</span> month_no,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> orders,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> sales
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">WHERE</span> o.order_date &lt; <span class="str">&#x27;2018-05-01&#x27;</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> ym
+<span class="kw">ORDER</span> <span class="kw">BY</span> ym;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>משרטטים את המכירות לפי החודש (אפשר להעתיק את התוצאה לאקסל לגרף).</li><li>מחשבים קו רגרסיה בין מספר החודש למכירות: השיפוע הוא הגידול הממוצע בחודש.</li><li>מחשבים את הגידול באחוזים בין 2017 לבין אותם חודשים ב־2016 וב־2018.</li><li>חוזים את המכירות במאי ובאוגוסט 2018.</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> מאי 2018 לא נכלל, כי יש בו רק 6 ימים. בלי ה־WHERE החודש האחרון ייראה כמו נפילה.</p>
+  <p class="ext"><b>להרחבה:</b> האם הגידול נובע מיותר הזמנות או מהזמנות גדולות יותר?</p>
+</article>
+<article class="q" id="q12">
+  <header><span class="qn">12</span><h3>האם יש חודשים חזקים יותר בשנה?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">אם יש עונתיות, החברה יכולה להיערך מראש עם מלאי ועובדים.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>מספר ההזמנות הממוצע שונה בין חודשי השנה.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>חודש בשנה (12)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>החודש בשנה</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>מספר ההזמנות הממוצע בחודש</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> <span class="fn">MONTH</span>(order_date) <span class="kw">AS</span> month,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> orders,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="fn">YEAR</span>(order_date)) <span class="kw">AS</span> years,
+       <span class="num">1.0</span> * <span class="fn">COUNT</span>(*) / <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="fn">YEAR</span>(order_date)) <span class="kw">AS</span> orders_per_year
+<span class="kw">FROM</span> orders
+<span class="kw">WHERE</span> order_date &lt; <span class="str">&#x27;2018-05-01&#x27;</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> month
+<span class="kw">ORDER</span> <span class="kw">BY</span> month;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים לכל חודש את מספר ההזמנות הממוצע לשנה.</li><li>משווים את החודש החזק ביותר לחלש ביותר.</li><li>דנים: האם ההבדלים נובעים מעונתיות או מהצמיחה של החברה?</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> כל חודש מופיע רק פעם אחת או פעמיים בנתונים, והחברה צומחת. לכן קשה להפריד בין עונתיות לבין צמיחה.</p>
+  <p class="ext"><b>להרחבה:</b> השוו בין חודשים לפי המכירות ולא לפי מספר ההזמנות.</p>
+</article>
+<article class="q" id="q13">
+  <header><span class="qn">13</span><h3>האם החברה ממשיכה להשיג לקוחות חדשים?</h3><span class="lv lv3">מתקדם</span></header>
+  <p class="why">עסק צומח צריך לקוחות חדשים. השאלה בודקת אם הצמיחה באה מלקוחות חדשים או מלקוחות קיימים.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>מספר הלקוחות החדשים בכל חודש יורד עם הזמן.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>לקוח (89), לפי חודש ההזמנה הראשונה</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>החודש</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>מספר הלקוחות שהזמינו בפעם הראשונה</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">WITH</span> first <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> customer_id, <span class="fn">MIN</span>(order_date) <span class="kw">AS</span> first_order
+  <span class="kw">FROM</span> orders
+  <span class="kw">GROUP</span> <span class="kw">BY</span> customer_id
+)
+<span class="kw">SELECT</span> <span class="fn">SUBSTR</span>(first_order, <span class="num">1</span>, <span class="num">7</span>) <span class="kw">AS</span> first_month,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> new_customers
+<span class="kw">FROM</span> first
+<span class="kw">GROUP</span> <span class="kw">BY</span> first_month
+<span class="kw">ORDER</span> <span class="kw">BY</span> first_month;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מוצאים לכל לקוח את תאריך ההזמנה הראשונה שלו (MIN).</li><li>סופרים כמה לקוחות חדשים הצטרפו בכל חודש.</li><li>מחשבים את המספר המצטבר של הלקוחות לאורך הזמן.</li><li>משווים למגמת המכירות משאלה 11.</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> הנתונים מתחילים ביולי 2016, ולכן בחודשים הראשונים כל לקוח נראה חדש, גם אם הזמין לפני כן.</p>
+  <p class="ext"><b>להרחבה:</b> כמה מהמכירות של 2018 באו מלקוחות שהצטרפו ב־2016?</p>
+</article>
+<h2 class="grp" id="g-dist">התפלגות וריכוז</h2>
+<article class="q" id="q14">
+  <header><span class="qn">14</span><h3>האם הסכום של הזמנה מתפלג נורמלית?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">הרבה כלים סטטיסטיים מניחים התפלגות נורמלית. לפני שמשתמשים בהם צריך לבדוק.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>הסכום של הזמנה מתפלג בקירוב נורמלית.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>הזמנה (830)</dd></div>
+    
+    <div><dt>משתנה תלוי</dt><dd>סכום ההזמנה</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> o.order_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> x
+  <span class="kw">FROM</span> orders <span class="kw">AS</span> o
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> o.order_id
+)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n, <span class="fn">AVG</span>(x) <span class="kw">AS</span> mean_x, <span class="fn">MEDIAN</span>(x) <span class="kw">AS</span> median_x,
+       <span class="fn">STDEV</span>(x) <span class="kw">AS</span> sd_x,
+       <span class="num">3</span> * (<span class="fn">AVG</span>(x) - <span class="fn">MEDIAN</span>(x)) / <span class="fn">STDEV</span>(x) <span class="kw">AS</span> skew
+<span class="kw">FROM</span> t;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים ממוצע, חציון, סטיית תקן ומקדם צידוד.</li><li>בודקים את כלל 68–95–99.7.</li><li>מחשבים את אותם מדדים על LOG(x) ומשווים.</li><li>מסיקים איזו התפלגות מתאימה יותר.</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> השאילתה מחשבת את שלב 1. לשלב 2 צריך להציב את הממוצע ואת סטיית התקן בגבולות, כמו בדף הסטטיסטיקה.</p>
+  <p class="ext"><b>להרחבה:</b> בדקו את אותה שאלה על דמי המשלוח ועל הכמות בשורה.</p>
+</article>
+<article class="q" id="q15">
+  <header><span class="qn">15</span><h3>האם מעט לקוחות אחראים לרוב המכירות?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">חברה שתלויה במעט לקוחות נמצאת בסיכון: אם לקוח גדול עוזב, המכירות נופלות.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>20% מהלקוחות אחראים ל־80% מהמכירות (כלל פרטו).</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>לקוח (89)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>דירוג הלקוח</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>המכירות של הלקוח</dd></div>
+    <div><dt>טבלאות</dt><dd><code>customers</code> <code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> c.company_name,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> sales
+<span class="kw">FROM</span> customers <span class="kw">AS</span> c
+<span class="kw">JOIN</span> orders <span class="kw">AS</span> o <span class="kw">ON</span> o.customer_id = c.customer_id
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> c.customer_id
+<span class="kw">ORDER</span> <span class="kw">BY</span> sales <span class="kw">DESC</span>;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים את המכירות של כל לקוח וממיינים מהגדול לקטן.</li><li>מחשבים את סך המכירות ואת החלק של 10, 18 (20%) ו־30 הלקוחות הגדולים.</li><li>בודקים אם כלל 80/20 מתקיים.</li><li>מחשבים מדדי מרכז ופיזור למכירות לפי לקוח.</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> את האחוזים המצטברים אפשר לחשב ידנית או באקסל. מי שמכיר פונקציות חלון יכול להשתמש ב־<code>SUM(sales) OVER (ORDER BY sales DESC)</code>.</p>
+  <p class="ext"><b>להרחבה:</b> האם יש גם ריכוז במוצרים? בדקו כמה מוצרים אחראים ל־80% מהמכירות.</p>
+</article>
+<article class="q" id="q16">
+  <header><span class="qn">16</span><h3>באילו קטגוריות יש בעיית מלאי?</h3><span class="lv lv1">בסיסי</span></header>
+  <p class="why">מוצר שהמלאי שלו ירד מתחת לסף ההזמנה מחדש עלול להיגמר. השאלה מזהה איפה צריך לטפל.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>רוב המוצרים שמתחת לסף ההזמנה נמצאים בכמה קטגוריות בלבד.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>מוצר (77), לפי קטגוריה (8)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>הקטגוריה</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>מספר המוצרים מתחת לסף, ומספר המוצרים שהופסקו</dd></div>
+    <div><dt>טבלאות</dt><dd><code>products</code> <code>categories</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> c.category_name,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> products,
+       <span class="fn">SUM</span>(p.units_in_stock &lt; p.reorder_level) <span class="kw">AS</span> below_reorder,
+       <span class="fn">SUM</span>(p.discontinued) <span class="kw">AS</span> discontinued
+<span class="kw">FROM</span> products <span class="kw">AS</span> p
+<span class="kw">JOIN</span> categories <span class="kw">AS</span> c <span class="kw">ON</span> c.category_id = p.category_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> c.category_name;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>סופרים בכל קטגוריה כמה מוצרים יש, כמה מהם מתחת לסף (units_in_stock &lt; reorder_level) וכמה הופסקו.</li><li>מחשבים את האחוז של מוצרים בבעיה בכל קטגוריה.</li><li>בודקים אילו מהם כבר מוזמנים מהספק (units_on_order &gt; 0).</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> מוצר שהופסק (discontinued = 1) לא צריך הזמנה מחדש. חשבו אם להוציא אותו מהספירה.</p>
+  <p class="ext"><b>להרחבה:</b> אילו ספקים אחראים למוצרים שמתחת לסף?</p>
+</article>
+<h2 class="grp" id="g-open">שאלות עסקיות פתוחות</h2>
+<article class="q" id="q17">
+  <header><span class="qn">17</span><h3>אילו לקוחות הפסיקו להזמין?</h3><span class="lv lv3">מתקדם</span></header>
+  <p class="why">לקוח שלא הזמין זמן רב עלול לעבור למתחרה. החברה רוצה לזהות אותו בזמן.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>יש קבוצה של לקוחות שלא הזמינו יותר מ־90 יום לפני סוף הנתונים.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>לקוח (89)</dd></div>
+    
+    <div><dt>משתנה תלוי</dt><dd>ימים מאז ההזמנה האחרונה</dd></div>
+    <div><dt>טבלאות</dt><dd><code>customers</code> <code>orders</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> c.company_name, c.country,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> orders,
+       <span class="fn">MAX</span>(o.order_date) <span class="kw">AS</span> last_order,
+       <span class="fn">julianday</span>(<span class="str">&#x27;2018-05-06&#x27;</span>) - <span class="fn">julianday</span>(<span class="fn">MAX</span>(o.order_date)) <span class="kw">AS</span> days_since
+<span class="kw">FROM</span> customers <span class="kw">AS</span> c
+<span class="kw">JOIN</span> orders <span class="kw">AS</span> o <span class="kw">ON</span> o.customer_id = c.customer_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> c.customer_id
+<span class="kw">ORDER</span> <span class="kw">BY</span> days_since <span class="kw">DESC</span>;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים לכל לקוח את תאריך ההזמנה האחרונה ואת מספר הימים עד 6 במאי 2018.</li><li>בוחרים סף (למשל 90 יום) ומונים כמה לקוחות עוברים אותו.</li><li>משווים את הלקוחות האלה לשאר: מספר הזמנות, סכום ממוצע ומדינה.</li><li>מנסחים המלצה: לאילו לקוחות כדאי לפנות.</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> הסף נקבע לפי שיקול דעת. נמקו אותו, למשל לפי הזמן הממוצע בין שתי הזמנות של אותו לקוח.</p>
+  <p class="ext"><b>להרחבה:</b> חשבו לכל לקוח את הזמן הממוצע בין הזמנות, וזהו לקוחות שהפער האחרון שלהם גדול פי שניים מהרגיל.</p>
+</article>
+<article class="q" id="q18">
+  <header><span class="qn">18</span><h3>אילו מוצרים כדאי להפסיק למכור?</h3><span class="lv lv3">מתקדם</span></header>
+  <p class="why">מוצר שכמעט לא נמכר תופס מלאי ומקום. השאלה בונה כלל להחלטה.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>יש מוצרים שגם המכירות שלהם וגם מספר ההזמנות שלהם נמוכים במיוחד.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>מוצר (77)</dd></div>
+    
+    <div><dt>משתנה תלוי</dt><dd>מכירות, יחידות ומספר הזמנות</dd></div>
+    <div><dt>טבלאות</dt><dd><code>products</code> <code>order_details</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> p.product_name, p.discontinued,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> od.order_id) <span class="kw">AS</span> orders,
+       <span class="fn">SUM</span>(od.quantity) <span class="kw">AS</span> units,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> sales
+<span class="kw">FROM</span> products <span class="kw">AS</span> p
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.product_id = p.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> p.product_id
+<span class="kw">ORDER</span> <span class="kw">BY</span> sales;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים לכל מוצר מכירות, יחידות ומספר הזמנות, וממיינים מהנמוך.</li><li>קובעים כלל, למשל: ברבע התחתון גם במכירות וגם במספר ההזמנות.</li><li>משווים את הרשימה למוצרים שכבר הופסקו (discontinued = 1). האם החברה קיבלה החלטות דומות?</li><li>מנסחים המלצה ומסבירים את המגבלות.</li></ol></div>
+  </div>
+  <p class="watch"><b>שימו לב:</b> אין בנתונים עלות ולכן אין רווח. מוצר עם מכירות נמוכות יכול להיות רווחי מאוד. כתבו את זה כמגבלה.</p>
+  <p class="ext"><b>להרחבה:</b> האם מוצרים שנמכרים מעט נמכרים בעיקר עם הנחה?</p>
+</article>
+
+  <section class="box">
+    <h2>מגבלות של הנתונים</h2>
+    <p>בכל עבודה צריך לכתוב מה הנתונים לא מאפשרים לדעת. אלה המגבלות העיקריות של Northwind:</p>
+    <ul>
+      <li><b>הנתונים בדיוניים.</b> Microsoft בנתה אותם לתרגול. אפשר להסיק מסקנות על החברה הזאת, לא על העולם.</li>
+      <li><b>חלק מהקבוצות קטנות:</b> 9 עובדים, 3 חברות משלוחים ו־8 קטגוריות. בקבוצה קטנה ערך אחד יכול לשנות את התוצאה.</li>
+      <li><b>אין עלויות ואין רווח.</b> יש רק מחירי מכירה. אפשר לשאול מה נמכר הכי הרבה, לא מה הכי רווחי.</li>
+      <li><b>אין מידע על הלקוחות</b> מעבר למיקום ולתפקיד של איש הקשר: אין גודל עסק ואין תאריך הצטרפות.</li>
+      <li><b>שנים חלקיות.</b> הנתונים מתחילים ב־4 ביולי 2016 ונגמרים ב־6 במאי 2018. רק 2017 היא שנה מלאה.</li>
+      <li><b>קשר אינו סיבה.</b> מתאם בין שני משתנים לא מוכיח שאחד גורם לשני.</li>
+      <li><b>נתונים שצריך לנקות:</b> שתי שורות בדיקה בטבלת customers (<code>VALON</code>, <code>Val2 </code>), רווחים מיותרים (<code>Sweden </code>), ו־21 הזמנות בלי <code>shipped_date</code>.</li>
+    </ul>
+  </section>
+
+  <section class="box">
+    <h2>טופס הצעת מחקר</h2>
+    <p>ממלאים לפני שמתחילים לעבוד, ומגישים למורה לאישור.</p>
+    <table class="tpl">
+      <tr><th>שאלת המחקר</th><td></td></tr>
+      <tr><th>ההשערה ולמה</th><td></td></tr>
+      <tr><th>יחידת התצפית ומספר התצפיות</th><td></td></tr>
+      <tr><th>משתנה בלתי תלוי</th><td></td></tr>
+      <tr><th>משתנה תלוי</th><td></td></tr>
+      <tr><th>הטבלאות</th><td></td></tr>
+      <tr><th>שיטת הניתוח</th><td></td></tr>
+      <tr><th>מגבלות צפויות</th><td></td></tr>
+    </table>
+  </section>
+</div>
+</div>
+</body>
+</html>
