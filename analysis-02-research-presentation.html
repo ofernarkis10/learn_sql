@@ -186,7 +186,7 @@ h2.big { font-size: 60px; line-height: 1.12; max-width: 1300px; }
 .tabs code { font-size: 18px; }
 .slide.calc .in { gap: 18px; padding-top: 52px; }
 .slide.calc h2 { font-size: 36px; }
-.calc { display: grid; grid-template-columns: 1.05fr 1fr; gap: 32px; align-items: start; flex: 1; min-height: 0; }
+.calcgrid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 32px; align-items: start; flex: 1; min-height: 0; }
 .sqlcol { min-width: 0; }
 pre.sql { margin: 0; direction: ltr; text-align: left; background: #172033; color: #E7EBF2; border-radius: 10px; padding: 16px 18px; font-family: var(--font-mono); font-size: 14.5px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
 pre.sql code { background: none; padding: 0; color: inherit; font-size: inherit; white-space: inherit; }
@@ -266,7 +266,7 @@ table.sum td.n { font-family: var(--font-display); font-weight: 700; color: var(
 <section class="slide calc" id="a1" data-n="4"><div class="in">
 <div class="eyebrow">שאלה 1 · החישוב</div>
 <h2>האם דמי המשלוח תלויים בסכום ההזמנה?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
   <span class="kw">SELECT</span> o.order_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> x, o.freight <span class="kw">AS</span> y
   <span class="kw">FROM</span> orders <span class="kw">AS</span> o
@@ -296,7 +296,7 @@ table.sum td.n { font-family: var(--font-display); font-weight: 700; color: var(
 <section class="slide calc" id="a2" data-n="6"><div class="in">
 <div class="eyebrow">שאלה 2 · החישוב</div>
 <h2>האם הנחה גדולה יותר גורמת ללקוחות לקנות כמות גדולה יותר?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">SELECT</span> <span class="fn">AVG</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> discount &gt; <span class="num">0</span> <span class="kw">THEN</span> quantity <span class="kw">END</span>) <span class="kw">AS</span> mean_q_disc,
        <span class="fn">AVG</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> discount = <span class="num">0</span> <span class="kw">THEN</span> quantity <span class="kw">END</span>) <span class="kw">AS</span> mean_q_full,
        (<span class="fn">AVG</span>(discount * quantity) - <span class="fn">AVG</span>(discount) * <span class="fn">AVG</span>(quantity))
@@ -315,7 +315,7 @@ table.sum td.n { font-family: var(--font-display); font-weight: 700; color: var(
 <section class="slide calc" id="a3" data-n="8"><div class="in">
 <div class="eyebrow">שאלה 3 · החישוב</div>
 <h2>האם מוצרים זולים נמכרים ביותר יחידות?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
   <span class="kw">SELECT</span> p.product_id, p.unit_price <span class="kw">AS</span> x, <span class="fn">SUM</span>(od.quantity) <span class="kw">AS</span> y
   <span class="kw">FROM</span> products <span class="kw">AS</span> p
@@ -344,7 +344,7 @@ table.sum td.n { font-family: var(--font-display); font-weight: 700; color: var(
 <section class="slide calc" id="a4" data-n="10"><div class="in">
 <div class="eyebrow">שאלה 4 · החישוב</div>
 <h2>האם לקוחות שמזמינים הרבה פעמים מזמינים גם הזמנות גדולות יותר?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
   <span class="kw">SELECT</span> o.customer_id,
          <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> x,
@@ -376,7 +376,7 @@ table.sum td.n { font-family: var(--font-display); font-weight: 700; color: var(
 <section class="slide calc" id="a5" data-n="12"><div class="in">
 <div class="eyebrow">שאלה 5 · החישוב</div>
 <h2>האם הזמנות יקרות נשלחות מהר יותר?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
   <span class="kw">SELECT</span> o.order_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> x,
          <span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date) <span class="kw">AS</span> y
@@ -408,7 +408,7 @@ table.sum td.n { font-family: var(--font-display); font-weight: 700; color: var(
 <section class="slide calc" id="a6" data-n="14"><div class="in">
 <div class="eyebrow">שאלה 6 · החישוב</div>
 <h2>איזו חברת משלוחים מהירה ועקבית יותר?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">SELECT</span> s.company_name,
        <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
        <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date)), <span class="num">2</span>) <span class="kw">AS</span> mean_d,
@@ -434,7 +434,7 @@ table.sum td.n { font-family: var(--font-display); font-weight: 700; color: var(
 <section class="slide calc" id="a7" data-n="16"><div class="in">
 <div class="eyebrow">שאלה 7 · החישוב</div>
 <h2>האם המשרד בסיאטל מוכר יותר מהמשרד בלונדון?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">SELECT</span> e.country <span class="kw">AS</span> office,
        <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> e.employee_id) <span class="kw">AS</span> emp,
        <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> orders,
@@ -458,7 +458,7 @@ table.sum td.n { font-family: var(--font-display); font-weight: 700; color: var(
 <section class="slide calc" id="a8" data-n="18"><div class="in">
 <div class="eyebrow">שאלה 8 · החישוב</div>
 <h2>באילו מדינות הלקוחות מזמינים הזמנות גדולות יותר?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
   <span class="kw">SELECT</span> c.country, o.order_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> x
   <span class="kw">FROM</span> customers <span class="kw">AS</span> c
@@ -485,7 +485,7 @@ table.sum td.n { font-family: var(--font-display); font-weight: 700; color: var(
 <section class="slide calc" id="a9" data-n="20"><div class="in">
 <div class="eyebrow">שאלה 9 · החישוב</div>
 <h2>האם החברה נותנת יותר הנחות בקטגוריות מסוימות?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">SELECT</span> c.category_name,
        <span class="fn">ROUND</span>(<span class="fn">AVG</span>(od.discount), <span class="num">3</span>) <span class="kw">AS</span> avg_disc,
        <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">AVG</span>(od.discount &gt; <span class="num">0</span>), <span class="num">1</span>) <span class="kw">AS</span> pct_disc,
@@ -507,7 +507,7 @@ table.sum td.n { font-family: var(--font-display); font-weight: 700; color: var(
 <section class="slide calc" id="a10" data-n="22"><div class="in">
 <div class="eyebrow">שאלה 10 · החישוב</div>
 <h2>איזו חברת משלוחים מאחרת יותר?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">SELECT</span> s.company_name,
        <span class="fn">COUNT</span>(*) <span class="kw">AS</span> shipped,
        <span class="fn">SUM</span>(o.shipped_date &gt; o.required_date) <span class="kw">AS</span> late,
@@ -531,7 +531,7 @@ table.sum td.n { font-family: var(--font-display); font-weight: 700; color: var(
 <section class="slide calc" id="a11" data-n="24"><div class="in">
 <div class="eyebrow">שאלה 11 · החישוב</div>
 <h2>האם המכירות של Northwind גדלות לאורך הזמן?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
   <span class="kw">SELECT</span> (<span class="fn">YEAR</span>(o.order_date) - <span class="num">2016</span>) * <span class="num">12</span> + <span class="fn">MONTH</span>(o.order_date) - <span class="num">6</span> <span class="kw">AS</span> x,
          <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> y
@@ -563,7 +563,7 @@ table.sum td.n { font-family: var(--font-display); font-weight: 700; color: var(
 <section class="slide calc" id="a12" data-n="26"><div class="in">
 <div class="eyebrow">שאלה 12 · החישוב</div>
 <h2>האם יש חודשים חזקים יותר בשנה?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">SELECT</span> <span class="fn">MONTH</span>(order_date) <span class="kw">AS</span> month,
        <span class="fn">COUNT</span>(*) <span class="kw">AS</span> orders,
        <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="fn">YEAR</span>(order_date)) <span class="kw">AS</span> years,
@@ -584,7 +584,7 @@ table.sum td.n { font-family: var(--font-display); font-weight: 700; color: var(
 <section class="slide calc" id="a13" data-n="28"><div class="in">
 <div class="eyebrow">שאלה 13 · החישוב</div>
 <h2>האם החברה ממשיכה להשיג לקוחות חדשים?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> first <span class="kw">AS</span> (
   <span class="kw">SELECT</span> customer_id, <span class="fn">MIN</span>(order_date) <span class="kw">AS</span> first_order
   <span class="kw">FROM</span> orders
@@ -608,7 +608,7 @@ table.sum td.n { font-family: var(--font-display); font-weight: 700; color: var(
 <section class="slide calc" id="a14" data-n="30"><div class="in">
 <div class="eyebrow">שאלה 14 · החישוב</div>
 <h2>האם הסכום של הזמנה מתפלג נורמלית?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
   <span class="kw">SELECT</span> o.order_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> x
   <span class="kw">FROM</span> orders <span class="kw">AS</span> o
@@ -635,7 +635,7 @@ s <span class="kw">AS</span> (<span class="kw">SELECT</span> <span class="fn">AV
 <section class="slide calc" id="a15" data-n="32"><div class="in">
 <div class="eyebrow">שאלה 15 · החישוב</div>
 <h2>האם מעט לקוחות אחראים לרוב המכירות?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
   <span class="kw">SELECT</span> o.customer_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> sales
   <span class="kw">FROM</span> orders <span class="kw">AS</span> o
@@ -661,7 +661,7 @@ r <span class="kw">AS</span> (<span class="kw">SELECT</span> sales, <span class=
 <section class="slide calc" id="a16" data-n="34"><div class="in">
 <div class="eyebrow">שאלה 16 · החישוב</div>
 <h2>באילו קטגוריות יש בעיית מלאי?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">SELECT</span> c.category_name,
        <span class="fn">COUNT</span>(*) <span class="kw">AS</span> products,
        <span class="fn">SUM</span>(p.units_in_stock &lt; p.reorder_level) <span class="kw">AS</span> below,
@@ -684,7 +684,7 @@ r <span class="kw">AS</span> (<span class="kw">SELECT</span> sales, <span class=
 <section class="slide calc" id="a17" data-n="36"><div class="in">
 <div class="eyebrow">שאלה 17 · החישוב</div>
 <h2>אילו לקוחות הפסיקו להזמין?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
   <span class="kw">SELECT</span> customer_id, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
          <span class="fn">julianday</span>(<span class="str">&#x27;2018-05-06&#x27;</span>) - <span class="fn">julianday</span>(<span class="fn">MAX</span>(order_date)) <span class="kw">AS</span> since,
@@ -711,7 +711,7 @@ r <span class="kw">AS</span> (<span class="kw">SELECT</span> sales, <span class=
 <section class="slide calc" id="a18" data-n="38"><div class="in">
 <div class="eyebrow">שאלה 18 · החישוב</div>
 <h2>אילו מוצרים כדאי להפסיק למכור?</h2>
-<div class="calc">
+<div class="calcgrid">
   <div class="sqlcol"><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
   <span class="kw">SELECT</span> p.product_name, p.discontinued,
          <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> od.order_id) <span class="kw">AS</span> orders,
