@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>מבחן SQL אמריקאי</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a printable multiple-choice test. Answer grid on top, then one block per question. */
+:root {
+  --bg: #EEF1F5; --sheet: #FCFCFD; --ink: #172033; --muted: #556074; --line: #D6DBE3; --head: #E4E9F1;
+  --accent: #2457C5; --ok: #2E7D4F; --ok-soft: #E3F1E8;
+  --c-k: #2457C5; --c-f: #A0307A; --c-s: #2E7D4F; --c-d: #0F7A75;
+  --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --font-body: "Assistant", "Arial Hebrew", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --head: #1F2836; --accent: #84A9FF;
+    --ok: #7FD3A0; --ok-soft: #1C3226; --c-k: #8DB2FF; --c-f: #F3A6D5; --c-s: #A8E6A3; --c-d: #9FE3D6; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --head: #1F2836; --accent: #84A9FF;
+  --ok: #7FD3A0; --ok-soft: #1C3226; --c-k: #8DB2FF; --c-f: #F3A6D5; --c-s: #A8E6A3; --c-d: #9FE3D6; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+/* project rule: show >=, <=, <>, != as separate characters (no font ligatures) */
+* { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.5; }
+.wrap { max-width: 1100px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sheet { background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; padding: clamp(18px, 3vw, 40px); display: flex; flex-direction: column; gap: 18px; }
+header { display: flex; flex-direction: column; gap: 10px; border-bottom: 3px double var(--line); padding-bottom: 16px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 3.6vw, 40px); line-height: 1.15; margin: 0; }
+.sub { margin: 0; color: var(--muted); }
+bdi { font-family: var(--font-mono); font-size: .86em; }
+.who { display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 600; }
+.who span { display: flex; align-items: baseline; gap: 8px; flex: 1; min-width: 180px; }
+.who i { flex: 1; border-bottom: 1px solid var(--ink); height: 1.2em; }
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.grid div { display: flex; flex-direction: column; align-items: center; border-inline-start: 1px solid var(--line); border-top: 1px solid var(--line); }
+.grid div:nth-child(12n+1) { border-inline-start: 0; }
+.grid div:nth-child(-n+12) { border-top: 0; }
+.grid b { width: 100%; text-align: center; background: var(--head); font-family: var(--font-display); font-size: 14px; padding: 2px 0; }
+.grid span { height: 34px; display: flex; align-items: center; font-family: var(--font-display); font-weight: 700; font-size: 20px; }
+.grid.key span { color: var(--ok); }
+h2.stage { font-family: var(--font-display); font-weight: 500; font-size: 24px; margin: 18px 0 0; display: flex; gap: 12px; align-items: baseline; break-after: avoid; }
+h2.stage span { font-size: 14px; font-weight: 700; color: var(--accent); letter-spacing: .04em; }
+.sinfo { margin: -10px 0 0; color: var(--muted); break-after: avoid; }
+.q { border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; break-inside: avoid; }
+.qhead { display: flex; gap: 14px; align-items: baseline; }
+.qn { font-family: var(--font-display); font-weight: 700; font-size: 26px; color: var(--accent); min-width: 32px; font-variant-numeric: tabular-nums; }
+.qt { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: clamp(18px, 2vw, 21px); line-height: 1.4; }
+pre.sql { margin: 0; direction: ltr; text-align: left; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+pre.code { background: var(--head); border-radius: 6px; padding: 10px 14px; font-size: 14.5px; }
+.k { color: var(--c-k); font-weight: 600; } .f { color: var(--c-f); } .s { color: var(--c-s); } .d { color: var(--c-d); }
+.res { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.rl { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: .03em; }
+.res table { direction: ltr; border-collapse: collapse; font-size: 14.5px; font-variant-numeric: tabular-nums; border: 1px solid var(--line); }
+.res th { font-family: var(--font-mono); font-weight: 600; font-size: 13px; background: var(--head); padding: 4px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+.res td { padding: 3px 12px; border-top: 1px solid var(--line); font-family: var(--font-mono); font-size: 13.5px; }
+.res .n { text-align: right; }
+.opts { display: grid; gap: 10px; }
+.opts.two { grid-template-columns: 1fr 1fr; }
+.opt { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; min-width: 0; }
+.opt.ok { border-color: var(--ok); background: var(--ok-soft); box-shadow: inset 0 0 0 1px var(--ok); }
+.ol { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--ink); display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 15px; line-height: 1; }
+.opt.ok .ol { background: var(--ok); border-color: var(--ok); color: var(--sheet); }
+.opt pre.sql { flex: 1; min-width: 0; }
+.ot { line-height: 1.45; padding-top: 1px; }
+.mark { margin: 0; color: var(--muted); font-weight: 600; display: none; }
+.why { border-inline-start: 4px solid var(--ok); background: var(--ok-soft); border-radius: 6px; padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
+.why p { margin: 0; }
+.ans { font-family: var(--font-display); font-weight: 700; color: var(--ok); }
+.kr { font-size: 15.5px; }
+@media (max-width: 760px) {
+  .opts.two { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: repeat(6, 1fr); }
+  .grid div:nth-child(12n+1) { border-inline-start: 1px solid var(--line); }
+  .grid div:nth-child(6n+1) { border-inline-start: 0; }
+  .grid div:nth-child(-n+12) { border-top: 1px solid var(--line); }
+  .grid div:nth-child(-n+6) { border-top: 0; }
+}
+@media print {
+  @page { size: A4; margin: 12mm; }
+  body { background: none; font-size: 13px; }
+  .wrap { padding: 0; max-width: none; }
+  .sheet { border: 0; padding: 0; gap: 10px; }
+  .q { padding: 10px 12px; gap: 8px; }
+  .qn { font-size: 20px; } .qt { font-size: 15px; }
+  pre.sql { font-size: 10.5px; } pre.code { font-size: 11px; }
+  .opts { gap: 6px; } .opt { padding: 5px 8px; }
+  .opts.p2 { grid-template-columns: 1fr 1fr; }
+  pre.sql { font-size: 10px; }
+  .ol { width: 20px; height: 20px; font-size: 12px; }
+  h2.stage { font-size: 18px; margin-top: 8px; }
+  .back, #fs-slot, .fs-ctl { display: none !important; }
+}
+
+.nw { white-space: nowrap; }
+
+</style>
+<style>
+/* Back link to the tests list */
+.site-back{color:var(--accent);font-family:var(--font-body,"Assistant","Arial Hebrew",Arial,sans-serif);font-weight:600;font-size:15px;text-decoration:none;width:fit-content;white-space:nowrap}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.wrap > .site-back{display:block;margin-bottom:12px}
+@media print{.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="wrap" dir="rtl">
+  <a class="site-back" href="tests.html">→ חזרה לרשימת המבחנים</a>
+<div class="sheet">
+  <header>
+    <h1>מבחן SQL אמריקאי</h1>
+    <div class="who"><span>שם: <i></i></span><span>כיתה: <i></i></span><span>תאריך: <i></i></span></div>
+<p class="sub">24 שאלות אמריקאיות על Northwind באתר <bdi dir="ltr">sql-practice.com</bdi> (<bdi dir="ltr">northwind.db</bdi>). לכל שאלה יש תשובה נכונה אחת. כתבו את האות של התשובה בטבלה. הנושאים: <bdi dir="ltr">SELECT</bdi>, סינון עם <bdi dir="ltr">WHERE</bdi> ו־<bdi dir="ltr">HAVING</bdi>, <bdi dir="ltr">GROUP BY</bdi> ו־<bdi dir="ltr">JOIN</bdi>.</p>
+<p class="sub">תזכורת: האתר עובד עם <bdi dir="ltr">SQLite</bdi>. <bdi dir="ltr">YEAR(date)</bdi> מחזירה את השנה של תאריך.</p>
+<div class="grid"><div><b>1</b><span></span></div><div><b>2</b><span></span></div><div><b>3</b><span></span></div><div><b>4</b><span></span></div><div><b>5</b><span></span></div><div><b>6</b><span></span></div><div><b>7</b><span></span></div><div><b>8</b><span></span></div><div><b>9</b><span></span></div><div><b>10</b><span></span></div><div><b>11</b><span></span></div><div><b>12</b><span></span></div><div><b>13</b><span></span></div><div><b>14</b><span></span></div><div><b>15</b><span></span></div><div><b>16</b><span></span></div><div><b>17</b><span></span></div><div><b>18</b><span></span></div><div><b>19</b><span></span></div><div><b>20</b><span></span></div><div><b>21</b><span></span></div><div><b>22</b><span></span></div><div><b>23</b><span></span></div><div><b>24</b><span></span></div></div>
+  </header>
+<h2 class="stage"><span>חלק א׳</span>איזו שאילתה מחזירה את הרשימה?</h2><p class="sinfo">בכל שאלה מתוארת רשימה. רק אחת מהשאילתות מחזירה אותה. בחרו אותה.</p>
+<section class="q" id="q1"><div class="qhead"><span class="qn">1</span><p class="qt">הרשימה המבוקשת: לכל חברת משלוחים, השם שלה ומספר ההזמנות שהיא שלחה. איזו שאילתה מחזירה את הרשימה הזאת?</p></div><div class="opts one sql"><div class="opt"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> company_name, <span class="f">COUNT</span>(*) <span class="k">AS</span> orders
+<span class="k">FROM</span> shippers
+<span class="k">GROUP</span> <span class="k">BY</span> company_name;</pre></div><div class="opt"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">COUNT</span>(*) <span class="k">AS</span> orders
+<span class="k">FROM</span> shippers <span class="k">AS</span> s
+<span class="k">JOIN</span> orders <span class="k">AS</span> o <span class="k">ON</span> o.ship_via = s.shipper_id
+<span class="k">GROUP</span> <span class="k">BY</span> s.company_name;</pre></div><div class="opt"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">SUM</span>(o.order_id) <span class="k">AS</span> orders
+<span class="k">FROM</span> shippers <span class="k">AS</span> s
+<span class="k">JOIN</span> orders <span class="k">AS</span> o <span class="k">ON</span> o.ship_via = s.shipper_id
+<span class="k">GROUP</span> <span class="k">BY</span> s.company_name;</pre></div><div class="opt"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">COUNT</span>(*) <span class="k">AS</span> orders
+<span class="k">FROM</span> shippers <span class="k">AS</span> s
+<span class="k">JOIN</span> orders <span class="k">AS</span> o <span class="k">ON</span> o.ship_via = s.shipper_id;</pre></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q2"><div class="qhead"><span class="qn">2</span><p class="qt">הרשימה המבוקשת: הלקוחות מבריטניה שגרים בלונדון. איזו שאילתה מחזירה את הרשימה הזאת?</p></div><div class="opts two p2 sql"><div class="opt"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> company_name
+<span class="k">FROM</span> customers
+<span class="k">WHERE</span> country = <span class="s">&#x27;UK&#x27;</span> <span class="k">AND</span> city = <span class="s">&#x27;London&#x27;</span>;</pre></div><div class="opt"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> company_name
+<span class="k">FROM</span> customers
+<span class="k">WHERE</span> country = <span class="s">&#x27;UK&#x27;</span> <span class="k">OR</span> city = <span class="s">&#x27;London&#x27;</span>;</pre></div><div class="opt"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> company_name
+<span class="k">FROM</span> customers
+<span class="k">WHERE</span> country = <span class="s">&#x27;London&#x27;</span> <span class="k">AND</span> city = <span class="s">&#x27;UK&#x27;</span>;</pre></div><div class="opt"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> company_name
+<span class="k">FROM</span> customers
+<span class="k">WHERE</span> country = <span class="s">&#x27;UK&#x27;</span>;</pre></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q3"><div class="qhead"><span class="qn">3</span><p class="qt">הרשימה המבוקשת: הקטגוריות שיש בהן יותר מ־10 מוצרים, עם מספר המוצרים בכל אחת. איזו שאילתה מחזירה את הרשימה הזאת?</p></div><div class="opts one sql"><div class="opt"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> c.category_name, <span class="f">COUNT</span>(*) <span class="k">AS</span> products
+<span class="k">FROM</span> categories <span class="k">AS</span> c
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.category_id = c.category_id
+<span class="k">WHERE</span> <span class="f">COUNT</span>(*) &gt; <span class="d">10</span>
+<span class="k">GROUP</span> <span class="k">BY</span> c.category_name;</pre></div><div class="opt"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> c.category_name, <span class="f">COUNT</span>(*) <span class="k">AS</span> products
+<span class="k">FROM</span> categories <span class="k">AS</span> c
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.category_id = c.category_id
+<span class="k">GROUP</span> <span class="k">BY</span> c.category_name
+<span class="k">HAVING</span> <span class="f">COUNT</span>(*) &lt; <span class="d">10</span>;</pre></div><div class="opt"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> c.category_name, <span class="f">COUNT</span>(*) <span class="k">AS</span> products
+<span class="k">FROM</span> categories <span class="k">AS</span> c
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.category_id = c.category_id
+<span class="k">GROUP</span> <span class="k">BY</span> c.category_name;</pre></div><div class="opt"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> c.category_name, <span class="f">COUNT</span>(*) <span class="k">AS</span> products
+<span class="k">FROM</span> categories <span class="k">AS</span> c
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.category_id = c.category_id
+<span class="k">GROUP</span> <span class="k">BY</span> c.category_name
+<span class="k">HAVING</span> <span class="f">COUNT</span>(*) &gt; <span class="d">10</span>;</pre></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q4"><div class="qhead"><span class="qn">4</span><p class="qt">הרשימה המבוקשת: שלוש המדינות שיש בהן הכי הרבה לקוחות, מהגדולה לקטנה. איזו שאילתה מחזירה את הרשימה הזאת?</p></div><div class="opts two p2 sql"><div class="opt"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> country, <span class="f">COUNT</span>(*) <span class="k">AS</span> customers
+<span class="k">FROM</span> customers
+<span class="k">GROUP</span> <span class="k">BY</span> country
+<span class="k">ORDER</span> <span class="k">BY</span> customers
+<span class="k">LIMIT</span> <span class="d">3</span>;</pre></div><div class="opt"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> country, <span class="f">COUNT</span>(*) <span class="k">AS</span> customers
+<span class="k">FROM</span> customers
+<span class="k">GROUP</span> <span class="k">BY</span> country
+<span class="k">ORDER</span> <span class="k">BY</span> country <span class="k">DESC</span>
+<span class="k">LIMIT</span> <span class="d">3</span>;</pre></div><div class="opt"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> country, <span class="f">COUNT</span>(*) <span class="k">AS</span> customers
+<span class="k">FROM</span> customers
+<span class="k">GROUP</span> <span class="k">BY</span> country
+<span class="k">ORDER</span> <span class="k">BY</span> customers <span class="k">DESC</span>
+<span class="k">LIMIT</span> <span class="d">3</span>;</pre></div><div class="opt"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> country, <span class="f">COUNT</span>(*) <span class="k">AS</span> customers
+<span class="k">FROM</span> customers
+<span class="k">GROUP</span> <span class="k">BY</span> country
+<span class="k">ORDER</span> <span class="k">BY</span> customers <span class="k">DESC</span>;</pre></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q5"><div class="qhead"><span class="qn">5</span><p class="qt">הרשימה המבוקשת: לכל לקוח, מספר ההזמנות שהוא ביצע. איזו שאילתה מחזירה את הרשימה הזאת?</p></div><div class="opts one sql"><div class="opt"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> customer_id, <span class="f">COUNT</span>(*) <span class="k">AS</span> orders
+<span class="k">FROM</span> orders
+<span class="k">GROUP</span> <span class="k">BY</span> customer_id;</pre></div><div class="opt"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> customer_id, <span class="f">COUNT</span>(*) <span class="k">AS</span> orders
+<span class="k">FROM</span> orders
+<span class="k">GROUP</span> <span class="k">BY</span> order_id;</pre></div><div class="opt"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> customer_id, <span class="f">COUNT</span>(*) <span class="k">AS</span> orders
+<span class="k">FROM</span> orders;</pre></div><div class="opt"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> customer_id, <span class="f">COUNT</span>(<span class="k">DISTINCT</span> customer_id) <span class="k">AS</span> orders
+<span class="k">FROM</span> orders
+<span class="k">GROUP</span> <span class="k">BY</span> customer_id;</pre></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q6"><div class="qhead"><span class="qn">6</span><p class="qt">הרשימה המבוקשת: לכל מוצר, השם שלו וסך הכמות שנמכרה ממנו. איזו שאילתה מחזירה את הרשימה הזאת?</p></div><div class="opts one sql"><div class="opt"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> p.product_name, <span class="f">SUM</span>(od.quantity) <span class="k">AS</span> total_quantity
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.product_id = p.product_id
+<span class="k">GROUP</span> <span class="k">BY</span> od.order_id;</pre></div><div class="opt"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> p.product_name, <span class="f">COUNT</span>(od.quantity) <span class="k">AS</span> total_quantity
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.product_id = p.product_id
+<span class="k">GROUP</span> <span class="k">BY</span> p.product_id;</pre></div><div class="opt"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> p.product_name, <span class="f">AVG</span>(od.quantity) <span class="k">AS</span> total_quantity
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.product_id = p.product_id
+<span class="k">GROUP</span> <span class="k">BY</span> p.product_id;</pre></div><div class="opt"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> p.product_name, <span class="f">SUM</span>(od.quantity) <span class="k">AS</span> total_quantity
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.product_id = p.product_id
+<span class="k">GROUP</span> <span class="k">BY</span> p.product_id;</pre></div></div><p class="mark">תשובה: <span></span></p></section>
+<h2 class="stage"><span>חלק ב׳</span>משאלה מילולית לשאילתה</h2><p class="sinfo">בכל שאלה, כל ארבע השאילתות מחזירות עמודה עם אותו שם. השם מתאר את מה שהשאלה מבקשת. בחרו את השאילתה שבאמת מחשבת אותו.</p>
+<section class="q" id="q7"><div class="qhead"><span class="qn">7</span><p class="qt">כמה מוצרים בקטגוריה <bdi dir="ltr">Seafood</bdi> עדיין נמכרים (לא הופסקו)?</p></div><div class="opts one sql"><div class="opt"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> active_seafood_products
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> categories <span class="k">AS</span> c <span class="k">ON</span> c.category_id = p.category_id
+<span class="k">WHERE</span> c.category_name = <span class="s">&#x27;Seafood&#x27;</span> <span class="k">OR</span> p.discontinued = <span class="d">0</span>;</pre></div><div class="opt"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> active_seafood_products
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> categories <span class="k">AS</span> c <span class="k">ON</span> c.category_id = p.category_id
+<span class="k">WHERE</span> c.category_name = <span class="s">&#x27;Seafood&#x27;</span> <span class="k">AND</span> p.discontinued = <span class="d">1</span>;</pre></div><div class="opt"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> active_seafood_products
+<span class="k">FROM</span> categories
+<span class="k">WHERE</span> category_name = <span class="s">&#x27;Seafood&#x27;</span>;</pre></div><div class="opt"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> active_seafood_products
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> categories <span class="k">AS</span> c <span class="k">ON</span> c.category_id = p.category_id
+<span class="k">WHERE</span> c.category_name = <span class="s">&#x27;Seafood&#x27;</span> <span class="k">AND</span> p.discontinued = <span class="d">0</span>;</pre></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q8"><div class="qhead"><span class="qn">8</span><p class="qt">מה סך דמי המשלוח של ההזמנות שנשלחו לגרמניה בשנת 2017?</p></div><div class="opts one sql"><div class="opt"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> <span class="f">SUM</span>(freight) <span class="k">AS</span> germany_freight_2017
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> ship_country = <span class="s">&#x27;Germany&#x27;</span> <span class="k">AND</span> <span class="f">YEAR</span>(order_date) = <span class="d">2017</span>;</pre></div><div class="opt"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> <span class="f">AVG</span>(freight) <span class="k">AS</span> germany_freight_2017
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> ship_country = <span class="s">&#x27;Germany&#x27;</span> <span class="k">AND</span> <span class="f">YEAR</span>(order_date) = <span class="d">2017</span>;</pre></div><div class="opt"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> <span class="f">SUM</span>(freight) <span class="k">AS</span> germany_freight_2017
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> ship_country = <span class="s">&#x27;Germany&#x27;</span> <span class="k">OR</span> <span class="f">YEAR</span>(order_date) = <span class="d">2017</span>;</pre></div><div class="opt"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(freight) <span class="k">AS</span> germany_freight_2017
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> ship_country = <span class="s">&#x27;Germany&#x27;</span> <span class="k">AND</span> <span class="f">YEAR</span>(order_date) = <span class="d">2017</span>;</pre></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q9"><div class="qhead"><span class="qn">9</span><p class="qt">כמה הזמנות נשלחו עם חברת המשלוחים <bdi dir="ltr">United Package</bdi>?</p></div><div class="opts one sql"><div class="opt"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> united_package_orders
+<span class="k">FROM</span> shippers
+<span class="k">WHERE</span> company_name = <span class="s">&#x27;United Package&#x27;</span>;</pre></div><div class="opt"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> united_package_orders
+<span class="k">FROM</span> orders <span class="k">AS</span> o
+<span class="k">JOIN</span> shippers <span class="k">AS</span> s <span class="k">ON</span> s.shipper_id = o.ship_via
+<span class="k">WHERE</span> s.company_name = <span class="s">&#x27;United Package&#x27;</span>;</pre></div><div class="opt"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(<span class="k">DISTINCT</span> o.customer_id) <span class="k">AS</span> united_package_orders
+<span class="k">FROM</span> orders <span class="k">AS</span> o
+<span class="k">JOIN</span> shippers <span class="k">AS</span> s <span class="k">ON</span> s.shipper_id = o.ship_via
+<span class="k">WHERE</span> s.company_name = <span class="s">&#x27;United Package&#x27;</span>;</pre></div><div class="opt"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> <span class="f">SUM</span>(o.freight) <span class="k">AS</span> united_package_orders
+<span class="k">FROM</span> orders <span class="k">AS</span> o
+<span class="k">JOIN</span> shippers <span class="k">AS</span> s <span class="k">ON</span> s.shipper_id = o.ship_via
+<span class="k">WHERE</span> s.company_name = <span class="s">&#x27;United Package&#x27;</span>;</pre></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q10"><div class="qhead"><span class="qn">10</span><p class="qt">כמה מוצרים שונים הזמין אי פעם הלקוח <bdi dir="ltr">ALFKI</bdi>?</p></div><div class="opts one sql"><div class="opt"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> alfki_distinct_products
+<span class="k">FROM</span> orders <span class="k">AS</span> o
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.order_id = o.order_id
+<span class="k">WHERE</span> o.customer_id = <span class="s">&#x27;ALFKI&#x27;</span>;</pre></div><div class="opt"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(<span class="k">DISTINCT</span> o.order_id) <span class="k">AS</span> alfki_distinct_products
+<span class="k">FROM</span> orders <span class="k">AS</span> o
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.order_id = o.order_id
+<span class="k">WHERE</span> o.customer_id = <span class="s">&#x27;ALFKI&#x27;</span>;</pre></div><div class="opt"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> <span class="f">SUM</span>(od.quantity) <span class="k">AS</span> alfki_distinct_products
+<span class="k">FROM</span> orders <span class="k">AS</span> o
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.order_id = o.order_id
+<span class="k">WHERE</span> o.customer_id = <span class="s">&#x27;ALFKI&#x27;</span>;</pre></div><div class="opt"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(<span class="k">DISTINCT</span> od.product_id) <span class="k">AS</span> alfki_distinct_products
+<span class="k">FROM</span> orders <span class="k">AS</span> o
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.order_id = o.order_id
+<span class="k">WHERE</span> o.customer_id = <span class="s">&#x27;ALFKI&#x27;</span>;</pre></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q11"><div class="qhead"><span class="qn">11</span><p class="qt">אילו לקוחות ביצעו יותר מ־20 הזמנות, וכמה הזמנות ביצע כל אחד?</p></div><div class="opts two p2 sql"><div class="opt"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> customer_id, <span class="f">COUNT</span>(*) <span class="k">AS</span> orders_count
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> <span class="f">COUNT</span>(*) &gt; <span class="d">20</span>
+<span class="k">GROUP</span> <span class="k">BY</span> customer_id;</pre></div><div class="opt"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> customer_id, <span class="f">COUNT</span>(*) <span class="k">AS</span> orders_count
+<span class="k">FROM</span> orders
+<span class="k">GROUP</span> <span class="k">BY</span> customer_id
+<span class="k">HAVING</span> <span class="f">COUNT</span>(*) &gt; <span class="d">20</span>;</pre></div><div class="opt"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> customer_id, <span class="f">COUNT</span>(*) <span class="k">AS</span> orders_count
+<span class="k">FROM</span> orders
+<span class="k">GROUP</span> <span class="k">BY</span> customer_id
+<span class="k">ORDER</span> <span class="k">BY</span> orders_count <span class="k">DESC</span>
+<span class="k">LIMIT</span> <span class="d">20</span>;</pre></div><div class="opt"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> customer_id, <span class="f">COUNT</span>(*) <span class="k">AS</span> orders_count
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> order_id &gt; <span class="d">20</span>
+<span class="k">GROUP</span> <span class="k">BY</span> customer_id;</pre></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q12"><div class="qhead"><span class="qn">12</span><p class="qt">לכל חברת משלוחים: מה סך דמי המשלוח של ההזמנות שנשלחו לצרפת?</p></div><div class="opts one sql"><div class="opt"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">ROUND</span>(<span class="f">AVG</span>(o.freight), <span class="d">2</span>) <span class="k">AS</span> france_freight
+<span class="k">FROM</span> shippers <span class="k">AS</span> s
+<span class="k">JOIN</span> orders <span class="k">AS</span> o <span class="k">ON</span> o.ship_via = s.shipper_id
+<span class="k">WHERE</span> o.ship_country = <span class="s">&#x27;France&#x27;</span>
+<span class="k">GROUP</span> <span class="k">BY</span> s.company_name;</pre></div><div class="opt"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">ROUND</span>(<span class="f">SUM</span>(o.freight), <span class="d">2</span>) <span class="k">AS</span> france_freight
+<span class="k">FROM</span> shippers <span class="k">AS</span> s
+<span class="k">JOIN</span> orders <span class="k">AS</span> o <span class="k">ON</span> o.ship_via = s.shipper_id
+<span class="k">GROUP</span> <span class="k">BY</span> s.company_name;</pre></div><div class="opt"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">ROUND</span>(<span class="f">SUM</span>(o.freight), <span class="d">2</span>) <span class="k">AS</span> france_freight
+<span class="k">FROM</span> shippers <span class="k">AS</span> s
+<span class="k">JOIN</span> orders <span class="k">AS</span> o <span class="k">ON</span> o.ship_via = s.shipper_id
+<span class="k">WHERE</span> o.ship_country = <span class="s">&#x27;France&#x27;</span>
+<span class="k">GROUP</span> <span class="k">BY</span> s.company_name;</pre></div><div class="opt"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> o.ship_country, <span class="f">ROUND</span>(<span class="f">SUM</span>(o.freight), <span class="d">2</span>) <span class="k">AS</span> france_freight
+<span class="k">FROM</span> shippers <span class="k">AS</span> s
+<span class="k">JOIN</span> orders <span class="k">AS</span> o <span class="k">ON</span> o.ship_via = s.shipper_id
+<span class="k">WHERE</span> o.ship_country = <span class="s">&#x27;France&#x27;</span>
+<span class="k">GROUP</span> <span class="k">BY</span> o.ship_country;</pre></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q13"><div class="qhead"><span class="qn">13</span><p class="qt">מה המחיר הממוצע של מוצר בכל קטגוריה, מעוגל לשתי ספרות, מהגבוה לנמוך?</p></div><div class="opts one sql"><div class="opt"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> c.category_name, <span class="f">ROUND</span>(<span class="f">AVG</span>(p.unit_price), <span class="d">2</span>) <span class="k">AS</span> avg_unit_price
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> categories <span class="k">AS</span> c <span class="k">ON</span> c.category_id = p.category_id
+<span class="k">GROUP</span> <span class="k">BY</span> c.category_name
+<span class="k">ORDER</span> <span class="k">BY</span> avg_unit_price <span class="k">DESC</span>;</pre></div><div class="opt"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> c.category_name, <span class="f">AVG</span>(<span class="f">ROUND</span>(p.unit_price, <span class="d">2</span>)) <span class="k">AS</span> avg_unit_price
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> categories <span class="k">AS</span> c <span class="k">ON</span> c.category_id = p.category_id
+<span class="k">ORDER</span> <span class="k">BY</span> avg_unit_price <span class="k">DESC</span>;</pre></div><div class="opt"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> c.category_name, <span class="f">ROUND</span>(<span class="f">AVG</span>(p.unit_price), <span class="d">2</span>) <span class="k">AS</span> avg_unit_price
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> categories <span class="k">AS</span> c <span class="k">ON</span> c.category_id = p.category_id
+<span class="k">GROUP</span> <span class="k">BY</span> c.category_name
+<span class="k">ORDER</span> <span class="k">BY</span> c.category_name <span class="k">DESC</span>;</pre></div><div class="opt"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> c.category_name, <span class="f">ROUND</span>(<span class="f">SUM</span>(p.unit_price) / <span class="d">8</span>, <span class="d">2</span>) <span class="k">AS</span> avg_unit_price
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> categories <span class="k">AS</span> c <span class="k">ON</span> c.category_id = p.category_id
+<span class="k">GROUP</span> <span class="k">BY</span> c.category_name
+<span class="k">ORDER</span> <span class="k">BY</span> avg_unit_price <span class="k">DESC</span>;</pre></div></div><p class="mark">תשובה: <span></span></p></section>
+<h2 class="stage"><span>חלק ג׳</span>מה עושה צירוף הפונקציות?</h2><p class="sinfo">קראו את השאילתה ובחרו את ההסבר הנכון למה שהיא מחשבת.</p>
+<section class="q" id="q14"><div class="qhead"><span class="qn">14</span><p class="qt">מה מחשב הביטוי הזה?</p></div><pre class="sql code"><span class="k">SELECT</span> <span class="f">ROUND</span>(<span class="f">AVG</span>(unit_price), <span class="d">2</span>) <span class="k">AS</span> x
+<span class="k">FROM</span> products
+<span class="k">WHERE</span> discontinued = <span class="d">0</span>;</pre><div class="opts two text"><div class="opt"><span class="ol">א</span><span class="ot">את המחיר הממוצע של המוצרים שהופסקו, מעוגל לשתי ספרות</span></div><div class="opt"><span class="ol">ב</span><span class="ot">את סכום המחירים של המוצרים שעדיין נמכרים</span></div><div class="opt"><span class="ol">ג</span><span class="ot">את המחיר הממוצע של המוצרים שעדיין נמכרים, מעוגל לשתי ספרות</span></div><div class="opt"><span class="ol">ד</span><span class="ot">את מספר המוצרים שעדיין נמכרים</span></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q15"><div class="qhead"><span class="qn">15</span><p class="qt">מה מחשב הביטוי הזה?</p></div><pre class="sql code"><span class="k">SELECT</span> <span class="f">AVG</span>(<span class="f">julianday</span>(shipped_date) - <span class="f">julianday</span>(order_date)) <span class="k">AS</span> x
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> shipped_date <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>;</pre><div class="opts two text"><div class="opt"><span class="ol">א</span><span class="ot">את מספר הימים הממוצע מתאריך ההזמנה עד התאריך הנדרש</span></div><div class="opt"><span class="ol">ב</span><span class="ot">את מספר הימים הממוצע מההזמנה ועד המשלוח, בהזמנות שנשלחו</span></div><div class="opt"><span class="ol">ג</span><span class="ot">את מספר ההזמנות שנשלחו</span></div><div class="opt"><span class="ol">ד</span><span class="ot">את התאריך הממוצע של המשלוחים</span></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q16"><div class="qhead"><span class="qn">16</span><p class="qt">מה מחשב הביטוי הזה?</p></div><pre class="sql code"><span class="k">SELECT</span> <span class="f">SUM</span>(unit_price * units_in_stock) <span class="k">AS</span> x
+<span class="k">FROM</span> products;</pre><div class="opts two text"><div class="opt"><span class="ol">א</span><span class="ot">את המחיר הממוצע של מוצר</span></div><div class="opt"><span class="ol">ב</span><span class="ot">את מספר היחידות שיש במלאי מכל המוצרים יחד</span></div><div class="opt"><span class="ol">ג</span><span class="ot">את הערך הכספי של כל המלאי: לכל מוצר מחיר כפול כמות במלאי, ואז הסכום של כל המוצרים</span></div><div class="opt"><span class="ol">ד</span><span class="ot">את המחיר של המוצר היקר ביותר כפול הכמות שלו במלאי</span></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q17"><div class="qhead"><span class="qn">17</span><p class="qt">מה מחשב הביטוי הזה?</p></div><pre class="sql code"><span class="k">SELECT</span> <span class="f">COUNT</span>(<span class="k">DISTINCT</span> <span class="f">YEAR</span>(order_date)) <span class="k">AS</span> x
+<span class="k">FROM</span> orders;</pre><div class="opts two text"><div class="opt"><span class="ol">א</span><span class="ot">את מספר ההזמנות בכל שנה</span></div><div class="opt"><span class="ol">ב</span><span class="ot">את השנה האחרונה שבה היו הזמנות</span></div><div class="opt"><span class="ol">ג</span><span class="ot">את מספר הלקוחות השונים</span></div><div class="opt"><span class="ol">ד</span><span class="ot">את מספר השנים השונות שבהן היו הזמנות</span></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q18"><div class="qhead"><span class="qn">18</span><p class="qt">מה מחשב הביטוי הזה?</p></div><pre class="sql code"><span class="k">SELECT</span> <span class="f">MAX</span>(unit_price) - <span class="f">MIN</span>(unit_price) <span class="k">AS</span> x
+<span class="k">FROM</span> products;</pre><div class="opts two text"><div class="opt"><span class="ol">א</span><span class="ot">את מחיר המוצר הזול ביותר</span></div><div class="opt"><span class="ol">ב</span><span class="ot">את הפער בין המחיר של המוצר היקר ביותר למחיר של המוצר הזול ביותר</span></div><div class="opt"><span class="ol">ג</span><span class="ot">את המחיר הממוצע של מוצר</span></div><div class="opt"><span class="ol">ד</span><span class="ot">את מספר המחירים השונים</span></div></div><p class="mark">תשובה: <span></span></p></section>
+<h2 class="stage"><span>חלק ד׳</span>הבנת שאילתות</h2><p class="sinfo">תיקון שאילתה, שגיאות, תנאים שקולים, התפקיד של חלקי השאילתה וסדר הביצוע שלהם.</p>
+<section class="q" id="q19"><div class="qhead"><span class="qn">19</span><p class="qt">השאילתה צריכה להחזיר לכל קטגוריה את מספר המוצרים שלה, אבל היא מחזירה שורה אחת בלבד. מה צריך להוסיף?</p></div><pre class="sql code"><span class="k">SELECT</span> c.category_name, <span class="f">COUNT</span>(*) <span class="k">AS</span> products
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> categories <span class="k">AS</span> c <span class="k">ON</span> c.category_id = p.category_id;</pre><div class="opts two text"><div class="opt"><span class="ol">א</span><span class="ot">את השורה <bdi dir="ltr">HAVING COUNT(*) &gt; 0</bdi></span></div><div class="opt"><span class="ol">ב</span><span class="ot">את המילה <bdi dir="ltr">DISTINCT</bdi> אחרי <bdi dir="ltr">SELECT</bdi></span></div><div class="opt"><span class="ol">ג</span><span class="ot">את השורה <bdi dir="ltr">GROUP BY c.category_name</bdi></span></div><div class="opt"><span class="ol">ד</span><span class="ot">את השורה <bdi dir="ltr">ORDER BY c.category_name</bdi></span></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q20"><div class="qhead"><span class="qn">20</span><p class="qt">מה ההבדל בין <bdi dir="ltr">WHERE</bdi> לבין <bdi dir="ltr">HAVING</bdi>?</p></div><div class="opts two text"><div class="opt"><span class="ol">א</span><span class="ot">אין הבדל, אפשר להשתמש בכל אחד מהם בכל מקום</span></div><div class="opt"><span class="ol">ב</span><span class="ot"><bdi dir="ltr">WHERE</bdi> מסנן שורות לפני הקיבוץ, ו־<bdi dir="ltr">HAVING</bdi> מסנן קבוצות אחרי הקיבוץ</span></div><div class="opt"><span class="ol">ג</span><span class="ot"><bdi dir="ltr">HAVING</bdi> מסנן שורות לפני הקיבוץ, ו־<bdi dir="ltr">WHERE</bdi> מסנן קבוצות אחרי הקיבוץ</span></div><div class="opt"><span class="ol">ד</span><span class="ot"><bdi dir="ltr">WHERE</bdi> משמש לסינון טקסט, ו־<bdi dir="ltr">HAVING</bdi> משמש לסינון מספרים</span></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q21"><div class="qhead"><span class="qn">21</span><p class="qt">איזה תנאי שקול לתנאי <bdi dir="ltr">unit_price BETWEEN 10 AND 20</bdi>?</p></div><div class="opts two text"><div class="opt"><span class="ol">א</span><span class="ot"><bdi dir="ltr">unit_price &gt; 10 AND unit_price &lt; 20</bdi></span></div><div class="opt"><span class="ol">ב</span><span class="ot"><bdi dir="ltr">unit_price &gt;= 10 OR unit_price &lt;= 20</bdi></span></div><div class="opt"><span class="ol">ג</span><span class="ot"><bdi dir="ltr">unit_price &gt; 10 AND unit_price &lt;= 20</bdi></span></div><div class="opt"><span class="ol">ד</span><span class="ot"><bdi dir="ltr">unit_price &gt;= 10 AND unit_price &lt;= 20</bdi></span></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q22"><div class="qhead"><span class="qn">22</span><p class="qt">איזו מהשאילתות תחזיר הודעת שגיאה באתר?</p></div><div class="opts two p2 sql"><div class="opt"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> country, <span class="f">COUNT</span>(*) <span class="k">AS</span> n
+<span class="k">FROM</span> customers
+<span class="k">GROUP</span> <span class="k">BY</span> country
+<span class="k">HAVING</span> <span class="f">COUNT</span>(*) &gt; <span class="d">5</span>;</pre></div><div class="opt"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> country, <span class="f">COUNT</span>(*) <span class="k">AS</span> n
+<span class="k">FROM</span> customers
+<span class="k">WHERE</span> <span class="f">COUNT</span>(*) &gt; <span class="d">5</span>
+<span class="k">GROUP</span> <span class="k">BY</span> country;</pre></div><div class="opt"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> country, <span class="f">COUNT</span>(*) <span class="k">AS</span> n
+<span class="k">FROM</span> customers
+<span class="k">WHERE</span> country &lt;&gt; <span class="s">&#x27;USA&#x27;</span>
+<span class="k">GROUP</span> <span class="k">BY</span> country;</pre></div><div class="opt"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> country, <span class="f">COUNT</span>(*) <span class="k">AS</span> n
+<span class="k">FROM</span> customers
+<span class="k">GROUP</span> <span class="k">BY</span> country
+<span class="k">ORDER</span> <span class="k">BY</span> n <span class="k">DESC</span>;</pre></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q23"><div class="qhead"><span class="qn">23</span><p class="qt">באיזה סדר מבצע מסד הנתונים את חלקי השאילתה?</p></div><div class="opts one text"><div class="opt"><span class="ol">א</span><span class="ot"><bdi dir="ltr"><span class="nw">SELECT</span>, <span class="nw">FROM</span>, <span class="nw">WHERE</span>, <span class="nw">GROUP BY</span>, <span class="nw">HAVING</span>, <span class="nw">ORDER BY</span></bdi></span></div><div class="opt"><span class="ol">ב</span><span class="ot"><bdi dir="ltr"><span class="nw">FROM</span>, <span class="nw">WHERE</span>, <span class="nw">GROUP BY</span>, <span class="nw">HAVING</span>, <span class="nw">SELECT</span>, <span class="nw">ORDER BY</span></bdi></span></div><div class="opt"><span class="ol">ג</span><span class="ot"><bdi dir="ltr"><span class="nw">FROM</span>, <span class="nw">GROUP BY</span>, <span class="nw">WHERE</span>, <span class="nw">HAVING</span>, <span class="nw">SELECT</span>, <span class="nw">ORDER BY</span></bdi></span></div><div class="opt"><span class="ol">ד</span><span class="ot"><bdi dir="ltr"><span class="nw">FROM</span>, <span class="nw">WHERE</span>, <span class="nw">HAVING</span>, <span class="nw">GROUP BY</span>, <span class="nw">ORDER BY</span>, <span class="nw">SELECT</span></bdi></span></div></div><p class="mark">תשובה: <span></span></p></section>
+<section class="q" id="q24"><div class="qhead"><span class="qn">24</span><p class="qt">מה התפקיד של החלק <bdi dir="ltr">ON o.ship_via = s.shipper_id</bdi> בשאילתה?</p></div><pre class="sql code"><span class="k">SELECT</span> o.order_id, s.company_name
+<span class="k">FROM</span> orders <span class="k">AS</span> o
+<span class="k">JOIN</span> shippers <span class="k">AS</span> s <span class="k">ON</span> o.ship_via = s.shipper_id;</pre><div class="opts two text"><div class="opt"><span class="ol">א</span><span class="ot">לסנן רק הזמנות שנשלחו</span></div><div class="opt"><span class="ol">ב</span><span class="ot">לקבץ את ההזמנות לפי חברת המשלוחים</span></div><div class="opt"><span class="ol">ג</span><span class="ot">למיין את ההזמנות לפי מספר חברת המשלוחים</span></div><div class="opt"><span class="ol">ד</span><span class="ot">לקבוע לכל הזמנה איזו שורה בטבלת <bdi dir="ltr">shippers</bdi> מתאימה לה</span></div></div><p class="mark">תשובה: <span></span></p></section>
+</div>
+</div>
+</body>
+</html>

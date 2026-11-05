@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>מבחנים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&display=swap">
+<style>
+/* Layout: a private list of tests. Not linked from index.html. One row per test, with links to the test and its answer key. */
+:root {
+  --bg: #EEF1F5; --sheet: #FCFCFD; --ink: #172033; --muted: #556074; --line: #D6DBE3; --head: #E4E9F1; --accent: #2457C5; --ok: #2E7D4F;
+  --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --font-body: "Assistant", "Arial Hebrew", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --head: #1F2836; --accent: #84A9FF; --ok: #7FD3A0; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --head: #1F2836; --accent: #84A9FF; --ok: #7FD3A0; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.5; }
+.wrap { max-width: 900px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sheet { background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; padding: clamp(18px, 3vw, 36px); display: flex; flex-direction: column; gap: 18px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 3.6vw, 38px); margin: 0; }
+.sub { margin: 0; color: var(--muted); }
+.list { display: flex; flex-direction: column; gap: 12px; }
+.test { border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; justify-content: space-between; }
+.test h2 { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: 21px; }
+.test p { margin: 2px 0 0; color: var(--muted); font-size: 15px; }
+.links { display: flex; gap: 10px; flex-wrap: wrap; }
+.links a { text-decoration: none; font-weight: 700; border-radius: 6px; padding: 6px 14px; border: 1.5px solid var(--accent); color: var(--accent); }
+.links a.key { border-color: var(--ok); color: var(--ok); }
+.links a:hover, .links a:focus-visible { background: var(--head); }
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="wrap">
+<div class="sheet">
+  <header>
+    <h1>מבחנים</h1>
+    <p class="sub">הדף הזה לא מקושר מדף הבית של האתר. לכל מבחן יש קישור למבחן ולמפתח התשובות.</p>
+  </header>
+  <div class="list">
+    <div class="test">
+      <div><h2>מבחן SQL אמריקאי</h2><p>24 שאלות · Northwind · SELECT, WHERE, HAVING, GROUP BY, JOIN</p></div>
+      <div class="links"><a href="test-bb49a8a0cef4.html">המבחן</a><a class="key" href="key-27ee73b6c008.html">מפתח תשובות</a></div>
+    </div>
+  </div>
+</div>
+</div>
+</body>
+</html>
