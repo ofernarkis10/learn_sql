@@ -13,6 +13,7 @@
 :root {
   --bg: #EEF1F5; --sheet: #FCFCFD; --ink: #172033; --muted: #556074; --line: #D6DBE3; --head: #E4E9F1;
   --accent: #2457C5; --ok: #2E7D4F; --ok-soft: #E3F1E8;
+  --review: #D9730D; --review-soft: #FCEBD9;
   --c-k: #2457C5; --c-f: #A0307A; --c-s: #2E7D4F; --c-d: #0F7A75;
   --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
   --font-body: "Assistant", "Arial Hebrew", Arial, sans-serif;
@@ -21,12 +22,12 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --head: #1F2836; --accent: #84A9FF;
-    --ok: #7FD3A0; --ok-soft: #1C3226; --c-k: #8DB2FF; --c-f: #F3A6D5; --c-s: #A8E6A3; --c-d: #9FE3D6; color-scheme: dark;
+    --ok: #7FD3A0; --ok-soft: #1C3226; --review: #F5A35C; --review-soft: #3A2A1A; --c-k: #8DB2FF; --c-f: #F3A6D5; --c-s: #A8E6A3; --c-d: #9FE3D6; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --head: #1F2836; --accent: #84A9FF;
-  --ok: #7FD3A0; --ok-soft: #1C3226; --c-k: #8DB2FF; --c-f: #F3A6D5; --c-s: #A8E6A3; --c-d: #9FE3D6; color-scheme: dark;
+  --ok: #7FD3A0; --ok-soft: #1C3226; --review: #F5A35C; --review-soft: #3A2A1A; --c-k: #8DB2FF; --c-f: #F3A6D5; --c-s: #A8E6A3; --c-d: #9FE3D6; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 /* project rule: show >=, <=, <>, != as separate characters (no font ligatures) */
@@ -126,6 +127,23 @@ html { scroll-behavior: smooth; }
 .grid > a { color: inherit; text-decoration: none; }
 .grid > a:hover b, .grid > a:focus-visible b { background: var(--accent); color: var(--sheet); }
 .q:target { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+
+/* "check again" flag per question: the chosen answer and its table cell turn orange */
+.qhead { flex-wrap: wrap; }
+.qhead .qt { flex: 1; min-width: 0; }
+.flag { display: flex; margin-inline-start: auto; }
+.flag button { font: inherit; font-size: 14px; font-weight: 700; border-radius: 6px; padding: 4px 12px; cursor: pointer; white-space: nowrap; background: none; }
+.mark-btn { color: var(--review); border: 1.5px solid var(--review); }
+.mark-btn:hover, .mark-btn:focus-visible { background: var(--review-soft); }
+.done-btn { display: none; color: var(--sheet); background: var(--review) !important; border: 1.5px solid var(--review); }
+.q.review .mark-btn { display: none; }
+.q.review .done-btn { display: inline-block; }
+.q.review { border-color: var(--review); }
+.q.review .pick:has(input:checked) { border-color: var(--review); background: var(--review-soft); box-shadow: inset 0 0 0 1px var(--review); }
+.q.review .pick:has(input:checked) .ol { background: var(--review); border-color: var(--review); }
+.grid > .review b { background: var(--review-soft); color: var(--review); }
+.grid > .review span, .grid.mine > .review span { color: var(--review); }
+@media print { .flag { display: none; } }
 
 </style>
 <style>
