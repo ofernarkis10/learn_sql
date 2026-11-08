@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>תרגול שאלות אמריקאיות ב־SQL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a printable multiple-choice test. Answer grid on top, then one block per question. */
+:root {
+  --bg: #EEF1F5; --sheet: #FCFCFD; --ink: #172033; --muted: #556074; --line: #D6DBE3; --head: #E4E9F1;
+  --accent: #2457C5; --ok: #2E7D4F; --ok-soft: #E3F1E8;
+  --review: #D9730D; --review-soft: #FCEBD9;
+  --c-k: #2457C5; --c-f: #A0307A; --c-s: #2E7D4F; --c-d: #0F7A75;
+  --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --font-body: "Assistant", "Arial Hebrew", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --head: #1F2836; --accent: #84A9FF;
+    --ok: #7FD3A0; --ok-soft: #1C3226; --review: #F5A35C; --review-soft: #3A2A1A; --c-k: #8DB2FF; --c-f: #F3A6D5; --c-s: #A8E6A3; --c-d: #9FE3D6; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --head: #1F2836; --accent: #84A9FF;
+  --ok: #7FD3A0; --ok-soft: #1C3226; --review: #F5A35C; --review-soft: #3A2A1A; --c-k: #8DB2FF; --c-f: #F3A6D5; --c-s: #A8E6A3; --c-d: #9FE3D6; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+/* project rule: show >=, <=, <>, != as separate characters (no font ligatures) */
+* { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.5; }
+.wrap { max-width: 1100px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sheet { background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; padding: clamp(18px, 3vw, 40px); display: flex; flex-direction: column; gap: 18px; }
+header { display: flex; flex-direction: column; gap: 10px; border-bottom: 3px double var(--line); padding-bottom: 16px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 3.6vw, 40px); line-height: 1.15; margin: 0; }
+.sub { margin: 0; color: var(--muted); }
+bdi { font-family: var(--font-mono); font-size: .86em; }
+.who { display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 600; }
+.who span { display: flex; align-items: baseline; gap: 8px; flex: 1; min-width: 180px; }
+.who i { flex: 1; border-bottom: 1px solid var(--ink); height: 1.2em; }
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.grid > * { display: flex; flex-direction: column; align-items: center; border-inline-start: 1px solid var(--line); border-top: 1px solid var(--line); }
+.grid > *:nth-child(12n+1) { border-inline-start: 0; }
+.grid > *:nth-child(-n+12) { border-top: 0; }
+.grid b { width: 100%; text-align: center; background: var(--head); font-family: var(--font-display); font-size: 14px; padding: 2px 0; }
+.grid span { height: 34px; display: flex; align-items: center; font-family: var(--font-display); font-weight: 700; font-size: 20px; }
+.grid.key span { color: var(--ok); }
+h2.stage { font-family: var(--font-display); font-weight: 500; font-size: 24px; margin: 18px 0 0; display: flex; gap: 12px; align-items: baseline; break-after: avoid; }
+h2.stage span { font-size: 14px; font-weight: 700; color: var(--accent); letter-spacing: .04em; }
+.sinfo { margin: -10px 0 0; color: var(--muted); break-after: avoid; }
+.q { border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; break-inside: avoid; }
+.qhead { display: flex; gap: 14px; align-items: baseline; }
+.qn { font-family: var(--font-display); font-weight: 700; font-size: 26px; color: var(--accent); min-width: 32px; font-variant-numeric: tabular-nums; }
+.qt { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: clamp(18px, 2vw, 21px); line-height: 1.4; }
+pre.sql { margin: 0; direction: ltr; text-align: left; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+pre.code { background: var(--head); border-radius: 6px; padding: 10px 14px; font-size: 14.5px; }
+.k { color: var(--c-k); font-weight: 600; } .f { color: var(--c-f); } .s { color: var(--c-s); } .d { color: var(--c-d); }
+.res { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.rl { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: .03em; }
+.res table { direction: ltr; border-collapse: collapse; font-size: 14.5px; font-variant-numeric: tabular-nums; border: 1px solid var(--line); }
+.res th { font-family: var(--font-mono); font-weight: 600; font-size: 13px; background: var(--head); padding: 4px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+.res td { padding: 3px 12px; border-top: 1px solid var(--line); font-family: var(--font-mono); font-size: 13.5px; }
+.res .n { text-align: right; }
+.opts { display: grid; gap: 10px; }
+.opts.two { grid-template-columns: 1fr 1fr; }
+.opt { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; min-width: 0; }
+.opt.ok { border-color: var(--ok); background: var(--ok-soft); box-shadow: inset 0 0 0 1px var(--ok); }
+.ol { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--ink); display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 15px; line-height: 1; }
+.opt.ok .ol { background: var(--ok); border-color: var(--ok); color: var(--sheet); }
+.opt pre.sql { flex: 1; min-width: 0; }
+.ot { line-height: 1.45; padding-top: 1px; }
+.mark { margin: 0; color: var(--muted); font-weight: 600; display: none; }
+.why { border-inline-start: 4px solid var(--ok); background: var(--ok-soft); border-radius: 6px; padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
+.why p { margin: 0; }
+.ans { font-family: var(--font-display); font-weight: 700; color: var(--ok); }
+.kr { font-size: 15.5px; }
+@media (max-width: 760px) {
+  .opts.two { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: repeat(6, 1fr); }
+  .grid > *:nth-child(12n+1) { border-inline-start: 1px solid var(--line); }
+  .grid > *:nth-child(6n+1) { border-inline-start: 0; }
+  .grid > *:nth-child(-n+12) { border-top: 1px solid var(--line); }
+  .grid > *:nth-child(-n+6) { border-top: 0; }
+}
+@media print {
+  @page { size: A4; margin: 12mm; }
+  body { background: none; font-size: 13px; }
+  .wrap { padding: 0; max-width: none; }
+  .sheet { border: 0; padding: 0; gap: 10px; }
+  .q { padding: 10px 12px; gap: 8px; }
+  .qn { font-size: 20px; } .qt { font-size: 15px; }
+  pre.sql { font-size: 10.5px; } pre.code { font-size: 11px; }
+  .opts { gap: 6px; } .opt { padding: 5px 8px; }
+  .opts.p2 { grid-template-columns: 1fr 1fr; }
+  pre.sql { font-size: 10px; }
+  .ol { width: 20px; height: 20px; font-size: 12px; }
+  h2.stage { font-size: 18px; margin-top: 8px; }
+  .back, #fs-slot, .fs-ctl { display: none !important; }
+}
+
+.nw { white-space: nowrap; }
+
+/* answer picking */
+.pick { cursor: pointer; position: relative; transition: border-color .12s, background-color .12s; }
+.pick:hover { border-color: var(--accent); }
+.pick input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.pick:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pick:has(input:checked) { border-color: var(--accent); background: var(--head); box-shadow: inset 0 0 0 1px var(--accent); }
+.pick:has(input:checked) .ol { background: var(--accent); border-color: var(--accent); color: var(--sheet); }
+.summary { display: flex; flex-direction: column; gap: 12px; border-top: 3px double var(--line); padding-top: 8px; break-inside: avoid; }
+.grid.mine span { color: var(--accent); }
+.grid.mine span.empty { color: var(--muted); font-weight: 500; }
+.sumbar { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; justify-content: space-between; color: var(--muted); font-weight: 600; }
+#clear { font: inherit; font-weight: 600; color: var(--muted); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 14px; cursor: pointer; }
+#clear:hover { color: var(--ink); border-color: var(--muted); }
+@media print { #clear { display: none; } }
+
+/* answer grid cells link to their question */
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+.q { scroll-margin-top: 16px; }
+.grid > a { color: inherit; text-decoration: none; }
+.grid > a:hover b, .grid > a:focus-visible b { background: var(--accent); color: var(--sheet); }
+.q:target { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+
+/* "check again" flag per question: the chosen answer and its table cell turn orange */
+.qhead { flex-wrap: wrap; }
+.qhead .qt { flex: 1; min-width: 0; }
+.flag { display: flex; margin-inline-start: auto; }
+.flag button { font: inherit; font-size: 14px; font-weight: 700; border-radius: 6px; padding: 4px 12px; cursor: pointer; white-space: nowrap; background: none; }
+.mark-btn { color: var(--review); border: 1.5px solid var(--review); }
+.mark-btn:hover, .mark-btn:focus-visible { background: var(--review-soft); }
+.done-btn { display: none; color: var(--sheet); background: var(--review) !important; border: 1.5px solid var(--review); }
+.q.review .mark-btn { display: none; }
+.q.review .done-btn { display: inline-block; }
+.q.review { border-color: var(--review); }
+.q.review .pick:has(input:checked) { border-color: var(--review); background: var(--review-soft); box-shadow: inset 0 0 0 1px var(--review); }
+.q.review .pick:has(input:checked) .ol { background: var(--review); border-color: var(--review); }
+.grid > .review b { background: var(--review-soft); color: var(--review); }
+.grid > .review span, .grid.mine > .review span { color: var(--review); }
+@media print { .flag { display: none; } }
+
+/* practice: instant feedback */
+:root { --bad: #B23A3A; --bad-soft: #F6E1E1; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bad: #F19A9A; --bad-soft: #3A2222; } }
+:root[data-theme="dark"] { --bad: #F19A9A; --bad-soft: #3A2222; }
+.q .why { display: none; }
+.q.done .why { display: flex; }
+.q.done.wrong .why { border-color: var(--bad); background: var(--bad-soft); }
+.verdict { font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+.q.right .verdict { color: var(--ok); } .q.wrong .verdict { color: var(--bad); }
+.q.right .verdict::before { content: "נכון!"; } .q.wrong .verdict::before { content: "לא נכון."; }
+.q.wrong .ans { color: var(--bad); }
+.q.done .pick { cursor: default; }
+.q.done .pick:hover { border-color: var(--line); }
+.q.done .pick[data-ok] { border-color: var(--ok) !important; background: var(--ok-soft) !important; box-shadow: inset 0 0 0 1px var(--ok) !important; }
+.q.done .pick[data-ok] .ol { background: var(--ok) !important; border-color: var(--ok) !important; color: var(--sheet) !important; }
+.q.done.wrong .pick:has(input:checked) { border-color: var(--bad); background: var(--bad-soft); box-shadow: inset 0 0 0 1px var(--bad); }
+.q.done.wrong .pick:has(input:checked) .ol { background: var(--bad); border-color: var(--bad); color: var(--sheet); }
+.q.right { border-color: var(--ok); } .q.wrong { border-color: var(--bad); }
+.retry { display: none; margin-inline-start: auto; font: inherit; font-size: 14px; font-weight: 700; color: var(--muted); background: none; border: 1.5px solid var(--line); border-radius: 6px; padding: 4px 12px; cursor: pointer; white-space: nowrap; }
+.retry:hover, .retry:focus-visible { color: var(--ink); border-color: var(--muted); }
+.q.wrong .retry { display: inline-block; }
+.grid > .right span { color: var(--ok); } .grid > .wrong span { color: var(--bad); }
+.grid > .right b { background: var(--ok-soft); color: var(--ok); } .grid > .wrong b { background: var(--bad-soft); color: var(--bad); }
+.grid.g40 { grid-template-columns: repeat(10, 1fr); }
+.grid.g40 > * { border-inline-start: 1px solid var(--line); border-top: 1px solid var(--line); }
+.grid.g40 > *:nth-child(10n+1) { border-inline-start: 0; }
+.grid.g40 > *:nth-child(-n+10) { border-top: 0; }
+@media (max-width: 760px) {
+  .grid.g40 { grid-template-columns: repeat(5, 1fr); }
+  .grid.g40 > * { border-inline-start: 1px solid var(--line) !important; border-top: 1px solid var(--line) !important; }
+  .grid.g40 > *:nth-child(5n+1) { border-inline-start: 0 !important; }
+  .grid.g40 > *:nth-child(-n+5) { border-top: 0 !important; }
+}
+/* "show answers": every correct option gets its own background; the pupil's marks stay */
+:root { --reveal: #8A6D00; --reveal-soft: #FFF4C2; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --reveal: #F2D36B; --reveal-soft: #3A3216; } }
+:root[data-theme="dark"] { --reveal: #F2D36B; --reveal-soft: #3A3216; }
+body.reveal .q .pick[data-ok]:not(:has(input:checked)) { background: var(--reveal-soft) !important; border-color: var(--reveal) !important; box-shadow: none !important; outline: 2px dashed var(--reveal); outline-offset: -2px; }
+body.reveal .q .pick[data-ok]:not(:has(input:checked)) .ol { background: var(--reveal) !important; border-color: var(--reveal) !important; color: var(--sheet) !important; }
+body.reveal .q .pick[data-ok]:has(input:checked) { outline: 2px dashed var(--reveal); outline-offset: 2px; }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; }
+#reveal { font: inherit; font-weight: 700; color: var(--reveal); background: none; border: 1.5px solid var(--reveal); border-radius: 6px; padding: 6px 14px; cursor: pointer; }
+#reveal:hover, #reveal:focus-visible { background: var(--reveal-soft); }
+.score { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 20px; }
+@media print { .q .why { display: flex; } .retry, #clear, #reveal { display: none !important; } }
+
+</style>
+<style>
+/* Back link to the page's topic in index.html */
+.site-back{color:var(--accent);font-family:var(--font-body,"Assistant","Arial Hebrew",Arial,sans-serif);font-weight:600;font-size:15px;text-decoration:none;width:fit-content;white-space:nowrap}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.wrap > .site-back{display:block;margin-bottom:12px}
+@media print{.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="wrap" dir="rtl">
+  <a class="site-back" href="index.html#practice">→ חזרה לנושא: תרגול</a>
+<div class="sheet">
+  <header>
+    <h1>תרגול שאלות אמריקאיות ב־SQL</h1>
+    <p class="sub">40 שאלות לתרגול לקראת המבחן, על Northwind באתר <bdi dir="ltr">sql-practice.com</bdi>. לחצו על התשובה שבחרתם, ומיד תראו אם צדקתם ולמה. אחרי תשובה לא נכונה אפשר ללחוץ על "נסו שוב".</p>
+    <p class="sub">הטבלה מראה איפה עניתם נכון (✓) ואיפה לא (✗). לחיצה על משבצת מעבירה לשאלה.</p>
+    <p class="score"></p>
+    <div class="grid g40"><a href="#q1"><b>1</b><span data-q="1"></span></a><a href="#q2"><b>2</b><span data-q="2"></span></a><a href="#q3"><b>3</b><span data-q="3"></span></a><a href="#q4"><b>4</b><span data-q="4"></span></a><a href="#q5"><b>5</b><span data-q="5"></span></a><a href="#q6"><b>6</b><span data-q="6"></span></a><a href="#q7"><b>7</b><span data-q="7"></span></a><a href="#q8"><b>8</b><span data-q="8"></span></a><a href="#q9"><b>9</b><span data-q="9"></span></a><a href="#q10"><b>10</b><span data-q="10"></span></a><a href="#q11"><b>11</b><span data-q="11"></span></a><a href="#q12"><b>12</b><span data-q="12"></span></a><a href="#q13"><b>13</b><span data-q="13"></span></a><a href="#q14"><b>14</b><span data-q="14"></span></a><a href="#q15"><b>15</b><span data-q="15"></span></a><a href="#q16"><b>16</b><span data-q="16"></span></a><a href="#q17"><b>17</b><span data-q="17"></span></a><a href="#q18"><b>18</b><span data-q="18"></span></a><a href="#q19"><b>19</b><span data-q="19"></span></a><a href="#q20"><b>20</b><span data-q="20"></span></a><a href="#q21"><b>21</b><span data-q="21"></span></a><a href="#q22"><b>22</b><span data-q="22"></span></a><a href="#q23"><b>23</b><span data-q="23"></span></a><a href="#q24"><b>24</b><span data-q="24"></span></a><a href="#q25"><b>25</b><span data-q="25"></span></a><a href="#q26"><b>26</b><span data-q="26"></span></a><a href="#q27"><b>27</b><span data-q="27"></span></a><a href="#q28"><b>28</b><span data-q="28"></span></a><a href="#q29"><b>29</b><span data-q="29"></span></a><a href="#q30"><b>30</b><span data-q="30"></span></a><a href="#q31"><b>31</b><span data-q="31"></span></a><a href="#q32"><b>32</b><span data-q="32"></span></a><a href="#q33"><b>33</b><span data-q="33"></span></a><a href="#q34"><b>34</b><span data-q="34"></span></a><a href="#q35"><b>35</b><span data-q="35"></span></a><a href="#q36"><b>36</b><span data-q="36"></span></a><a href="#q37"><b>37</b><span data-q="37"></span></a><a href="#q38"><b>38</b><span data-q="38"></span></a><a href="#q39"><b>39</b><span data-q="39"></span></a><a href="#q40"><b>40</b><span data-q="40"></span></a></div>
+  </header>
+<h2 class="stage"><span>חלק א׳</span>איזו שאילתה מחזירה את הרשימה?</h2><p class="sinfo">בכל שאלה מתוארת רשימה. רק אחת מהשאילתות מחזירה אותה. בחרו אותה.</p>
+<section class="q" id="q1"><div class="qhead"><span class="qn">1</span><p class="qt">הרשימה המבוקשת: שמות הלקוחות מגרמניה. איזו שאילתה מחזירה את הרשימה הזאת?</p><button type="button" class="retry" data-retry="1">נסו שוב</button></div><div class="opts two p2 sql"><label class="opt pick"><input type="radio" name="q1" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> company_name
+<span class="k">FROM</span> customers
+<span class="k">WHERE</span> city = <span class="s">&#x27;Germany&#x27;</span>;</pre></label><label class="opt pick"><input type="radio" name="q1" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> country
+<span class="k">FROM</span> customers
+<span class="k">WHERE</span> country = <span class="s">&#x27;Germany&#x27;</span>;</pre></label><label class="opt pick" data-ok><input type="radio" name="q1" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> company_name
+<span class="k">FROM</span> customers
+<span class="k">WHERE</span> country = <span class="s">&#x27;Germany&#x27;</span>;</pre></label><label class="opt pick"><input type="radio" name="q1" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> company_name
+<span class="k">FROM</span> customers
+<span class="k">WHERE</span> country = Germany;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ג</span><p>מסננים לפי העמודה <bdi dir="ltr">country</bdi> ובוחרים את <bdi dir="ltr">company_name</bdi>. א׳ מחפשת את <bdi dir="ltr">Germany</bdi> בעמודת העיר. ב׳ מחזירה את שם המדינה ולא את שם הלקוח. בד׳ חסרים גרשיים סביב <bdi dir="ltr">Germany</bdi>, ולכן האתר מחפש עמודה בשם הזה ומחזיר שגיאה.</p></div></section>
+<section class="q" id="q2"><div class="qhead"><span class="qn">2</span><p class="qt">הרשימה המבוקשת: שם ומחיר של המוצרים שמחירם מעל 50, מהיקר לזול. איזו שאילתה מחזירה את הרשימה הזאת?</p><button type="button" class="retry" data-retry="2">נסו שוב</button></div><div class="opts two p2 sql"><label class="opt pick" data-ok><input type="radio" name="q2" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> product_name, unit_price
+<span class="k">FROM</span> products
+<span class="k">WHERE</span> unit_price &gt; <span class="d">50</span>
+<span class="k">ORDER</span> <span class="k">BY</span> unit_price <span class="k">DESC</span>;</pre></label><label class="opt pick"><input type="radio" name="q2" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> product_name, unit_price
+<span class="k">FROM</span> products
+<span class="k">WHERE</span> unit_price &gt; <span class="d">50</span>
+<span class="k">ORDER</span> <span class="k">BY</span> unit_price;</pre></label><label class="opt pick"><input type="radio" name="q2" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> product_name, unit_price
+<span class="k">FROM</span> products
+<span class="k">WHERE</span> unit_price &lt; <span class="d">50</span>
+<span class="k">ORDER</span> <span class="k">BY</span> unit_price <span class="k">DESC</span>;</pre></label><label class="opt pick"><input type="radio" name="q2" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> product_name, unit_price
+<span class="k">FROM</span> products
+<span class="k">ORDER</span> <span class="k">BY</span> unit_price <span class="k">DESC</span>;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: א</span><p><bdi dir="ltr">WHERE</bdi> משאיר מוצרים מעל 50, ו־<bdi dir="ltr">ORDER BY unit_price DESC</bdi> ממיין מהיקר לזול. ב׳ ממיינת מהזול ליקר. ג׳ מחזירה מוצרים מתחת ל־50. בד׳ אין סינון, ולכן חוזרים כל המוצרים.</p></div></section>
+<section class="q" id="q3"><div class="qhead"><span class="qn">3</span><p class="qt">הרשימה המבוקשת: לכל ספק, שם החברה ומספר המוצרים שלו. איזו שאילתה מחזירה את הרשימה הזאת?</p><button type="button" class="retry" data-retry="3">נסו שוב</button></div><div class="opts one sql"><label class="opt pick"><input type="radio" name="q3" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">COUNT</span>(*) <span class="k">AS</span> products
+<span class="k">FROM</span> suppliers <span class="k">AS</span> s
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.supplier_id = s.supplier_id;</pre></label><label class="opt pick"><input type="radio" name="q3" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">SUM</span>(p.product_id) <span class="k">AS</span> products
+<span class="k">FROM</span> suppliers <span class="k">AS</span> s
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.supplier_id = s.supplier_id
+<span class="k">GROUP</span> <span class="k">BY</span> s.company_name;</pre></label><label class="opt pick"><input type="radio" name="q3" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">COUNT</span>(*) <span class="k">AS</span> products
+<span class="k">FROM</span> suppliers <span class="k">AS</span> s
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.supplier_id = s.supplier_id
+<span class="k">GROUP</span> <span class="k">BY</span> p.category_id;</pre></label><label class="opt pick" data-ok><input type="radio" name="q3" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">COUNT</span>(*) <span class="k">AS</span> products
+<span class="k">FROM</span> suppliers <span class="k">AS</span> s
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.supplier_id = s.supplier_id
+<span class="k">GROUP</span> <span class="k">BY</span> s.company_name;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ד</span><p>מחברים ספקים למוצרים, מקבצים לפי ספק וסופרים. בא׳ חסר <bdi dir="ltr">GROUP BY</bdi>, ולכן חוזרת שורה אחת. ב׳ מסכמת מספרי מוצרים במקום לספור אותם. ג׳ מקבצת לפי קטגוריה ולא לפי ספק.</p></div></section>
+<section class="q" id="q4"><div class="qhead"><span class="qn">4</span><p class="qt">הרשימה המבוקשת: לכל קטגוריה, שם הקטגוריה והמחיר הממוצע של המוצרים בה. איזו שאילתה מחזירה את הרשימה הזאת?</p><button type="button" class="retry" data-retry="4">נסו שוב</button></div><div class="opts one sql"><label class="opt pick"><input type="radio" name="q4" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> c.category_name, <span class="f">MAX</span>(p.unit_price) <span class="k">AS</span> avg_price
+<span class="k">FROM</span> categories <span class="k">AS</span> c
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.category_id = c.category_id
+<span class="k">GROUP</span> <span class="k">BY</span> c.category_name;</pre></label><label class="opt pick" data-ok><input type="radio" name="q4" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> c.category_name, <span class="f">AVG</span>(p.unit_price) <span class="k">AS</span> avg_price
+<span class="k">FROM</span> categories <span class="k">AS</span> c
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.category_id = c.category_id
+<span class="k">GROUP</span> <span class="k">BY</span> c.category_name;</pre></label><label class="opt pick"><input type="radio" name="q4" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> c.category_name, <span class="f">AVG</span>(p.unit_price) <span class="k">AS</span> avg_price
+<span class="k">FROM</span> categories <span class="k">AS</span> c
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.category_id = c.category_id
+<span class="k">GROUP</span> <span class="k">BY</span> p.product_name;</pre></label><label class="opt pick"><input type="radio" name="q4" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> category_name, <span class="f">AVG</span>(unit_price) <span class="k">AS</span> avg_price
+<span class="k">FROM</span> categories
+<span class="k">GROUP</span> <span class="k">BY</span> category_name;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ב</span><p><bdi dir="ltr">AVG</bdi> נותן ממוצע, והקבוצה היא קטגוריה. א׳ מחזירה את המחיר הגבוה ביותר. ג׳ מקבצת לפי מוצר, ולכן הממוצע הוא של מוצר אחד. בד׳ אין <bdi dir="ltr">JOIN</bdi>, ובטבלת <bdi dir="ltr">categories</bdi> אין עמודה <bdi dir="ltr">unit_price</bdi>, ולכן האתר מחזיר שגיאה.</p></div></section>
+<section class="q" id="q5"><div class="qhead"><span class="qn">5</span><p class="qt">הרשימה המבוקשת: 5 המוצרים היקרים ביותר. איזו שאילתה מחזירה את הרשימה הזאת?</p><button type="button" class="retry" data-retry="5">נסו שוב</button></div><div class="opts two p2 sql"><label class="opt pick"><input type="radio" name="q5" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> product_name, unit_price
+<span class="k">FROM</span> products
+<span class="k">ORDER</span> <span class="k">BY</span> unit_price
+<span class="k">LIMIT</span> <span class="d">5</span>;</pre></label><label class="opt pick"><input type="radio" name="q5" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> product_name, unit_price
+<span class="k">FROM</span> products
+<span class="k">LIMIT</span> <span class="d">5</span>;</pre></label><label class="opt pick" data-ok><input type="radio" name="q5" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> product_name, unit_price
+<span class="k">FROM</span> products
+<span class="k">ORDER</span> <span class="k">BY</span> unit_price <span class="k">DESC</span>
+<span class="k">LIMIT</span> <span class="d">5</span>;</pre></label><label class="opt pick"><input type="radio" name="q5" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> product_name, unit_price
+<span class="k">FROM</span> products
+<span class="k">ORDER</span> <span class="k">BY</span> product_name <span class="k">DESC</span>
+<span class="k">LIMIT</span> <span class="d">5</span>;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ג</span><p>ממיינים לפי המחיר מהגבוה לנמוך ולוקחים 5 שורות. א׳ מחזירה את 5 הזולים. ב׳ לא ממיינת, ולכן מחזירה 5 מוצרים כלשהם. ד׳ ממיינת לפי שם המוצר.</p></div></section>
+<section class="q" id="q6"><div class="qhead"><span class="qn">6</span><p class="qt">הרשימה המבוקשת: מספר ההזמנות שבוצעו בשנת 2017. איזו שאילתה מחזירה את הרשימה הזאת?</p><button type="button" class="retry" data-retry="6">נסו שוב</button></div><div class="opts two p2 sql"><label class="opt pick"><input type="radio" name="q6" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> <span class="f">SUM</span>(order_id) <span class="k">AS</span> orders_2017
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> <span class="f">YEAR</span>(order_date) = <span class="d">2017</span>;</pre></label><label class="opt pick" data-ok><input type="radio" name="q6" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> orders_2017
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> <span class="f">YEAR</span>(order_date) = <span class="d">2017</span>;</pre></label><label class="opt pick"><input type="radio" name="q6" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> orders_2017
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> <span class="f">YEAR</span>(order_date) &gt; <span class="d">2017</span>;</pre></label><label class="opt pick"><input type="radio" name="q6" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> orders_2017
+<span class="k">FROM</span> orders;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ב</span><p>מסננים את ההזמנות של 2017 וסופרים אותן. א׳ מסכמת מספרי הזמנות. ג׳ סופרת הזמנות משנים אחרי 2017. בד׳ אין סינון, ולכן נספרות כל ההזמנות.</p></div></section>
+<section class="q" id="q7"><div class="qhead"><span class="qn">7</span><p class="qt">הרשימה המבוקשת: המדינות שיש בהן יותר מ־5 לקוחות, עם מספר הלקוחות בכל אחת. איזו שאילתה מחזירה את הרשימה הזאת?</p><button type="button" class="retry" data-retry="7">נסו שוב</button></div><div class="opts two p2 sql"><label class="opt pick"><input type="radio" name="q7" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> country, <span class="f">COUNT</span>(*) <span class="k">AS</span> customers
+<span class="k">FROM</span> customers
+<span class="k">GROUP</span> <span class="k">BY</span> city
+<span class="k">HAVING</span> <span class="f">COUNT</span>(*) &gt; <span class="d">5</span>;</pre></label><label class="opt pick"><input type="radio" name="q7" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> country, <span class="f">COUNT</span>(*) <span class="k">AS</span> customers
+<span class="k">FROM</span> customers
+<span class="k">WHERE</span> <span class="f">COUNT</span>(*) &gt; <span class="d">5</span>
+<span class="k">GROUP</span> <span class="k">BY</span> country;</pre></label><label class="opt pick"><input type="radio" name="q7" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> country, <span class="f">COUNT</span>(*) <span class="k">AS</span> customers
+<span class="k">FROM</span> customers
+<span class="k">GROUP</span> <span class="k">BY</span> country
+<span class="k">HAVING</span> <span class="f">COUNT</span>(*) &lt; <span class="d">5</span>;</pre></label><label class="opt pick" data-ok><input type="radio" name="q7" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> country, <span class="f">COUNT</span>(*) <span class="k">AS</span> customers
+<span class="k">FROM</span> customers
+<span class="k">GROUP</span> <span class="k">BY</span> country
+<span class="k">HAVING</span> <span class="f">COUNT</span>(*) &gt; <span class="d">5</span>;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ד</span><p>מקבצים לפי מדינה ומסננים קבוצות ב־<bdi dir="ltr">HAVING</bdi>. א׳ מקבצת לפי עיר. ב׳ שמה את התנאי ב־<bdi dir="ltr">WHERE</bdi>, והאתר מחזיר שגיאה. ג׳ מחזירה מדינות עם פחות מ־5 לקוחות.</p></div></section>
+<section class="q" id="q8"><div class="qhead"><span class="qn">8</span><p class="qt">הרשימה המבוקשת: לכל הזמנה, מספר ההזמנה וסך היחידות שהוזמנו בה. איזו שאילתה מחזירה את הרשימה הזאת?</p><button type="button" class="retry" data-retry="8">נסו שוב</button></div><div class="opts two p2 sql"><label class="opt pick" data-ok><input type="radio" name="q8" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> order_id, <span class="f">SUM</span>(quantity) <span class="k">AS</span> units
+<span class="k">FROM</span> order_details
+<span class="k">GROUP</span> <span class="k">BY</span> order_id;</pre></label><label class="opt pick"><input type="radio" name="q8" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> order_id, <span class="f">COUNT</span>(quantity) <span class="k">AS</span> units
+<span class="k">FROM</span> order_details
+<span class="k">GROUP</span> <span class="k">BY</span> order_id;</pre></label><label class="opt pick"><input type="radio" name="q8" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> order_id, <span class="f">SUM</span>(quantity) <span class="k">AS</span> units
+<span class="k">FROM</span> order_details
+<span class="k">GROUP</span> <span class="k">BY</span> product_id;</pre></label><label class="opt pick"><input type="radio" name="q8" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> order_id, <span class="f">MAX</span>(quantity) <span class="k">AS</span> units
+<span class="k">FROM</span> order_details
+<span class="k">GROUP</span> <span class="k">BY</span> order_id;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: א</span><p>סך היחידות הוא <bdi dir="ltr">SUM</bdi> של <bdi dir="ltr">quantity</bdi>, בקבוצה לכל הזמנה. ב׳ סופרת כמה מוצרים יש בהזמנה. ג׳ מקבצת לפי מוצר. ד׳ מחזירה את הכמות הגדולה ביותר בשורה אחת של ההזמנה.</p></div></section>
+<section class="q" id="q9"><div class="qhead"><span class="qn">9</span><p class="qt">הרשימה המבוקשת: לכל מוצר, שם המוצר ושם הקטגוריה שלו. איזו שאילתה מחזירה את הרשימה הזאת?</p><button type="button" class="retry" data-retry="9">נסו שוב</button></div><div class="opts one sql"><label class="opt pick"><input type="radio" name="q9" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> p.product_name, c.category_name
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> categories <span class="k">AS</span> c <span class="k">ON</span> p.product_id = c.category_id;</pre></label><label class="opt pick"><input type="radio" name="q9" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> product_name, category_name
+<span class="k">FROM</span> products;</pre></label><label class="opt pick"><input type="radio" name="q9" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> p.product_name, p.category_id
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> categories <span class="k">AS</span> c <span class="k">ON</span> p.category_id = c.category_id;</pre></label><label class="opt pick" data-ok><input type="radio" name="q9" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> p.product_name, c.category_name
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> categories <span class="k">AS</span> c <span class="k">ON</span> p.category_id = c.category_id;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ד</span><p>מחברים לפי עמודת הקשר <bdi dir="ltr">category_id</bdi> ובוחרים את שם הקטגוריה מטבלת <bdi dir="ltr">categories</bdi>. א׳ מחברת מספר מוצר למספר קטגוריה, וזה חיבור לא נכון. בב׳ אין <bdi dir="ltr">JOIN</bdi>, ובטבלת <bdi dir="ltr">products</bdi> אין <bdi dir="ltr">category_name</bdi>, ולכן יש שגיאה. ג׳ מחזירה את מספר הקטגוריה ולא את שמה.</p></div></section>
+<section class="q" id="q10"><div class="qhead"><span class="qn">10</span><p class="qt">הרשימה המבוקשת: לכל חברת משלוחים, השם שלה וסך דמי המשלוח של ההזמנות שהיא שלחה. איזו שאילתה מחזירה את הרשימה הזאת?</p><button type="button" class="retry" data-retry="10">נסו שוב</button></div><div class="opts one sql"><label class="opt pick"><input type="radio" name="q10" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">AVG</span>(o.freight) <span class="k">AS</span> total_freight
+<span class="k">FROM</span> shippers <span class="k">AS</span> s
+<span class="k">JOIN</span> orders <span class="k">AS</span> o <span class="k">ON</span> o.ship_via = s.shipper_id
+<span class="k">GROUP</span> <span class="k">BY</span> s.company_name;</pre></label><label class="opt pick" data-ok><input type="radio" name="q10" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">SUM</span>(o.freight) <span class="k">AS</span> total_freight
+<span class="k">FROM</span> shippers <span class="k">AS</span> s
+<span class="k">JOIN</span> orders <span class="k">AS</span> o <span class="k">ON</span> o.ship_via = s.shipper_id
+<span class="k">GROUP</span> <span class="k">BY</span> s.company_name;</pre></label><label class="opt pick"><input type="radio" name="q10" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">COUNT</span>(o.freight) <span class="k">AS</span> total_freight
+<span class="k">FROM</span> shippers <span class="k">AS</span> s
+<span class="k">JOIN</span> orders <span class="k">AS</span> o <span class="k">ON</span> o.ship_via = s.shipper_id
+<span class="k">GROUP</span> <span class="k">BY</span> s.company_name;</pre></label><label class="opt pick"><input type="radio" name="q10" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">SUM</span>(o.freight) <span class="k">AS</span> total_freight
+<span class="k">FROM</span> shippers <span class="k">AS</span> s
+<span class="k">JOIN</span> orders <span class="k">AS</span> o <span class="k">ON</span> o.ship_via = s.shipper_id;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ב</span><p>&quot;סך&quot; הוא <bdi dir="ltr">SUM</bdi>, בקבוצה לכל חברה. א׳ מחשבת ממוצע. ג׳ סופרת הזמנות. בד׳ חסר <bdi dir="ltr">GROUP BY</bdi>, ולכן חוזרת שורה אחת עם הסכום של כל החברות.</p></div></section>
+<section class="q" id="q11"><div class="qhead"><span class="qn">11</span><p class="qt">הרשימה המבוקשת: מספר המדינות השונות שהלקוחות באים מהן. איזו שאילתה מחזירה את הרשימה הזאת?</p><button type="button" class="retry" data-retry="11">נסו שוב</button></div><div class="opts two p2 sql"><label class="opt pick"><input type="radio" name="q11" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(country) <span class="k">AS</span> countries
+<span class="k">FROM</span> customers;</pre></label><label class="opt pick"><input type="radio" name="q11" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> <span class="k">DISTINCT</span> country <span class="k">AS</span> countries
+<span class="k">FROM</span> customers;</pre></label><label class="opt pick" data-ok><input type="radio" name="q11" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(<span class="k">DISTINCT</span> country) <span class="k">AS</span> countries
+<span class="k">FROM</span> customers;</pre></label><label class="opt pick"><input type="radio" name="q11" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> countries
+<span class="k">FROM</span> customers;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ג</span><p><bdi dir="ltr">COUNT(DISTINCT country)</bdi> סופר כל מדינה פעם אחת. א׳ וד׳ סופרות לקוחות, ולכן מדינה עם כמה לקוחות נספרת כמה פעמים. ב׳ מחזירה את רשימת המדינות ולא את המספר שלהן.</p></div></section>
+<section class="q" id="q12"><div class="qhead"><span class="qn">12</span><p class="qt">הרשימה המבוקשת: המוצרים שמחירם בין 10 ל־20, כולל 10 וכולל 20. איזו שאילתה מחזירה את הרשימה הזאת?</p><button type="button" class="retry" data-retry="12">נסו שוב</button></div><div class="opts two p2 sql"><label class="opt pick"><input type="radio" name="q12" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> product_name
+<span class="k">FROM</span> products
+<span class="k">WHERE</span> unit_price &gt; <span class="d">10</span> <span class="k">AND</span> unit_price &lt; <span class="d">20</span>;</pre></label><label class="opt pick"><input type="radio" name="q12" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> product_name
+<span class="k">FROM</span> products
+<span class="k">WHERE</span> unit_price &gt;= <span class="d">10</span> <span class="k">OR</span> unit_price &lt;= <span class="d">20</span>;</pre></label><label class="opt pick"><input type="radio" name="q12" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> product_name
+<span class="k">FROM</span> products
+<span class="k">WHERE</span> unit_price = <span class="d">10</span> <span class="k">AND</span> unit_price = <span class="d">20</span>;</pre></label><label class="opt pick" data-ok><input type="radio" name="q12" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> product_name
+<span class="k">FROM</span> products
+<span class="k">WHERE</span> unit_price &gt;= <span class="d">10</span> <span class="k">AND</span> unit_price &lt;= <span class="d">20</span>;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ד</span><p>&quot;כולל&quot; פירושו &gt;= ו־&lt;=, ושני התנאים צריכים להתקיים יחד, ולכן <bdi dir="ltr">AND</bdi>. א׳ לא כוללת את 10 ו־20. עם <bdi dir="ltr">OR</bdi> (ב׳) כל המוצרים מקיימים את התנאי. בג׳ מחיר לא יכול להיות גם 10 וגם 20, ולכן לא חוזר אף מוצר.</p></div></section>
+<h2 class="stage"><span>חלק ב׳</span>משאלה מילולית לשאילתה</h2><p class="sinfo">בכל שאלה, כל ארבע השאילתות מחזירות עמודה עם אותו שם. השם מתאר את מה שהשאלה מבקשת. בחרו את השאילתה שבאמת מחשבת אותו.</p>
+<section class="q" id="q13"><div class="qhead"><span class="qn">13</span><p class="qt">כמה מוצרים יש בקטגוריה <bdi dir="ltr">Beverages</bdi>?</p><button type="button" class="retry" data-retry="13">נסו שוב</button></div><div class="opts one sql"><label class="opt pick"><input type="radio" name="q13" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> beverages_products
+<span class="k">FROM</span> categories
+<span class="k">WHERE</span> category_name = <span class="s">&#x27;Beverages&#x27;</span>;</pre></label><label class="opt pick" data-ok><input type="radio" name="q13" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> beverages_products
+<span class="k">FROM</span> categories <span class="k">AS</span> c
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.category_id = c.category_id
+<span class="k">WHERE</span> c.category_name = <span class="s">&#x27;Beverages&#x27;</span>;</pre></label><label class="opt pick"><input type="radio" name="q13" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> <span class="f">SUM</span>(p.product_id) <span class="k">AS</span> beverages_products
+<span class="k">FROM</span> categories <span class="k">AS</span> c
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.category_id = c.category_id
+<span class="k">WHERE</span> c.category_name = <span class="s">&#x27;Beverages&#x27;</span>;</pre></label><label class="opt pick"><input type="radio" name="q13" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> beverages_products
+<span class="k">FROM</span> products;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ב</span><p>שם הקטגוריה נמצא ב־<bdi dir="ltr">categories</bdi> והמוצרים ב־<bdi dir="ltr">products</bdi>, ולכן מחברים אותן, מסננים לפי שם הקטגוריה וסופרים. א׳ סופרת שורות בטבלת הקטגוריות (1). ג׳ מסכמת מספרי מוצרים. ד׳ סופרת את כל המוצרים.</p></div></section>
+<section class="q" id="q14"><div class="qhead"><span class="qn">14</span><p class="qt">מה המחיר של המוצר היקר ביותר?</p><button type="button" class="retry" data-retry="14">נסו שוב</button></div><div class="opts two p2 sql"><label class="opt pick"><input type="radio" name="q14" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> <span class="f">MIN</span>(unit_price) <span class="k">AS</span> max_unit_price
+<span class="k">FROM</span> products;</pre></label><label class="opt pick"><input type="radio" name="q14" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> <span class="f">SUM</span>(unit_price) <span class="k">AS</span> max_unit_price
+<span class="k">FROM</span> products;</pre></label><label class="opt pick" data-ok><input type="radio" name="q14" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> <span class="f">MAX</span>(unit_price) <span class="k">AS</span> max_unit_price
+<span class="k">FROM</span> products;</pre></label><label class="opt pick"><input type="radio" name="q14" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> unit_price <span class="k">AS</span> max_unit_price
+<span class="k">FROM</span> products
+<span class="k">ORDER</span> <span class="k">BY</span> unit_price
+<span class="k">LIMIT</span> <span class="d">1</span>;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ג</span><p><bdi dir="ltr">MAX</bdi> מחזיר את הערך הגבוה ביותר. <bdi dir="ltr">MIN</bdi> מחזיר את הנמוך ביותר, <bdi dir="ltr">SUM</bdi> מחזיר את סכום כל המחירים, וד׳ ממיינת מהזול ליקר, ולכן מחזירה את המחיר הנמוך ביותר.</p></div></section>
+<section class="q" id="q15"><div class="qhead"><span class="qn">15</span><p class="qt">כמה הזמנות ביצע הלקוח <bdi dir="ltr">QUICK</bdi>?</p><button type="button" class="retry" data-retry="15">נסו שוב</button></div><div class="opts two p2 sql"><label class="opt pick" data-ok><input type="radio" name="q15" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> quick_orders
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> customer_id = <span class="s">&#x27;QUICK&#x27;</span>;</pre></label><label class="opt pick"><input type="radio" name="q15" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> quick_orders
+<span class="k">FROM</span> customers
+<span class="k">WHERE</span> customer_id = <span class="s">&#x27;QUICK&#x27;</span>;</pre></label><label class="opt pick"><input type="radio" name="q15" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> <span class="f">SUM</span>(order_id) <span class="k">AS</span> quick_orders
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> customer_id = <span class="s">&#x27;QUICK&#x27;</span>;</pre></label><label class="opt pick"><input type="radio" name="q15" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> quick_orders
+<span class="k">FROM</span> orders;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: א</span><p>בטבלת <bdi dir="ltr">orders</bdi> יש שורה לכל הזמנה, ולכן מסננים לפי הלקוח וסופרים. ב׳ סופרת את הלקוח עצמו בטבלת <bdi dir="ltr">customers (1)</bdi>. ג׳ מסכמת מספרי הזמנות. ד׳ סופרת את כל ההזמנות.</p></div></section>
+<section class="q" id="q16"><div class="qhead"><span class="qn">16</span><p class="qt">כמה יחידות נמכרו בסך הכול מהמוצר <bdi dir="ltr">Chai</bdi>?</p><button type="button" class="retry" data-retry="16">נסו שוב</button></div><div class="opts one sql"><label class="opt pick"><input type="radio" name="q16" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> chai_units
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.product_id = p.product_id
+<span class="k">WHERE</span> p.product_name = <span class="s">&#x27;Chai&#x27;</span>;</pre></label><label class="opt pick"><input type="radio" name="q16" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> <span class="f">SUM</span>(p.units_in_stock) <span class="k">AS</span> chai_units
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.product_id = p.product_id
+<span class="k">WHERE</span> p.product_name = <span class="s">&#x27;Chai&#x27;</span>;</pre></label><label class="opt pick"><input type="radio" name="q16" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> <span class="f">AVG</span>(od.quantity) <span class="k">AS</span> chai_units
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.product_id = p.product_id
+<span class="k">WHERE</span> p.product_name = <span class="s">&#x27;Chai&#x27;</span>;</pre></label><label class="opt pick" data-ok><input type="radio" name="q16" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> <span class="f">SUM</span>(od.quantity) <span class="k">AS</span> chai_units
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.product_id = p.product_id
+<span class="k">WHERE</span> p.product_name = <span class="s">&#x27;Chai&#x27;</span>;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ד</span><p>הכמות שנמכרה נמצאת בעמודה <bdi dir="ltr">quantity</bdi> של <bdi dir="ltr">order_details</bdi>, ומסכמים אותה. א׳ סופרת בכמה שורות הזמנה המוצר מופיע. ב׳ מסכמת את המלאי, ולא את המכירות. ג׳ מחשבת ממוצע.</p></div></section>
+<section class="q" id="q17"><div class="qhead"><span class="qn">17</span><p class="qt">מה הממוצע של דמי המשלוח בהזמנות שנשלחו לצרפת?</p><button type="button" class="retry" data-retry="17">נסו שוב</button></div><div class="opts two p2 sql"><label class="opt pick"><input type="radio" name="q17" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> <span class="f">SUM</span>(freight) <span class="k">AS</span> france_avg_freight
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> ship_country = <span class="s">&#x27;France&#x27;</span>;</pre></label><label class="opt pick" data-ok><input type="radio" name="q17" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> <span class="f">AVG</span>(freight) <span class="k">AS</span> france_avg_freight
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> ship_country = <span class="s">&#x27;France&#x27;</span>;</pre></label><label class="opt pick"><input type="radio" name="q17" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> <span class="f">AVG</span>(freight) <span class="k">AS</span> france_avg_freight
+<span class="k">FROM</span> orders;</pre></label><label class="opt pick"><input type="radio" name="q17" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> <span class="f">AVG</span>(freight) <span class="k">AS</span> france_avg_freight
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> ship_city = <span class="s">&#x27;France&#x27;</span>;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ב</span><p><bdi dir="ltr">AVG</bdi> על <bdi dir="ltr">freight</bdi>, עם סינון לפי מדינת היעד. א׳ מחשבת סכום. ג׳ מחשבת ממוצע של כל ההזמנות. ד׳ מחפשת את <bdi dir="ltr">France</bdi> בעמודת העיר.</p></div></section>
+<section class="q" id="q18"><div class="qhead"><span class="qn">18</span><p class="qt">לכל קטגוריה: כמה מוצרים בה מחירם מעל 30?</p><button type="button" class="retry" data-retry="18">נסו שוב</button></div><div class="opts one sql"><label class="opt pick"><input type="radio" name="q18" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> c.category_name, <span class="f">COUNT</span>(*) <span class="k">AS</span> expensive_products
+<span class="k">FROM</span> categories <span class="k">AS</span> c
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.category_id = c.category_id
+<span class="k">GROUP</span> <span class="k">BY</span> c.category_name;</pre></label><label class="opt pick"><input type="radio" name="q18" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> c.category_name, <span class="f">COUNT</span>(*) <span class="k">AS</span> expensive_products
+<span class="k">FROM</span> categories <span class="k">AS</span> c
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.category_id = c.category_id
+<span class="k">WHERE</span> p.unit_price &lt; <span class="d">30</span>
+<span class="k">GROUP</span> <span class="k">BY</span> c.category_name;</pre></label><label class="opt pick" data-ok><input type="radio" name="q18" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> c.category_name, <span class="f">COUNT</span>(*) <span class="k">AS</span> expensive_products
+<span class="k">FROM</span> categories <span class="k">AS</span> c
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.category_id = c.category_id
+<span class="k">WHERE</span> p.unit_price &gt; <span class="d">30</span>
+<span class="k">GROUP</span> <span class="k">BY</span> c.category_name;</pre></label><label class="opt pick"><input type="radio" name="q18" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> c.category_name, <span class="f">COUNT</span>(*) <span class="k">AS</span> expensive_products
+<span class="k">FROM</span> categories <span class="k">AS</span> c
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.category_id = c.category_id
+<span class="k">WHERE</span> p.unit_price &gt; <span class="d">30</span>
+<span class="k">GROUP</span> <span class="k">BY</span> p.product_id;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ג</span><p><bdi dir="ltr">WHERE</bdi> משאיר רק מוצרים מעל 30, ואז מקבצים לפי קטגוריה וסופרים. א׳ סופרת את כל המוצרים. ב׳ סופרת מוצרים מתחת ל־30. ד׳ מקבצת לפי מוצר, ולכן בכל שורה יוצא 1.</p></div></section>
+<section class="q" id="q19"><div class="qhead"><span class="qn">19</span><p class="qt">לאילו מדינות יעד נשלחו יותר מ־50 הזמנות, וכמה הזמנות נשלחו לכל אחת?</p><button type="button" class="retry" data-retry="19">נסו שוב</button></div><div class="opts one sql"><label class="opt pick"><input type="radio" name="q19" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> ship_country, <span class="f">COUNT</span>(*) <span class="k">AS</span> country_orders
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> <span class="f">COUNT</span>(*) &gt; <span class="d">50</span>
+<span class="k">GROUP</span> <span class="k">BY</span> ship_country;</pre></label><label class="opt pick"><input type="radio" name="q19" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> ship_country, <span class="f">COUNT</span>(*) <span class="k">AS</span> country_orders
+<span class="k">FROM</span> orders
+<span class="k">GROUP</span> <span class="k">BY</span> ship_city
+<span class="k">HAVING</span> <span class="f">COUNT</span>(*) &gt; <span class="d">50</span>;</pre></label><label class="opt pick" data-ok><input type="radio" name="q19" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> ship_country, <span class="f">COUNT</span>(*) <span class="k">AS</span> country_orders
+<span class="k">FROM</span> orders
+<span class="k">GROUP</span> <span class="k">BY</span> ship_country
+<span class="k">HAVING</span> <span class="f">COUNT</span>(*) &gt; <span class="d">50</span>;</pre></label><label class="opt pick"><input type="radio" name="q19" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> ship_country, <span class="f">COUNT</span>(*) <span class="k">AS</span> country_orders
+<span class="k">FROM</span> orders
+<span class="k">GROUP</span> <span class="k">BY</span> ship_country
+<span class="k">HAVING</span> <span class="f">COUNT</span>(*) &lt; <span class="d">50</span>;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ג</span><p>מקבצים לפי מדינת יעד ומסננים קבוצות ב־<bdi dir="ltr">HAVING</bdi>. א׳ שמה את התנאי ב־<bdi dir="ltr">WHERE</bdi>, והאתר מחזיר שגיאה. ב׳ מקבצת לפי עיר. ד׳ מחזירה מדינות עם פחות מ־50 הזמנות.</p></div></section>
+<section class="q" id="q20"><div class="qhead"><span class="qn">20</span><p class="qt">לכל ספק: מה המחיר הממוצע של המוצרים שלו? מהגבוה לנמוך.</p><button type="button" class="retry" data-retry="20">נסו שוב</button></div><div class="opts one sql"><label class="opt pick" data-ok><input type="radio" name="q20" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">AVG</span>(p.unit_price) <span class="k">AS</span> avg_supplier_price
+<span class="k">FROM</span> suppliers <span class="k">AS</span> s
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.supplier_id = s.supplier_id
+<span class="k">GROUP</span> <span class="k">BY</span> s.company_name
+<span class="k">ORDER</span> <span class="k">BY</span> avg_supplier_price <span class="k">DESC</span>;</pre></label><label class="opt pick"><input type="radio" name="q20" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">AVG</span>(p.unit_price) <span class="k">AS</span> avg_supplier_price
+<span class="k">FROM</span> suppliers <span class="k">AS</span> s
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.supplier_id = s.supplier_id
+<span class="k">GROUP</span> <span class="k">BY</span> s.company_name
+<span class="k">ORDER</span> <span class="k">BY</span> s.company_name;</pre></label><label class="opt pick"><input type="radio" name="q20" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">AVG</span>(p.unit_price) <span class="k">AS</span> avg_supplier_price
+<span class="k">FROM</span> suppliers <span class="k">AS</span> s
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.supplier_id = s.supplier_id
+<span class="k">ORDER</span> <span class="k">BY</span> avg_supplier_price <span class="k">DESC</span>;</pre></label><label class="opt pick"><input type="radio" name="q20" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> s.company_name, <span class="f">SUM</span>(p.unit_price) <span class="k">AS</span> avg_supplier_price
+<span class="k">FROM</span> suppliers <span class="k">AS</span> s
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.supplier_id = s.supplier_id
+<span class="k">GROUP</span> <span class="k">BY</span> s.company_name
+<span class="k">ORDER</span> <span class="k">BY</span> avg_supplier_price <span class="k">DESC</span>;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: א</span><p>מקבצים לפי ספק, מחשבים <bdi dir="ltr">AVG</bdi> וממיינים לפי הממוצע מהגבוה לנמוך. ב׳ ממיינת לפי שם הספק. בג׳ חסר <bdi dir="ltr">GROUP BY</bdi>, ולכן חוזרת שורה אחת. ד׳ מחשבת סכום ולא ממוצע.</p></div></section>
+<section class="q" id="q21"><div class="qhead"><span class="qn">21</span><p class="qt">מה השנה האחרונה שבה בוצעה הזמנה?</p><button type="button" class="retry" data-retry="21">נסו שוב</button></div><div class="opts one sql"><label class="opt pick"><input type="radio" name="q21" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> <span class="f">MIN</span>(<span class="f">YEAR</span>(order_date)) <span class="k">AS</span> last_order_year
+<span class="k">FROM</span> orders;</pre></label><label class="opt pick"><input type="radio" name="q21" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(<span class="f">YEAR</span>(order_date)) <span class="k">AS</span> last_order_year
+<span class="k">FROM</span> orders;</pre></label><label class="opt pick"><input type="radio" name="q21" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> <span class="f">YEAR</span>(order_date) <span class="k">AS</span> last_order_year
+<span class="k">FROM</span> orders
+<span class="k">ORDER</span> <span class="k">BY</span> order_date
+<span class="k">LIMIT</span> <span class="d">1</span>;</pre></label><label class="opt pick" data-ok><input type="radio" name="q21" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> <span class="f">MAX</span>(<span class="f">YEAR</span>(order_date)) <span class="k">AS</span> last_order_year
+<span class="k">FROM</span> orders;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ד</span><p><bdi dir="ltr">YEAR</bdi> מוציא את השנה, ו־<bdi dir="ltr">MAX</bdi> מחזיר את הגדולה ביותר, כלומר האחרונה. <bdi dir="ltr">MIN</bdi> מחזיר את השנה הראשונה. <bdi dir="ltr">COUNT</bdi> סופר הזמנות. ג׳ ממיינת מהמוקדם למאוחר, ולכן מחזירה את השנה הראשונה.</p></div></section>
+<section class="q" id="q22"><div class="qhead"><span class="qn">22</span><p class="qt">בכמה שורות הזמנה ניתנה הנחה?</p><button type="button" class="retry" data-retry="22">נסו שוב</button></div><div class="opts two p2 sql"><label class="opt pick" data-ok><input type="radio" name="q22" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> discounted_lines
+<span class="k">FROM</span> order_details
+<span class="k">WHERE</span> discount &gt; <span class="d">0</span>;</pre></label><label class="opt pick"><input type="radio" name="q22" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> <span class="f">SUM</span>(discount) <span class="k">AS</span> discounted_lines
+<span class="k">FROM</span> order_details
+<span class="k">WHERE</span> discount &gt; <span class="d">0</span>;</pre></label><label class="opt pick"><input type="radio" name="q22" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> discounted_lines
+<span class="k">FROM</span> order_details;</pre></label><label class="opt pick"><input type="radio" name="q22" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> discounted_lines
+<span class="k">FROM</span> order_details
+<span class="k">WHERE</span> discount = <span class="d">0</span>;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: א</span><p>מסננים את השורות שבהן ההנחה גדולה מ־0 וסופרים אותן. ב׳ מסכמת את אחוזי ההנחה. ג׳ סופרת את כל השורות. ד׳ סופרת את השורות בלי הנחה.</p></div></section>
+<section class="q" id="q23"><div class="qhead"><span class="qn">23</span><p class="qt">מה הסכום לתשלום על הזמנה 10248? (מחיר המוצר כפול הכמות, בלי הנחה)</p><button type="button" class="retry" data-retry="23">נסו שוב</button></div><div class="opts one sql"><label class="opt pick"><input type="radio" name="q23" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> <span class="f">SUM</span>(od.quantity) <span class="k">AS</span> order_10248_total
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.product_id = p.product_id
+<span class="k">WHERE</span> od.order_id = <span class="d">10248</span>;</pre></label><label class="opt pick"><input type="radio" name="q23" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> <span class="f">SUM</span>(p.unit_price * od.quantity) <span class="k">AS</span> order_10248_total
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.product_id = p.product_id;</pre></label><label class="opt pick" data-ok><input type="radio" name="q23" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> <span class="f">SUM</span>(p.unit_price * od.quantity) <span class="k">AS</span> order_10248_total
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.product_id = p.product_id
+<span class="k">WHERE</span> od.order_id = <span class="d">10248</span>;</pre></label><label class="opt pick"><input type="radio" name="q23" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> <span class="f">AVG</span>(p.unit_price * od.quantity) <span class="k">AS</span> order_10248_total
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.product_id = p.product_id
+<span class="k">WHERE</span> od.order_id = <span class="d">10248</span>;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ג</span><p>לכל שורה בהזמנה מחשבים מחיר כפול כמות, ו־<bdi dir="ltr">SUM</bdi> מסכם את השורות של הזמנה 10248. א׳ מסכמת רק יחידות. בב׳ אין סינון, ולכן מסוכמות כל ההזמנות. ד׳ מחשבת ממוצע של השורות.</p></div></section>
+<section class="q" id="q24"><div class="qhead"><span class="qn">24</span><p class="qt">כמה מוצרים מגיעים מספקים ביפן (<bdi dir="ltr">Japan)</bdi>?</p><button type="button" class="retry" data-retry="24">נסו שוב</button></div><div class="opts one sql"><label class="opt pick"><input type="radio" name="q24" value="א"><span class="ol">א</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> japan_products
+<span class="k">FROM</span> suppliers
+<span class="k">WHERE</span> country = <span class="s">&#x27;Japan&#x27;</span>;</pre></label><label class="opt pick"><input type="radio" name="q24" value="ב"><span class="ol">ב</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> japan_products
+<span class="k">FROM</span> suppliers <span class="k">AS</span> s
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.supplier_id = s.supplier_id
+<span class="k">WHERE</span> s.city = <span class="s">&#x27;Japan&#x27;</span>;</pre></label><label class="opt pick"><input type="radio" name="q24" value="ג"><span class="ol">ג</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(<span class="k">DISTINCT</span> s.supplier_id) <span class="k">AS</span> japan_products
+<span class="k">FROM</span> suppliers <span class="k">AS</span> s
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.supplier_id = s.supplier_id
+<span class="k">WHERE</span> s.country = <span class="s">&#x27;Japan&#x27;</span>;</pre></label><label class="opt pick" data-ok><input type="radio" name="q24" value="ד"><span class="ol">ד</span><pre class="sql"><span class="k">SELECT</span> <span class="f">COUNT</span>(*) <span class="k">AS</span> japan_products
+<span class="k">FROM</span> suppliers <span class="k">AS</span> s
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.supplier_id = s.supplier_id
+<span class="k">WHERE</span> s.country = <span class="s">&#x27;Japan&#x27;</span>;</pre></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ד</span><p>מחברים ספקים למוצרים, מסננים ספקים מיפן וסופרים את שורות המוצרים. א׳ סופרת ספקים ולא מוצרים. ב׳ מחפשת את <bdi dir="ltr">Japan</bdi> בעמודת העיר. ג׳ סופרת ספקים שונים.</p></div></section>
+<h2 class="stage"><span>חלק ג׳</span>מה עושה צירוף הפונקציות?</h2><p class="sinfo">קראו את השאילתה ובחרו את ההסבר הנכון למה שהיא מחשבת.</p>
+<section class="q" id="q25"><div class="qhead"><span class="qn">25</span><p class="qt">מה מחשבת השאילתה?</p><button type="button" class="retry" data-retry="25">נסו שוב</button></div><pre class="sql code"><span class="k">SELECT</span> <span class="f">MIN</span>(order_date) <span class="k">AS</span> x
+<span class="k">FROM</span> orders;</pre><div class="opts two text"><label class="opt pick"><input type="radio" name="q25" value="א"><span class="ol">א</span><span class="ot">את התאריך של ההזמנה האחרונה</span></label><label class="opt pick" data-ok><input type="radio" name="q25" value="ב"><span class="ol">ב</span><span class="ot">את התאריך של ההזמנה הראשונה</span></label><label class="opt pick"><input type="radio" name="q25" value="ג"><span class="ol">ג</span><span class="ot">את מספר ההזמנות</span></label><label class="opt pick"><input type="radio" name="q25" value="ד"><span class="ol">ד</span><span class="ot">את מספר ההזמנה הקטן ביותר</span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ב</span><p><bdi dir="ltr">MIN</bdi> על עמודת תאריך מחזיר את התאריך המוקדם ביותר, כלומר את התאריך של ההזמנה הראשונה.</p></div></section>
+<section class="q" id="q26"><div class="qhead"><span class="qn">26</span><p class="qt">מה מחשבת השאילתה?</p><button type="button" class="retry" data-retry="26">נסו שוב</button></div><pre class="sql code"><span class="k">SELECT</span> <span class="f">AVG</span>(quantity) <span class="k">AS</span> x
+<span class="k">FROM</span> order_details
+<span class="k">WHERE</span> product_id = <span class="d">1</span>;</pre><div class="opts two text"><label class="opt pick"><input type="radio" name="q26" value="א"><span class="ol">א</span><span class="ot">את סך היחידות שנמכרו מהמוצר שמספרו 1</span></label><label class="opt pick"><input type="radio" name="q26" value="ב"><span class="ol">ב</span><span class="ot">את מספר ההזמנות של המוצר שמספרו 1</span></label><label class="opt pick" data-ok><input type="radio" name="q26" value="ג"><span class="ol">ג</span><span class="ot">את הכמות הממוצעת בשורת הזמנה של המוצר שמספרו 1</span></label><label class="opt pick"><input type="radio" name="q26" value="ד"><span class="ol">ד</span><span class="ot">את המחיר הממוצע של המוצר שמספרו 1</span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ג</span><p><bdi dir="ltr">WHERE</bdi> משאיר את שורות ההזמנה של מוצר 1, ו־<bdi dir="ltr">AVG</bdi> על <bdi dir="ltr">quantity</bdi> מחשב את הכמות הממוצעת בשורה כזו.</p></div></section>
+<section class="q" id="q27"><div class="qhead"><span class="qn">27</span><p class="qt">מה מחשבת השאילתה?</p><button type="button" class="retry" data-retry="27">נסו שוב</button></div><pre class="sql code"><span class="k">SELECT</span> <span class="f">COUNT</span>(<span class="k">DISTINCT</span> customer_id) <span class="k">AS</span> x
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> <span class="f">YEAR</span>(order_date) = <span class="d">2018</span>;</pre><div class="opts two text"><label class="opt pick"><input type="radio" name="q27" value="א"><span class="ol">א</span><span class="ot">את מספר ההזמנות בשנת 2018</span></label><label class="opt pick" data-ok><input type="radio" name="q27" value="ב"><span class="ol">ב</span><span class="ot">את מספר הלקוחות השונים שהזמינו בשנת 2018</span></label><label class="opt pick"><input type="radio" name="q27" value="ג"><span class="ol">ג</span><span class="ot">את מספר הלקוחות שנרשמו בשנת 2018</span></label><label class="opt pick"><input type="radio" name="q27" value="ד"><span class="ol">ד</span><span class="ot">את הלקוח שהזמין הכי הרבה בשנת 2018</span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ב</span><p><bdi dir="ltr">WHERE</bdi> משאיר את ההזמנות של 2018. <bdi dir="ltr">COUNT(DISTINCT customer_id)</bdi> סופר כל לקוח פעם אחת, גם אם הזמין כמה פעמים.</p></div></section>
+<section class="q" id="q28"><div class="qhead"><span class="qn">28</span><p class="qt">מה מחשבת השאילתה?</p><button type="button" class="retry" data-retry="28">נסו שוב</button></div><pre class="sql code"><span class="k">SELECT</span> <span class="f">ROUND</span>(<span class="f">SUM</span>(freight) / <span class="f">COUNT</span>(*), <span class="d">2</span>) <span class="k">AS</span> x
+<span class="k">FROM</span> orders;</pre><div class="opts two text"><label class="opt pick"><input type="radio" name="q28" value="א"><span class="ol">א</span><span class="ot">את סך דמי המשלוח</span></label><label class="opt pick"><input type="radio" name="q28" value="ב"><span class="ol">ב</span><span class="ot">את מספר ההזמנות</span></label><label class="opt pick"><input type="radio" name="q28" value="ג"><span class="ol">ג</span><span class="ot">שגיאה: אי אפשר לחלק סכום ב־<bdi dir="ltr">COUNT</bdi></span></label><label class="opt pick" data-ok><input type="radio" name="q28" value="ד"><span class="ol">ד</span><span class="ot">את הממוצע של דמי המשלוח להזמנה, מעוגל לשתי ספרות</span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ד</span><p>הסכום של דמי המשלוח מחולק במספר ההזמנות, וזה הממוצע. <bdi dir="ltr">ROUND</bdi> מעגל לשתי ספרות. התוצאה זהה ל־<bdi dir="ltr">ROUND(AVG(freight)</bdi>, 2).</p></div></section>
+<section class="q" id="q29"><div class="qhead"><span class="qn">29</span><p class="qt">מה מחזירה השאילתה?</p><button type="button" class="retry" data-retry="29">נסו שוב</button></div><pre class="sql code"><span class="k">SELECT</span> category_id, <span class="f">MAX</span>(unit_price) <span class="k">AS</span> x
+<span class="k">FROM</span> products
+<span class="k">GROUP</span> <span class="k">BY</span> category_id;</pre><div class="opts two text"><label class="opt pick" data-ok><input type="radio" name="q29" value="א"><span class="ol">א</span><span class="ot">לכל קטגוריה, המחיר של המוצר היקר ביותר בה</span></label><label class="opt pick"><input type="radio" name="q29" value="ב"><span class="ol">ב</span><span class="ot">את המוצר היקר ביותר בכל החנות</span></label><label class="opt pick"><input type="radio" name="q29" value="ג"><span class="ol">ג</span><span class="ot">לכל קטגוריה, סכום המחירים של המוצרים בה</span></label><label class="opt pick"><input type="radio" name="q29" value="ד"><span class="ol">ד</span><span class="ot">לכל מוצר, את הקטגוריה שלו</span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: א</span><p><bdi dir="ltr">GROUP BY</bdi> יוצר קבוצה לכל קטגוריה, ו־<bdi dir="ltr">MAX</bdi> מחזיר את המחיר הגבוה ביותר בכל קבוצה.</p></div></section>
+<section class="q" id="q30"><div class="qhead"><span class="qn">30</span><p class="qt">מה מחשבת השאילתה?</p><button type="button" class="retry" data-retry="30">נסו שוב</button></div><pre class="sql code"><span class="k">SELECT</span> <span class="f">SUM</span>(units_in_stock) <span class="k">AS</span> x
+<span class="k">FROM</span> products
+<span class="k">WHERE</span> discontinued = <span class="d">0</span>;</pre><div class="opts two text"><label class="opt pick"><input type="radio" name="q30" value="א"><span class="ol">א</span><span class="ot">את מספר המוצרים שעדיין נמכרים</span></label><label class="opt pick"><input type="radio" name="q30" value="ב"><span class="ol">ב</span><span class="ot">את מספר היחידות במלאי מכל המוצרים, גם אלה שהופסקו</span></label><label class="opt pick" data-ok><input type="radio" name="q30" value="ג"><span class="ol">ג</span><span class="ot">את מספר היחידות במלאי מהמוצרים שעדיין נמכרים</span></label><label class="opt pick"><input type="radio" name="q30" value="ד"><span class="ol">ד</span><span class="ot">את מספר היחידות שנמכרו מהמוצרים שעדיין נמכרים</span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ג</span><p><bdi dir="ltr">WHERE</bdi> משאיר רק מוצרים שעדיין נמכרים (<bdi dir="ltr">discontinued = 0)</bdi>, ו־<bdi dir="ltr">SUM</bdi> מסכם את היחידות שלהם במלאי.</p></div></section>
+<section class="q" id="q31"><div class="qhead"><span class="qn">31</span><p class="qt">מה מחזירה העמודה <bdi dir="ltr">x</bdi>?</p><button type="button" class="retry" data-retry="31">נסו שוב</button></div><pre class="sql code"><span class="k">SELECT</span> product_name, unit_price * <span class="d">1.17</span> <span class="k">AS</span> x
+<span class="k">FROM</span> products;</pre><div class="opts two text"><label class="opt pick"><input type="radio" name="q31" value="א"><span class="ol">א</span><span class="ot">את המחיר של כל מוצר אחרי הנחה של 17%</span></label><label class="opt pick" data-ok><input type="radio" name="q31" value="ב"><span class="ol">ב</span><span class="ot">את המחיר של כל מוצר כולל תוספת של 17%</span></label><label class="opt pick"><input type="radio" name="q31" value="ג"><span class="ol">ג</span><span class="ot">את המחיר של כל מוצר כפול 17</span></label><label class="opt pick"><input type="radio" name="q31" value="ד"><span class="ol">ד</span><span class="ot">את המחיר הממוצע כולל תוספת של 17%</span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ב</span><p>הכפלה ב־1.17 מוסיפה למחיר 17% (למשל מע״מ). החישוב נעשה לכל שורה בנפרד, ולכן כל מוצר מקבל מחיר משלו.</p></div></section>
+<section class="q" id="q32"><div class="qhead"><span class="qn">32</span><p class="qt">מה מחזירה השאילתה?</p><button type="button" class="retry" data-retry="32">נסו שוב</button></div><pre class="sql code"><span class="k">SELECT</span> ship_country, <span class="f">COUNT</span>(*) <span class="k">AS</span> n
+<span class="k">FROM</span> orders
+<span class="k">GROUP</span> <span class="k">BY</span> ship_country
+<span class="k">ORDER</span> <span class="k">BY</span> n <span class="k">DESC</span>
+<span class="k">LIMIT</span> <span class="d">1</span>;</pre><div class="opts two text"><label class="opt pick"><input type="radio" name="q32" value="א"><span class="ol">א</span><span class="ot">את כל המדינות, מהמדינה עם הכי מעט הזמנות</span></label><label class="opt pick"><input type="radio" name="q32" value="ב"><span class="ol">ב</span><span class="ot">את המדינה שנשלחו אליה הכי מעט הזמנות</span></label><label class="opt pick"><input type="radio" name="q32" value="ג"><span class="ol">ג</span><span class="ot">את מספר המדינות השונות</span></label><label class="opt pick" data-ok><input type="radio" name="q32" value="ד"><span class="ol">ד</span><span class="ot">את המדינה שנשלחו אליה הכי הרבה הזמנות, ואת מספר ההזמנות</span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ד</span><p><bdi dir="ltr">GROUP BY</bdi> סופר הזמנות לכל מדינה, <bdi dir="ltr">ORDER BY n DESC</bdi> ממיין מהגדול לקטן, ו־<bdi dir="ltr">LIMIT 1</bdi> משאיר רק את השורה הראשונה.</p></div></section>
+<h2 class="stage"><span>חלק ד׳</span>הבנת שאילתות</h2><p class="sinfo">תיקון שאילתה, שגיאות, תנאים שקולים, התפקיד של חלקי השאילתה וסדר הביצוע שלהם.</p>
+<section class="q" id="q33"><div class="qhead"><span class="qn">33</span><p class="qt">השאילתה צריכה להחזיר את הספקים שיש להם יותר מ־3 מוצרים, אבל האתר מחזיר שגיאה. מה צריך לשנות?</p><button type="button" class="retry" data-retry="33">נסו שוב</button></div><pre class="sql code"><span class="k">SELECT</span> supplier_id, <span class="f">COUNT</span>(*) <span class="k">AS</span> products
+<span class="k">FROM</span> products
+<span class="k">WHERE</span> <span class="f">COUNT</span>(*) &gt; <span class="d">3</span>
+<span class="k">GROUP</span> <span class="k">BY</span> supplier_id;</pre><div class="opts two text"><label class="opt pick"><input type="radio" name="q33" value="א"><span class="ol">א</span><span class="ot">להחליף את <bdi dir="ltr">COUNT</bdi> ב־<bdi dir="ltr">SUM</bdi></span></label><label class="opt pick"><input type="radio" name="q33" value="ב"><span class="ol">ב</span><span class="ot">למחוק את השורה <bdi dir="ltr">GROUP BY</bdi></span></label><label class="opt pick" data-ok><input type="radio" name="q33" value="ג"><span class="ol">ג</span><span class="ot">להעביר את התנאי לשורה <bdi dir="ltr">HAVING COUNT(*) &gt; 3</bdi> אחרי <bdi dir="ltr">GROUP BY</bdi></span></label><label class="opt pick"><input type="radio" name="q33" value="ד"><span class="ol">ד</span><span class="ot">להוסיף <bdi dir="ltr">DISTINCT</bdi> אחרי <bdi dir="ltr">SELECT</bdi></span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ג</span><p><bdi dir="ltr">WHERE</bdi> פועל על כל שורה לפני הקיבוץ, ולכן אי אפשר לכתוב בו <bdi dir="ltr">COUNT</bdi>. תנאי על קבוצה כותבים ב־<bdi dir="ltr">HAVING</bdi>, אחרי <bdi dir="ltr">GROUP BY</bdi>.</p></div></section>
+<section class="q" id="q34"><div class="qhead"><span class="qn">34</span><p class="qt">מה הבעיה בשאילתה?</p><button type="button" class="retry" data-retry="34">נסו שוב</button></div><pre class="sql code"><span class="k">SELECT</span> product_name, unit_price
+<span class="k">FROM</span> products
+<span class="k">ORDER</span> <span class="k">BY</span> unit_price <span class="k">DESC</span>
+<span class="k">WHERE</span> discontinued = <span class="d">0</span>;</pre><div class="opts two text"><label class="opt pick" data-ok><input type="radio" name="q34" value="א"><span class="ol">א</span><span class="ot"><bdi dir="ltr">WHERE</bdi> צריך להופיע לפני <bdi dir="ltr">ORDER BY</bdi></span></label><label class="opt pick"><input type="radio" name="q34" value="ב"><span class="ol">ב</span><span class="ot">אי אפשר למיין לפי מחיר</span></label><label class="opt pick"><input type="radio" name="q34" value="ג"><span class="ol">ג</span><span class="ot">חסר <bdi dir="ltr">GROUP BY</bdi></span></label><label class="opt pick"><input type="radio" name="q34" value="ד"><span class="ol">ד</span><span class="ot">אי אפשר להשתמש ב־<bdi dir="ltr">WHERE</bdi> וב־<bdi dir="ltr">ORDER BY</bdi> באותה שאילתה</span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: א</span><p>הסדר של חלקי השאילתה קבוע: <bdi dir="ltr">SELECT</bdi>, <bdi dir="ltr">FROM</bdi>, <bdi dir="ltr">WHERE</bdi>, <bdi dir="ltr">GROUP BY</bdi>, <bdi dir="ltr">HAVING</bdi>, <bdi dir="ltr">ORDER BY</bdi>, <bdi dir="ltr">LIMIT</bdi>. כאן <bdi dir="ltr">WHERE</bdi> כתוב אחרי <bdi dir="ltr">ORDER BY</bdi>, ולכן יש שגיאה.</p></div></section>
+<section class="q" id="q35"><div class="qhead"><span class="qn">35</span><p class="qt">מה עושה <bdi dir="ltr">LIMIT 3</bdi> בסוף שאילתה?</p><button type="button" class="retry" data-retry="35">נסו שוב</button></div><div class="opts two text"><label class="opt pick" data-ok><input type="radio" name="q35" value="א"><span class="ol">א</span><span class="ot">מחזיר רק את 3 השורות הראשונות בתוצאה</span></label><label class="opt pick"><input type="radio" name="q35" value="ב"><span class="ol">ב</span><span class="ot">מחזיר רק שורות שהערך בהן קטן מ־3</span></label><label class="opt pick"><input type="radio" name="q35" value="ג"><span class="ol">ג</span><span class="ot">מחזיר רק 3 עמודות</span></label><label class="opt pick"><input type="radio" name="q35" value="ד"><span class="ol">ד</span><span class="ot">מדלג על 3 השורות הראשונות</span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: א</span><p><bdi dir="ltr">LIMIT</bdi> מגביל את מספר השורות בתוצאה. יחד עם <bdi dir="ltr">ORDER BY</bdi> הוא מחזיר את 3 הראשונות לפי המיון, למשל 3 היקרים ביותר.</p></div></section>
+<section class="q" id="q36"><div class="qhead"><span class="qn">36</span><p class="qt">איזה תנאי שקול לתנאי <bdi dir="ltr">unit_price &lt;&gt; 20</bdi>?</p><button type="button" class="retry" data-retry="36">נסו שוב</button></div><div class="opts two text"><label class="opt pick"><input type="radio" name="q36" value="א"><span class="ol">א</span><span class="ot"><bdi dir="ltr">unit_price &lt; 20 AND unit_price &gt; 20</bdi></span></label><label class="opt pick"><input type="radio" name="q36" value="ב"><span class="ol">ב</span><span class="ot"><bdi dir="ltr">unit_price = 20</bdi></span></label><label class="opt pick" data-ok><input type="radio" name="q36" value="ג"><span class="ol">ג</span><span class="ot"><bdi dir="ltr">unit_price &lt; 20 OR unit_price &gt; 20</bdi></span></label><label class="opt pick"><input type="radio" name="q36" value="ד"><span class="ol">ד</span><span class="ot"><bdi dir="ltr">unit_price &gt;= 20</bdi></span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ג</span><p>&lt;&gt; פירושו &quot;שונה מ־&quot;. מחיר שונה מ־20 הוא מחיר קטן מ־20 או גדול מ־20, ולכן <bdi dir="ltr">OR</bdi>. עם <bdi dir="ltr">AND</bdi> (א׳) אין מחיר שמקיים את שני התנאים.</p></div></section>
+<section class="q" id="q37"><div class="qhead"><span class="qn">37</span><p class="qt">בטבלת <bdi dir="ltr">orders</bdi>, מה ההבדל בין <bdi dir="ltr">COUNT(*)</bdi> לבין <bdi dir="ltr">COUNT(DISTINCT customer_id)</bdi>?</p><button type="button" class="retry" data-retry="37">נסו שוב</button></div><div class="opts two text"><label class="opt pick"><input type="radio" name="q37" value="א"><span class="ol">א</span><span class="ot">אין הבדל, שניהם סופרים לקוחות</span></label><label class="opt pick" data-ok><input type="radio" name="q37" value="ב"><span class="ol">ב</span><span class="ot"><bdi dir="ltr">COUNT(*)</bdi> סופר הזמנות, ו־<bdi dir="ltr">COUNT(DISTINCT customer_id)</bdi> סופר לקוחות שונים</span></label><label class="opt pick"><input type="radio" name="q37" value="ג"><span class="ol">ג</span><span class="ot"><bdi dir="ltr">COUNT(*)</bdi> סופר לקוחות שונים, ו־<bdi dir="ltr">COUNT(DISTINCT customer_id)</bdi> סופר הזמנות</span></label><label class="opt pick"><input type="radio" name="q37" value="ד"><span class="ol">ד</span><span class="ot"><bdi dir="ltr">COUNT(DISTINCT customer_id)</bdi> מחזיר את רשימת הלקוחות</span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ב</span><p>בטבלת <bdi dir="ltr">orders</bdi> יש שורה לכל הזמנה, ולכן <bdi dir="ltr">COUNT(*)</bdi> סופר הזמנות. <bdi dir="ltr">DISTINCT</bdi> סופר כל לקוח פעם אחת, גם אם הזמין הרבה פעמים.</p></div></section>
+<section class="q" id="q38"><div class="qhead"><span class="qn">38</span><p class="qt">בשאילתה כתוב <bdi dir="ltr">p.category_id</bdi> ו־<bdi dir="ltr">c.category_id</bdi>. למה צריך את האותיות <bdi dir="ltr">p</bdi> ו־<bdi dir="ltr">c</bdi> לפני שם העמודה?</p><button type="button" class="retry" data-retry="38">נסו שוב</button></div><pre class="sql code"><span class="k">SELECT</span> p.product_name, c.category_name
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> categories <span class="k">AS</span> c <span class="k">ON</span> p.category_id = c.category_id;</pre><div class="opts two text"><label class="opt pick"><input type="radio" name="q38" value="א"><span class="ol">א</span><span class="ot">כדי למיין את התוצאה</span></label><label class="opt pick"><input type="radio" name="q38" value="ב"><span class="ol">ב</span><span class="ot">כי בלי האות העמודה תוחזר ריקה</span></label><label class="opt pick"><input type="radio" name="q38" value="ג"><span class="ol">ג</span><span class="ot">כדי לחשב את מספר המוצרים בכל קטגוריה</span></label><label class="opt pick" data-ok><input type="radio" name="q38" value="ד"><span class="ol">ד</span><span class="ot">כי העמודה <bdi dir="ltr">category_id</bdi> נמצאת בשתי הטבלאות, והאות מציינת לאיזו טבלה מתכוונים</span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ד</span><p><bdi dir="ltr">p</bdi> ו־<bdi dir="ltr">c</bdi> הם הכינויים של הטבלאות (<bdi dir="ltr">AS p</bdi>, <bdi dir="ltr">AS c)</bdi>. כשעמודה באותו שם נמצאת בשתי הטבלאות, צריך לציין מאיזו טבלה היא, אחרת האתר מחזיר שגיאה של שם עמודה לא חד־משמעי.</p></div></section>
+<section class="q" id="q39"><div class="qhead"><span class="qn">39</span><p class="qt">מה תפקיד <bdi dir="ltr">AS n</bdi> בשאילתה?</p><button type="button" class="retry" data-retry="39">נסו שוב</button></div><pre class="sql code"><span class="k">SELECT</span> country, <span class="f">COUNT</span>(*) <span class="k">AS</span> n
+<span class="k">FROM</span> customers
+<span class="k">GROUP</span> <span class="k">BY</span> country
+<span class="k">ORDER</span> <span class="k">BY</span> n <span class="k">DESC</span>;</pre><div class="opts two text"><label class="opt pick" data-ok><input type="radio" name="q39" value="א"><span class="ol">א</span><span class="ot">לתת שם לעמודת התוצאה, כדי שאפשר יהיה להשתמש בו, למשל ב־<bdi dir="ltr">ORDER BY</bdi></span></label><label class="opt pick"><input type="radio" name="q39" value="ב"><span class="ol">ב</span><span class="ot">לסנן רק שורות שהערך בהן הוא <bdi dir="ltr">n</bdi></span></label><label class="opt pick"><input type="radio" name="q39" value="ג"><span class="ol">ג</span><span class="ot">לספור <bdi dir="ltr">n</bdi> שורות</span></label><label class="opt pick"><input type="radio" name="q39" value="ד"><span class="ol">ד</span><span class="ot">לחבר טבלה בשם <bdi dir="ltr">n</bdi></span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: א</span><p><bdi dir="ltr">AS</bdi> נותן כינוי לעמודה. כאן לעמודה של <bdi dir="ltr">COUNT(*)</bdi> קוראים <bdi dir="ltr">n</bdi>, ו־<bdi dir="ltr">ORDER BY n DESC</bdi> ממיין לפיה.</p></div></section>
+<section class="q" id="q40"><div class="qhead"><span class="qn">40</span><p class="qt">איפה כותבים את החלק <bdi dir="ltr">HAVING</bdi> בשאילתה?</p><button type="button" class="retry" data-retry="40">נסו שוב</button></div><div class="opts two text"><label class="opt pick"><input type="radio" name="q40" value="א"><span class="ol">א</span><span class="ot">לפני <bdi dir="ltr">WHERE</bdi></span></label><label class="opt pick" data-ok><input type="radio" name="q40" value="ב"><span class="ol">ב</span><span class="ot">אחרי <bdi dir="ltr">GROUP BY</bdi> ולפני <bdi dir="ltr">ORDER BY</bdi></span></label><label class="opt pick"><input type="radio" name="q40" value="ג"><span class="ol">ג</span><span class="ot">אחרי <bdi dir="ltr">ORDER BY</bdi></span></label><label class="opt pick"><input type="radio" name="q40" value="ד"><span class="ol">ד</span><span class="ot">מיד אחרי <bdi dir="ltr">SELECT</bdi></span></label></div><div class="why"><span class="verdict"></span><span class="ans">התשובה הנכונה: ב</span><p><bdi dir="ltr">HAVING</bdi> מסנן קבוצות, ולכן הוא בא אחרי <bdi dir="ltr">GROUP BY</bdi> שיוצר אותן. <bdi dir="ltr">ORDER BY</bdi> ממיין את התוצאה הסופית ובא אחריו.</p></div></section>
+<section class="summary">
+  <h2 class="stage"><span>סיכום</span>התוצאה שלכם</h2>
+  <div class="grid g40"><a href="#q1"><b>1</b><span data-q="1"></span></a><a href="#q2"><b>2</b><span data-q="2"></span></a><a href="#q3"><b>3</b><span data-q="3"></span></a><a href="#q4"><b>4</b><span data-q="4"></span></a><a href="#q5"><b>5</b><span data-q="5"></span></a><a href="#q6"><b>6</b><span data-q="6"></span></a><a href="#q7"><b>7</b><span data-q="7"></span></a><a href="#q8"><b>8</b><span data-q="8"></span></a><a href="#q9"><b>9</b><span data-q="9"></span></a><a href="#q10"><b>10</b><span data-q="10"></span></a><a href="#q11"><b>11</b><span data-q="11"></span></a><a href="#q12"><b>12</b><span data-q="12"></span></a><a href="#q13"><b>13</b><span data-q="13"></span></a><a href="#q14"><b>14</b><span data-q="14"></span></a><a href="#q15"><b>15</b><span data-q="15"></span></a><a href="#q16"><b>16</b><span data-q="16"></span></a><a href="#q17"><b>17</b><span data-q="17"></span></a><a href="#q18"><b>18</b><span data-q="18"></span></a><a href="#q19"><b>19</b><span data-q="19"></span></a><a href="#q20"><b>20</b><span data-q="20"></span></a><a href="#q21"><b>21</b><span data-q="21"></span></a><a href="#q22"><b>22</b><span data-q="22"></span></a><a href="#q23"><b>23</b><span data-q="23"></span></a><a href="#q24"><b>24</b><span data-q="24"></span></a><a href="#q25"><b>25</b><span data-q="25"></span></a><a href="#q26"><b>26</b><span data-q="26"></span></a><a href="#q27"><b>27</b><span data-q="27"></span></a><a href="#q28"><b>28</b><span data-q="28"></span></a><a href="#q29"><b>29</b><span data-q="29"></span></a><a href="#q30"><b>30</b><span data-q="30"></span></a><a href="#q31"><b>31</b><span data-q="31"></span></a><a href="#q32"><b>32</b><span data-q="32"></span></a><a href="#q33"><b>33</b><span data-q="33"></span></a><a href="#q34"><b>34</b><span data-q="34"></span></a><a href="#q35"><b>35</b><span data-q="35"></span></a><a href="#q36"><b>36</b><span data-q="36"></span></a><a href="#q37"><b>37</b><span data-q="37"></span></a><a href="#q38"><b>38</b><span data-q="38"></span></a><a href="#q39"><b>39</b><span data-q="39"></span></a><a href="#q40"><b>40</b><span data-q="40"></span></a></div>
+  <div class="sumbar"><span class="score"></span><span class="btns"><button type="button" id="reveal" aria-pressed="false">הצג תשובות</button><button type="button" id="clear">להתחיל מחדש</button></span></div>
+</section>
+</div>
+</div>
+<script>
+(function () {
+  var KEY = 'sql-practice-40';
+  var total = document.querySelectorAll('section.q').length;
+  var ans = {};
+  try { ans = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(ans)); } catch (e) {} }
+  function render() {
+    var done = 0, right = 0;
+    for (var q = 1; q <= total; q++) {
+      var sec = document.getElementById('q' + q), v = ans[q] || '', ok = false;
+      sec.querySelectorAll('input').forEach(function (i) {
+        i.checked = i.value === v; i.disabled = !!v;
+        if (i.checked && i.closest('.pick').hasAttribute('data-ok')) ok = true;
+      });
+      sec.classList.toggle('done', !!v); sec.classList.toggle('right', !!v && ok); sec.classList.toggle('wrong', !!v && !ok);
+      if (v) { done++; if (ok) right++; }
+      document.querySelectorAll('[data-q="' + q + '"]').forEach(function (c) {
+        c.textContent = v ? (ok ? '✓' : '✗') : '';
+        c.parentNode.classList.toggle('right', !!v && ok); c.parentNode.classList.toggle('wrong', !!v && !ok);
+      });
+    }
+    var t = 'נכון ' + right + ' מתוך ' + done + ' שעניתם · נשארו ' + (total - done) + ' שאלות';
+    document.querySelectorAll('.score').forEach(function (s) { s.textContent = t; });
+  }
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.type === 'radio' && t.name.charAt(0) === 'q') { ans[t.name.slice(1)] = t.value; save(); render(); }
+  });
+  document.addEventListener('click', function (e) {
+    var r = e.target.closest('[data-retry]');
+    if (r) { delete ans[r.getAttribute('data-retry')]; save(); render(); }
+    if (e.target.id === 'clear') { ans = {}; save(); render(); }
+    if (e.target.id === 'reveal') {
+      var on = document.body.classList.toggle('reveal');
+      e.target.textContent = on ? 'הסתר תשובות' : 'הצג תשובות';
+      e.target.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+  });
+  render();
+})();
+</script>
+</body>
+</html>
