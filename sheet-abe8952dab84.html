@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&display=swap">
 <style>
-/* Layout: one printable A4 answer sheet. Header with pupil details, then 24 rows of four circles in two columns, then a score box. */
+/* Layout: one printable A4 answer sheet. Header with pupil details, then a grid of 24 numbered boxes to write the chosen letter in (like the table in the test), then a score box. */
 :root {
   --bg: #EEF1F5; --sheet: #FFFFFF; --ink: #172033; --muted: #556074; --line: #C9D0DB; --head: #E4E9F1; --accent: #2457C5;
   --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
@@ -30,29 +30,36 @@ h1 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: c
 .who span { display: flex; align-items: baseline; gap: 8px; }
 .who i { flex: 1; border-bottom: 1px solid var(--ink); height: 1.3em; }
 .how { margin: 0; border: 1px solid var(--line); border-radius: 6px; padding: 8px 14px; background: var(--head); }
-.how .b { vertical-align: middle; }
-.how .b.x { background: var(--ink); color: var(--sheet); }
-.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
-table.ans { width: 100%; border-collapse: collapse; }
-.ans th, .ans td { border: 1px solid var(--line); text-align: center; padding: 5px 4px; }
-.ans thead th { background: var(--head); font-family: var(--font-display); font-weight: 500; font-size: 15px; }
-.ans tbody th { font-family: var(--font-display); font-weight: 700; font-size: 17px; width: 22%; font-variant-numeric: tabular-nums; }
-.ans tbody tr:nth-child(odd) td, .ans tbody tr:nth-child(odd) th { background: color-mix(in srgb, var(--head) 40%, transparent); }
-.b { display: inline-grid; place-items: center; width: 28px; height: 28px; border: 1.5px solid var(--ink); border-radius: 50%; font-family: var(--font-display); font-weight: 500; font-size: 14px; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); border: 1.5px solid var(--ink); border-radius: 6px; overflow: hidden; }
+.grid div { display: flex; flex-direction: column; align-items: stretch; border-inline-start: 1px solid var(--line); border-top: 1.5px solid var(--ink); }
+.grid div:nth-child(12n+1) { border-inline-start: 0; }
+.grid div:nth-child(-n+12) { border-top: 0; }
+.grid b { text-align: center; background: var(--head); font-family: var(--font-display); font-weight: 700; font-size: 15px; padding: 3px 0; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.grid span { height: 56px; }
+@media (max-width: 640px) {
+  .grid { grid-template-columns: repeat(6, 1fr); }
+  .grid div:nth-child(12n+1) { border-inline-start: 1px solid var(--line); }
+  .grid div:nth-child(6n+1) { border-inline-start: 0; }
+  .grid div:nth-child(-n+12) { border-top: 1.5px solid var(--ink); }
+  .grid div:nth-child(-n+6) { border-top: 0; }
+}
+@media (max-width: 640px) { .who { grid-template-columns: 1fr; } }
 .score { display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: baseline; justify-content: space-between; border-top: 3px double var(--line); padding-top: 14px; font-weight: 700; }
 .score span { display: flex; align-items: baseline; gap: 8px; }
 .score i { display: inline-block; width: 70px; border-bottom: 1px solid var(--ink); }
-@media (max-width: 640px) { .cols { grid-template-columns: 1fr; } .who { grid-template-columns: 1fr; } }
 @media print {
   @page { size: A4; margin: 14mm; }
   body { background: none; font-size: 14px; }
   .wrap { padding: 0; max-width: none; }
   .sheet { border: 0; padding: 0; gap: 14px; }
   .site-back, #fs-slot, .fs-ctl { display: none !important; }
-  .cols { grid-template-columns: 1fr 1fr !important; }
   .who { grid-template-columns: 2fr 1fr 1fr !important; }
-  .ans th, .ans td { padding: 10px 4px; }
-  .b { width: 30px; height: 30px; }
+  .grid { grid-template-columns: repeat(12, 1fr) !important; }
+  .grid div { border-inline-start: 1px solid var(--line) !important; border-top: 1.5px solid var(--ink) !important; }
+  .grid div:nth-child(12n+1) { border-inline-start: 0 !important; }
+  .grid div:nth-child(-n+12) { border-top: 0 !important; }
+  .grid span { height: 24mm; }
+  .grid b { font-size: 14pt; padding: 2mm 0; }
 }
 </style>
 <style>
@@ -73,8 +80,8 @@ table.ans { width: 100%; border-collapse: collapse; }
     <p class="sub">24 שאלות · לכל שאלה תשובה נכונה אחת</p>
   </header>
   <div class="who"><span>שם: <i></i></span><span>כיתה: <i></i></span><span>תאריך: <i></i></span></div>
-  <p class="how">לכל שאלה מלאו את העיגול של התשובה שבחרתם, כך: <span class="b x">ב</span>. כדי לשנות תשובה, מחקו את הסימון הקודם וכתבו את האות הנכונה ליד מספר השאלה.</p>
-  <div class="cols"><table class="ans"><thead><tr><th>שאלה</th><th>א</th><th>ב</th><th>ג</th><th>ד</th></tr></thead><tbody><tr><th>1</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>2</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>3</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>4</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>5</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>6</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>7</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>8</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>9</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>10</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>11</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>12</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr></tbody></table><table class="ans"><thead><tr><th>שאלה</th><th>א</th><th>ב</th><th>ג</th><th>ד</th></tr></thead><tbody><tr><th>13</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>14</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>15</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>16</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>17</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>18</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>19</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>20</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>21</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>22</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>23</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>24</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr></tbody></table></div>
+  <p class="how">כתבו בכל משבצת את האות של התשובה שבחרתם: א, ב, ג או ד. כדי לשנות תשובה, מחקו את האות הקודמת וכתבו את החדשה בבירור.</p>
+  <div class="grid"><div><b>1</b><span></span></div><div><b>2</b><span></span></div><div><b>3</b><span></span></div><div><b>4</b><span></span></div><div><b>5</b><span></span></div><div><b>6</b><span></span></div><div><b>7</b><span></span></div><div><b>8</b><span></span></div><div><b>9</b><span></span></div><div><b>10</b><span></span></div><div><b>11</b><span></span></div><div><b>12</b><span></span></div><div><b>13</b><span></span></div><div><b>14</b><span></span></div><div><b>15</b><span></span></div><div><b>16</b><span></span></div><div><b>17</b><span></span></div><div><b>18</b><span></span></div><div><b>19</b><span></span></div><div><b>20</b><span></span></div><div><b>21</b><span></span></div><div><b>22</b><span></span></div><div><b>23</b><span></span></div><div><b>24</b><span></span></div></div>
   <div class="score"><span>מספר תשובות נכונות: <i></i> מתוך 24</span><span>ציון: <i></i></span></div>
 </div>
 </div>
