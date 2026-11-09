@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>מבחן SQL אמריקאי · דף תשובות</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&display=swap">
+<style>
+/* Layout: one printable A4 answer sheet. Header with pupil details, then 24 rows of four circles in two columns, then a score box. */
+:root {
+  --bg: #EEF1F5; --sheet: #FFFFFF; --ink: #172033; --muted: #556074; --line: #C9D0DB; --head: #E4E9F1; --accent: #2457C5;
+  --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --font-body: "Assistant", "Arial Hebrew", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #3A4558; --head: #1F2836; --accent: #84A9FF; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #3A4558; --head: #1F2836; --accent: #84A9FF; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.45; }
+.wrap { max-width: 820px; margin: 0 auto; padding-block: 24px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sheet { background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; padding: clamp(18px, 4vw, 40px); display: flex; flex-direction: column; gap: 18px; }
+h1 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: clamp(24px, 3.4vw, 32px); line-height: 1.2; }
+.sub { margin: 0; color: var(--muted); }
+.who { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px 24px; font-weight: 600; }
+.who span { display: flex; align-items: baseline; gap: 8px; }
+.who i { flex: 1; border-bottom: 1px solid var(--ink); height: 1.3em; }
+.how { margin: 0; border: 1px solid var(--line); border-radius: 6px; padding: 8px 14px; background: var(--head); }
+.how .b { vertical-align: middle; }
+.how .b.x { background: var(--ink); color: var(--sheet); }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+table.ans { width: 100%; border-collapse: collapse; }
+.ans th, .ans td { border: 1px solid var(--line); text-align: center; padding: 5px 4px; }
+.ans thead th { background: var(--head); font-family: var(--font-display); font-weight: 500; font-size: 15px; }
+.ans tbody th { font-family: var(--font-display); font-weight: 700; font-size: 17px; width: 22%; font-variant-numeric: tabular-nums; }
+.ans tbody tr:nth-child(odd) td, .ans tbody tr:nth-child(odd) th { background: color-mix(in srgb, var(--head) 40%, transparent); }
+.b { display: inline-grid; place-items: center; width: 28px; height: 28px; border: 1.5px solid var(--ink); border-radius: 50%; font-family: var(--font-display); font-weight: 500; font-size: 14px; color: var(--muted); }
+.score { display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: baseline; justify-content: space-between; border-top: 3px double var(--line); padding-top: 14px; font-weight: 700; }
+.score span { display: flex; align-items: baseline; gap: 8px; }
+.score i { display: inline-block; width: 70px; border-bottom: 1px solid var(--ink); }
+@media (max-width: 640px) { .cols { grid-template-columns: 1fr; } .who { grid-template-columns: 1fr; } }
+@media print {
+  @page { size: A4; margin: 14mm; }
+  body { background: none; font-size: 14px; }
+  .wrap { padding: 0; max-width: none; }
+  .sheet { border: 0; padding: 0; gap: 14px; }
+  .site-back, #fs-slot, .fs-ctl { display: none !important; }
+  .cols { grid-template-columns: 1fr 1fr !important; }
+  .who { grid-template-columns: 2fr 1fr 1fr !important; }
+  .ans th, .ans td { padding: 10px 4px; }
+  .b { width: 30px; height: 30px; }
+}
+</style>
+<style>
+/* Back link to the tests list */
+.site-back{color:var(--accent);font-family:var(--font-body,"Assistant","Arial Hebrew",Arial,sans-serif);font-weight:600;font-size:15px;text-decoration:none;width:fit-content;white-space:nowrap}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.wrap > .site-back{display:block;margin-bottom:12px}
+@media print{.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="wrap" dir="rtl">
+  <a class="site-back" href="tests.html">→ חזרה לרשימת המבחנים</a>
+<div class="sheet">
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <h1>מבחן SQL אמריקאי · דף תשובות</h1>
+    <p class="sub">24 שאלות · לכל שאלה תשובה נכונה אחת</p>
+  </header>
+  <div class="who"><span>שם: <i></i></span><span>כיתה: <i></i></span><span>תאריך: <i></i></span></div>
+  <p class="how">לכל שאלה מלאו את העיגול של התשובה שבחרתם, כך: <span class="b x">ב</span>. כדי לשנות תשובה, מחקו את הסימון הקודם וכתבו את האות הנכונה ליד מספר השאלה.</p>
+  <div class="cols"><table class="ans"><thead><tr><th>שאלה</th><th>א</th><th>ב</th><th>ג</th><th>ד</th></tr></thead><tbody><tr><th>1</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>2</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>3</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>4</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>5</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>6</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>7</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>8</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>9</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>10</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>11</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>12</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr></tbody></table><table class="ans"><thead><tr><th>שאלה</th><th>א</th><th>ב</th><th>ג</th><th>ד</th></tr></thead><tbody><tr><th>13</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>14</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>15</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>16</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>17</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>18</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>19</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>20</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>21</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>22</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>23</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr><tr><th>24</th><td><span class="b">א</span></td><td><span class="b">ב</span></td><td><span class="b">ג</span></td><td><span class="b">ד</span></td></tr></tbody></table></div>
+  <div class="score"><span>מספר תשובות נכונות: <i></i> מתוך 24</span><span>ציון: <i></i></span></div>
+</div>
+</div>
+</body>
+</html>
