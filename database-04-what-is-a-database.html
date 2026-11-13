@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>מה זה בסיס נתונים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column; numbered sections; rule cards with a failed attempt and the database's answer. */
+:root{
+  --bg:#eef1f5; --paper:#fcfcfd; --ink:#172033; --muted:#556074; --line:#d6dbe3;
+  --accent:#2457c5; --accent-soft:#e4e9f1; --mark:#a34e16; --grid:rgba(36,87,197,.06);
+  --ok:#1d7a4a; --ok-soft:#e2f2e9; --bad:#b3261e; --bad-soft:#fbe9e7;
+  --f-display:"Rubik","Arial Hebrew",Arial,sans-serif;
+  --f-body:"Assistant","Arial Hebrew",Arial,sans-serif;
+  --f-mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e131b; --paper:#161d29; --ink:#e7ebf2; --muted:#9aa5b8; --line:#2b3546;
+  --accent:#84a9ff; --accent-soft:#1f2836; --mark:#f0a46f; --grid:rgba(132,169,255,.05);
+  --ok:#6fd39c; --ok-soft:#173025; --bad:#ff8a80; --bad-soft:#3a1d1b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e131b; --paper:#161d29; --ink:#e7ebf2; --muted:#9aa5b8; --line:#2b3546;
+  --accent:#84a9ff; --accent-soft:#1f2836; --mark:#f0a46f; --grid:rgba(132,169,255,.05);
+  --ok:#6fd39c; --ok-soft:#173025; --bad:#ff8a80; --bad-soft:#3a1d1b; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:18px;line-height:1.7;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+.wrap{max-width:900px;margin:0 auto;padding-block:32px 104px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.25;margin:0;text-wrap:balance}
+h1{font-size:2.5rem}
+h2{font-size:1.6rem;display:flex;gap:12px;align-items:baseline}
+h2 .n{font-family:var(--f-mono);font-size:1.05rem;color:var(--paper);background:var(--accent);border-radius:99px;padding:0 10px;flex:none}
+h3{font-size:1.15rem}
+p{margin:0}
+code,.c,pre{font-family:var(--f-mono);font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code,.c{direction:ltr;unicode-bidi:isolate;font-size:.86em;background:var(--accent-soft);border-radius:4px;padding:0 4px}
+pre{margin:0;direction:ltr;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:14.5px;line-height:1.55;overflow-x:auto;white-space:pre}
+.kw{color:var(--accent);font-weight:600}
+.site-back{color:var(--accent);font-weight:600;font-size:15px;text-decoration:none;width:fit-content}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+header{display:flex;flex-direction:column;gap:12px}
+.eyebrow{font-size:.8rem;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.lead{font-size:1.15rem;max-width:66ch}
+section{display:flex;flex-direction:column;gap:16px}
+.box{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px 22px;display:flex;flex-direction:column;gap:10px}
+.key{border-inline-start:5px solid var(--mark)}
+.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:14px}
+.three .box h3{color:var(--accent)}
+.three .box .big{font-family:var(--f-display);font-size:2rem;color:var(--mark);line-height:1}
+.muted{color:var(--muted)}
+.small{font-size:.92rem}
+ul.plain{margin:0;padding-inline-start:22px;display:flex;flex-direction:column;gap:6px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr));gap:10px}
+.stats div{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column}
+.stats b{font-family:var(--f-display);font-size:1.7rem;color:var(--accent);line-height:1.2}
+.stats span{color:var(--muted);font-size:.92rem}
+/* order 10248: the order in the middle, the tables it uses around it */
+.order{display:grid;grid-template-columns:1fr 1.3fr 1fr;grid-template-areas:"cus ord emp" "shp ord det" "shp pro det";gap:12px;align-items:stretch}
+.order .t{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.order .t .tn{font-family:var(--f-mono);font-weight:600;color:var(--accent);direction:ltr;text-align:right;font-size:.95rem}
+.order .t .via{font-size:.85rem;color:var(--muted)}
+.order .ord{grid-area:ord;border:2px solid var(--mark);justify-content:center}
+.order .ord .tn{color:var(--mark)}
+.order .cus{grid-area:cus}.order .emp{grid-area:emp}.order .shp{grid-area:shp}.order .det{grid-area:det}.order .pro{grid-area:pro}
+@media (max-width:640px){.order{grid-template-columns:1fr;grid-template-areas:"ord" "cus" "emp" "shp" "det" "pro"}}
+/* rules */
+.rules{display:flex;flex-direction:column;gap:16px}
+.rule{background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.rule .rh{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;padding:14px 20px;border-bottom:1px solid var(--line)}
+.rule .rh h3{font-size:1.2rem}
+.rule .rh .tag{font-family:var(--f-mono);font-variant-ligatures:none;font-size:.85rem;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:99px;padding:1px 10px;direction:ltr}
+.rule .rh .kind{font-size:.82rem;font-weight:700;color:var(--mark);margin-inline-start:auto}
+.rule .rb{padding:14px 20px 18px;display:flex;flex-direction:column;gap:12px}
+.try{display:grid;grid-template-columns:1fr;gap:6px}
+.lbl{font-size:.82rem;font-weight:700;color:var(--muted)}
+.err{direction:ltr;text-align:left;font-family:var(--f-mono);font-variant-ligatures:none;font-size:14px;color:var(--bad);background:var(--bad-soft);border-radius:8px;padding:8px 14px}
+.okmsg{color:var(--ok);background:var(--ok-soft);border-radius:8px;padding:8px 14px;font-size:.97rem}
+.kinds{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:12px}
+.kinds .box h3{font-size:1.05rem;color:var(--mark)}
+table.miss{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+table.miss th,table.miss td{text-align:right;padding:8px 14px;border-top:1px solid var(--line);vertical-align:top}
+table.miss th{background:var(--accent-soft);font-family:var(--f-display);font-weight:500;border-top:0}
+/* check questions */
+details{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 18px}
+details summary{cursor:pointer;font-weight:700;list-style:none;display:flex;gap:10px}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"?";flex:none;width:1.6rem;height:1.6rem;border-radius:50%;background:var(--accent);color:var(--paper);display:grid;place-items:center;font-family:var(--f-mono);font-size:.9rem;margin-top:2px}
+details[open] summary{margin-bottom:8px}
+details .ans{border-top:1px dashed var(--line);padding-top:8px}
+footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);padding-top:16px}
+@media print{.site-back{display:none} body{background:#fff} details{break-inside:avoid} details .ans{display:block}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="wrap">
+<a class="site-back" href="index.html#database">→ חזרה לנושא: מסד הנתונים Northwind</a>
+
+<header>
+  <span class="eyebrow">יסודות · בסיס נתונים · Northwind</span>
+  <h1>מה זה בסיס נתונים</h1>
+  <p class="lead">בסיס נתונים (נקרא גם מסד נתונים) הוא כלי ששומר כמות גדולה של נתונים שקשורים זה לזה, שומר שהם יישארו תקינים, ועונה על שאלות עליהם. בדף הזה נראה את שלושת התפקידים האלה על הנתונים של חברת Northwind.</p>
+</header>
+
+<!-- 1 -->
+<section>
+  <h2><span class="n">1</span>תוכנה שמנהלת את הנתונים</h2>
+  <p>הנתונים עצמם נשמרים בקבצים, אבל אף אחד לא פותח את הקבצים האלה ישירות. כל פעולה עוברת דרך תוכנה שנקראת <b>מערכת לניהול בסיס נתונים</b> (DBMS). התוכנה מקבלת בקשה, בודקת אותה, מבצעת אותה ומחזירה תשובה. דוגמאות למערכות כאלה: SQLite (שעליה עובד האתר sql-practice.com), SQL Server, MySQL ו־PostgreSQL.</p>
+  <div class="three">
+    <div class="box"><span class="big">1</span><h3>שומרת נתונים מורכבים</h3><p>הרבה סוגים של דברים (לקוחות, הזמנות, מוצרים) והקשרים ביניהם, כשכל עובדה שמורה פעם אחת.</p></div>
+    <div class="box"><span class="big">2</span><h3>שומרת על התקינות</h3><p>בודקת כל שינוי לפי כללים שהוגדרו מראש, ודוחה שינוי שהיה הופך את הנתונים ללא תקינים.</p></div>
+    <div class="box"><span class="big">3</span><h3>עונה על שאלות</h3><p>מקבלת שאלה בשפת SQL, מוצאת את הנתונים בכל הטבלאות הנדרשות ומחזירה טבלת תוצאה.</p></div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section>
+  <h2><span class="n">2</span>נתונים מורכבים</h2>
+  <p>Northwind היא חברה קטנה שמוכרת מזון. כדי לנהל את העסק שלה צריך לשמור מידע על הרבה דברים שונים, וכל אחד מהם קשור לאחרים: לקוח מזמין, הזמנה כוללת מוצרים, מוצר שייך לקטגוריה ומגיע מספק, עובד מטפל בהזמנה וחברת שילוח שולחת אותה.</p>
+  <div class="stats">
+    <div><b>11</b><span>טבלאות</span></div>
+    <div><b>830</b><span>הזמנות</span></div>
+    <div><b>2,155</b><span>שורות הזמנה</span></div>
+    <div><b>77</b><span>מוצרים</span></div>
+    <div><b>8</b><span>קטגוריות</span></div>
+  </div>
+  <h3>הזמנה אחת, חמש טבלאות</h3>
+  <p>הזמנה 10248 נראית כמו פרט אחד, אבל המידע עליה מפוזר בחמש טבלאות. ההזמנה עצמה לא שומרת את שם הלקוח או את שמות המוצרים. היא שומרת רק את המספר המזהה שלהם, ובסיס הנתונים יודע לאן כל מספר מוביל.</p>
+  <div class="order" role="group" aria-label="הזמנה 10248 והטבלאות שהיא משתמשת בהן">
+    <div class="t ord"><span class="tn">orders · 10248</span><span>ההזמנה: תאריך 2016-07-04, דמי משלוח 32.38</span><span class="via">שומרת רק מספרים מזהים של הלקוח, העובד וחברת השילוח</span></div>
+    <div class="t cus"><span class="tn">customers · VINET</span><span>Vins et alcools Chevalier, Reims, צרפת</span><span class="via">לפי customer_id</span></div>
+    <div class="t emp"><span class="tn">employees · 5</span><span>Steven Buchanan</span><span class="via">לפי employee_id</span></div>
+    <div class="t shp"><span class="tn">shippers · 3</span><span>Federal Shipping</span><span class="via">לפי ship_via</span></div>
+    <div class="t det"><span class="tn">order_details</span><span>3 שורות: מה הוזמן ובאיזו כמות</span><span class="via">לפי order_id</span></div>
+    <div class="t pro"><span class="tn">products · 11, 42, 72</span><span>Queso Cabrales, Singaporean Hokkien Fried Mee, Mozzarella di Giovanni</span><span class="via">לפי product_id</span></div>
+  </div>
+  <div class="box key">
+    <h3>כל עובדה נשמרת פעם אחת</h3>
+    <p>הכתובת של הלקוח VINET שמורה רק בשורה שלו בטבלת <code>customers</code>, גם אם הוא הזמין עשרות פעמים. אם הלקוח עובר כתובת, מעדכנים שורה אחת, וכל ההזמנות שלו "רואות" מיד את הכתובת החדשה. כך הנתונים לא סותרים את עצמם: אין שתי כתובות שונות לאותו לקוח.</p>
+  </div>
+</section>
+
+<!-- 3 -->
+<section>
+  <h2><span class="n">3</span>הסכמה: התוכנית של בסיס הנתונים</h2>
+  <p>לפני שמכניסים נתונים, מגדירים את <b>הסכמה</b>: אילו טבלאות יש, אילו עמודות יש בכל טבלה, מה סוג הנתונים בכל עמודה, ואילו כללים הנתונים חייבים לקיים. בסיס הנתונים שומר את ההגדרה הזאת ובודק לפיה כל שינוי.</p>
+  <p>כך אפשר להגדיר את הטבלה <code>order_details</code> עם כללים:</p>
+<pre><span class="kw">CREATE TABLE</span> order_details (
+  order_id   INT <span class="kw">REFERENCES</span> orders(order_id),        <span class="muted">-- חייב להיות הזמנה קיימת</span>
+  product_id INT <span class="kw">REFERENCES</span> products(product_id),    <span class="muted">-- חייב להיות מוצר קיים</span>
+  quantity   INT <span class="kw">CHECK</span> (quantity > 0),               <span class="muted">-- כמות חיובית</span>
+  discount   REAL <span class="kw">CHECK</span> (discount BETWEEN 0 AND 1),  <span class="muted">-- הנחה בין 0 ל־1</span>
+  <span class="kw">PRIMARY KEY</span> (order_id, product_id)                 <span class="muted">-- מוצר מופיע פעם אחת בהזמנה</span>
+);</pre>
+  <p class="muted small">את הסכמה כותב מי שבונה את בסיס הנתונים, פעם אחת. מי שמשתמש בנתונים אחר כך לא צריך לזכור את הכללים: בסיס הנתונים זוכר ואוכף אותם בשבילו.</p>
+</section>
+
+<!-- 4 -->
+<section>
+  <h2><span class="n">4</span>בדיקות שלמות (Integrity Checks)</h2>
+  <p>בכל פעם שמישהו מנסה להוסיף, לשנות או למחוק נתונים, בסיס הנתונים בודק את השינוי מול הכללים שבסכמה. אם השינוי שובר כלל, בסיס הנתונים <b>דוחה אותו</b>, מחזיר הודעת שגיאה, והנתונים נשארים כמו שהיו. אלה בדיקות השלמות.</p>
+  <div class="kinds">
+    <div class="box"><h3>שלמות ישות</h3><p class="small">כל שורה ניתנת לזיהוי: יש לה מזהה, והוא לא חוזר על עצמו.</p></div>
+    <div class="box"><h3>שלמות קשרים</h3><p class="small">כל הפניה לשורה בטבלה אחרת מובילה לשורה שבאמת קיימת.</p></div>
+    <div class="box"><h3>שלמות ערכים</h3><p class="small">כל ערך בעמודה הוא מהסוג הנכון ובטווח המותר, ושדה חובה לא נשאר ריק.</p></div>
+  </div>
+  <p>לפניכם הכללים, ולכל כלל ניסיון לשבור אותו ומה בסיס הנתונים עונה.</p>
+
+  <div class="rules">
+    <article class="rule">
+      <div class="rh"><h3>מפתח ראשי</h3><span class="tag">PRIMARY KEY</span><span class="kind">שלמות ישות</span></div>
+      <div class="rb">
+        <p>לכל לקוח יש קוד משלו ב־<code>customer_id</code>. הקוד חייב להיות ייחודי, כי לפיו כל טבלה אחרת מוצאת את הלקוח. ניסיון להוסיף לקוח חדש עם הקוד VINET, שכבר קיים:</p>
+        <div class="try"><span class="lbl">הניסיון</span>
+<pre><span class="kw">INSERT INTO</span> customers (customer_id, company_name, country)
+<span class="kw">VALUES</span> ('VINET', 'Another company', 'Spain');</pre></div>
+        <div class="try"><span class="lbl">התשובה של בסיס הנתונים</span><div class="err">UNIQUE constraint failed: customers.customer_id</div></div>
+        <p class="small muted">אותו כלל ב־<code>order_details</code>, שבה המפתח הוא הזוג (order_id, product_id): אי אפשר להוסיף שוב את מוצר 11 להזמנה 10248. כדי לשנות את הכמות מעדכנים את השורה הקיימת.</p>
+      </div>
+    </article>
+
+    <article class="rule">
+      <div class="rh"><h3>מפתח זר: הוספה</h3><span class="tag">FOREIGN KEY</span><span class="kind">שלמות קשרים</span></div>
+      <div class="rb">
+        <p>הזמנה מפנה ללקוח דרך <code>customer_id</code>. ניסיון להוסיף הזמנה ללקוח XXXXX, שלא קיים בטבלת <code>customers</code>:</p>
+        <div class="try"><span class="lbl">הניסיון</span>
+<pre><span class="kw">INSERT INTO</span> orders (order_id, customer_id, order_date)
+<span class="kw">VALUES</span> (11100, 'XXXXX', '2018-05-07');</pre></div>
+        <div class="try"><span class="lbl">התשובה של בסיס הנתונים</span><div class="err">FOREIGN KEY constraint failed</div></div>
+        <p class="small muted">בלי הכלל הזה הייתה נשמרת הזמנה "יתומה": הזמנה שאי אפשר לדעת למי לשלוח אותה ולמי לשלוח חשבון.</p>
+      </div>
+    </article>
+
+    <article class="rule">
+      <div class="rh"><h3>מפתח זר: מחיקה</h3><span class="tag">FOREIGN KEY</span><span class="kind">שלמות קשרים</span></div>
+      <div class="rb">
+        <p>הכלל עובד גם בכיוון השני. ניסיון למחוק את הלקוח VINET, שיש לו הזמנות:</p>
+        <div class="try"><span class="lbl">הניסיון</span>
+<pre><span class="kw">DELETE FROM</span> customers <span class="kw">WHERE</span> customer_id = 'VINET';</pre></div>
+        <div class="try"><span class="lbl">התשובה של בסיס הנתונים</span><div class="err">FOREIGN KEY constraint failed</div></div>
+        <p class="small muted">אילו המחיקה הייתה מצליחה, ההזמנות של VINET היו מפנות ללקוח שכבר לא קיים. אותו דבר קורה בניסיון למחוק את מוצר 11, שמופיע בשורות הזמנה.</p>
+      </div>
+    </article>
+
+    <article class="rule">
+      <div class="rh"><h3>שדה חובה</h3><span class="tag">NOT NULL</span><span class="kind">שלמות ערכים</span></div>
+      <div class="rb">
+        <p>לקוח בלי שם חברה הוא לקוח שאי אפשר לעבוד איתו. ניסיון להוסיף לקוח בלי <code>company_name</code>:</p>
+        <div class="try"><span class="lbl">הניסיון</span>
+<pre><span class="kw">INSERT INTO</span> customers (customer_id, country)
+<span class="kw">VALUES</span> ('ABCDE', 'Italy');</pre></div>
+        <div class="try"><span class="lbl">התשובה של בסיס הנתונים</span><div class="err">NOT NULL constraint failed: customers.company_name</div></div>
+      </div>
+    </article>
+
+    <article class="rule">
+      <div class="rh"><h3>ערך ייחודי</h3><span class="tag">UNIQUE</span><span class="kind">שלמות ערכים</span></div>
+      <div class="rb">
+        <p>גם עמודה שאינה מפתח יכולה להיות ייחודית. אם מוגדר שאין שני מוצרים עם אותו שם, ניסיון להוסיף מוצר נוסף בשם Queso Cabrales:</p>
+        <div class="try"><span class="lbl">הניסיון</span>
+<pre><span class="kw">INSERT INTO</span> products (product_id, product_name, unit_price)
+<span class="kw">VALUES</span> (80, 'Queso Cabrales', 30);</pre></div>
+        <div class="try"><span class="lbl">התשובה של בסיס הנתונים</span><div class="err">UNIQUE constraint failed: products.product_name</div></div>
+      </div>
+    </article>
+
+    <article class="rule">
+      <div class="rh"><h3>תנאי על הערך</h3><span class="tag">CHECK</span><span class="kind">שלמות ערכים</span></div>
+      <div class="rb">
+        <p>ההנחה ב־<code>order_details</code> נשמרת כשבר: 0.15 הוא 15%. מי שמקליד 15 במקום 0.15 נותן הנחה של 1500%. ניסיון כזה:</p>
+        <div class="try"><span class="lbl">הניסיון</span>
+<pre><span class="kw">UPDATE</span> order_details <span class="kw">SET</span> discount = 15
+<span class="kw">WHERE</span> order_id = 10248 <span class="kw">AND</span> product_id = 11;</pre></div>
+        <div class="try"><span class="lbl">התשובה של בסיס הנתונים</span><div class="err">CHECK constraint failed: discount BETWEEN 0 AND 1</div></div>
+        <p class="small muted">באותה דרך: מחיר שלילי (<code>CHECK (unit_price >= 0)</code>) או כמות 0 (<code>CHECK (quantity > 0)</code>) נדחים.</p>
+      </div>
+    </article>
+
+    <article class="rule">
+      <div class="rh"><h3>סוג הנתונים</h3><span class="tag">INT · TEXT · DATE</span><span class="kind">שלמות ערכים</span></div>
+      <div class="rb">
+        <p>לכל עמודה מוגדר סוג. הכמות היא מספר שלם, ולכן אפשר לחבר כמויות ולחשב ממוצע. ניסיון לשמור כמות במילים:</p>
+        <div class="try"><span class="lbl">הניסיון</span>
+<pre><span class="kw">INSERT INTO</span> order_details (order_id, product_id, quantity)
+<span class="kw">VALUES</span> (10248, 14, 'twelve');</pre></div>
+        <div class="try"><span class="lbl">התשובה של בסיס הנתונים</span><div class="err">cannot store TEXT value in INT column order_details.quantity</div></div>
+        <p class="small muted">ב־SQL Server ובמערכות אחרות בדיקת הסוג פועלת תמיד. ב־SQLite היא פועלת רק בטבלה שהוגדרה בהגדרה מחמירה (<code>STRICT</code>).</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- 5 -->
+<section>
+  <h2><span class="n">5</span>הכול או כלום</h2>
+  <p>הזמנה חדשה נשמרת בכמה שלבים: שורה ב־<code>orders</code>, ואחר כך שורה ב־<code>order_details</code> לכל מוצר. מה קורה אם השלב הראשון הצליח, והשני נכשל כי אחד המוצרים לא קיים?</p>
+  <p>בסיס הנתונים מאפשר לאגד את כל השלבים לפעולה אחת שנקראת <b>טרנזקציה</b>. אם שלב אחד נכשל, בסיס הנתונים מבטל גם את השלבים שכבר הצליחו. כך לא נשארת הזמנה חצויה: בלי שורות, או רק עם חלק מהמוצרים.</p>
+  <div class="okmsg">הזמנה 11100 עם שורה למוצר 99, שלא קיים → השורה נדחית בבדיקת המפתח הזר → גם השורה ב־orders מבוטלת. בבסיס הנתונים אין זכר להזמנה.</div>
+</section>
+
+<!-- 6 -->
+<section>
+  <h2><span class="n">6</span>מה הבדיקות לא תופסות</h2>
+  <p>בדיקות השלמות בודקות את <b>הצורה</b> של הנתונים: שהמזהה קיים, שהסוג נכון ושהערך בטווח. הן לא יודעות אם הערך <b>נכון</b>. בנתונים של Northwind יש כמה דוגמאות לכך:</p>
+  <table class="miss">
+    <thead><tr><th>מה יש בנתונים</th><th>למה אף בדיקה לא עצרה את זה</th></tr></thead>
+    <tbody>
+      <tr><td>אזור 2 נקרא Westerns ולא Western</td><td>זה טקסט תקין. בסיס הנתונים לא יודע איך כותבים את המילה.</td></tr>
+      <tr><td>רווחים מיותרים, למשל במדינה Sweden אצל ספק 9</td><td>רווח הוא תו כמו כל תו אחר.</td></tr>
+      <tr><td>שורות בדיקה בטבלת customers (VALON ו־Val2), כמעט ריקות</td><td>יש להן קוד ייחודי, וזה מה שהכללים דורשים.</td></tr>
+      <tr><td>21 הזמנות בלי shipped_date</td><td>מותר שהעמודה תהיה ריקה, כי הזמנה שעוד לא נשלחה עדיין אין לה תאריך משלוח.</td></tr>
+    </tbody>
+  </table>
+  <div class="box key">
+    <h3>מכאן מתחיל התפקיד של מנתח הנתונים</h3>
+    <p>בסיס הנתונים מבטיח שהנתונים מחוברים נכון ובנויים נכון. לפני שמנתחים אותם עדיין צריך לבדוק אם הערכים עצמם הגיוניים: ערכים חסרים, שגיאות כתיב, שורות בדיקה וערכים חריגים.</p>
+  </div>
+</section>
+
+<!-- 7 -->
+<section>
+  <h2><span class="n">7</span>שאלות לבדיקה</h2>
+  <details><summary>למה הזמנה בטבלת orders שומרת את customer_id ולא את שם החברה והכתובת של הלקוח?</summary>
+    <div class="ans">כדי שכל עובדה תישמר פעם אחת. השם והכתובת שמורים בטבלת customers, וההזמנה מפנה אליהם לפי הקוד. אם הכתובת משתנה, מעדכנים שורה אחת וכל ההזמנות של הלקוח רואות את הכתובת החדשה.</div></details>
+  <details><summary>מנסים להוסיף שורה ל־order_details עם product_id = 99, ואין מוצר כזה. איזה כלל עוצר את זה?</summary>
+    <div class="ans">המפתח הזר <code>product_id REFERENCES products(product_id)</code>. זו בדיקה של שלמות קשרים, ובסיס הנתונים עונה <span class="c">FOREIGN KEY constraint failed</span>.</div></details>
+  <details><summary>מנסים למחוק את מוצר 11 מטבלת products. מה יקרה, ולמה?</summary>
+    <div class="ans">המחיקה תידחה, כי מוצר 11 מופיע בשורות הזמנה (למשל בהזמנה 10248). מחיקה שלו הייתה משאירה שורות הזמנה שמפנות למוצר שלא קיים.</div></details>
+  <details><summary>מקלידים הנחה של 20 במקום 0.2. איזה כלל עוצר את זה, ואיזה סוג שלמות הוא בודק?</summary>
+    <div class="ans">הכלל <code>CHECK (discount BETWEEN 0 AND 1)</code>. הוא בודק שלמות ערכים: הערך חייב להיות בטווח המותר.</div></details>
+  <details><summary>מישהו מקליד בטעות את המדינה Frnace במקום France. האם בסיס הנתונים יעצור את זה?</summary>
+    <div class="ans">לא. Frnace הוא טקסט תקין, והבדיקות לא יודעות מה האיות הנכון. את זה מגלה מנתח הנתונים כשהוא בודק את הערכים, למשל כשהוא רואה מדינה עם הזמנה אחת בלבד.</div></details>
+  <details><summary>למה צריך טרנזקציה כששומרים הזמנה חדשה?</summary>
+    <div class="ans">כי ההזמנה נשמרת בכמה שלבים, בכמה טבלאות. טרנזקציה מבטיחה שכל השלבים יישמרו יחד, או שאף אחד מהם לא יישמר, כך שלא תישאר הזמנה חצויה.</div></details>
+</section>
+
+<footer>הודעות השגיאה בדף הן של SQLite, ונבדקו על טבלאות עם אותם שמות כמו ב־Northwind ועם הכללים שבדף. במערכות אחרות הנוסח של ההודעה שונה, אבל הכלל והתוצאה זהים: השינוי נדחה והנתונים נשארים כמו שהיו. המספרים על Northwind הם מהנתונים באתר sql-practice.com.</footer>
+</div>
+</body>
+</html>

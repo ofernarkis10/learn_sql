@@ -31,6 +31,7 @@ The pages are in Hebrew (right-to-left); SQL code is left-to-right. Every query 
 |---|---|---|
 | Northwind database | `database-01-tables.html` | Short reference: the 11 tables, field names and types only |
 | | `database-02-schema.html` | Detailed reference: relationship map, keys, a description and an example value for every field, notes on the data |
+| | `database-04-what-is-a-database.html` | What a database is, as a tool in its own right: complex linked data with each fact stored once (order 10248 across five tables), the schema, integrity checks (`PRIMARY KEY`, `FOREIGN KEY`, `NOT NULL`, `UNIQUE`, `CHECK`, data type) each with a failed attempt and the SQLite error, transactions, what the checks do not catch in Northwind, review questions. First page of step 2 of the learning path |
 | | `database-03-presentation.html` | Presentation (18 slides): the company and its business, the 11 tables and their relationships, the naming format on sql-practice.com, the domain of every column, one order end to end, data quirks; teacher notes |
 | SQL formula sheet | `formulas-01-sql-sheet.html` | Statement structure, order of execution, functions, JOIN, CASE, subqueries, SQLite vs SQL Server, common mistakes |
 | Lessons (מצגות לשיעור) | `lessons-01-foreign-keys.html` | Animated presentation on primary and foreign keys: why data is split into tables, PK and FK, what a foreign key prevents, a `JOIN` that follows the foreign key, the many-to-many link through `order_details`, and a map of all the relationships in Northwind, with review questions |
@@ -107,7 +108,7 @@ To add a page to the path: add it to `TOPICS` first, then add its file name to t
 ```
 learn_sql/
 ├── index.html                       all navigation: home page, learning path (#path), topic lists (#<topic-id>) and search (#q=…)
-├── database-NN-<name>.html          Northwind database reference (01 short tables, 02 detailed schema, 03 presentation)
+├── database-NN-<name>.html          Northwind database reference (01 short tables, 02 detailed schema, 03 presentation, 04 what is a database)
 ├── formulas-NN-<name>.html          SQL formula sheet
 ├── lessons-NN-<name>.html           animated presentations for class (01 primary and foreign keys, 02 JOIN and GROUP BY, 03 GROUP BY step by step, 04 JOIN products and categories)
 ├── practice-NN-<name>.html          practice question sets (01 thirty, 02 ninety, 03 twenty-five)
