@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>עבודת בית: שאלות מחקר על Northwind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a homework sheet. One block per research question: question, hypothesis, variables, the query, and empty fields for the result and the conclusion. */
+:root {
+  --bg: #EEF1F5; --sheet: #FCFCFD; --ink: #172033; --muted: #556074; --line: #D6DBE3; --head: #E4E9F1; --accent: #2457C5; --mark: #A34E16;
+  --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --font-body: "Assistant", "Arial Hebrew", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --head: #1F2836; --accent: #84A9FF; --mark: #F0A46F; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --head: #1F2836; --accent: #84A9FF; --mark: #F0A46F; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.55; }
+.wrap { max-width: 1000px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sheet { background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; padding: clamp(18px, 3vw, 40px); display: flex; flex-direction: column; gap: 22px; }
+header { display: flex; flex-direction: column; gap: 8px; border-bottom: 3px double var(--line); padding-bottom: 14px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 3.6vw, 40px); line-height: 1.15; margin: 0; }
+.tag { font-size: 13px; font-weight: 700; color: var(--sheet); background: var(--mark); border-radius: 99px; padding: 1px 10px; width: fit-content; }
+.sub { margin: 0; color: var(--muted); }
+code { font-family: var(--font-mono); font-size: .86em; direction: ltr; unicode-bidi: isolate; }
+.steps { margin: 0; padding-inline-start: 22px; }
+.steps li { margin-bottom: 4px; }
+.box { background: var(--head); border-radius: 8px; padding: 14px 18px; }
+.box h2 { font-family: var(--font-display); font-weight: 500; font-size: 20px; margin: 0 0 10px; }
+.fx { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.fx .card { background: var(--sheet); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; min-width: 0; }
+.fx h3 { margin: 0 0 4px; font-size: 15px; }
+.fx code.blk { display: block; direction: ltr; text-align: left; font-size: 12.5px; color: var(--accent); white-space: pre-wrap; overflow-wrap: anywhere; }
+.fx-note { margin: 8px 0 0; font-size: 15px; color: var(--muted); }
+h2.stage { font-family: var(--font-display); font-weight: 500; font-size: 24px; margin: 12px 0 0; border-bottom: 2px solid var(--accent); padding-bottom: 4px; color: var(--accent); }
+.q { border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
+.qhead { display: flex; gap: 14px; align-items: baseline; }
+.qn { font-family: var(--font-display); font-weight: 700; font-size: 26px; color: var(--accent); min-width: 32px; }
+.qt { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: clamp(19px, 2vw, 22px); line-height: 1.4; flex: 1; }
+.lvl { font-size: 13px; font-weight: 700; color: var(--mark); background: var(--head); border-radius: 99px; padding: 2px 10px; white-space: nowrap; }
+.why { margin: 0; color: var(--muted); }
+.hyp { display: flex; gap: 10px; background: var(--head); border-radius: 6px; padding: 8px 12px; }
+.hyp b { color: var(--accent); white-space: nowrap; }
+.vars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.vars > div { border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; display: flex; flex-direction: column; }
+.vars b { font-size: 13px; color: var(--muted); }
+@media (max-width: 640px) { .vars { grid-template-columns: 1fr; } }
+.tabs { margin: 0; font-size: 15px; }
+.tabs code { background: var(--head); border-radius: 4px; padding: 1px 6px; margin-inline-start: 4px; }
+.sqlbox { display: flex; flex-direction: column; gap: 6px; }
+.sqlhd { display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: var(--accent); font-size: 15px; }
+.copy { font: inherit; font-size: 13px; font-weight: 700; color: var(--accent); background: var(--head); border: 1px solid var(--line); border-radius: 99px; padding: 2px 12px; cursor: pointer; }
+pre.sql { margin: 0; direction: ltr; text-align: left; background: #172033; color: #E7EBF2; border-radius: 8px; padding: 14px 16px; font-family: var(--font-mono); font-size: 14px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+pre.sql code { font-size: inherit; }
+.kw { color: #8DB2FF; font-weight: 600; } .fn { color: #F3A6D5; } .str { color: #A8E6A3; } .num { color: #9FE3D6; }
+.ans { border-top: 2px dashed var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > b { color: var(--mark); }
+.hint { font-size: 14px; color: var(--muted); margin: 0; }
+.restbl { overflow-x: auto; }
+.restbl table { border-collapse: collapse; direction: ltr; font-family: var(--font-mono); font-size: 13px; }
+.restbl th { background: var(--head); padding: 4px 10px; border: 1px solid var(--line); font-weight: 600; }
+.restbl td { border: 1px solid var(--line); height: 28px; min-width: 80px; }
+.restbl td[contenteditable] { min-height: 28px; height: auto; white-space: pre-wrap; }
+.lines { background-image: linear-gradient(to bottom, transparent 31px, var(--line) 31px); background-size: 100% 32px; overflow: visible; }
+.l2 { min-height: 64px; } .l3 { min-height: 96px; } .l4 { min-height: 128px; }
+.verd { display: flex; gap: 22px; flex-wrap: wrap; font-weight: 600; }
+.verd span { cursor: pointer; border-radius: 6px; padding: 2px 8px; }
+.verd span:hover { background: var(--head); }
+.verd span.sel { color: var(--accent); font-weight: 800; }
+.lines[contenteditable], .restbl td[contenteditable] { cursor: text; outline: none; }
+.lines[contenteditable]:focus, .restbl td[contenteditable]:focus { box-shadow: inset 0 0 0 2px var(--accent); border-radius: 4px; }
+.lines[contenteditable] { font-family: var(--font-body); font-size: 16px; padding: 2px 4px; white-space: pre-wrap; }
+.restbl td[contenteditable] { text-align: center; }
+.lines.has-table { background-image: none; min-height: 0; }
+.lines.has-table .restbl { margin-top: 2px; }
+.toolbar { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; padding: 10px 16px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.toolbar label { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; }
+.toolbar input[type=text] { font: inherit; font-size: 15px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); min-width: 160px; }
+.toolbar button { font: inherit; font-size: 15px; font-weight: 700; color: #fff; background: var(--accent); border: 0; border-radius: 99px; padding: 8px 18px; cursor: pointer; }
+.toolbar button:hover { opacity: .9; }
+.toolbar .save-note { font-size: 13px; color: var(--muted); flex-basis: 100%; }
+.site-back{color:var(--accent);font-family:var(--font-body);font-weight:600;font-size:15px;text-decoration:none;width:fit-content;white-space:nowrap}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.wrap > .site-back{display:block;margin-bottom:12px}
+@media print {
+  body { background: none; } .sheet { border: 0; padding: 0; } .site-back, .copy, .toolbar { display: none; }
+  .q { break-inside: avoid-page; } h2.stage { break-after: avoid; }
+  pre.sql { background: #f3f5f8; color: #172033; border: 1px solid #ccc; }
+  .kw { color: #1f4fb0; } .fn { color: #a0307a; } .num { color: #0b7a66; } .str { color: #2f7a2a; }
+}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="wrap" dir="rtl">
+  <a class="site-back" href="index.html#assignments">→ חזרה לנושא: עבודות בית</a>
+<div class="toolbar" id="toolbar">
+  <label>שם התלמיד/ה: <input type="text" id="studentName" placeholder="הקלידו שם מלא"></label>
+  <button type="button" id="exportBtn">💾 שמירת הקובץ עם התשובות</button>
+  <span class="save-note">כתבו את התשובות שלכם ישירות על הדף. הן נשמרות אוטומטית בדפדפן הזה; כשסיימתם, לחצו "שמירת הקובץ" כדי להוריד קובץ HTML עם התשובות שלכם — הוא נשאר ניתן לעריכה, כך שגם מי שיפתח אותו (אתם או המורה) יוכל להמשיך לכתוב או לתקן בו, ואפשר לשלוח אותו למורה (במייל, Moodle וכו׳).</span>
+</div>
+<div class="sheet">
+  <header>
+    <span class="tag">עבודת בית</span>
+    <h1>שאלות מחקר על Northwind: מהשאילתה למסקנה</h1>
+    <p class="sub">18 שאלות מחקר על הנתונים של חברת Northwind. לכל שאלה נתונה השאילתה שמחשבת את הפרמטרים הסטטיסטיים. אתם מריצים אותה, רושמים את התוצאה, מפרשים אותה ומחליטים אם ההשערה התאשרה.</p>
+    <p class="sub">האתר: sql-practice.com, מסד הנתונים <code>northwind.db</code>.</p>
+  </header>
+
+  <div class="box">
+    <h2>איך עובדים</h2>
+    <ol class="steps">
+      <li>קראו את השאלה, ההשערה והמשתנים. חשבו מה אתם מצפים לגלות.</li>
+      <li>העתיקו את השאילתה (כפתור ״העתקה״), הדביקו אותה באתר sql-practice.com והריצו אותה.</li>
+      <li>רשמו את התוצאה בטבלה שמתחת לשאילתה. אפשר גם לסמן את התוצאה באתר, להעתיק (Ctrl+C) ולהדביק (Ctrl+V) ישירות לתוך הטבלה או לתוך שדה התשובה.</li>
+      <li>פרשו כל מספר: מה הוא אומר על הנתונים? היעזרו בארגז הכלים שלמטה.</li>
+      <li>החליטו אם ההשערה התאשרה, התאשרה חלקית או נדחתה, ונמקו בעזרת המספרים.</li>
+      <li>כתבו מה המשמעות של הממצא עבור העסק של Northwind.</li>
+    </ol>
+  </div>
+
+  <div class="box">
+    <h2>ארגז הכלים: הפרמטרים הסטטיסטיים ב־SQL</h2>
+    <div class="fx"><div class="card"><h3>ממוצע · חציון</h3><code class="blk">AVG(x) · MEDIAN(x)</code></div><div class="card"><h3>סטיית תקן</h3><code class="blk">STDEV(x)</code></div><div class="card"><h3>מקדם שונות</h3><code class="blk">STDEV(x) / AVG(x)</code></div><div class="card"><h3>מקדם צידוד</h3><code class="blk">3 * (AVG(x) - MEDIAN(x)) / STDEV(x)</code></div><div class="card"><h3>אחוז שמקיים תנאי</h3><code class="blk">100.0 * AVG(תנאי)</code></div><div class="card"><h3>רבעון תחתון</h3><code class="blk">LOWER_QUARTILE(x)</code></div><div class="card"><h3>שיפוע b</h3><code class="blk">(AVG(x*y) - AVG(x)*AVG(y)) / (AVG(x*x) - AVG(x)*AVG(x))</code></div><div class="card"><h3>חותך a</h3><code class="blk">AVG(y) - b * AVG(x)</code></div><div class="card"><h3>מקדם מתאם r</h3><code class="blk">(AVG(x*y) - AVG(x)*AVG(y)) / SQRT((AVG(x*x) - AVG(x)*AVG(x)) * (AVG(y*y) - AVG(y)*AVG(y)))</code></div><div class="card"><h3>טבלת עזר</h3><code class="blk">WITH t AS (SELECT ... AS x, ... AS y FROM ... GROUP BY ...)</code></div></div>
+    <p class="fx-note">R² = r · r. חיזוי: ŷ = a + b · x. כל השאילתות בנויות מאותן נוסחאות, על טבלת עזר עם שורה לכל תצפית.</p>
+    <p class="fx-note">איך מפרשים את r: קרוב ל־1 או ל־−1 פירושו קשר חזק, קרוב ל־0 פירושו שאין קשר לינארי. הסימן מראה את כיוון הקשר.</p>
+  </div>
+
+<h2 class="stage">קשר בין משתנים</h2>
+<article class="q" id="q1">
+  <div class="qhead"><span class="qn">1</span><h3 class="qt">האם דמי המשלוח תלויים בסכום ההזמנה?</h3><span class="lvl">בינוני</span></div>
+  <p class="why">אם דמי המשלוח עולים יחד עם סכום ההזמנה, החברה יכולה להעריך מראש כמה יעלה המשלוח של הזמנה חדשה.</p>
+  <div class="hyp"><b>השערה</b><span>ככל שסכום ההזמנה גבוה יותר, דמי המשלוח גבוהים יותר.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>הזמנה (830)</span></div><div><b>משתנה בלתי תלוי</b><span>סכום ההזמנה</span></div><div><b>משתנה תלוי</b><span>דמי המשלוח (freight)</span></div></div>
+  <p class="tabs">טבלאות: <code>orders</code> <code>order_details</code> <code>products</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> o.order_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> x, o.freight <span class="kw">AS</span> y
+  <span class="kw">FROM</span> orders <span class="kw">AS</span> o
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> o.order_id
+)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
+       <span class="fn">AVG</span>(x) <span class="kw">AS</span> mean_x, <span class="fn">AVG</span>(y) <span class="kw">AS</span> mean_y,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) <span class="kw">AS</span> slope,
+       <span class="fn">AVG</span>(y) - (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) * <span class="fn">AVG</span>(x) <span class="kw">AS</span> intercept,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / <span class="fn">SQRT</span>((<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x))
+              * (<span class="fn">AVG</span>(y * y) - <span class="fn">AVG</span>(y) * <span class="fn">AVG</span>(y))) <span class="kw">AS</span> r
+<span class="kw">FROM</span> t;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>n</th><th>mean_x</th><th>mean_y</th><th>slope</th><th>intercept</th><th>r</th></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<article class="q" id="q2">
+  <div class="qhead"><span class="qn">2</span><h3 class="qt">האם הנחה גדולה יותר גורמת ללקוחות לקנות כמות גדולה יותר?</h3><span class="lvl">בסיסי</span></div>
+  <p class="why">הנחה עולה כסף לחברה. אם היא לא מגדילה את הכמות, אולי לא כדאי לתת אותה.</p>
+  <div class="hyp"><b>השערה</b><span>בשורות הזמנה עם הנחה גבוהה יותר הכמות גדולה יותר.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>שורת הזמנה (2,155)</span></div><div><b>משתנה בלתי תלוי</b><span>ההנחה (discount)</span></div><div><b>משתנה תלוי</b><span>הכמות (quantity)</span></div></div>
+  <p class="tabs">טבלאות: <code>order_details</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">SELECT</span> <span class="fn">AVG</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> discount &gt; <span class="num">0</span> <span class="kw">THEN</span> quantity <span class="kw">END</span>) <span class="kw">AS</span> mean_q_disc,
+       <span class="fn">AVG</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> discount = <span class="num">0</span> <span class="kw">THEN</span> quantity <span class="kw">END</span>) <span class="kw">AS</span> mean_q_full,
+       (<span class="fn">AVG</span>(discount * quantity) - <span class="fn">AVG</span>(discount) * <span class="fn">AVG</span>(quantity))
+         / <span class="fn">SQRT</span>((<span class="fn">AVG</span>(discount * discount) - <span class="fn">AVG</span>(discount) * <span class="fn">AVG</span>(discount))
+              * (<span class="fn">AVG</span>(quantity * quantity) - <span class="fn">AVG</span>(quantity) * <span class="fn">AVG</span>(quantity))) <span class="kw">AS</span> r
+<span class="kw">FROM</span> order_details;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>mean_q_disc</th><th>mean_q_full</th><th>r</th></tr><tr><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<article class="q" id="q3">
+  <div class="qhead"><span class="qn">3</span><h3 class="qt">האם מוצרים זולים נמכרים ביותר יחידות?</h3><span class="lvl">בינוני</span></div>
+  <p class="why">המחיר הוא אחד הכלים העיקריים של חברה. השאלה בודקת אם הלקוחות של Northwind רגישים למחיר.</p>
+  <div class="hyp"><b>השערה</b><span>ככל שמחיר המוצר נמוך יותר, נמכרות ממנו יותר יחידות.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>מוצר (77)</span></div><div><b>משתנה בלתי תלוי</b><span>מחיר המוצר (unit_price)</span></div><div><b>משתנה תלוי</b><span>סך היחידות שנמכרו</span></div></div>
+  <p class="tabs">טבלאות: <code>products</code> <code>order_details</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> p.product_id, p.unit_price <span class="kw">AS</span> x, <span class="fn">SUM</span>(od.quantity) <span class="kw">AS</span> y
+  <span class="kw">FROM</span> products <span class="kw">AS</span> p
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.product_id = p.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> p.product_id
+)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
+       <span class="fn">AVG</span>(x) <span class="kw">AS</span> mean_x, <span class="fn">AVG</span>(y) <span class="kw">AS</span> mean_y,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) <span class="kw">AS</span> slope,
+       <span class="fn">AVG</span>(y) - (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) * <span class="fn">AVG</span>(x) <span class="kw">AS</span> intercept,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / <span class="fn">SQRT</span>((<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x))
+              * (<span class="fn">AVG</span>(y * y) - <span class="fn">AVG</span>(y) * <span class="fn">AVG</span>(y))) <span class="kw">AS</span> r
+<span class="kw">FROM</span> t;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>n</th><th>mean_x</th><th>mean_y</th><th>slope</th><th>intercept</th><th>r</th></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<article class="q" id="q4">
+  <div class="qhead"><span class="qn">4</span><h3 class="qt">האם לקוחות שמזמינים הרבה פעמים מזמינים גם הזמנות גדולות יותר?</h3><span class="lvl">בינוני</span></div>
+  <p class="why">לקוח קבוע יכול להזמין הרבה הזמנות קטנות או מעט הזמנות גדולות. התשובה משפיעה על אופן הטיפול בלקוחות.</p>
+  <div class="hyp"><b>השערה</b><span>ללקוחות עם יותר הזמנות יש סכום ממוצע גבוה יותר להזמנה.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>לקוח (89)</span></div><div><b>משתנה בלתי תלוי</b><span>מספר ההזמנות של הלקוח</span></div><div><b>משתנה תלוי</b><span>הסכום הממוצע להזמנה</span></div></div>
+  <p class="tabs">טבלאות: <code>orders</code> <code>order_details</code> <code>products</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> o.customer_id,
+         <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> x,
+         <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) / <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> y
+  <span class="kw">FROM</span> orders <span class="kw">AS</span> o
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> o.customer_id
+)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
+       <span class="fn">AVG</span>(x) <span class="kw">AS</span> mean_x, <span class="fn">AVG</span>(y) <span class="kw">AS</span> mean_y,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) <span class="kw">AS</span> slope,
+       <span class="fn">AVG</span>(y) - (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) * <span class="fn">AVG</span>(x) <span class="kw">AS</span> intercept,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / <span class="fn">SQRT</span>((<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x))
+              * (<span class="fn">AVG</span>(y * y) - <span class="fn">AVG</span>(y) * <span class="fn">AVG</span>(y))) <span class="kw">AS</span> r
+<span class="kw">FROM</span> t;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>n</th><th>mean_x</th><th>mean_y</th><th>slope</th><th>intercept</th><th>r</th></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<article class="q" id="q5">
+  <div class="qhead"><span class="qn">5</span><h3 class="qt">האם הזמנות יקרות נשלחות מהר יותר?</h3><span class="lvl">מתקדם</span></div>
+  <p class="why">חברה רוצה שהלקוחות החשובים יקבלו שירות מהיר. השאלה בודקת אם זה קורה בפועל.</p>
+  <div class="hyp"><b>השערה</b><span>ככל שסכום ההזמנה גבוה יותר, מספר הימים עד המשלוח קטן יותר.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>הזמנה שנשלחה (809)</span></div><div><b>משתנה בלתי תלוי</b><span>סכום ההזמנה</span></div><div><b>משתנה תלוי</b><span>ימים מההזמנה ועד המשלוח</span></div></div>
+  <p class="tabs">טבלאות: <code>orders</code> <code>order_details</code> <code>products</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> o.order_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> x,
+         <span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date) <span class="kw">AS</span> y
+  <span class="kw">FROM</span> orders <span class="kw">AS</span> o
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">WHERE</span> o.shipped_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+  <span class="kw">GROUP</span> <span class="kw">BY</span> o.order_id
+)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
+       <span class="fn">AVG</span>(x) <span class="kw">AS</span> mean_x, <span class="fn">AVG</span>(y) <span class="kw">AS</span> mean_y,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) <span class="kw">AS</span> slope,
+       <span class="fn">AVG</span>(y) - (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) * <span class="fn">AVG</span>(x) <span class="kw">AS</span> intercept,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / <span class="fn">SQRT</span>((<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x))
+              * (<span class="fn">AVG</span>(y * y) - <span class="fn">AVG</span>(y) * <span class="fn">AVG</span>(y))) <span class="kw">AS</span> r
+<span class="kw">FROM</span> t;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>n</th><th>mean_x</th><th>mean_y</th><th>slope</th><th>intercept</th><th>r</th></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<h2 class="stage">השוואה בין קבוצות</h2>
+<article class="q" id="q6">
+  <div class="qhead"><span class="qn">6</span><h3 class="qt">איזו חברת משלוחים מהירה ועקבית יותר?</h3><span class="lvl">בסיסי</span></div>
+  <p class="why">Northwind משלמת לשלוש חברות משלוחים. המחקר יכול להמליץ באיזו מהן להשתמש יותר.</p>
+  <div class="hyp"><b>השערה</b><span>יש הבדל בזמן המשלוח הממוצע בין שלוש החברות.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>הזמנה שנשלחה (809)</span></div><div><b>משתנה בלתי תלוי</b><span>חברת המשלוחים</span></div><div><b>משתנה תלוי</b><span>ימים מההזמנה ועד המשלוח</span></div></div>
+  <p class="tabs">טבלאות: <code>orders</code> <code>shippers</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">SELECT</span> s.company_name,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
+       <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date)), <span class="num">2</span>) <span class="kw">AS</span> mean_d,
+       <span class="fn">MEDIAN</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date)) <span class="kw">AS</span> median_d,
+       <span class="fn">ROUND</span>(<span class="fn">STDEV</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date)), <span class="num">2</span>) <span class="kw">AS</span> sd_d,
+       <span class="fn">ROUND</span>(<span class="fn">STDEV</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date))
+         / <span class="fn">AVG</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date)), <span class="num">2</span>) <span class="kw">AS</span> cv,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">AVG</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date) &lt;= <span class="num">7</span>), <span class="num">1</span>) <span class="kw">AS</span> pct_7d
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> shippers <span class="kw">AS</span> s <span class="kw">ON</span> s.shipper_id = o.ship_via
+<span class="kw">WHERE</span> o.shipped_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> s.company_name
+<span class="kw">ORDER</span> <span class="kw">BY</span> mean_d;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>company_name</th><th>n</th><th>mean_d</th><th>median_d</th><th>sd_d</th><th>cv</th><th>pct_7d</th></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<article class="q" id="q7">
+  <div class="qhead"><span class="qn">7</span><h3 class="qt">האם המשרד בסיאטל מוכר יותר מהמשרד בלונדון?</h3><span class="lvl">בינוני</span></div>
+  <p class="why">לחברה יש שני משרדי מכירות. השאלה בודקת איפה כדאי להוסיף עובדים.</p>
+  <div class="hyp"><b>השערה</b><span>המכירות לעובד במשרד בארצות הברית גבוהות מהמכירות לעובד בבריטניה.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>עובד (9), לפי משרד (2)</span></div><div><b>משתנה בלתי תלוי</b><span>המשרד (employees.country)</span></div><div><b>משתנה תלוי</b><span>מכירות, הזמנות וסכום ממוצע להזמנה</span></div></div>
+  <p class="tabs">טבלאות: <code>employees</code> <code>orders</code> <code>order_details</code> <code>products</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">SELECT</span> e.country <span class="kw">AS</span> office,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> e.employee_id) <span class="kw">AS</span> emp,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> orders,
+       <span class="fn">ROUND</span>(<span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount))) <span class="kw">AS</span> sales,
+       <span class="fn">ROUND</span>(<span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) / <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> e.employee_id)) <span class="kw">AS</span> sales_per_emp,
+       <span class="fn">ROUND</span>(<span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) / <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id)) <span class="kw">AS</span> avg_order
+<span class="kw">FROM</span> employees <span class="kw">AS</span> e
+<span class="kw">JOIN</span> orders <span class="kw">AS</span> o <span class="kw">ON</span> o.employee_id = e.employee_id
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> e.country;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>office</th><th>emp</th><th>orders</th><th>sales</th><th>sales_per_emp</th><th>avg_order</th></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<article class="q" id="q8">
+  <div class="qhead"><span class="qn">8</span><h3 class="qt">באילו מדינות הלקוחות מזמינים הזמנות גדולות יותר?</h3><span class="lvl">בינוני</span></div>
+  <p class="why">מדינות עם הזמנות גדולות יכולות להיות יעד לשיווק או לשירות מיוחד.</p>
+  <div class="hyp"><b>השערה</b><span>הסכום הממוצע של הזמנה שונה ממדינה למדינה.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>מדינת לקוח (13 מדינות עם 20 הזמנות ומעלה)</span></div><div><b>משתנה בלתי תלוי</b><span>מדינת הלקוח</span></div><div><b>משתנה תלוי</b><span>הסכום הממוצע להזמנה</span></div></div>
+  <p class="tabs">טבלאות: <code>customers</code> <code>orders</code> <code>order_details</code> <code>products</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> c.country, o.order_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> x
+  <span class="kw">FROM</span> customers <span class="kw">AS</span> c
+  <span class="kw">JOIN</span> orders <span class="kw">AS</span> o <span class="kw">ON</span> o.customer_id = c.customer_id
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> o.order_id
+)
+<span class="kw">SELECT</span> country, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> orders,
+       <span class="fn">ROUND</span>(<span class="fn">AVG</span>(x)) <span class="kw">AS</span> mean_order, <span class="fn">ROUND</span>(<span class="fn">MEDIAN</span>(x)) <span class="kw">AS</span> median_order
+<span class="kw">FROM</span> t
+<span class="kw">GROUP</span> <span class="kw">BY</span> country
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(*) &gt;= <span class="num">20</span>
+<span class="kw">ORDER</span> <span class="kw">BY</span> mean_order <span class="kw">DESC</span>;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>country</th><th>orders</th><th>mean_order</th><th>median_order</th></tr><tr><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<article class="q" id="q9">
+  <div class="qhead"><span class="qn">9</span><h3 class="qt">האם החברה נותנת יותר הנחות בקטגוריות מסוימות?</h3><span class="lvl">בסיסי</span></div>
+  <p class="why">אם בקטגוריה מסוימת נותנים הרבה הנחות, אולי המחיר שלה גבוה מדי או שקשה למכור אותה.</p>
+  <div class="hyp"><b>השערה</b><span>אחוז השורות עם הנחה שונה בין הקטגוריות.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>שורת הזמנה (2,155), לפי קטגוריה (8)</span></div><div><b>משתנה בלתי תלוי</b><span>הקטגוריה</span></div><div><b>משתנה תלוי</b><span>ההנחה הממוצעת ואחוז השורות עם הנחה</span></div></div>
+  <p class="tabs">טבלאות: <code>order_details</code> <code>products</code> <code>categories</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">SELECT</span> c.category_name,
+       <span class="fn">ROUND</span>(<span class="fn">AVG</span>(od.discount), <span class="num">3</span>) <span class="kw">AS</span> avg_disc,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">AVG</span>(od.discount &gt; <span class="num">0</span>), <span class="num">1</span>) <span class="kw">AS</span> pct_disc,
+       <span class="fn">ROUND</span>(<span class="fn">AVG</span>(p.unit_price), <span class="num">2</span>) <span class="kw">AS</span> avg_price
+<span class="kw">FROM</span> order_details <span class="kw">AS</span> od
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">JOIN</span> categories <span class="kw">AS</span> c <span class="kw">ON</span> c.category_id = p.category_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> c.category_name
+<span class="kw">ORDER</span> <span class="kw">BY</span> pct_disc <span class="kw">DESC</span>;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>category_name</th><th>avg_disc</th><th>pct_disc</th><th>avg_price</th></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<article class="q" id="q10">
+  <div class="qhead"><span class="qn">10</span><h3 class="qt">איזו חברת משלוחים מאחרת יותר?</h3><span class="lvl">בסיסי</span></div>
+  <p class="why">איחור במשלוח פוגע בלקוח. השאלה בודקת אם יש חברה שאחראית ליותר איחורים.</p>
+  <div class="hyp"><b>השערה</b><span>אחוז ההזמנות שנשלחו אחרי התאריך הנדרש שונה בין החברות.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>הזמנה שנשלחה (809)</span></div><div><b>משתנה בלתי תלוי</b><span>חברת המשלוחים</span></div><div><b>משתנה תלוי</b><span>ההזמנה נשלחה באיחור (כן / לא)</span></div></div>
+  <p class="tabs">טבלאות: <code>orders</code> <code>shippers</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">SELECT</span> s.company_name,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> shipped,
+       <span class="fn">SUM</span>(o.shipped_date &gt; o.required_date) <span class="kw">AS</span> late,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">AVG</span>(o.shipped_date &gt; o.required_date), <span class="num">1</span>) <span class="kw">AS</span> pct_late,
+       <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> o.shipped_date &gt; o.required_date
+             <span class="kw">THEN</span> <span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.required_date) <span class="kw">END</span>), <span class="num">1</span>) <span class="kw">AS</span> days_late
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> shippers <span class="kw">AS</span> s <span class="kw">ON</span> s.shipper_id = o.ship_via
+<span class="kw">WHERE</span> o.shipped_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> s.company_name
+<span class="kw">ORDER</span> <span class="kw">BY</span> pct_late;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>company_name</th><th>shipped</th><th>late</th><th>pct_late</th><th>days_late</th></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<h2 class="stage">זמן ומגמה</h2>
+<article class="q" id="q11">
+  <div class="qhead"><span class="qn">11</span><h3 class="qt">האם המכירות של Northwind גדלות לאורך הזמן?</h3><span class="lvl">בינוני</span></div>
+  <p class="why">זו השאלה הראשונה שכל הנהלה שואלת: האם העסק צומח, ובאיזה קצב?</p>
+  <div class="hyp"><b>השערה</b><span>סך המכירות בחודש עולה עם הזמן.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>חודש (22 חודשים מלאים)</span></div><div><b>משתנה בלתי תלוי</b><span>מספר החודש (1 = יולי 2016)</span></div><div><b>משתנה תלוי</b><span>סך המכירות בחודש</span></div></div>
+  <p class="tabs">טבלאות: <code>orders</code> <code>order_details</code> <code>products</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> (<span class="fn">YEAR</span>(o.order_date) - <span class="num">2016</span>) * <span class="num">12</span> + <span class="fn">MONTH</span>(o.order_date) - <span class="num">6</span> <span class="kw">AS</span> x,
+         <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> y
+  <span class="kw">FROM</span> orders <span class="kw">AS</span> o
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">WHERE</span> o.order_date &lt; <span class="str">&#x27;2018-05-01&#x27;</span>
+  <span class="kw">GROUP</span> <span class="kw">BY</span> x
+)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
+       <span class="fn">AVG</span>(x) <span class="kw">AS</span> mean_x, <span class="fn">AVG</span>(y) <span class="kw">AS</span> mean_y,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) <span class="kw">AS</span> slope,
+       <span class="fn">AVG</span>(y) - (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / (<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x)) * <span class="fn">AVG</span>(x) <span class="kw">AS</span> intercept,
+       (<span class="fn">AVG</span>(x * y) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(y))
+         / <span class="fn">SQRT</span>((<span class="fn">AVG</span>(x * x) - <span class="fn">AVG</span>(x) * <span class="fn">AVG</span>(x))
+              * (<span class="fn">AVG</span>(y * y) - <span class="fn">AVG</span>(y) * <span class="fn">AVG</span>(y))) <span class="kw">AS</span> r
+<span class="kw">FROM</span> t;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>n</th><th>mean_x</th><th>mean_y</th><th>slope</th><th>intercept</th><th>r</th></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<article class="q" id="q12">
+  <div class="qhead"><span class="qn">12</span><h3 class="qt">האם יש חודשים חזקים יותר בשנה?</h3><span class="lvl">בינוני</span></div>
+  <p class="why">אם יש עונתיות, החברה יכולה להיערך מראש עם מלאי ועובדים.</p>
+  <div class="hyp"><b>השערה</b><span>מספר ההזמנות הממוצע שונה בין חודשי השנה.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>חודש בשנה (12)</span></div><div><b>משתנה בלתי תלוי</b><span>החודש בשנה</span></div><div><b>משתנה תלוי</b><span>מספר ההזמנות הממוצע בחודש</span></div></div>
+  <p class="tabs">טבלאות: <code>orders</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">SELECT</span> <span class="fn">MONTH</span>(order_date) <span class="kw">AS</span> month,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> orders,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="fn">YEAR</span>(order_date)) <span class="kw">AS</span> years,
+       <span class="fn">ROUND</span>(<span class="num">1.0</span> * <span class="fn">COUNT</span>(*) / <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="fn">YEAR</span>(order_date)), <span class="num">1</span>) <span class="kw">AS</span> per_year
+<span class="kw">FROM</span> orders
+<span class="kw">WHERE</span> order_date &lt; <span class="str">&#x27;2018-05-01&#x27;</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> month
+<span class="kw">ORDER</span> <span class="kw">BY</span> per_year <span class="kw">DESC</span>;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>month</th><th>orders</th><th>years</th><th>per_year</th></tr><tr><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<article class="q" id="q13">
+  <div class="qhead"><span class="qn">13</span><h3 class="qt">האם החברה ממשיכה להשיג לקוחות חדשים?</h3><span class="lvl">מתקדם</span></div>
+  <p class="why">עסק צומח צריך לקוחות חדשים. השאלה בודקת אם הצמיחה באה מלקוחות חדשים או מלקוחות קיימים.</p>
+  <div class="hyp"><b>השערה</b><span>מספר הלקוחות החדשים בכל חודש יורד עם הזמן.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>לקוח (89), לפי חודש ההזמנה הראשונה</span></div><div><b>משתנה בלתי תלוי</b><span>החודש</span></div><div><b>משתנה תלוי</b><span>מספר הלקוחות שהזמינו בפעם הראשונה</span></div></div>
+  <p class="tabs">טבלאות: <code>orders</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">WITH</span> first <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> customer_id, <span class="fn">MIN</span>(order_date) <span class="kw">AS</span> first_order
+  <span class="kw">FROM</span> orders
+  <span class="kw">GROUP</span> <span class="kw">BY</span> customer_id
+)
+<span class="kw">SELECT</span> <span class="fn">SUBSTR</span>(first_order, <span class="num">1</span>, <span class="num">4</span>) || <span class="str">&#x27;-Q&#x27;</span>
+         || ((<span class="kw">CAST</span>(<span class="fn">SUBSTR</span>(first_order, <span class="num">6</span>, <span class="num">2</span>) <span class="kw">AS</span> <span class="kw">INTEGER</span>) + <span class="num">2</span>) / <span class="num">3</span>) <span class="kw">AS</span> quarter,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> new_customers
+<span class="kw">FROM</span> first
+<span class="kw">GROUP</span> <span class="kw">BY</span> quarter
+<span class="kw">ORDER</span> <span class="kw">BY</span> quarter;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>quarter</th><th>new_customers</th></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<h2 class="stage">התפלגות וריכוז</h2>
+<article class="q" id="q14">
+  <div class="qhead"><span class="qn">14</span><h3 class="qt">האם הסכום של הזמנה מתפלג נורמלית?</h3><span class="lvl">בינוני</span></div>
+  <p class="why">הרבה כלים סטטיסטיים מניחים התפלגות נורמלית. לפני שמשתמשים בהם צריך לבדוק.</p>
+  <div class="hyp"><b>השערה</b><span>הסכום של הזמנה מתפלג בקירוב נורמלית.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>הזמנה (830)</span></div><div><b>משתנה תלוי</b><span>סכום ההזמנה</span></div></div>
+  <p class="tabs">טבלאות: <code>orders</code> <code>order_details</code> <code>products</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> o.order_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> x
+  <span class="kw">FROM</span> orders <span class="kw">AS</span> o
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> o.order_id
+),
+s <span class="kw">AS</span> (<span class="kw">SELECT</span> <span class="fn">AVG</span>(x) <span class="kw">AS</span> m, <span class="fn">STDEV</span>(x) <span class="kw">AS</span> sd <span class="kw">FROM</span> t)
+<span class="kw">SELECT</span> <span class="fn">ROUND</span>(m, <span class="num">2</span>) <span class="kw">AS</span> mean, <span class="fn">ROUND</span>(<span class="fn">MEDIAN</span>(x), <span class="num">2</span>) <span class="kw">AS</span> median,
+       <span class="fn">ROUND</span>(sd, <span class="num">2</span>) <span class="kw">AS</span> sd, <span class="fn">ROUND</span>(<span class="num">3</span> * (m - <span class="fn">MEDIAN</span>(x)) / sd, <span class="num">2</span>) <span class="kw">AS</span> skew,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">AVG</span>(x <span class="kw">BETWEEN</span> m - sd <span class="kw">AND</span> m + sd), <span class="num">1</span>) <span class="kw">AS</span> pct_1sd,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">AVG</span>(x <span class="kw">BETWEEN</span> m - <span class="num">2</span> * sd <span class="kw">AND</span> m + <span class="num">2</span> * sd), <span class="num">1</span>) <span class="kw">AS</span> pct_2sd,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">AVG</span>(x <span class="kw">BETWEEN</span> m - <span class="num">3</span> * sd <span class="kw">AND</span> m + <span class="num">3</span> * sd), <span class="num">1</span>) <span class="kw">AS</span> pct_3sd
+<span class="kw">FROM</span> t, s;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>mean</th><th>median</th><th>sd</th><th>skew</th><th>pct_1sd</th><th>pct_2sd</th><th>pct_3sd</th></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<article class="q" id="q15">
+  <div class="qhead"><span class="qn">15</span><h3 class="qt">האם מעט לקוחות אחראים לרוב המכירות?</h3><span class="lvl">בינוני</span></div>
+  <p class="why">חברה שתלויה במעט לקוחות נמצאת בסיכון: אם לקוח גדול עוזב, המכירות נופלות.</p>
+  <div class="hyp"><b>השערה</b><span>20% מהלקוחות אחראים ל־80% מהמכירות (כלל פרטו).</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>לקוח (89)</span></div><div><b>משתנה בלתי תלוי</b><span>דירוג הלקוח</span></div><div><b>משתנה תלוי</b><span>המכירות של הלקוח</span></div></div>
+  <p class="tabs">טבלאות: <code>customers</code> <code>orders</code> <code>order_details</code> <code>products</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> o.customer_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> sales
+  <span class="kw">FROM</span> orders <span class="kw">AS</span> o
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> o.customer_id
+),
+r <span class="kw">AS</span> (<span class="kw">SELECT</span> sales, <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">ORDER</span> <span class="kw">BY</span> sales <span class="kw">DESC</span>) <span class="kw">AS</span> rn <span class="kw">FROM</span> t)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> customers,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">SUM</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> rn &lt;= <span class="num">10</span> <span class="kw">THEN</span> sales <span class="kw">END</span>) / <span class="fn">SUM</span>(sales), <span class="num">1</span>) <span class="kw">AS</span> top10,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">SUM</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> rn &lt;= <span class="num">18</span> <span class="kw">THEN</span> sales <span class="kw">END</span>) / <span class="fn">SUM</span>(sales), <span class="num">1</span>) <span class="kw">AS</span> top18,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">SUM</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> rn &lt;= <span class="num">30</span> <span class="kw">THEN</span> sales <span class="kw">END</span>) / <span class="fn">SUM</span>(sales), <span class="num">1</span>) <span class="kw">AS</span> top30
+<span class="kw">FROM</span> r;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>customers</th><th>top10</th><th>top18</th><th>top30</th></tr><tr><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<article class="q" id="q16">
+  <div class="qhead"><span class="qn">16</span><h3 class="qt">באילו קטגוריות יש בעיית מלאי?</h3><span class="lvl">בסיסי</span></div>
+  <p class="why">מוצר שהמלאי שלו ירד מתחת לסף ההזמנה מחדש עלול להיגמר. השאלה מזהה איפה צריך לטפל.</p>
+  <div class="hyp"><b>השערה</b><span>רוב המוצרים שמתחת לסף ההזמנה נמצאים בכמה קטגוריות בלבד.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>מוצר (77), לפי קטגוריה (8)</span></div><div><b>משתנה בלתי תלוי</b><span>הקטגוריה</span></div><div><b>משתנה תלוי</b><span>מספר המוצרים מתחת לסף, ומספר המוצרים שהופסקו</span></div></div>
+  <p class="tabs">טבלאות: <code>products</code> <code>categories</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">SELECT</span> c.category_name,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> products,
+       <span class="fn">SUM</span>(p.units_in_stock &lt; p.reorder_level) <span class="kw">AS</span> below,
+       <span class="fn">SUM</span>(p.units_in_stock &lt; p.reorder_level <span class="kw">AND</span> p.discontinued = <span class="num">0</span>) <span class="kw">AS</span> below_active,
+       <span class="fn">SUM</span>(p.units_in_stock &lt; p.reorder_level <span class="kw">AND</span> p.discontinued = <span class="num">0</span>
+           <span class="kw">AND</span> p.units_on_order = <span class="num">0</span>) <span class="kw">AS</span> not_ordered
+<span class="kw">FROM</span> products <span class="kw">AS</span> p
+<span class="kw">JOIN</span> categories <span class="kw">AS</span> c <span class="kw">ON</span> c.category_id = p.category_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> c.category_name
+<span class="kw">ORDER</span> <span class="kw">BY</span> below <span class="kw">DESC</span>;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>category_name</th><th>products</th><th>below</th><th>below_active</th><th>not_ordered</th></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<h2 class="stage">שאלות עסקיות פתוחות</h2>
+<article class="q" id="q17">
+  <div class="qhead"><span class="qn">17</span><h3 class="qt">אילו לקוחות הפסיקו להזמין?</h3><span class="lvl">מתקדם</span></div>
+  <p class="why">לקוח שלא הזמין זמן רב עלול לעבור למתחרה. החברה רוצה לזהות אותו בזמן.</p>
+  <div class="hyp"><b>השערה</b><span>יש קבוצה של לקוחות שלא הזמינו יותר מ־90 יום לפני סוף הנתונים.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>לקוח (89)</span></div><div><b>משתנה תלוי</b><span>ימים מאז ההזמנה האחרונה</span></div></div>
+  <p class="tabs">טבלאות: <code>customers</code> <code>orders</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> customer_id, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n,
+         <span class="fn">julianday</span>(<span class="str">&#x27;2018-05-06&#x27;</span>) - <span class="fn">julianday</span>(<span class="fn">MAX</span>(order_date)) <span class="kw">AS</span> since,
+         (<span class="fn">julianday</span>(<span class="fn">MAX</span>(order_date)) - <span class="fn">julianday</span>(<span class="fn">MIN</span>(order_date)))
+           / (<span class="fn">COUNT</span>(*) - <span class="num">1</span>) <span class="kw">AS</span> gap
+  <span class="kw">FROM</span> orders
+  <span class="kw">GROUP</span> <span class="kw">BY</span> customer_id
+)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> customers,
+       <span class="fn">ROUND</span>(<span class="fn">MEDIAN</span>(gap)) <span class="kw">AS</span> median_gap,
+       <span class="fn">SUM</span>(since &gt; <span class="num">90</span>) <span class="kw">AS</span> over_90,
+       <span class="fn">SUM</span>(since &gt; <span class="num">180</span>) <span class="kw">AS</span> over_180,
+       <span class="fn">SUM</span>(since &gt; <span class="num">2</span> * gap) <span class="kw">AS</span> over_2gaps
+<span class="kw">FROM</span> t;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>customers</th><th>median_gap</th><th>over_90</th><th>over_180</th><th>over_2gaps</th></tr><tr><td></td><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+<article class="q" id="q18">
+  <div class="qhead"><span class="qn">18</span><h3 class="qt">אילו מוצרים כדאי להפסיק למכור?</h3><span class="lvl">מתקדם</span></div>
+  <p class="why">מוצר שכמעט לא נמכר תופס מלאי ומקום. השאלה בונה כלל להחלטה.</p>
+  <div class="hyp"><b>השערה</b><span>יש מוצרים שגם המכירות שלהם וגם מספר ההזמנות שלהם נמוכים במיוחד.</span></div>
+  <div class="vars"><div><b>יחידת תצפית</b><span>מוצר (77)</span></div><div><b>משתנה תלוי</b><span>מכירות, יחידות ומספר הזמנות</span></div></div>
+  <p class="tabs">טבלאות: <code>products</code> <code>order_details</code></p>
+  <div class="sqlbox"><div class="sqlhd"><span>השאילתה</span><button type="button" class="copy">העתקה</button></div><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> p.product_name, p.discontinued,
+         <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> od.order_id) <span class="kw">AS</span> orders,
+         <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> sales
+  <span class="kw">FROM</span> products <span class="kw">AS</span> p
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.product_id = p.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> p.product_id
+),
+q <span class="kw">AS</span> (<span class="kw">SELECT</span> <span class="fn">LOWER_QUARTILE</span>(sales) <span class="kw">AS</span> qs, <span class="fn">LOWER_QUARTILE</span>(orders) <span class="kw">AS</span> qo <span class="kw">FROM</span> t)
+<span class="kw">SELECT</span> product_name, orders, <span class="fn">ROUND</span>(sales) <span class="kw">AS</span> sales, discontinued
+<span class="kw">FROM</span> t, q
+<span class="kw">WHERE</span> sales &lt;= qs <span class="kw">AND</span> orders &lt;= qo
+<span class="kw">ORDER</span> <span class="kw">BY</span> sales;</code></pre></div>
+  <div class="ans">
+    <div class="field"><b>1. התוצאה מהאתר</b><div class="restbl"><table><tr><th>product_name</th><th>orders</th><th>sales</th><th>discontinued</th></tr><tr><td></td><td></td><td></td><td></td></tr></table></div><p class="hint">הטבלה מראה את שמות העמודות ואת מספר השורות שהשאילתה מחזירה. מלאו אותה מהתוצאה באתר.</p></div>
+    <div class="field"><b>2. מה המספרים אומרים?</b><span class="hint">פרשו כל פרמטר: ממוצע, סטיית תקן, שיפוע, r וכו׳.</span><div class="lines l3"></div></div>
+    <div class="field"><b>3. האם ההשערה התאשרה?</b><div class="verd"><span>☐ התאשרה</span><span>☐ התאשרה חלקית</span><span>☐ נדחתה</span></div><span class="hint">נמקו בעזרת המספרים:</span><div class="lines l2"></div></div>
+    <div class="field"><b>4. מה זה אומר על העסק של Northwind?</b><div class="lines l2"></div></div>
+  </div>
+</article>
+</div>
+</div>
+<script>
+document.querySelectorAll('.copy').forEach(b => b.addEventListener('click', async () => {
+  const txt = b.closest('.sqlbox').querySelector('pre').innerText;
+  try { await navigator.clipboard.writeText(txt); b.textContent = 'הועתק ✓'; }
+  catch (e) { const r = document.createRange(); r.selectNodeContents(b.closest('.sqlbox').querySelector('pre')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'סמנו והעתיקו'; }
+  setTimeout(() => b.textContent = 'העתקה', 1800);
+}));
+
+/* מילוי התשובות: שדות עריכה, הדבקת טבלת תוצאה מהאתר, שמירה אוטומטית בדפדפן, וייצוא קובץ מוכן לשליחה */
+(function () {
+  const STORAGE_KEY = 'nw-hw2-answers-v1';
+
+  document.querySelectorAll('.ans .lines').forEach(el => el.setAttribute('contenteditable', 'true'));
+  document.querySelectorAll('.ans .restbl td').forEach(td => { if (!td.textContent.trim()) td.setAttribute('contenteditable', 'true'); });
+
+  // לכל שאלה: 4 "מיכלי תשובה" קבועים (אחד לכל שדה) ו-3 כפתורי השערה, מזוהים במפתח יציב לשמירה/שחזור
+  document.querySelectorAll('.q').forEach(art => {
+    art.querySelectorAll('.ans > .field').forEach((field, idx) => {
+      const val = field.querySelector(':scope > .restbl, :scope > .lines');
+      if (val) val.dataset.k = 'c' + idx;
+    });
+    art.querySelectorAll('.verd span').forEach((sp, j) => { sp.dataset.k = 'v' + j; });
+  });
+
+  document.querySelectorAll('.verd').forEach(verd => {
+    const spans = verd.querySelectorAll('span');
+    spans.forEach(sp => sp.addEventListener('click', () => {
+      const wasSel = sp.classList.contains('sel');
+      spans.forEach(s => { s.classList.remove('sel'); s.textContent = s.textContent.replace('☑', '☐'); });
+      if (!wasSel) { sp.classList.add('sel'); sp.textContent = sp.textContent.replace('☐', '☑'); }
+      save();
+    }));
+  });
+
+  function save() {
+    const data = {};
+    document.querySelectorAll('.q').forEach(art => {
+      art.querySelectorAll('.ans > .field').forEach((field, idx) => {
+        const val = field.querySelector(':scope > .restbl, :scope > .lines');
+        if (val) data[art.id + ':c' + idx] = val.innerHTML;
+      });
+      art.querySelectorAll('.verd span').forEach(sp => { data[art.id + ':' + sp.dataset.k] = sp.classList.contains('sel') ? '1' : '0'; });
+    });
+    data.__name = document.getElementById('studentName').value;
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+  }
+
+  function load() {
+    let data = {};
+    try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch (e) {}
+    document.querySelectorAll('.q').forEach(art => {
+      art.querySelectorAll('.ans > .field').forEach((field, idx) => {
+        const val = field.querySelector(':scope > .restbl, :scope > .lines');
+        const v = val && data[art.id + ':c' + idx];
+        if (val && v !== undefined) {
+          val.innerHTML = v;
+          if (val.querySelector('table')) val.removeAttribute('contenteditable');
+        }
+      });
+      art.querySelectorAll('.verd span').forEach(sp => {
+        if (data[art.id + ':' + sp.dataset.k] === '1') { sp.classList.add('sel'); sp.textContent = sp.textContent.replace('☐', '☑'); }
+      });
+    });
+    if (data.__name) document.getElementById('studentName').value = data.__name;
+  }
+
+  document.querySelector('.sheet').addEventListener('input', e => { if (e.target.closest('.ans')) save(); });
+  document.getElementById('studentName').addEventListener('input', save);
+  load();
+
+  /* הדבקת תוצאה שהועתקה מטבלת התוצאות באתר (sql-practice.com): שורות מופרדות בירידת שורה, עמודות בטאב */
+  function gridFromClipboard(e) {
+    const cd = e.clipboardData || window.clipboardData;
+    const text = cd ? cd.getData('text/plain') : '';
+    if (!text) return null;
+    const rows = text.replace(/\r/g, '').split('\n').filter(r => r.length).map(r => r.split('\t'));
+    if (!rows.length || !rows.some(r => r.length > 1)) return null; // אין יותר מעמודה אחת - תדביקו כטקסט רגיל
+    return rows;
+  }
+
+  function pasteIntoTable(td, rows) {
+    const table = td.closest('table');
+    const tr0 = td.parentElement;
+    const startCol = Array.from(tr0.children).indexOf(td);
+    const startRow = Array.from(table.rows).indexOf(tr0);
+    const ncols = table.rows[0].cells.length;
+    rows.forEach((cols, ri) => {
+      let tr = table.rows[startRow + ri];
+      if (!tr) {
+        tr = document.createElement('tr');
+        for (let c = 0; c < ncols; c++) { const d = document.createElement('td'); d.setAttribute('contenteditable', 'true'); tr.appendChild(d); }
+        table.appendChild(tr);
+      }
+      cols.forEach((val, ci) => {
+        const cell = tr.cells[startCol + ci];
+        if (cell) { cell.textContent = val.trim(); cell.setAttribute('contenteditable', 'true'); }
+      });
+    });
+  }
+
+  function pasteAsNewTable(linesEl, rows) {
+    const ncols = Math.max(...rows.map(r => r.length));
+    const table = document.createElement('table');
+    rows.forEach(cols => {
+      const tr = document.createElement('tr');
+      for (let c = 0; c < ncols; c++) {
+        const td = document.createElement('td');
+        td.setAttribute('contenteditable', 'true');
+        td.textContent = (cols[c] || '').trim();
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    });
+    const existing = linesEl.innerHTML.trim();
+    linesEl.innerHTML = '';
+    if (existing) { const keep = document.createElement('div'); keep.innerHTML = existing; linesEl.appendChild(keep); }
+    const wrap = document.createElement('div');
+    wrap.className = 'restbl';
+    wrap.appendChild(table);
+    linesEl.appendChild(wrap);
+    linesEl.classList.add('has-table');
+    linesEl.removeAttribute('contenteditable');
+  }
+
+  document.addEventListener('paste', e => {
+    const target = e.target.closest('[contenteditable]');
+    if (!target || !target.closest('.ans')) return;
+    const rows = gridFromClipboard(e);
+    if (!rows) return;
+    e.preventDefault();
+    const td = target.closest('td');
+    if (td && td.closest('.restbl')) pasteIntoTable(td, rows);
+    else pasteAsNewTable(target, rows);
+    save();
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const clone = document.documentElement.cloneNode(true);
+    const name = (document.getElementById('studentName').value || 'תלמיד').trim();
+    const safeName = name.replace(/[^\p{L}\p{N}_\- ]+/gu, '').trim().replace(/\s+/g, '_') || 'תלמיד';
+    const html = '<!doctype html>\n' + clone.outerHTML;
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'שאלות-מחקר-northwind_' + safeName + '.html';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  });
+})();
+</script>
+</body>
+</html>

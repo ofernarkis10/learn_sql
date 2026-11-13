@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>דף הנחיה – מטרה אנליטית, קבצי נתונים ושאלות חקר</title>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1d2433; --muted:#5b6475; --line:#e3e6ec; --bg:#f7f8fa; --card:#fff;
+    --main:#1f5fbf; --main-soft:#e8f0fc; --sup:#1a8a6b; --sup-soft:#e4f5ef;
+    --key:#b5660c; --key-soft:#fdf1e2; --warn:#b3261e; --warn-soft:#fdecea;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Assistant",Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;font-size:17px}
+  .wrap{max-width:960px;margin:0 auto;padding:32px 20px 60px}
+  header{border-bottom:3px solid var(--ink);padding-bottom:14px;margin-bottom:26px}
+  .kicker{color:var(--muted);font-weight:600;font-size:15px}
+  h1{margin:4px 0 6px;font-size:32px;line-height:1.25}
+  .lead{color:var(--muted);margin:0}
+  h2{font-size:24px;margin:38px 0 12px;display:flex;align-items:center;gap:10px}
+  h2 .num{background:var(--ink);color:#fff;border-radius:50%;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;font-size:17px;flex:none}
+  h3{margin:0 0 8px;font-size:20px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:720px){.grid2{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .card.main{border-top:5px solid var(--main)}
+  .card.sup{border-top:5px solid var(--sup)}
+  .card ul{margin:6px 0 0;padding-inline-start:20px}
+  .card li{margin-bottom:4px}
+  .tag{display:inline-block;font-size:13px;font-weight:700;border-radius:20px;padding:1px 10px}
+  .tag.main{background:var(--main-soft);color:var(--main)}
+  .tag.sup{background:var(--sup-soft);color:var(--sup)}
+  .tag.key{background:var(--key-soft);color:var(--key)}
+  .def{font-weight:600;margin:4px 0 8px}
+  /* diagram */
+  .diagram{display:flex;align-items:stretch;justify-content:center;gap:0;margin:18px 0 6px;flex-wrap:wrap}
+  .tbl{background:#fff;border:2px solid;border-radius:10px;min-width:210px;overflow:hidden;font-size:15px}
+  .tbl .hd{padding:6px 12px;font-weight:700;color:#fff}
+  .tbl.main{border-color:var(--main)} .tbl.main .hd{background:var(--main)}
+  .tbl.sup{border-color:var(--sup)} .tbl.sup .hd{background:var(--sup)}
+  .tbl .f{padding:4px 12px;border-top:1px solid var(--line)}
+  .tbl .f.k{background:var(--key-soft);color:var(--key);font-weight:700}
+  .link{display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 14px;color:var(--key);font-weight:700;font-size:14px}
+  .link .line{width:70px;height:3px;background:var(--key);margin:4px 0}
+  .caption{text-align:center;color:var(--muted);font-size:15px}
+  .callout{background:var(--key-soft);border-inline-start:5px solid var(--key);border-radius:8px;padding:14px 18px;margin:18px 0}
+  .callout.warn{background:var(--warn-soft);border-color:var(--warn)}
+  .callout > b:first-child{display:block;margin-bottom:2px}
+  /* table */
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:15.5px}
+  th,td{padding:10px 12px;text-align:right;vertical-align:top;border-bottom:1px solid var(--line)}
+  th{background:var(--ink);color:#fff;font-weight:700}
+  tr:nth-child(even) td{background:#fafbfc}
+  td.n{font-weight:800;color:var(--muted);width:30px}
+  td.m{color:var(--main);font-weight:600}
+  td.s{color:var(--sup);font-weight:600}
+  td.k{color:var(--key);font-weight:600}
+  .scroll{overflow-x:auto}
+  /* checklist */
+  .check{list-style:none;padding:0;margin:0}
+  .check li{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start}
+  .check input{width:20px;height:20px;margin-top:3px;flex:none;accent-color:var(--sup)}
+  .check .grp{font-size:13px;font-weight:700;margin-inline-start:auto;flex:none}
+  .progress{font-weight:700;color:var(--sup);margin:8px 0 12px}
+  /* form */
+  .form{background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 0}
+  .row{display:grid;grid-template-columns:220px 1fr;border-bottom:1px solid var(--line)}
+  .row:last-child{border-bottom:0}
+  .row .lbl{padding:12px 16px;font-weight:700;background:#fafbfc;border-inline-end:1px solid var(--line)}
+  .row .val{padding:12px 16px;min-height:48px;color:#b8bec9}
+  @media (max-width:640px){.row{grid-template-columns:1fr}.row .lbl{border-inline-end:0}}
+  .sec-title{font-weight:800;padding:10px 16px;background:var(--main-soft);color:var(--main)}
+  .sec-title.sup{background:var(--sup-soft);color:var(--sup)}
+  .sec-title.key{background:var(--key-soft);color:var(--key)}
+  ol.steps{padding-inline-start:22px}
+  ol.steps li{margin-bottom:6px}
+  footer{margin-top:40px;color:var(--muted);font-size:14px;text-align:center}
+  @media print{body{background:#fff}.card,.tbl,table,.check li,.form{break-inside:avoid}}
+  .card.key{border-top:5px solid var(--key)}
+  .examples{padding-inline-start:20px}.examples li{margin-bottom:8px}
+  .flow{display:flex;flex-wrap:nowrap;align-items:stretch;justify-content:center;gap:6px;margin:0 0 10px}
+  .flow .step{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 8px;text-align:center;min-width:0;flex:1 1 0;display:flex;flex-direction:column;font-size:20px}
+  .flow .step b{font-size:15px;margin-top:2px}.flow .step span{font-size:12px;color:var(--muted)}
+  .flow .arr{align-self:center;color:var(--muted);font-weight:800}
+  .dash{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  @media (max-width:720px){.dash{grid-template-columns:repeat(2,1fr)}}
+  .sheet{border-radius:10px;padding:12px;font-size:15px;border:1px solid var(--line);background:#fff}
+  .sheet b{display:block;font-size:13px}
+  .sheet.gen{border-top:4px solid var(--key)}.sheet.q{border-top:4px solid var(--main)}.sheet.sum{border-top:4px solid var(--sup)}
+  .note{color:var(--muted);font-size:14px;margin:-4px 0 10px}
+  .charts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:720px){.charts{grid-template-columns:1fr}}
+  .chart{margin:0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .chart svg{width:100%;height:auto;display:block;direction:ltr}
+  .ch-hd{font-weight:800;margin-bottom:6px;display:flex;gap:8px;align-items:center;color:var(--main)}
+  .cn{background:var(--main);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:13px}
+  .chart figcaption{font-size:15px;margin-top:6px}.chart .what{color:var(--muted)}
+  .rel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+  .rel-hd{font-weight:800;color:var(--main);margin-bottom:8px}.rel-hd span{font-weight:400;color:var(--muted)}
+  .minis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media (max-width:640px){.minis{grid-template-columns:1fr 1fr}}
+  .mini{margin:0;text-align:center}.mini svg{width:100%;height:auto;display:block;direction:ltr;background:#fafbfc;border-radius:8px}
+  .mini .pair{display:flex;direction:ltr;gap:2px;background:#fafbfc;border-radius:8px}.mini .pair svg{width:50%}
+  .mini figcaption{font-size:14px;margin-top:4px}
+  .analyst{background:#fff;border:1px solid var(--line);border-top:5px solid var(--ink);border-radius:12px;padding:18px 20px;margin-bottom:22px}
+  .analyst table td:first-child{color:var(--muted)}
+  @media (max-width:640px){.flow{flex-wrap:wrap}.flow .step{flex:1 1 40%}.flow .arr{display:none}}
+  .tasks{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:6px 0 16px}
+  @media (max-width:720px){.tasks{grid-template-columns:1fr 1fr}}
+  .task{background:var(--bg);border-radius:10px;padding:10px 12px;font-size:15px;color:var(--muted)}
+  .task b{display:block;color:var(--ink);font-size:16px;margin:4px 0 2px}
+  .tn{background:var(--ink);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+  .ex{background:#f1f3f6;border:1px dashed #b9c0cc;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:16px}
+  .ex > b:first-child{color:var(--ink)}
+  .ex-intro{background:#fff7ec;border-color:var(--key)}
+  .muted{color:var(--muted)}
+  .def-box{background:var(--bg);border-radius:10px;padding:12px 14px;font-size:15.5px}
+  .def-box b{display:block;font-size:17px;margin-bottom:4px}
+  .task i{display:block;font-style:normal;color:var(--ink);background:#fff;border-radius:6px;padding:6px 8px;margin-top:8px;font-size:14px}
+  table.three td.exc{background:#fff7ec !important;color:var(--ink)}
+  table.three th:last-child{background:var(--key)}
+  table.sample{font-size:14px;margin-top:6px}
+  table.sample th{background:var(--main);font-weight:600}
+  .sheet i{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:4px}
+  .site-back{color:var(--main);font-family:"Assistant","Arial Hebrew",Arial,sans-serif;font-weight:600;font-size:15px;text-decoration:none;width:fit-content;white-space:nowrap}
+  .site-back:hover,.site-back:focus-visible{text-decoration:underline}
+  .wrap > .site-back{display:block;margin-bottom:12px}
+  @media print{.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="wrap">
+<a class="site-back" href="index.html#project">→ חזרה לנושא: פרויקט גמר</a>
+
+<header>
+  <div class="kicker">מגמת מידע ונתונים · פרויקט מקצוע התמחות</div>
+  <h1>מטרה אנליטית, קבצי נתונים ושאלות חקר</h1>
+  <p class="lead">בפרויקט אתם עובדים כמו אנליסטים של נתונים שנשכרו על ידי לקוח. הדף מסביר איך בונים את הצעת הפרויקט: מגדירים לקוח ומטרה אנליטית, בוחרים קובץ נתונים ראשי וקובץ נתונים תומך, ומנסחים 5 שאלות חקר עם 3 עד 4 גרפים לכל שאלה. בסוף הדף יש צ'ק-ליסט וטופס הצעה.</p>
+</header>
+
+<div class="analyst">
+  <h2 style="margin-top:0">💼 הפרויקט כעבודה של Data Analyst</h2>
+  <p>הפרויקט מדמה עבודה אמיתית של <b>אנליסט נתונים (Data Analyst)</b>. חברה או ארגון שוכרים אתכם כדי לנתח את <b>הפעילות העסקית</b> שלהם. לא תמיד יש בעיה מוגדרת. לעיתים הלקוח פשוט רוצה להבין את הפעילות שלו טוב יותר ולשפר אותה.</p>
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="def-box"><b>מה זה ארגון?</b>כל גוף שיש לו פעילות קבועה ואנשים שאחראים עליה: חברה עסקית (רשת חנויות, חברת תעופה), משרד ממשלתי (משרד התחבורה, משרד החינוך), עירייה, בית חולים, קבוצת ספורט או עמותה. כל ארגון כזה אוסף נתונים על הפעילות שלו.</div>
+    <div class="def-box"><b>מה זה Data Analyst?</b>אנליסט נתונים הוא מי שמקבל טבלאות של נתונים והופך אותן לתשובות. הוא מסדר את הנתונים, מחשב, בונה גרפים, ומסביר לאנשים בארגון מה קורה בפעילות שלהם ומה כדאי לשנות. האנשים בארגון מבינים בתחום שלהם, אבל לא תמיד יודעים לקרוא את הנתונים. בשביל זה הם צריכים אנליסט.</div>
+  </div>
+  <div class="ex ex-intro"><b>🚗 הדוגמה שתלווה אותנו לאורך הדף:</b> <b>רונית אברהם</b> היא מנהלת תחום הבטיחות בדרכים ב<b>משרד התחבורה</b>. היא אחראית על המאמץ להפחית את תאונות הדרכים בישראל. רונית שוכרת אתכם כאנליסטים כדי לנתח את נתוני תאונות הדרכים מהשנים האחרונות ולהמליץ לה במה כדאי להשקיע. <span class="muted">(הדמות והמספרים בדוגמה הם להמחשה בלבד.)</span></div>
+  <p>הארגון מוסר לכם את הנתונים על הפעילות שלו, ותפקידכם:</p>
+  <div class="tasks">
+    <div class="task"><span class="tn">1</span><b>לתאר את הפעילות</b>מה קורה בעסק? מה היקף הפעילות ואיך היא מתחלקת?<i>🚗 כמה תאונות היו בכל שנה, ואיך הן מתחלקות לפי חומרה ולפי מחוז?</i></div>
+    <div class="task"><span class="tn">2</span><b>למצוא את הגורמים המשפיעים</b>אילו גורמים משפיעים על הפעילות, למשל עונה, מיקום, סוג לקוח או מחיר?<i>🚗 האם מזג האוויר, שעת היום או סוג הדרך משפיעים על מספר התאונות?</i></div>
+    <div class="task"><span class="tn">3</span><b>לזהות את המרכיבים החשובים</b>אילו מוצרים, סניפים, לקוחות או תקופות אחראים לחלק הגדול של הפעילות?<i>🚗 באילו מחוזות, סוגי דרכים ושעות מתרחשות רוב התאונות הקשות?</i></div>
+    <div class="task"><span class="tn">4</span><b>להציע שינויים</b>מה כדאי לארגון לשנות בפעילות שלו, על סמך מה שמצאתם בנתונים?<i>🚗 היכן להגביר אכיפה, איפה להוסיף תאורה, ומתי לצאת בקמפיין בטיחות?</i></div>
+  </div>
+  <div class="callout" style="margin-top:0">
+    <b>⏱️ ניתוח של נקודה בזמן, וכלי שממשיך לעבוד</b>
+    הניתוח שלכם מתאר את הפעילות <b>בנקודה מסוימת בזמן</b>, לפי הנתונים שקיבלתם. אחרי שהארגון יבצע את השינויים שהצעתם, הוא ירצה לדעת אם הם עזרו. לכן מה שאתם מוסרים ללקוח הוא לא רק מסקנות, אלא <b>כלי ניתוח</b>: דשבורד, מדדים וגרפים שאפשר להפעיל שוב על נתונים חדשים, בעוד חודש או בעוד שנה, כדי <b>למדוד התקדמות ושיפור</b> בפעילות.
+    <div class="ex" style="margin:10px 0 0">🚗 <b>בדוגמה שלנו:</b> נניח שהמלצתם להוסיף תאורה בכבישים בין-עירוניים. אחרי שנה רונית תכניס לדשבורד את נתוני התאונות החדשים ותבדוק אם מספר התאונות הקשות בלילה בכבישים האלה ירד.</div>
+  </div>
+  <div class="scroll">
+  <table class="three">
+    <thead><tr><th>בעבודה של Data Analyst</th><th>בפרויקט שלכם</th><th>🚗 בדוגמה: תאונות דרכים</th></tr></thead>
+    <tbody>
+      <tr><td>ארגון שוכר אנליסט לנתח את הפעילות שלו.</td><td>מגדירים <b>לקוח (פרסונה)</b> ו<b>מטרה אנליטית</b>.</td><td class="exc">רונית ממשרד התחבורה מבקשת: "נתחו את תאונות הדרכים של השנים האחרונות. מה משפיע על מספר התאונות ועל חומרתן, ובמה כדאי לנו להשקיע?"</td></tr>
+      <tr><td>הארגון מוסר לאנליסט את הנתונים על הפעילות שלו.</td><td>ה<b>קובץ הראשי</b> מדמה את הנתונים של הארגון. מכיוון שאין ארגון אמיתי ששוכר אתכם, אתם מאתרים נתונים אמיתיים ממקור מהימן.</td><td class="exc">קובץ תאונות הדרכים, למשל מהלשכה המרכזית לסטטיסטיקה. בכל שורה תאונה אחת: תאריך, שעה, מחוז, סוג דרך, חומרה, סוג רכב וגיל הנהג.</td></tr>
+      <tr><td>האנליסט מעשיר את הנתונים במידע חיצוני.</td><td>ה<b>קובץ התומך</b> הוא המידע החיצוני שאתם מוסיפים.</td><td class="exc">נתוני מזג אוויר יומיים לפי אזור מהשירות המטאורולוגי: כמות גשם וטמפרטורה. מחברים אותם לתאונות לפי תאריך ומחוז.</td></tr>
+      <tr><td>האנליסט מנקה ומכין את הנתונים.</td><td><b>טיוב והכנת הנתונים</b>: ערכים חסרים, כפילויות ואחידות.</td><td class="exc">מאחדים שמות מחוזות שנכתבו בכמה צורות, מטפלים בתאונות בלי שעה, ממירים תאריכים לפורמט אחד ומוחקים שורות כפולות.</td></tr>
+      <tr><td>האנליסט בודק מה משפיע על הפעילות ומה המרכיבים החשובים בה.</td><td><b>5 שאלות חקר</b>, ולכל אחת 3 עד 4 גרפים.</td><td class="exc">למשל: "האם בימים גשומים יש יותר תאונות?" או "אילו מחוזות אחראים לרוב התאונות הקשות?"</td></tr>
+      <tr><td>האנליסט בונה ללקוח דשבורד שאפשר לסנן ולחקור.</td><td><b>הדשבורד</b>: 8 גיליונות עם מסננים ומדדים.</td><td class="exc">גיליון לכל שאלת חקר, עם מסננים לפי שנה ולפי מחוז, ומדדים כמו "מספר תאונות" ו"אחוז התאונות הקשות".</td></tr>
+      <tr><td>האנליסט מציג ללקוח ממצאים והצעות לשינויים בפעילות.</td><td><b>גיליון הסיכום</b> וההגנה בבגרות. הבוחן משמש בתפקיד הלקוח.</td><td class="exc">למשל: "רוב התאונות הקשות מתרחשות בלילה בכבישים בין-עירוניים. מומלץ להוסיף תאורה ולהגביר אכיפה בקטעים האלה."</td></tr>
+      <tr><td>הלקוח ממשיך להשתמש בכלי ומריץ אותו על נתונים חדשים כדי לבדוק אם השינויים עזרו.</td><td>הדשבורד בנוי כך שאפשר <b>לרענן אותו עם נתונים חדשים</b>, והמדדים מתעדכנים לבד.</td><td class="exc">בשנה הבאה רונית מכניסה את נתוני התאונות החדשים ובודקת אם אחוז התאונות הקשות בלילה ירד.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="margin-bottom:0"><b>השאלה שתלווה אתכם לאורך כל העבודה:</b> "אם הייתי הלקוח, האם הניתוח הזה עוזר לי להבין את הפעילות שלי, להחליט מה לשנות בה, ולבדוק בהמשך אם השינוי עזר?"</p>
+</div>
+
+<div class="flow">
+  <div class="step">👤<b>לקוח</b><span>שם, תפקיד, ארגון ופעילות</span></div><div class="arr">←</div>
+  <div class="step">🎯<b>מטרה אנליטית</b><span>מה הלקוח רוצה להבין</span></div><div class="arr">←</div>
+  <div class="step">🗄️<b>שני קבצי נתונים</b><span>ראשי + תומך</span></div><div class="arr">←</div>
+  <div class="step">❓<b>5 שאלות חקר</b><span>לכל תלמיד</span></div><div class="arr">←</div>
+  <div class="step">📊<b>3 עד 4 גרפים</b><span>לכל שאלה</span></div><div class="arr">←</div>
+  <div class="step">✅<b>מסקנות</b><span>מענה למטרה</span></div>
+</div>
+
+<div class="callout" style="background:var(--main-soft);border-color:var(--main)">
+  <b>מה זה "קובץ נתונים" בפרויקט?</b>
+  קובץ נתונים (Data Set) הוא <b>טבלה אחת</b>, בדומה לגיליון אחד באקסל: כל שורה היא רשומה וכל עמודה היא שדה (משתנה) — בשונה ממסד נתונים שלם עם הרבה טבלאות וקשרים ביניהן, כמו Northwind. בפרויקט בוחרים שני קבצים כאלה, ראשי ותומך, ומחברים ביניהם.
+  <div style="margin-top:10px">🚗 <b>כך נראות כמה שורות מקובץ התאונות שבדוגמה:</b></div>
+  <div class="scroll"><table class="sample">
+    <thead><tr><th>מזהה תאונה</th><th>תאריך</th><th>שעה</th><th>מחוז</th><th>סוג דרך</th><th>חומרה</th><th>סוג רכב</th><th>גיל נהג</th></tr></thead>
+    <tbody>
+      <tr><td>1001</td><td>03/01/2024</td><td>07:45</td><td>מרכז</td><td>עירונית</td><td>קלה</td><td>פרטי</td><td>34</td></tr>
+      <tr><td>1002</td><td>03/01/2024</td><td>22:10</td><td>צפון</td><td>בין-עירונית</td><td>קשה</td><td>אופנוע</td><td>21</td></tr>
+      <tr><td>1003</td><td>04/01/2024</td><td>16:30</td><td>דרום</td><td>בין-עירונית</td><td>בינונית</td><td>משאית</td><td>48</td></tr>
+    </tbody>
+  </table></div>
+  <div class="muted" style="font-size:14px">כל שורה היא תאונה אחת (רשומה), וכל עמודה היא תכונה של התאונה (שדה).</div>
+</div>
+
+<h2><span class="num">1</span>הלקוח והמטרה האנליטית</h2>
+<div class="grid2">
+  <div class="card key">
+    <span class="tag key">הלקוח (פרסונה)</span>
+    <h3>בשביל מי אתם מנתחים?</h3>
+    <ul>
+      <li>דמות ספציפית: <b>שם, תפקיד וארגון</b>.</li>
+      <li>ללקוח יש <b>פעילות עסקית</b> שהוא רוצה להבין ולשפר. לפעמים יש גם בעיה מוגדרת, למשל ירידה במכירות, אבל זה לא חובה.</li>
+      <li>כל הניתוח והתובנות צריכים להיות רלוונטיים עבורו.</li>
+    </ul>
+  </div>
+  <div class="card key">
+    <span class="tag key">המטרה האנליטית</span>
+    <h3>מה צריך להשיג?</h3>
+    <ul>
+      <li><b>ספציפית:</b> מתמקדת בפעילות מוגדרת של הלקוח.</li>
+      <li><b>ניתנת למענה מתוך הנתונים</b> שבקבצים שבחרתם.</li>
+      <li><b>מובילה למסקנות אופרטיביות:</b> פעולה שהלקוח יכול לבצע.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ex"><b>🚗 בדוגמה שלנו:</b>
+  <div><b>הלקוח:</b> רונית אברהם, מנהלת תחום הבטיחות בדרכים, משרד התחבורה.</div>
+  <div><b>הפעילות:</b> המאמץ הלאומי להפחתת תאונות הדרכים: אכיפה, תשתיות וקמפיינים.</div>
+  <div><b>המטרה האנליטית:</b> לזהות אילו גורמים (שעה, מזג אוויר, סוג דרך, אזור, נהג) קשורים למספר התאונות ולחומרתן, כדי להמליץ לרונית היכן ומתי להשקיע באכיפה, בתאורה ובקמפיינים.</div>
+</div>
+
+<h3 style="margin-top:22px">דוגמאות נוספות למטרות אנליטיות</h3>
+<ul class="examples">
+  <li><b>מנהלת שיווק ברשת סופרמרקטים</b> מבקשת לנתח את המכירות של הרשת: אילו מוצרים, סניפים ותקופות מניבים את רוב ההכנסות, מה משפיע על היקף הקנייה, ומה כדאי לשנות במבצעים ובמלאי.</li>
+  <li><b>דני ליבוביץ,</b> בעלים של רשת קטנה למוצרי בית עם 4 סניפים ואתר אונליין. בחודשיים האחרונים המכירות יורדות בעקביות, אף שלא היה שינוי מהותי במלאי או בכוח האדם. דני רוצה להבין מה גורם לירידה.</li>
+  <li><b>מנכ"ל רשת בתי קפה חדשה</b> מתכנן לפתוח סניפים בעיר חדשה. הוא רוצה לדעת מה המאפיינים של הלקוחות הפוטנציאליים ואיזה תפריט ייתן את התשואה הגבוהה ביותר.</li>
+  <li><b>מפקד תחנת משטרה</b> רוצה להוריד את רמת הפשיעה באזור שהתחנה שלו משרתת.</li>
+  <li><b>מנכ"ל משרד תחבורה</b> קיבל תלונות רבות על כך שהרכבת לא יעילה. הוא רוצה לדעת איך לשפר את מערך הרכבות ואת דרכי ההגעה.</li>
+</ul>
+<div class="callout">
+  <b>הקשר בין המטרה לשאלות החקר</b>
+  המטרה האנליטית היא השאלה הגדולה של הלקוח. 5 שאלות החקר מפרקות אותה לחלקים שאפשר לבדוק בנתונים. כל שאלה בודקת גורם אחר שמשפיע על הפעילות, או מרכיב אחר שלה.
+  <div style="margin-top:8px">🚗 <b>כך המטרה של רונית מתפרקת ל-5 שאלות חקר:</b></div>
+  <ol style="margin:4px 0 0">
+    <li>באילו שעות ובאילו ימים בשבוע מתרחשות יותר תאונות קשות?</li>
+    <li>האם בימים גשומים יש יותר תאונות, והאם הן חמורות יותר? ★ <span class="muted">(משלבת את שני הקבצים)</span></li>
+    <li>האם יש הבדל בחומרת התאונות בין דרכים עירוניות לבין-עירוניות?</li>
+    <li>אילו מחוזות אחראים לחלק הגדול של התאונות הקשות?</li>
+    <li>האם יש קשר בין גיל הנהג לבין חומרת התאונה?</li>
+  </ol>
+</div>
+
+<h2><span class="num">2</span>שני קבצי הנתונים</h2>
+<div class="grid2">
+  <div class="card main">
+    <span class="tag main">קובץ ראשי</span>
+    <h3>הלב של הפרויקט</h3>
+    <p class="def">זה הקובץ שעליו שואלים את שאלות החקר. רוב הניתוח מתבצע עליו.</p>
+    <ul>
+      <li><b>לפחות 500 שורות ו-10 עמודות.</b> קובץ "גדול" נמדד גם במגוון העמודות (המשתנים), ולא רק במספר השורות.</li>
+      <li><b>שדות מגוונים.</b> שדות כמותיים (מחיר, ציון, כמות, זמן) לצד שדות קטגוריאליים (אזור, סוג, מגדר).</li>
+      <li><b>רשומה אחת היא ישות או אירוע אחד.</b> למשל תאונה, עסקה, תלמיד או שיר.</li>
+      <li><b>דורש עיבוד.</b> ערכים חסרים, כפילויות או פורמטים לא אחידים. הטיוב וההכנה של הנתונים הם חלק מהעבודה.</li>
+    </ul>
+  </div>
+  <div class="card sup">
+    <span class="tag sup">קובץ תומך</span>
+    <h3>מעשיר ומרחיב</h3>
+    <p class="def">זה הקובץ שמוסיף משתנים שאין בקובץ הראשי ומאפשר מענה רחב יותר לאתגר.</p>
+    <ul>
+      <li><b>מפתח משותף.</b> שדה שמחבר אותו לקובץ הראשי. זו הדרישה החשובה ביותר.</li>
+      <li><b>מקור שונה.</b> בדרך כלל הוא מגיע מגוף אחר או מאתר אחר.</li>
+      <li><b>לרוב קטן יותר.</b> לעיתים זו טבלת תיאור עם רשומה אחת לכל יישוב, מדינה או תאריך. טבלה כזו יכולה לשמש כ<b>טבלת מימד (DIM)</b> בדשבורד.</li>
+      <li><b>מוסיף משתנה מסביר.</b> משתנה שעשוי להסביר תופעה שמופיעה בקובץ הראשי.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ex" style="margin-top:16px"><b>🚗 בדוגמה שלנו:</b> <b>הקובץ הראשי</b> הוא קובץ תאונות הדרכים: אלפי שורות (תאונה בכל שורה) ויותר מ-10 עמודות, למשל תאריך, שעה, מחוז, סוג דרך, חומרה, סוג רכב, גיל הנהג ומספר נפגעים. <b>הקובץ התומך</b> הוא קובץ מזג האוויר: שורה לכל יום ואזור, עם כמות גשם וטמפרטורה. הוא מוסיף משתנה שאין בקובץ התאונות, ומאפשר לבדוק אם מזג האוויר משפיע על התאונות.</div>
+
+<div class="grid2" style="margin-top:16px">
+  <div class="card">
+    <h3>✅ איכות הנתונים</h3>
+    <p style="margin:0">מקורות מהימנים בלבד, כמו משרדי ממשלה, אקדמיה, גופים בינלאומיים וחברות. אתם צריכים לדעת להסביר מי אסף את הנתונים, מתי ואיך.</p>
+  </div>
+  <div class="card" style="border-color:var(--warn)">
+    <h3 style="color:var(--warn)">⛔ חל איסור</h3>
+    <p style="margin:0">על שימוש בנתונים <b>סינתטיים</b>, כלומר נתונים שהומצאו או נוצרו על ידי בינה מלאכותית. אם כלי בינה מלאכותית הציע לכם מקור נתונים, ודאו שהמקור אמיתי.</p>
+  </div>
+</div>
+
+<h2><span class="num">3</span>איך מחברים בין הקבצים</h2>
+<div class="diagram">
+  <div class="tbl main">
+    <div class="hd">ראשי: תאונות דרכים</div>
+    <div class="f">מזהה תאונה</div>
+    <div class="f k">🔑 תאריך</div>
+    <div class="f k">🔑 מחוז</div>
+    <div class="f">שעה</div>
+    <div class="f">סוג דרך</div>
+    <div class="f">חומרה</div>
+  </div>
+  <div class="link"><span>מפתח משותף</span><span class="line"></span><span>JOIN / קשר (Relationship)</span></div>
+  <div class="tbl sup">
+    <div class="hd">תומך: מזג אוויר יומי</div>
+    <div class="f k">🔑 תאריך</div>
+    <div class="f k">🔑 מחוז</div>
+    <div class="f">כמות גשם (מ"מ)</div>
+    <div class="f">טמפרטורה</div>
+  </div>
+</div>
+<p class="caption">🚗 בזכות החיבור אפשר לנסח את שאלת החקר: <b>"האם בימים גשומים יש יותר תאונות, והאם הן חמורות יותר?"</b>. על קובץ התאונות לבדו לא היה אפשר לשאול זאת. כאן המפתח מורכב משני שדות: תאריך ומחוז.</p>
+
+<div class="callout">
+  <b>המבחן הפשוט לצמד טוב</b>
+  אם בזכות הקובץ התומך אפשר לנסח שאלת חקר מהצורה <b>"האם X (מהקובץ התומך) קשור ל-Y (מהקובץ הראשי)?"</b>, הצמד מתאים.
+</div>
+
+<p><b>מונחים:</b> ב-SQL החיבור נעשה עם <b>JOIN</b>. בכלי ה-BI מגדירים <b>קשר (Relationship)</b> בין הטבלאות. הקובץ הראשי משמש בדרך כלל כטבלת העובדות, והקובץ התומך משמש כ<b>טבלת מימד (DIM)</b> שמתארת את הישויות (יישוב, תאריך, מדינה).</p>
+
+<p><b>מפתחות משותפים נפוצים:</b>
+<span class="tag key">תאריך</span> <span class="tag key">שנה</span> <span class="tag key">קוד יישוב / שם עיר</span> <span class="tag key">אזור / מחוז</span> <span class="tag key">מדינה</span> <span class="tag key">סמל מוסד</span> <span class="tag key">שם קבוצה / אמן / מוצר</span></p>
+
+<h2><span class="num">4</span>דוגמאות לצמדים</h2>
+<p>הדוגמאות נועדו לעורר רעיונות. אפשר להשתמש בהן כנקודת מוצא ולהתאים אותן לתחום שמעניין אתכם.</p>
+<div class="scroll">
+<table>
+  <thead><tr><th>#</th><th>קובץ ראשי</th><th>קובץ תומך</th><th>מפתח חיבור</th><th>שאלת חקר לדוגמה</th></tr></thead>
+  <tbody>
+    <tr><td class="n">1</td><td class="m">תאונות דרכים בישראל</td><td class="s">מזג אוויר יומי לפי אזור</td><td class="k">תאריך + אזור</td><td>האם בימי גשם יש יותר תאונות קשות?</td></tr>
+    <tr><td class="n">2</td><td class="m">עסקאות נדל"ן</td><td class="s">מדד חברתי-כלכלי של יישובים</td><td class="k">קוד יישוב</td><td>עד כמה האשכול החברתי-כלכלי מסביר את מחיר המטר?</td></tr>
+    <tr><td class="n">3</td><td class="m">ציוני בגרות לפי בית ספר</td><td class="s">מאפייני יישובים (גודל, פריפריה)</td><td class="k">קוד יישוב</td><td>האם יש פער בזכאות לבגרות בין המרכז לפריפריה?</td></tr>
+    <tr><td class="n">4</td><td class="m">השירים המובילים בספוטיפיי</td><td class="s">פרטי אמנים (מדינה, ז'אנר, עוקבים)</td><td class="k">שם / מזהה אמן</td><td>האם לאמנים עם יותר עוקבים יש יותר השמעות?</td></tr>
+    <tr><td class="n">5</td><td class="m">תוצאות ספורטאים באולימפיאדות</td><td class="s">נתוני מדינות (תמ"ג לנפש, אוכלוסייה)</td><td class="k">מדינה + שנה</td><td>האם עושר המדינה מנבא את מספר המדליות?</td></tr>
+    <tr><td class="n">6</td><td class="m">השכרות אופניים / קורקינטים בעיר</td><td class="s">מזג אוויר + לוח חגים</td><td class="k">תאריך</td><td>איך טמפרטורה וחגים משפיעים על מספר ההשכרות?</td></tr>
+    <tr><td class="n">7</td><td class="m">משחקי ליגת העל בכדורגל</td><td class="s">תקציבי קבוצות ונתוני אצטדיונים</td><td class="k">קבוצה + עונה</td><td>האם תקציב גבוה יותר מתורגם לנקודות?</td></tr>
+    <tr><td class="n">8</td><td class="m">מדידות זיהום אוויר מתחנות ניטור</td><td class="s">נפחי תנועה בכבישים סמוכים</td><td class="k">אזור + תאריך</td><td>האם עומס התנועה מסביר את רמת הזיהום?</td></tr>
+    <tr><td class="n">9</td><td class="m">סרטים וסדרות בנטפליקס</td><td class="s">דירוגי IMDb</td><td class="k">שם יצירה + שנה</td><td>האם להפקות מקור של נטפליקס יש דירוג גבוה יותר?</td></tr>
+    <tr><td class="n">10</td><td class="m">נתוני מכירות של חנות / מסעדה</td><td class="s">לוח אירועים (משחקים, חגים, חופשות)</td><td class="k">תאריך</td><td>אילו אירועים מקפיצים את המכירות?</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2><span class="num">5</span>דרישות הניתוח: 5 שאלות חקר, 3 עד 4 גרפים לכל שאלה</h2>
+<div class="grid2">
+  <div class="card main">
+    <span class="tag main">דרישה 1</span>
+    <h3>5 שאלות חקר לכל תלמיד</h3>
+    <p class="def">כל תלמיד מנסח ומנתח 5 שאלות חקר שנגזרות מהמטרה האנליטית.</p>
+    <ul>
+      <li>שאלת חקר בודקת <b>קשר בין נתונים</b>: "האם X קשור ל-Y?" או "איך X משפיע על Y?"</li>
+      <li>לפחות אחת מהשאלות <b>משלבת את שני הקבצים</b>, כלומר משתמשת בשדה שהגיע מהקובץ התומך.</li>
+      <li>כל שאלה מסתיימת ב<b>תשובה ובמסקנה</b> שנשענות על הגרפים ותורמות למענה על המטרה האנליטית.</li>
+    </ul>
+  </div>
+  <div class="card sup">
+    <span class="tag sup">דרישה 2</span>
+    <h3>3 עד 4 גרפים לכל שאלה</h3>
+    <p class="def">הגרפים משמשים <b>ביחד</b> למענה על שאלת החקר. כל גרף מציג את הקשר מזווית אחרת.</p>
+    <ul>
+      <li>כל גרף צריך לחשוף <b>היבט חדש</b> של הקשר, למשל כיוון, עוצמה, פיזור, שינוי לאורך זמן או חריגים.</li>
+      <li>ליד כל גרף כותבים: <b>על איזו שאלה הוא עונה</b> ו<b>מה רואים בו</b>.</li>
+      <li>אותו גרף בצבע אחר, או עמודות אופקיות במקום אנכיות, <b>אינו נחשב גרף שונה</b>.</li>
+      <li>מותר להשתמש באותו גרף גם בשאלת חקר אחרת, אם הוא רלוונטי לה.</li>
+    </ul>
+  </div>
+</div>
+
+<h3 style="margin-top:24px">🚗 דוגמה: שאלת חקר אחת, ארבעה גרפים</h3>
+<p><b>שאלת החקר של רונית:</b> האם יש קשר בין כמות הגשם ביום לבין מספר תאונות הדרכים? <span class="tag key">תאונות דרכים + מזג אוויר</span></p>
+<p class="note">הגרפים מבוססים על נתונים להמחשה בלבד.</p>
+<div class="charts">
+<figure class="chart"><div class="ch-hd"><span class="cn">1</span>גרף עמודות</div><svg viewBox="0 0 320 210" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif" role="img"><line x1="36" x2="310" y1="182.0" y2="182.0" stroke="#eceef2"/><text x="32" y="185.0" font-size="9" fill="#8a92a3" text-anchor="end">0</text><line x1="36" x2="310" y1="147.6" y2="147.6" stroke="#eceef2"/><text x="32" y="150.6" font-size="9" fill="#8a92a3" text-anchor="end">10</text><line x1="36" x2="310" y1="113.2" y2="113.2" stroke="#eceef2"/><text x="32" y="116.2" font-size="9" fill="#8a92a3" text-anchor="end">20</text><line x1="36" x2="310" y1="78.8" y2="78.8" stroke="#eceef2"/><text x="32" y="81.8" font-size="9" fill="#8a92a3" text-anchor="end">30</text><line x1="36" x2="310" y1="44.4" y2="44.4" stroke="#eceef2"/><text x="32" y="47.4" font-size="9" fill="#8a92a3" text-anchor="end">40</text><line x1="36" x2="310" y1="10.0" y2="10.0" stroke="#eceef2"/><text x="32" y="13.0" font-size="9" fill="#8a92a3" text-anchor="end">50</text><line x1="36" x2="310" y1="182" y2="182" stroke="#1d2433"/><line x1="36" x2="36" y1="182" y2="10" stroke="#1d2433"/><text x="173.0" y="208" font-size="10" fill="#1d2433" text-anchor="middle">עוצמת הגשם באותו יום</text><text transform="translate(9,96.0) rotate(-90)" font-size="10" fill="#1d2433" text-anchor="middle">תאונות ביום (ממוצע)</text><rect x="46.3" y="85.7" width="47.9" height="96.3" fill="#1f5fbf" rx="2"/><text x="70.2" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">ללא גשם</text><rect x="114.8" y="71.9" width="47.9" height="110.1" fill="#1f5fbf" rx="2"/><text x="138.8" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">קל</text><rect x="183.3" y="54.7" width="47.9" height="127.3" fill="#1f5fbf" rx="2"/><text x="207.2" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">בינוני</text><rect x="251.8" y="30.6" width="47.9" height="151.4" fill="#1f5fbf" rx="2"/><text x="275.8" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">כבד</text></svg><figcaption><div class="what">ממוצע התאונות ביום, לפי עוצמת הגשם באותו יום.</div><div><b>כיוון הקשר:</b> האם ככל שיורד יותר גשם יש יותר תאונות?</div></figcaption></figure>
+<figure class="chart"><div class="ch-hd"><span class="cn">2</span>תרשים קופסה (Box Plot)</div><svg viewBox="0 0 320 210" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif" role="img"><line x1="36" x2="310" y1="182.0" y2="182.0" stroke="#eceef2"/><text x="32" y="185.0" font-size="9" fill="#8a92a3" text-anchor="end">0</text><line x1="36" x2="310" y1="147.6" y2="147.6" stroke="#eceef2"/><text x="32" y="150.6" font-size="9" fill="#8a92a3" text-anchor="end">15</text><line x1="36" x2="310" y1="113.2" y2="113.2" stroke="#eceef2"/><text x="32" y="116.2" font-size="9" fill="#8a92a3" text-anchor="end">30</text><line x1="36" x2="310" y1="78.8" y2="78.8" stroke="#eceef2"/><text x="32" y="81.8" font-size="9" fill="#8a92a3" text-anchor="end">45</text><line x1="36" x2="310" y1="44.4" y2="44.4" stroke="#eceef2"/><text x="32" y="47.4" font-size="9" fill="#8a92a3" text-anchor="end">60</text><line x1="36" x2="310" y1="10.0" y2="10.0" stroke="#eceef2"/><text x="32" y="13.0" font-size="9" fill="#8a92a3" text-anchor="end">75</text><line x1="36" x2="310" y1="182" y2="182" stroke="#1d2433"/><line x1="36" x2="36" y1="182" y2="10" stroke="#1d2433"/><text x="173.0" y="208" font-size="10" fill="#1d2433" text-anchor="middle">עוצמת הגשם באותו יום</text><text transform="translate(9,96.0) rotate(-90)" font-size="10" fill="#1d2433" text-anchor="middle">תאונות ביום</text><line x1="70.2" x2="70.2" y1="140.8" y2="84.8" stroke="#1d2433"/><rect x="53.1" y="108.9" width="34.2" height="18.9" fill="#e8f0fc" stroke="#1f5fbf" stroke-width="1.5"/><line x1="53.1" x2="87.4" y1="117.8" y2="117.8" stroke="#1f5fbf" stroke-width="2.5"/><circle cx="70.2" cy="75.4" r="2" fill="none" stroke="#b5660c"/><circle cx="70.2" cy="44.4" r="2" fill="none" stroke="#b5660c"/><circle cx="70.2" cy="39.8" r="2" fill="none" stroke="#b5660c"/><text x="70.2" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">ללא גשם</text><line x1="138.8" x2="138.8" y1="125.3" y2="79.8" stroke="#1d2433"/><rect x="121.6" y="94.6" width="34.2" height="13.9" fill="#e8f0fc" stroke="#1f5fbf" stroke-width="1.5"/><line x1="121.6" x2="155.9" y1="101.2" y2="101.2" stroke="#1f5fbf" stroke-width="2.5"/><circle cx="138.8" cy="72.9" r="2" fill="none" stroke="#b5660c"/><text x="138.8" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">קל</text><line x1="207.2" x2="207.2" y1="137.4" y2="54.9" stroke="#1d2433"/><rect x="190.1" y="83.7" width="34.2" height="21.6" fill="#e8f0fc" stroke="#1f5fbf" stroke-width="1.5"/><line x1="190.1" x2="224.4" y1="95.1" y2="95.1" stroke="#1f5fbf" stroke-width="2.5"/><circle cx="207.2" cy="21.5" r="2" fill="none" stroke="#b5660c"/><text x="207.2" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">בינוני</text><line x1="275.8" x2="275.8" y1="130.4" y2="37.1" stroke="#1d2433"/><rect x="258.6" y="67.0" width="34.2" height="34.0" fill="#e8f0fc" stroke="#1f5fbf" stroke-width="1.5"/><line x1="258.6" x2="292.9" y1="83.6" y2="83.6" stroke="#1f5fbf" stroke-width="2.5"/><circle cx="275.8" cy="10.9" r="2" fill="none" stroke="#b5660c"/><text x="275.8" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">כבד</text></svg><figcaption><div class="what">התפלגות מספר התאונות ביום בכל עוצמת גשם.</div><div><b>פיזור וחפיפה:</b> האם ההבדל עקבי, או שהוא נובע מכמה ימים חריגים (העיגולים הכתומים)?</div></figcaption></figure>
+<figure class="chart"><div class="ch-hd"><span class="cn">3</span>גרף פיזור עם קו מגמה</div><svg viewBox="0 0 320 210" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif" role="img"><line x1="36" x2="310" y1="182.0" y2="182.0" stroke="#eceef2"/><text x="32" y="185.0" font-size="9" fill="#8a92a3" text-anchor="end">0</text><line x1="36" x2="310" y1="139.0" y2="139.0" stroke="#eceef2"/><text x="32" y="142.0" font-size="9" fill="#8a92a3" text-anchor="end">15</text><line x1="36" x2="310" y1="96.0" y2="96.0" stroke="#eceef2"/><text x="32" y="99.0" font-size="9" fill="#8a92a3" text-anchor="end">30</text><line x1="36" x2="310" y1="53.0" y2="53.0" stroke="#eceef2"/><text x="32" y="56.0" font-size="9" fill="#8a92a3" text-anchor="end">45</text><line x1="36" x2="310" y1="10.0" y2="10.0" stroke="#eceef2"/><text x="32" y="13.0" font-size="9" fill="#8a92a3" text-anchor="end">60</text><line x1="36" x2="310" y1="182" y2="182" stroke="#1d2433"/><line x1="36" x2="36" y1="182" y2="10" stroke="#1d2433"/><text x="173.0" y="208" font-size="10" fill="#1d2433" text-anchor="middle">כמות גשם ביום (מ"מ)</text><text transform="translate(9,96.0) rotate(-90)" font-size="10" fill="#1d2433" text-anchor="middle">מספר תאונות ביום</text><text x="36.0" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">0</text><text x="80.2" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">10</text><text x="124.4" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">20</text><text x="168.6" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">30</text><text x="212.8" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">40</text><text x="257.0" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">50</text><text x="301.2" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">60</text><circle cx="221.2" cy="64.2" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="122.4" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="105.9" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="110.4" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="211.0" cy="80.6" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="101.6" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="88.6" cy="84.2" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="124.4" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="99.8" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="94.3" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="98.7" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="108.0" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="256.3" cy="73.5" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="119.6" cy="98.4" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="105.2" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="82.4" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="112.7" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="206.0" cy="85.8" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="100.4" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="112.9" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="120.8" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="95.1" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="96.6" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="86.3" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="96.8" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="91.4" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="73.3" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="84.4" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="123.9" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="124.0" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="78.4" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="85.0" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="92.6" cy="52.3" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="106.6" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="105.2" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="152.9" cy="75.6" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="239.7" cy="55.9" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="266.0" cy="64.8" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="123.1" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="278.9" cy="62.1" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="75.4" cy="78.8" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="107.3" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="236.9" cy="76.9" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="103.7" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="107.0" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="88.7" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="84.6" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="105.2" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="121.3" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="102.1" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="172.8" cy="118.5" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="113.5" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="87.3" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="280.2" cy="64.1" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="107.4" cy="101.8" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="274.9" cy="57.8" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="94.6" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="83.2" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="93.6" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="99.9" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="101.1" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="84.9" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="106.2" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="123.6" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="135.6" cy="74.6" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="119.4" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="99.2" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="78.3" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="94.4" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="107.7" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="95.9" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="59.4" cy="102.4" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="61.7" cy="118.6" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="107.7" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="69.8" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="121.6" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="96.4" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="42.4" cy="116.1" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="95.1" r="3" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.0" cy="95.9" r="3" fill="#1f5fbf" fill-opacity=".55"/><line x1="36.0" y1="101.2" x2="310.0" y2="59.8" stroke="#b5660c" stroke-width="2" stroke-dasharray="5 3"/><text x="42" y="22" font-size="10" fill="#b5660c" font-weight="700">R² = 0.37</text></svg><figcaption><div class="what">כל נקודה היא יום אחד: כמות הגשם מול מספר התאונות, עם R².</div><div><b>עוצמת הקשר:</b> כמה חזק הקשר? בכמה עולה מספר התאונות על כל 10 מ"מ גשם?</div></figcaption></figure>
+<figure class="chart"><div class="ch-hd"><span class="cn">4</span>גרף קווי</div><svg viewBox="0 0 320 210" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif" role="img"><line x1="36" x2="306" y1="182.0" y2="182.0" stroke="#eceef2"/><text x="32" y="185.0" font-size="9" fill="#8a92a3" text-anchor="end">0</text><line x1="36" x2="306" y1="139.0" y2="139.0" stroke="#eceef2"/><text x="32" y="142.0" font-size="9" fill="#8a92a3" text-anchor="end">15</text><line x1="36" x2="306" y1="96.0" y2="96.0" stroke="#eceef2"/><text x="32" y="99.0" font-size="9" fill="#8a92a3" text-anchor="end">30</text><line x1="36" x2="306" y1="53.0" y2="53.0" stroke="#eceef2"/><text x="32" y="56.0" font-size="9" fill="#8a92a3" text-anchor="end">45</text><line x1="36" x2="306" y1="10.0" y2="10.0" stroke="#eceef2"/><text x="32" y="13.0" font-size="9" fill="#8a92a3" text-anchor="end">60</text><line x1="36" x2="306" y1="182" y2="182" stroke="#1d2433"/><line x1="36" x2="36" y1="182" y2="10" stroke="#1d2433"/><text x="171.0" y="208" font-size="10" fill="#1d2433" text-anchor="middle">חודש</text><text transform="translate(9,96.0) rotate(-90)" font-size="10" fill="#1d2433" text-anchor="middle">תאונות ביום (ממוצע)</text><polyline points="36.0,32.9 81.0,53.0 126.0,67.3 171.0,73.1 216.0,75.9 261.0,78.8 306.0,81.7" fill="none" stroke="#1f5fbf" stroke-width="2.2"/><circle cx="36.0" cy="32.9" r="2.3" fill="#1f5fbf"/><circle cx="81.0" cy="53.0" r="2.3" fill="#1f5fbf"/><circle cx="126.0" cy="67.3" r="2.3" fill="#1f5fbf"/><circle cx="171.0" cy="73.1" r="2.3" fill="#1f5fbf"/><circle cx="216.0" cy="75.9" r="2.3" fill="#1f5fbf"/><circle cx="261.0" cy="78.8" r="2.3" fill="#1f5fbf"/><circle cx="306.0" cy="81.7" r="2.3" fill="#1f5fbf"/><polyline points="36.0,96.0 81.0,98.9 126.0,101.7 171.0,101.7 216.0,98.9 261.0,98.9 306.0,96.0" fill="none" stroke="#1a8a6b" stroke-width="2.2"/><circle cx="36.0" cy="96.0" r="2.3" fill="#1a8a6b"/><circle cx="81.0" cy="98.9" r="2.3" fill="#1a8a6b"/><circle cx="126.0" cy="101.7" r="2.3" fill="#1a8a6b"/><circle cx="171.0" cy="101.7" r="2.3" fill="#1a8a6b"/><circle cx="216.0" cy="98.9" r="2.3" fill="#1a8a6b"/><circle cx="261.0" cy="98.9" r="2.3" fill="#1a8a6b"/><circle cx="306.0" cy="96.0" r="2.3" fill="#1a8a6b"/><text x="36.0" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">אוק</text><text x="81.0" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">נוב</text><text x="126.0" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">דצמ</text><text x="171.0" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">ינו</text><text x="216.0" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">פבר</text><text x="261.0" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">מרץ</text><text x="306.0" y="193" font-size="9" fill="#8a92a3" text-anchor="middle">אפר</text><rect x="205" y="11" width="8" height="8" fill="#1f5fbf"/><text x="216" y="18" font-size="9" fill="#1d2433">ימים גשומים</text><rect x="205" y="23" width="8" height="8" fill="#1a8a6b"/><text x="216" y="30" font-size="9" fill="#1d2433">ימים יבשים</text></svg><figcaption><div class="what">ממוצע התאונות ביום לאורך החורף, בימים גשומים מול ימים יבשים.</div><div><b>שינוי לאורך זמן:</b> האם ההשפעה של הגשם קבועה, או חזקה יותר בגשמים הראשונים של החורף?</div></figcaption></figure>
+</div>
+<div class="callout"><b>ביחד הגרפים עונים על שאלת החקר</b>גרף 1 מראה שבימים גשומים יש יותר תאונות. גרף 2 מראה שההבדל עקבי ולא נובע מכמה ימים חריגים. גרף 3 מראה עד כמה הקשר חזק. גרף 4 מוסיף ממצא חשוב: ההשפעה הגדולה ביותר היא בגשמים הראשונים של החורף. מהממצא הזה אפשר להמליץ לרונית לצאת בקמפיין בטיחות ובאכיפה מוגברת <b>לפני</b> הגשם הראשון. אף גרף לבדו לא היה נותן את התמונה המלאה.</div>
+<h3 style="margin-top:28px">איזה גרף מתאים לאיזה קשר?</h3>
+<div class="rel"><div class="rel-hd">כמותי מול כמותי <span>(טמפרטורה ↔ מספר השכרות)</span></div><div class="minis">
+<figure class="mini"><svg viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif" role="img"><line x1="14" x2="170" y1="104" y2="104" stroke="#1d2433"/><line x1="14" x2="14" y1="104" y2="10" stroke="#1d2433"/><circle cx="113.3" cy="58.2" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="38.4" cy="78.5" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="47.7" cy="76.9" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="61.8" cy="63.8" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="126.6" cy="46.4" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="68.5" cy="58.9" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="103.3" cy="51.1" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="29.8" cy="83.2" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.2" cy="79.9" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="63.8" cy="87.5" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="117.1" cy="28.7" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="119.8" cy="28.6" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="117.6" cy="50.3" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="66.7" cy="88.1" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="96.6" cy="56.7" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="89.7" cy="47.8" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="89.9" cy="86.0" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="43.9" cy="53.7" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="146.5" cy="41.1" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="54.6" cy="77.2" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="157.7" cy="35.5" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="152.1" cy="27.1" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="30.5" cy="78.0" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="88.9" cy="56.1" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="136.7" cy="33.0" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="156.3" cy="35.9" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="87.7" cy="51.0" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="63.7" cy="71.3" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="56.0" cy="72.8" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="153.3" cy="18.1" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="56.1" cy="67.9" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="105.1" cy="41.6" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="46.9" cy="55.3" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="97.5" cy="59.5" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="154.3" cy="24.3" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="45.7" cy="89.1" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="136.7" cy="16.7" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="95.5" cy="67.1" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="145.6" cy="48.7" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="121.3" cy="48.6" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="58.8" cy="54.8" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="147.0" cy="27.8" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="92.5" cy="72.0" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="31.5" cy="76.9" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="28.7" cy="88.3" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><line x1="14.0" y1="89.0" x2="170.0" y2="23.6" stroke="#b5660c" stroke-width="2" stroke-dasharray="5 3"/><text x="20" y="22" font-size="10" fill="#b5660c" font-weight="700">R² = 0.70</text></svg><figcaption>גרף פיזור עם קו מגמה</figcaption></figure>
+<figure class="mini"><svg viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif" role="img"><line x1="14" x2="170" y1="104" y2="104" stroke="#1d2433"/><line x1="14" x2="14" y1="104" y2="10" stroke="#1d2433"/><rect x="18.7" y="74.0" width="21.8" height="30.0" fill="#1f5fbf" rx="2"/><text x="29.6" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">10–15</text><rect x="49.9" y="57.7" width="21.8" height="46.3" fill="#1f5fbf" rx="2"/><text x="60.8" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">15–20</text><rect x="81.1" y="41.3" width="21.8" height="62.7" fill="#1f5fbf" rx="2"/><text x="92.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">20–25</text><rect x="112.3" y="27.7" width="21.8" height="76.3" fill="#1f5fbf" rx="2"/><text x="123.2" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">25–30</text><rect x="143.5" y="22.3" width="21.8" height="81.7" fill="#1f5fbf" rx="2"/><text x="154.4" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">30+</text></svg><figcaption>עמודות לפי טווחי טמפרטורה</figcaption></figure>
+<figure class="mini"><svg viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif" role="img"><line x1="14" x2="166" y1="104" y2="104" stroke="#1d2433"/><line x1="14" x2="14" y1="104" y2="10" stroke="#1d2433"/><line x1="166" x2="166" y1="104" y2="10" stroke="#1d2433"/><polyline points="14.0,97.0 39.3,82.1 64.7,57.2 90.0,32.4 115.3,17.5 140.7,22.4 166.0,47.3" fill="none" stroke="#b5660c" stroke-width="2"/><polyline points="14.0,100.3 39.3,67.4 64.7,60.0 90.0,27.0 115.3,34.4 140.7,16.0 166.0,52.7" fill="none" stroke="#1f5fbf" stroke-width="2"/><text x="14.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">א</text><text x="39.3" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">ב</text><text x="64.7" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">ג</text><text x="90.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">ד</text><text x="115.3" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">ה</text><text x="140.7" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">ו</text><text x="166.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">ז</text></svg><figcaption>גרף קווי עם שני צירים</figcaption></figure>
+</div></div>
+<div class="rel"><div class="rel-hd">קטגוריאלי מול כמותי <span>(אזור ↔ ציון בגרות)</span></div><div class="minis">
+<figure class="mini"><svg viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif" role="img"><line x1="14" x2="170" y1="104" y2="104" stroke="#1d2433"/><line x1="14" x2="14" y1="104" y2="10" stroke="#1d2433"/><rect x="21.8" y="30.7" width="36.4" height="73.3" fill="#1a8a6b" rx="2"/><text x="40.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">צפון</text><rect x="73.8" y="23.2" width="36.4" height="80.8" fill="#1a8a6b" rx="2"/><text x="92.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">מרכז</text><rect x="125.8" y="34.4" width="36.4" height="69.6" fill="#1a8a6b" rx="2"/><text x="144.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">דרום</text></svg><figcaption>עמודות של ממוצע</figcaption></figure>
+<figure class="mini"><svg viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif" role="img"><line x1="14" x2="170" y1="104" y2="104" stroke="#1d2433"/><line x1="14" x2="14" y1="104" y2="10" stroke="#1d2433"/><line x1="40.0" x2="40.0" y1="63.1" y2="20.7" stroke="#1d2433"/><rect x="27.0" y="39.0" width="26.0" height="15.2" fill="#e8f0fc" stroke="#1f5fbf" stroke-width="1.5"/><line x1="27.0" x2="53.0" y1="43.8" y2="43.8" stroke="#1f5fbf" stroke-width="2.5"/><circle cx="40.0" cy="84.6" r="2" fill="none" stroke="#b5660c"/><text x="40.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">צפון</text><line x1="92.0" x2="92.0" y1="57.8" y2="15.1" stroke="#1d2433"/><rect x="79.0" y="30.3" width="26.0" height="16.7" fill="#e8f0fc" stroke="#1f5fbf" stroke-width="1.5"/><line x1="79.0" x2="105.0" y1="37.4" y2="37.4" stroke="#1f5fbf" stroke-width="2.5"/><text x="92.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">מרכז</text><line x1="144.0" x2="144.0" y1="80.9" y2="27.9" stroke="#1d2433"/><rect x="131.0" y="44.7" width="26.0" height="18.0" fill="#e8f0fc" stroke="#1f5fbf" stroke-width="1.5"/><line x1="131.0" x2="157.0" y1="54.1" y2="54.1" stroke="#1f5fbf" stroke-width="2.5"/><circle cx="144.0" cy="93.8" r="2" fill="none" stroke="#b5660c"/><circle cx="144.0" cy="14.4" r="2" fill="none" stroke="#b5660c"/><text x="144.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">דרום</text></svg><figcaption>תרשים קופסה</figcaption></figure>
+<figure class="mini"><svg viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif"><rect x="34.0" y="33.3" width="16.5" height="0.0" fill="#1f5fbf"/><rect x="51.5" y="33.3" width="16.5" height="0.0" fill="#1f5fbf"/><rect x="69.0" y="29.1" width="16.5" height="4.3" fill="#1f5fbf"/><rect x="86.5" y="24.3" width="16.5" height="9.1" fill="#1f5fbf"/><rect x="104.0" y="15.7" width="16.5" height="17.6" fill="#1f5fbf"/><rect x="121.5" y="4.0" width="16.5" height="29.3" fill="#1f5fbf"/><rect x="139.0" y="20.0" width="16.5" height="13.3" fill="#1f5fbf"/><rect x="156.5" y="26.9" width="16.5" height="6.4" fill="#1f5fbf"/><line x1="34" x2="174" y1="33.333333333333336" y2="33.333333333333336" stroke="#1d2433"/><text x="30" y="20.7" font-size="9" fill="#1d2433" text-anchor="end">צפון</text><rect x="34.0" y="68.7" width="16.5" height="0.0" fill="#1a8a6b"/><rect x="51.5" y="68.7" width="16.5" height="0.0" fill="#1a8a6b"/><rect x="69.0" y="68.7" width="16.5" height="0.0" fill="#1a8a6b"/><rect x="86.5" y="68.7" width="16.5" height="0.0" fill="#1a8a6b"/><rect x="104.0" y="65.3" width="16.5" height="3.4" fill="#1a8a6b"/><rect x="121.5" y="47.7" width="16.5" height="21.0" fill="#1a8a6b"/><rect x="139.0" y="39.3" width="16.5" height="29.3" fill="#1a8a6b"/><rect x="156.5" y="59.4" width="16.5" height="9.2" fill="#1a8a6b"/><line x1="34" x2="174" y1="68.66666666666667" y2="68.66666666666667" stroke="#1d2433"/><text x="30" y="56.0" font-size="9" fill="#1d2433" text-anchor="end">מרכז</text><rect x="34.0" y="102.6" width="16.5" height="1.4" fill="#b5660c"/><rect x="51.5" y="96.8" width="16.5" height="7.2" fill="#b5660c"/><rect x="69.0" y="87.5" width="16.5" height="16.5" fill="#b5660c"/><rect x="86.5" y="77.5" width="16.5" height="26.5" fill="#b5660c"/><rect x="104.0" y="74.7" width="16.5" height="29.3" fill="#b5660c"/><rect x="121.5" y="86.8" width="16.5" height="17.2" fill="#b5660c"/><rect x="139.0" y="96.1" width="16.5" height="7.9" fill="#b5660c"/><rect x="156.5" y="102.6" width="16.5" height="1.4" fill="#b5660c"/><line x1="34" x2="174" y1="104.0" y2="104.0" stroke="#1d2433"/><text x="30" y="91.3" font-size="9" fill="#1d2433" text-anchor="end">דרום</text><text x="104.0" y="118" font-size="9" fill="#8a92a3" text-anchor="middle">ציון →</text></svg><figcaption>היסטוגרמות זו מתחת לזו</figcaption></figure>
+</div></div>
+<div class="rel"><div class="rel-hd">קטגוריאלי מול קטגוריאלי <span>(מזג אוויר ↔ חומרת תאונה)</span></div><div class="minis">
+<figure class="mini"><svg viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif" role="img"><line x1="26" x2="136" y1="104.0" y2="104.0" stroke="#eceef2"/><text x="22" y="107.0" font-size="9" fill="#8a92a3" text-anchor="end">0</text><line x1="26" x2="136" y1="57.0" y2="57.0" stroke="#eceef2"/><text x="22" y="60.0" font-size="9" fill="#8a92a3" text-anchor="end">50</text><line x1="26" x2="136" y1="10.0" y2="10.0" stroke="#eceef2"/><text x="22" y="13.0" font-size="9" fill="#8a92a3" text-anchor="end">100</text><line x1="26" x2="136" y1="104" y2="104" stroke="#1d2433"/><line x1="26" x2="26" y1="104" y2="10" stroke="#1d2433"/><rect x="32.4" y="38.2" width="23.8" height="65.8" fill="#1f5fbf"/><rect x="32.4" y="14.7" width="23.8" height="23.5" fill="#1a8a6b"/><rect x="32.4" y="10.0" width="23.8" height="4.7" fill="#b5660c"/><text x="44.3" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">בהיר</text><rect x="69.1" y="57.0" width="23.8" height="47.0" fill="#1f5fbf"/><rect x="69.1" y="21.3" width="23.8" height="35.7" fill="#1a8a6b"/><rect x="69.1" y="10.0" width="23.8" height="11.3" fill="#b5660c"/><text x="81.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">גשם</text><rect x="105.8" y="61.7" width="23.8" height="42.3" fill="#1f5fbf"/><rect x="105.8" y="24.1" width="23.8" height="37.6" fill="#1a8a6b"/><rect x="105.8" y="10.0" width="23.8" height="14.1" fill="#b5660c"/><text x="117.7" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">ערפל</text><rect x="141" y="13" width="8" height="8" fill="#1f5fbf"/><text x="152" y="20" font-size="9" fill="#1d2433">קלה</text><rect x="141" y="25" width="8" height="8" fill="#1a8a6b"/><text x="152" y="32" font-size="9" fill="#1d2433">בינונית</text><rect x="141" y="37" width="8" height="8" fill="#b5660c"/><text x="152" y="44" font-size="9" fill="#1d2433">קשה</text></svg><figcaption>עמודות מוערמות ב-100%</figcaption></figure>
+<figure class="mini"><svg viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif" role="img"><line x1="14" x2="136" y1="104" y2="104" stroke="#1d2433"/><line x1="14" x2="14" y1="104" y2="10" stroke="#1d2433"/><rect x="18.1" y="22.3" width="9.8" height="81.7" fill="#1f5fbf"/><rect x="28.9" y="74.8" width="9.8" height="29.2" fill="#1a8a6b"/><rect x="39.8" y="98.2" width="9.8" height="5.8" fill="#b5660c"/><text x="34.3" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">בהיר</text><rect x="58.7" y="45.6" width="9.8" height="58.4" fill="#1f5fbf"/><rect x="69.6" y="59.6" width="9.8" height="44.4" fill="#1a8a6b"/><rect x="80.4" y="90.0" width="9.8" height="14.0" fill="#b5660c"/><text x="75.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">גשם</text><rect x="99.4" y="51.5" width="9.8" height="52.5" fill="#1f5fbf"/><rect x="110.2" y="57.3" width="9.8" height="46.7" fill="#1a8a6b"/><rect x="121.1" y="86.5" width="9.8" height="17.5" fill="#b5660c"/><text x="115.7" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">ערפל</text><rect x="141" y="13" width="8" height="8" fill="#1f5fbf"/><text x="152" y="20" font-size="9" fill="#1d2433">קלה</text><rect x="141" y="25" width="8" height="8" fill="#1a8a6b"/><text x="152" y="32" font-size="9" fill="#1d2433">בינונית</text><rect x="141" y="37" width="8" height="8" fill="#b5660c"/><text x="152" y="44" font-size="9" fill="#1d2433">קשה</text></svg><figcaption>עמודות מקובצות</figcaption></figure>
+<figure class="mini"><svg viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif"><text x="36" y="23.7" font-size="9" fill="#1d2433" text-anchor="end">קלה</text><rect x="40.0" y="4.0" width="43.3" height="31.3" fill="#1f5fbf" fill-opacity="1.00" rx="2"/><text x="61.7" y="23.7" font-size="9" fill="#fff" text-anchor="middle">70</text><rect x="85.3" y="4.0" width="43.3" height="31.3" fill="#1f5fbf" fill-opacity="0.75" rx="2"/><text x="107.0" y="23.7" font-size="9" fill="#fff" text-anchor="middle">50</text><rect x="130.7" y="4.0" width="43.3" height="31.3" fill="#1f5fbf" fill-opacity="0.69" rx="2"/><text x="152.3" y="23.7" font-size="9" fill="#fff" text-anchor="middle">45</text><text x="36" y="57.0" font-size="9" fill="#1d2433" text-anchor="end">בינונית</text><rect x="40.0" y="37.3" width="43.3" height="31.3" fill="#1f5fbf" fill-opacity="0.43" rx="2"/><text x="61.7" y="57.0" font-size="9" fill="#1d2433" text-anchor="middle">25</text><rect x="85.3" y="37.3" width="43.3" height="31.3" fill="#1f5fbf" fill-opacity="0.60" rx="2"/><text x="107.0" y="57.0" font-size="9" fill="#fff" text-anchor="middle">38</text><rect x="130.7" y="37.3" width="43.3" height="31.3" fill="#1f5fbf" fill-opacity="0.62" rx="2"/><text x="152.3" y="57.0" font-size="9" fill="#fff" text-anchor="middle">40</text><text x="36" y="90.3" font-size="9" fill="#1d2433" text-anchor="end">קשה</text><rect x="40.0" y="70.7" width="43.3" height="31.3" fill="#1f5fbf" fill-opacity="0.18" rx="2"/><text x="61.7" y="90.3" font-size="9" fill="#1d2433" text-anchor="middle">5</text><rect x="85.3" y="70.7" width="43.3" height="31.3" fill="#1f5fbf" fill-opacity="0.27" rx="2"/><text x="107.0" y="90.3" font-size="9" fill="#1d2433" text-anchor="middle">12</text><rect x="130.7" y="70.7" width="43.3" height="31.3" fill="#1f5fbf" fill-opacity="0.31" rx="2"/><text x="152.3" y="90.3" font-size="9" fill="#1d2433" text-anchor="middle">15</text><text x="61.7" y="117" font-size="9" fill="#8a92a3" text-anchor="middle">בהיר</text><text x="107.0" y="117" font-size="9" fill="#8a92a3" text-anchor="middle">גשם</text><text x="152.3" y="117" font-size="9" fill="#8a92a3" text-anchor="middle">ערפל</text></svg><figcaption>טבלת חום (Heat Map)</figcaption></figure>
+</div></div>
+<div class="rel"><div class="rel-hd">קשר שמשתנה לאורך זמן <span>(תקציב ↔ נקודות, לפי עונות)</span></div><div class="minis">
+<figure class="mini"><svg viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif" role="img"><line x1="14" x2="166" y1="104" y2="104" stroke="#1d2433"/><line x1="14" x2="14" y1="104" y2="10" stroke="#1d2433"/><polyline points="14.0,31.1 52.0,26.5 90.0,21.8 128.0,24.1 166.0,19.4" fill="none" stroke="#1f5fbf" stroke-width="2.2"/><circle cx="14.0" cy="31.1" r="2.3" fill="#1f5fbf"/><circle cx="52.0" cy="26.5" r="2.3" fill="#1f5fbf"/><circle cx="90.0" cy="21.8" r="2.3" fill="#1f5fbf"/><circle cx="128.0" cy="24.1" r="2.3" fill="#1f5fbf"/><circle cx="166.0" cy="19.4" r="2.3" fill="#1f5fbf"/><polyline points="14.0,47.6 52.0,51.1 90.0,42.9 128.0,45.2 166.0,48.8" fill="none" stroke="#1a8a6b" stroke-width="2.2"/><circle cx="14.0" cy="47.6" r="2.3" fill="#1a8a6b"/><circle cx="52.0" cy="51.1" r="2.3" fill="#1a8a6b"/><circle cx="90.0" cy="42.9" r="2.3" fill="#1a8a6b"/><circle cx="128.0" cy="45.2" r="2.3" fill="#1a8a6b"/><circle cx="166.0" cy="48.8" r="2.3" fill="#1a8a6b"/><polyline points="14.0,62.9 52.0,59.4 90.0,65.2 128.0,61.7 166.0,67.6" fill="none" stroke="#b5660c" stroke-width="2.2"/><circle cx="14.0" cy="62.9" r="2.3" fill="#b5660c"/><circle cx="52.0" cy="59.4" r="2.3" fill="#b5660c"/><circle cx="90.0" cy="65.2" r="2.3" fill="#b5660c"/><circle cx="128.0" cy="61.7" r="2.3" fill="#b5660c"/><circle cx="166.0" cy="67.6" r="2.3" fill="#b5660c"/><text x="14.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">20/21</text><text x="52.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">21/22</text><text x="90.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">22/23</text><text x="128.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">23/24</text><text x="166.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">24/25</text></svg><figcaption>גרף קווי עם כמה סדרות</figcaption></figure>
+<figure class="mini"><svg viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif" role="img"><line x1="14" x2="172" y1="104" y2="104" stroke="#1d2433"/><line x1="14" x2="14" y1="104" y2="10" stroke="#1d2433"/><rect x="19.3" y="31.1" width="13.0" height="72.9" fill="#1f5fbf"/><rect x="33.3" y="47.6" width="13.0" height="56.4" fill="#1a8a6b"/><rect x="47.4" y="62.9" width="13.0" height="41.1" fill="#b5660c"/><text x="40.3" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">20/21</text><rect x="71.9" y="21.8" width="13.0" height="82.2" fill="#1f5fbf"/><rect x="86.0" y="42.9" width="13.0" height="61.1" fill="#1a8a6b"/><rect x="100.0" y="65.2" width="13.0" height="38.8" fill="#b5660c"/><text x="93.0" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">22/23</text><rect x="124.6" y="19.4" width="13.0" height="84.6" fill="#1f5fbf"/><rect x="138.6" y="48.8" width="13.0" height="55.2" fill="#1a8a6b"/><rect x="152.7" y="67.6" width="13.0" height="36.4" fill="#b5660c"/><text x="145.7" y="115" font-size="9" fill="#8a92a3" text-anchor="middle">24/25</text></svg><figcaption>עמודות לפי תקופות</figcaption></figure>
+<figure class="mini"><div class="pair"><svg viewBox="0 0 96 120" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif" role="img"><line x1="10" x2="86" y1="104" y2="104" stroke="#1d2433"/><line x1="10" x2="10" y1="104" y2="18" stroke="#1d2433"/><circle cx="78.4" cy="31.1" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="64.8" cy="65.6" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="36.3" cy="53.1" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="30.2" cy="63.2" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="61.2" cy="65.8" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="59.3" cy="47.4" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="71.2" cy="53.7" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="61.5" cy="50.7" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="63.4" cy="65.2" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="52.8" cy="65.1" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="56.4" cy="53.9" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="19.1" cy="76.8" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="15.6" cy="86.7" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="21.1" cy="72.0" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="23.5" cy="83.3" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="15.8" cy="68.2" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="57.2" cy="56.0" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="61.5" cy="58.0" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="54.2" cy="65.6" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="38.7" cy="62.7" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="74.8" cy="67.6" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="18.3" cy="66.7" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="78.4" cy="65.0" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="21.1" cy="79.1" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><circle cx="16.2" cy="78.5" r="2.2" fill="#1f5fbf" fill-opacity=".55"/><line x1="10.0" y1="77.3" x2="86.0" y2="49.3" stroke="#b5660c" stroke-width="2" stroke-dasharray="5 3"/><text x="48.0" y="11" font-size="10" fill="#1d2433" text-anchor="middle" font-weight="700">עונה 20/21</text></svg><svg viewBox="0 0 96 120" xmlns="http://www.w3.org/2000/svg" font-family="Assistant,Arial,sans-serif" role="img"><line x1="10" x2="86" y1="104" y2="104" stroke="#1d2433"/><line x1="10" x2="10" y1="104" y2="18" stroke="#1d2433"/><circle cx="71.8" cy="35.8" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="70.2" cy="49.9" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="57.0" cy="53.6" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="20.5" cy="82.8" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="65.6" cy="43.4" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="42.8" cy="59.9" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="15.2" cy="90.9" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="62.8" cy="42.0" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="39.0" cy="76.8" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="48.3" cy="44.8" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="72.0" cy="40.5" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="42.0" cy="67.6" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="43.7" cy="64.0" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="62.0" cy="54.6" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="50.6" cy="55.8" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="20.0" cy="72.9" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="69.9" cy="41.0" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="27.6" cy="79.1" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="65.9" cy="44.1" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="47.4" cy="61.7" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="47.4" cy="60.3" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="47.6" cy="65.5" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="37.5" cy="67.8" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="78.4" cy="38.2" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><circle cx="33.2" cy="72.0" r="2.2" fill="#1a8a6b" fill-opacity=".55"/><line x1="10.0" y1="90.5" x2="86.0" y2="29.2" stroke="#b5660c" stroke-width="2" stroke-dasharray="5 3"/><text x="48.0" y="11" font-size="10" fill="#1d2433" text-anchor="middle" font-weight="700">עונה 24/25</text></svg></div><figcaption>גרף פיזור לכל תקופה</figcaption></figure>
+</div></div>
+
+<h2><span class="num">6</span>מבנה הדשבורד</h2>
+<p>הדשבורד הוא לב פרויקט הגמר. כדאי לבחור את הקבצים ואת שאלות החקר כבר עכשיו כך שיתאימו למבנה הזה.</p>
+<div class="dash">
+  <div class="sheet gen"><b>גיליון 1</b>נושא הפרויקט ופרטי התלמיד</div>
+  <div class="sheet gen"><b>גיליון 2</b>פרטי הלקוח והמטרה האנליטית<i>🚗 רונית, משרד התחבורה</i></div>
+  <div class="sheet q"><b>גיליון 3</b>שאלת חקר 1<i>🚗 שעות וימים</i></div>
+  <div class="sheet q"><b>גיליון 4</b>שאלת חקר 2<i>🚗 מזג אוויר</i></div>
+  <div class="sheet q"><b>גיליון 5</b>שאלת חקר 3<i>🚗 סוג דרך</i></div>
+  <div class="sheet q"><b>גיליון 6</b>שאלת חקר 4<i>🚗 מחוזות</i></div>
+  <div class="sheet q"><b>גיליון 7</b>שאלת חקר 5<i>🚗 גיל הנהג</i></div>
+  <div class="sheet sum"><b>גיליון 8</b>סיכום המענה על המטרה האנליטית<i>🚗 המלצות: אכיפה, תאורה, קמפיין</i></div>
+</div>
+<div class="grid2" style="margin-top:16px">
+  <div class="card">
+    <h3>בכל גיליון של שאלת חקר</h3>
+    <ul>
+      <li>שאלת החקר.</li>
+      <li>3 עד 4 גרפים שעונים עליה ביחד.</li>
+      <li>לפחות מסנן (Filter) רלוונטי אחד. 🚗 בדוגמה: שנה ומחוז.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>דרישות טכניות</h3>
+    <ul>
+      <li>לפחות <b>3 מדדים (Measures)</b>. אין צורך ב-DAX. 🚗 בדוגמה: מספר תאונות, אחוז תאונות קשות, ממוצע תאונות ביום.</li>
+      <li>לפחות <b>טבלת מימד (DIM) אחת</b>. הקובץ התומך הוא מועמד טבעי לכך.</li>
+    </ul>
+  </div>
+</div>
+<div class="card" style="margin-top:16px;border-top:5px solid var(--ink)">
+  <h3>⏱️ דשבורד שעובד גם על נתונים עתידיים</h3>
+  <p class="def">הדשבורד צריך להמשיך לעבוד גם כשהלקוח יכניס אליו נתונים חדשים, כדי למדוד אם הפעילות השתפרה.</p>
+  <ul>
+    <li>מחשבים את הערכים בעזרת <b>מדדים (Measures)</b> וחישובים, ולא מקלידים מספרים ידנית לתוך הגרפים או הכותרות.</li>
+    <li>כוללים <b>ממד זמן</b> (תאריך, חודש, שנה) ומסנן לפיו, כדי שאפשר יהיה להשוות "לפני" ו"אחרי" את השינוי.</li>
+    <li>מגדירים ב<b>גיליון הסיכום</b> כמה מדדי מפתח שהלקוח ימשיך לעקוב אחריהם. 🚗 בדוגמה: מספר התאונות בחודש, אחוז התאונות הקשות, ומספר התאונות הקשות בלילה בכבישים בין-עירוניים.</li>
+    <li>שומרים על <b>מבנה קבוע</b> של קבצי הנתונים (אותן עמודות ואותם שמות), כדי שאפשר יהיה להחליף אותם בקובץ חדש ולרענן.</li>
+  </ul>
+</div>
+
+<h2><span class="num">7</span>טעויות נפוצות</h2>
+<div class="callout warn">
+  <ul style="margin:0;padding-inline-start:20px">
+    <li><b>מטרה כללית מדי:</b> "לנתח את תאונות הדרכים בישראל" אינה מטרה אנליטית. 🚗 המטרה של רונית ממוקדת: לזהות אילו גורמים קשורים לתאונות ולחומרתן, כדי להמליץ היכן ומתי להשקיע. מטרה טובה מתמקדת בפעילות של לקוח מסוים ומובילה להצעות לשינוי.</li>
+    <li><b>אין מפתח משותף,</b> או שהמפתח כתוב אחרת בכל קובץ (למשל "תל אביב-יפו" מול "ת"א"). בדקו את ההתאמה לפני שמתחייבים לצמד.</li>
+    <li><b>רמת פירוט שונה:</b> נתונים יומיים מול נתונים שנתיים. אפשר להתמודד עם זה, אבל צריך לתכנן צבירה (GROUP BY).</li>
+    <li><b>חוסר חפיפה:</b> השנים או האזורים בשני הקבצים לא חופפים, ולכן רוב הרשומות לא מתחברות.</li>
+    <li><b>קובץ תומך שלא מוסיף מידע חדש:</b> הוא חוזר על שדות שכבר קיימים בקובץ הראשי.</li>
+    <li><b>קובץ ראשי קטן מדי:</b> פחות מ-500 שורות או פחות מ-10 עמודות.</li>
+    <li><b>נתונים סינתטיים או ממקור לא מהימן,</b> למשל נתונים שבינה מלאכותית "הציעה" בלי מקור אמיתי.</li>
+  </ul>
+</div>
+
+<h2><span class="num">8</span>צ'ק-ליסט לבדיקת ההצעה</h2>
+<p>סמנו כל סעיף שמתקיים. רק כשכל הסעיפים מסומנים כדאי להגיש את ההצעה.</p>
+<div class="progress" id="prog">0 מתוך 15 סעיפים</div>
+<ul class="check" id="checklist">
+  <li><input type="checkbox"><span>הגדרתי לקוח ספציפי: שם, תפקיד, ארגון והפעילות שהוא רוצה לנתח.</span><span class="grp tag key">מטרה</span></li>
+  <li><input type="checkbox"><span>המטרה האנליטית ספציפית, ניתנת למענה מתוך הנתונים ומובילה למסקנות אופרטיביות.</span><span class="grp tag key">מטרה</span></li>
+  <li><input type="checkbox"><span>בקובץ הראשי יש לפחות 500 שורות ו-10 עמודות.</span><span class="grp tag main">ראשי</span></li>
+  <li><input type="checkbox"><span>בקובץ הראשי יש גם שדות כמותיים וגם שדות קטגוריאליים.</span><span class="grp tag main">ראשי</span></li>
+  <li><input type="checkbox"><span>שני הקבצים מגיעים ממקורות מהימנים, ואני יודע/ת מי אסף אותם, מתי ואיך.</span><span class="grp tag main">ראשי</span></li>
+  <li><input type="checkbox"><span>הנתונים אמיתיים ולא סינתטיים.</span><span class="grp tag main">ראשי</span></li>
+  <li><input type="checkbox"><span>הקובץ התומך מגיע ממקור שונה מהקובץ הראשי.</span><span class="grp tag sup">תומך</span></li>
+  <li><input type="checkbox"><span>הקובץ התומך מוסיף לפחות משתנה אחד שאין בקובץ הראשי.</span><span class="grp tag sup">תומך</span></li>
+  <li><input type="checkbox"><span>זוהה שדה מפתח שקיים בשני הקבצים.</span><span class="grp tag sup">חיבור</span></li>
+  <li><input type="checkbox"><span>ערכי המפתח כתובים באותו פורמט, או שתוכנן תהליך לאחד אותם.</span><span class="grp tag sup">חיבור</span></li>
+  <li><input type="checkbox"><span>טווחי הזמן והמקום של שני הקבצים חופפים.</span><span class="grp tag sup">חיבור</span></li>
+  <li><input type="checkbox"><span>ניסחתי 5 שאלות חקר שנגזרות מהמטרה האנליטית, וכל אחת בודקת קשר בין נתונים.</span><span class="grp tag main">שאלות</span></li>
+  <li><input type="checkbox"><span>לפחות שאלת חקר אחת משלבת את שני הקבצים.</span><span class="grp tag main">שאלות</span></li>
+  <li><input type="checkbox"><span>לכל שאלת חקר אפשר להציג 3 עד 4 גרפים שונים שעונים עליה ביחד.</span><span class="grp tag main">שאלות</span></li>
+  <li><input type="checkbox"><span>בקובץ הראשי יש שדה זמן (תאריך, חודש או שנה), כך שאפשר יהיה למדוד שינוי בפעילות לאורך זמן.</span><span class="grp tag main">ראשי</span></li>
+</ul>
+
+<h2><span class="num">9</span>טופס הצעת פרויקט</h2>
+<p>מלאו את הטופס והגישו אותו לאישור המורה לפני שמתחילים בעבודה.</p>
+<div class="form">
+  <div class="row"><div class="lbl">שם התלמיד/ה</div><div class="val">&nbsp;</div></div>
+  <div class="row"><div class="lbl">נושא הפרויקט</div><div class="val">&nbsp;</div></div>
+  <div class="sec-title key">הלקוח והמטרה האנליטית</div>
+  <div class="row"><div class="lbl">שם הלקוח, תפקיד וארגון</div><div class="val">&nbsp;</div></div>
+  <div class="row"><div class="lbl">הפעילות שהלקוח רוצה לנתח</div><div class="val">&nbsp;</div></div>
+  <div class="row"><div class="lbl">המטרה האנליטית</div><div class="val">&nbsp;</div></div>
+  <div class="sec-title">קובץ נתונים ראשי</div>
+  <div class="row"><div class="lbl">שם ומקור</div><div class="val">&nbsp;</div></div>
+  <div class="row"><div class="lbl">מספר שורות ועמודות</div><div class="val">&nbsp;</div></div>
+  <div class="row"><div class="lbl">שדות מרכזיים</div><div class="val">&nbsp;</div></div>
+  <div class="sec-title sup">קובץ נתונים תומך</div>
+  <div class="row"><div class="lbl">שם ומקור</div><div class="val">&nbsp;</div></div>
+  <div class="row"><div class="lbl">אילו משתנים הוא מוסיף?</div><div class="val">&nbsp;</div></div>
+  <div class="row"><div class="lbl">שדה המפתח המשותף</div><div class="val">&nbsp;</div></div>
+  <div class="row"><div class="lbl">בעיות התאמה צפויות</div><div class="val">&nbsp;</div></div>
+  <div class="sec-title">5 שאלות חקר (סמנו ★ ליד שאלה שמשלבת את שני הקבצים)</div>
+  <div class="row"><div class="lbl">שאלת חקר 1</div><div class="val">&nbsp;</div></div>
+  <div class="row"><div class="lbl">שאלת חקר 2</div><div class="val">&nbsp;</div></div>
+  <div class="row"><div class="lbl">שאלת חקר 3</div><div class="val">&nbsp;</div></div>
+  <div class="row"><div class="lbl">שאלת חקר 4</div><div class="val">&nbsp;</div></div>
+  <div class="row"><div class="lbl">שאלת חקר 5</div><div class="val">&nbsp;</div></div>
+</div>
+
+<h2><span class="num">10</span>סדר העבודה המומלץ</h2>
+<ol class="steps">
+  <li>בחרו תחום שמעניין אתכם, והגדירו לקוח שהפעילות שלו מתאימה לניתוח.</li>
+  <li>נסחו מטרה אנליטית: מה הלקוח רוצה להבין על הפעילות שלו ומה הוא רוצה לשפר?</li>
+  <li>חפשו קובץ ראשי ממקור מהימן (לפחות 500 שורות ו-10 עמודות).</li>
+  <li>עברו על השדות בקובץ הראשי ושאלו: "מה עוד הייתי רוצה לדעת על כל רשומה?"</li>
+  <li>חפשו קובץ תומך שעונה על השאלה הזאת וחולק עם הקובץ הראשי שדה מפתח.</li>
+  <li>בצעו חיבור ניסיוני (JOIN) על מדגם קטן ובדקו כמה רשומות מתחברות בפועל.</li>
+  <li>פרקו את המטרה האנליטית ל-5 שאלות חקר, ולכל אחת תכננו 3 עד 4 גרפים.</li>
+  <li>מלאו את הצ'ק-ליסט ואת הטופס, והגישו לאישור.</li>
+</ol>
+
+<footer>מגמת מידע ונתונים · פרויקט מקצוע התמחות</footer>
+</div>
+
+<script>
+  const boxes=[...document.querySelectorAll('#checklist input')];
+  const prog=document.getElementById('prog');
+  function upd(){const n=boxes.filter(b=>b.checked).length;prog.textContent=n+' מתוך '+boxes.length+' סעיפים'+(n===boxes.length?' ✓ ההצעה מוכנה להגשה':'');}
+  boxes.forEach(b=>b.addEventListener('change',upd));
+</script>
+</body>
+</html>

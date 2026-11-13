@@ -44,6 +44,8 @@ The pages are in Hebrew (right-to-left); SQL code is left-to-right. Every query 
 | Data analysis (ניתוח נתונים) | `analysis-01-research-questions.html` | 18 research questions for a project: hypothesis, variables, tables, a query that collects the data, analysis steps; data limitations and a proposal form. No results |
 | | `analysis-02-research-presentation.html` | Presentation (40 slides) with the answers: for each research question the SQL that computes the statistics, the result from the site and the conclusion |
 | Homework (עבודות בית) | `assignments-01-homework.html` | 25 new questions to hand in, parallel to the practice sheet, questions only. Print-ready |
+| | `assignments-02-research-questions.html` | The 18 research questions of `analysis-02` as homework for self-study: hypothesis, variables and the query that computes the statistics, with empty fields for the result, its interpretation, the verdict on the hypothesis and the business meaning. No results or conclusions; a copy button per query. Print-ready |
+| Final project (פרויקט גמר) | `project-01-proposal-guide.html` | Guide for the specialization project: the project as Data Analyst work (running example: road accidents for the Ministry of Transport), client persona and analytic goal, a main and a supporting data file (a single data set each) joined on a shared key, 10 example pairs, 5 research questions with 3–4 charts each and example charts, dashboard structure, common mistakes, a checklist and a proposal form |
 
 In the presentations (`lessons-*`), every animation is preceded by an explanation or query-analysis slide: the question in words, what each clause of the query means (hovering a card highlights its line in the query), the steps the engine has to take, and what the result will look like.
 
@@ -71,7 +73,11 @@ All the question sets are graded in the same five stages: aggregate functions, `
 | `lead` | Text under the title of the topic view | May be longer than `desc` |
 | `items` | The topic's documents | See below |
 
+<<<<<<< Updated upstream
 Current topic ids: `database`, `formulas`, `lessons`, `practice`, `statistics`, `analysis`, `assignments`. `q` and `path` are reserved.
+=======
+Current topic ids: `database`, `formulas`, `lessons`, `practice`, `statistics`, `analysis`, `assignments`, `project`.
+>>>>>>> Stashed changes
 
 ### The data: documents
 
@@ -107,7 +113,8 @@ learn_sql/
 ├── practice-NN-<name>.html          practice question sets (01 thirty, 02 ninety, 03 twenty-five)
 ├── statistics-NN-<name>.html         statistics in SQL (01 measures, normality and regression)
 ├── analysis-NN-<name>.html           data analysis (01 research questions, 02 presentation with the answers)
-├── assignments-NN-<name>.html       homework (01 questions)
+├── assignments-NN-<name>.html       homework (01 questions, 02 research questions)
+├── project-NN-<name>.html           final project (01 proposal guide)
 ├── font-size.js                     text-size control shown on every page
 ├── README.md
 └── LICENSE                          CC0 1.0 Universal
