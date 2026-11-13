@@ -13,6 +13,7 @@ The pages are in Hebrew (right-to-left); SQL code is left-to-right. Every query 
 
 - `index.html` — the home page: how to work with sql-practice.com, and one card per topic.
 - `index.html#<topic-id>` — one topic (for example `#practice`): its documents in order, with a short description of each, and links to the previous and next topic.
+- `index.html#path` — the learning path toward the specialization project (מסלול הלימוד לפרויקט): five steps in order of study, each with a short explanation and its documents. A card for it sits on the home page above the topic cards.
 - `index.html#q=<text>` — search results: every document whose title or description contains the text. The search box at the top of every view searches as you type; it ignores niqqud, geresh/gershayim, quote marks, hyphens and underscores, and highlights the matches. It searches only the titles and descriptions, not the content of the pages.
 
 ## Working with sql-practice.com
@@ -70,7 +71,7 @@ All the question sets are graded in the same five stages: aggregate functions, `
 | `lead` | Text under the title of the topic view | May be longer than `desc` |
 | `items` | The topic's documents | See below |
 
-Current topic ids: `database`, `formulas`, `lessons`, `practice`, `statistics`, `analysis`, `assignments`.
+Current topic ids: `database`, `formulas`, `lessons`, `practice`, `statistics`, `analysis`, `assignments`. `q` and `path` are reserved.
 
 ### The data: documents
 
@@ -83,6 +84,12 @@ Current topic ids: `database`, `formulas`, `lessons`, `practice`, `statistics`, 
 | `d` | Description | One to three sentences. Plain text; SQL words may be wrapped in `<code>…</code>`. Searched |
 | `homework` | `homework:true` marks a homework to hand in | Shows the "עבודת בית" tag. Every homework goes in the topic `assignments` (עבודות בית), the one list of homework on the site. Leave it out for any other page |
 
+### The learning path
+
+The `PATH` data, right after `TOPICS`, orders existing documents into the steps of the project: (1) the client, Northwind; (2) the structure of the data; (3) the SQL language and how a query is executed; (4) practicing queries; (5) the research questions. Each step has a `title`, a `text` and `hrefs`, a list of file names. The path shows each document with its number in the path (`2.1`) and the name of its topic, taken from `TOPICS`, so a document is still listed once. A file name that is not in `TOPICS` is skipped. `path` is reserved and cannot be a topic id.
+
+To add a page to the path: add it to `TOPICS` first, then add its file name to the right step's `hrefs`.
+
 ### Writing the strings
 
 - Every value is a JavaScript string in double quotes, and every entry ends with a comma. **A single missing comma or quote stops the whole page from showing**, so open the page after every change.
@@ -93,7 +100,7 @@ Current topic ids: `database`, `formulas`, `lessons`, `practice`, `statistics`, 
 
 ```
 learn_sql/
-├── index.html                       all navigation: home page, topic lists (#<topic-id>) and search (#q=…)
+├── index.html                       all navigation: home page, learning path (#path), topic lists (#<topic-id>) and search (#q=…)
 ├── database-NN-<name>.html          Northwind database reference (01 short tables, 02 detailed schema, 03 presentation)
 ├── formulas-NN-<name>.html          SQL formula sheet
 ├── lessons-NN-<name>.html           animated presentations for class (01 primary and foreign keys, 02 JOIN and GROUP BY, 03 GROUP BY step by step, 04 JOIN products and categories)

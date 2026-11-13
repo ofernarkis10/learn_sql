@@ -86,6 +86,20 @@ mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 1px}
 .group h2 a{font-family:var(--f-body);font-size:.9rem;font-weight:700;color:var(--accent);text-decoration:none}
 .group h2 a:hover,.group h2 a:focus-visible{text-decoration:underline}
 .note{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 18px;color:var(--muted);font-size:.97rem}
+/* Learning path */
+a.pathcard{display:flex;flex-direction:column;gap:8px;background:var(--paper);border:1px solid var(--line);border-inline-start:6px solid var(--mark);border-radius:12px;padding:18px 22px;color:inherit;text-decoration:none;transition:border-color .15s}
+a.pathcard:hover,a.pathcard:focus-visible{border-color:var(--mark);outline:none}
+a.pathcard:focus-visible{box-shadow:0 0 0 3px var(--accent-soft)}
+a.pathcard .tt{font-family:var(--f-display);font-weight:700;font-size:1.4rem;line-height:1.25}
+a.pathcard ol{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px 8px;counter-reset:st}
+a.pathcard ol li{counter-increment:st;font-size:.9rem;font-weight:700;color:var(--mark);background:var(--accent-soft);border-radius:99px;padding:2px 12px}
+a.pathcard ol li::before{content:counter(st) ". "}
+a.pathcard .go{color:var(--accent);font-weight:700;font-size:.92rem}
+section.step{display:flex;flex-direction:column;gap:12px}
+section.step h2{display:flex;align-items:baseline;gap:12px}
+section.step h2 .sn{font-family:var(--f-mono);color:var(--paper);background:var(--accent);border-radius:99px;min-width:2.2rem;text-align:center;font-size:1.1rem;padding:0 8px}
+section.step .st{color:var(--muted);max-width:70ch}
+.from{font-size:.78rem;color:var(--muted);font-weight:600}
 .hwtag{font-size:.75rem;font-weight:700;color:var(--paper);background:var(--mark);border-radius:99px;padding:1px 8px;margin-inline-start:8px;vertical-align:middle;font-family:var(--f-body)}
 </style>
 <script src="font-size.js"></script>
@@ -185,6 +199,35 @@ const TOPICS = [
   ]},
 ];
 
+/* ================================================================
+   PATH: the learning path toward the specialization project, in order of study (view #path).
+   Every step points to documents that are already in TOPICS, by their href; a document is
+   still listed once, in its topic, and the path only orders it. A step may name a file that
+   is not yet in TOPICS: it is skipped until the page is added.
+   ================================================================ */
+const PATH = {
+  title:"מסלול הלימוד לפרויקט",
+  count:"5 שלבים",
+  desc:"הדרך מהלקוח ועד שאלות המחקר: חברת Northwind, מבנה הנתונים, איך SQL עובד, תרגול שאילתות ושאלות המחקר.",
+  lead:"בפרויקט חברת Northwind היא הלקוח, ואתם מנתחי הנתונים שלה. המסלול עובר על הדפים של האתר בסדר שבו כדאי ללמוד אותם: קודם מכירים את הלקוח ואת הנתונים שלו, אחר כך לומדים איך שואלים את מסד הנתונים שאלות, מתרגלים, ובסוף עוברים לשאלות המחקר של הפרויקט.",
+  steps:[
+    { title:"הלקוח: חברת Northwind",
+      text:"מי החברה, מה היא מוכרת ולמי, איך מוצר עובר מהספק ועד הלקוח, ואיך נראית הפעילות שלה במספרים. זה ההקשר העסקי של כל שאלה שנשאל על הנתונים.",
+      hrefs:["database-03-presentation.html"] },
+    { title:"מבנה הנתונים",
+      text:"אילו טבלאות יש במסד הנתונים, מה יש בכל טבלה, ואיך הטבלאות מתקשרות זו לזו בעזרת מפתח ראשי ומפתח זר. את דף הטבלאות בקצרה כדאי להשאיר פתוח לצד כל תרגול.",
+      hrefs:["database-01-tables.html","lessons-01-foreign-keys.html","database-02-schema.html"] },
+    { title:"שפת SQL ואיך מתבצעת שאילתה",
+      text:"מבנה משפט SELECT וסדר הביצוע שלו, ואחר כך מצגות שמראות צעד אחר צעד מה מנוע ה־SQL עושה: איך הוא מחלק שורות לקבוצות, מחבר טבלאות ובונה את טבלת התוצאה.",
+      hrefs:["formulas-01-sql-sheet.html","lessons-03-groupby-steps.html","lessons-02-join-groupby.html","lessons-04-join-products.html"] },
+    { title:"תרגול שאילתות",
+      text:"שאלות מדורגות מפונקציות צבירה, דרך GROUP BY ו־HAVING ועד JOIN. כתבו כל שאילתה בעצמכם והריצו אותה באתר sql-practice.com לפני שאתם עוברים לתשובה.",
+      hrefs:["practice-01-30-questions.html","practice-02-90-questions.html","practice-04-multiple-choice-40.html","assignments-01-homework.html"] },
+    { title:"שאלות המחקר",
+      text:"מעבר משאילתות לניתוח: חישוב מדדים סטטיסטיים ב־SQL, ואחר כך שאלות מחקר על Northwind עם השערה, משתנים, שאילתה לאיסוף הנתונים ושיטת ניתוח.",
+      hrefs:["statistics-01-measures-regression.html","analysis-01-research-questions.html","analysis-02-research-presentation.html"] },
+  ]};
+
 /* ---------- views ---------- */
 const SITE = 'לומדים SQL';
 const view = document.getElementById('view');
@@ -229,10 +272,10 @@ function hl(text, ts){
 const hlDesc = (d, ts) => d.split(/(<\/?code>)/).map((p, k) => k % 2 ? p : hl(p, ts)).join('');
 
 /* ---------- rendering ---------- */
-function itemHTML(i, ts = []){
+function itemHTML(i, ts = [], no = i.no, from = ''){
   const ext = /\.pdf$/i.test(i.href) ? ' target="_blank" rel="noopener"' : '';
   const tag = i.homework ? '<span class="hwtag">עבודת בית</span>' : '';
-  return `<li><a href="${esc(i.href)}"${ext}><span class="no">${i.no}</span><span class="t">${hl(i.t, ts)}${tag}</span><span class="q">${esc(i.q)}</span><span class="d">${hlDesc(i.d, ts)}</span></a></li>`;
+  return `<li><a href="${esc(i.href)}"${ext}><span class="no">${no}</span><span class="t">${hl(i.t, ts)}${tag}${from ? ` <span class="from">· ${from}</span>` : ''}</span><span class="q">${esc(i.q)}</span><span class="d">${hlDesc(i.d, ts)}</span></a></li>`;
 }
 const header = (title, lead, count) => `<header>
   <span class="eyebrow">אתר לימוד · SQL · מסד הנתונים Northwind · sql-practice.com</span>
@@ -253,6 +296,8 @@ function renderHome(){
   <div><h3>איך לתרגל</h3><p>כתבו את השאילתה והריצו אותה לפני שעוברים לדף התשובה. השוו את התוצאה שקיבלתם לתוצאה שבדף.</p></div>
   <div><h3>חיפוש</h3><p>בשורת החיפוש למעלה אפשר לחפש מילה בכותרות ובתיאורים של כל הדפים.</p></div>
 </div>
+<a class="pathcard" href="#path"><span class="tt">${PATH.title}</span><span class="td">${PATH.desc}</span>
+<ol>${PATH.steps.map(s => `<li>${s.title}</li>`).join('')}</ol><span class="go">למסלול ←</span></a>
 <nav aria-label="נושאים"><ul class="topics">
 ${CHAIN.map(id => card(byId[id])).join('\n')}
 </ul></nav>`;
@@ -264,6 +309,23 @@ ${header(t.title, t.lead, t.count)}
 ${t.items.map(i => itemHTML(i)).join('\n')}
 </ul></section>
 ${topicNav(t.id)}`;
+}
+// documents by file name, with their topic, for the learning path
+const byHref = Object.fromEntries(TOPICS.flatMap(t => t.items.map(i => [i.href, { item: i, topic: t }])));
+function renderPath(){
+  const steps = PATH.steps.map((s, k) => {
+    const docs = s.hrefs.filter(h => byHref[h]).map((h, j) => itemHTML(byHref[h].item, [], `${k + 1}.${j + 1}`, byHref[h].topic.title));
+    return `<section class="step" id="step-${k + 1}">
+  <h2><span class="sn">${k + 1}</span>${s.title}</h2>
+  <p class="st">${s.text}</p>
+  <ul class="docs">
+${docs.join('\n')}
+  </ul>
+</section>`;
+  }).join('\n');
+  return `<a class="back" href="#">→ לכל הנושאים</a>
+${header(PATH.title, PATH.lead, PATH.count)}
+${steps}`;
 }
 function renderSearch(q){
   const ts = terms(q);
@@ -289,6 +351,7 @@ ${groups}`;
 function route(){
   const h = decodeURIComponent(location.hash.slice(1));
   if (h.startsWith('q=')) return { kind: 'search', q: h.slice(2) };
+  if (h === 'path') return { kind: 'path' };
   if (byId[h]) return { kind: 'topic', id: h };
   return { kind: 'home' };
 }
@@ -299,8 +362,8 @@ function render(scroll){
   if (r.kind !== 'search'){ lastNonSearch = location.hash || ''; if (document.activeElement !== qInput) qInput.value = ''; }
   else if (qInput.value !== r.q) qInput.value = r.q;
   clearBtn.hidden = !qInput.value;
-  view.innerHTML = r.kind === 'search' ? renderSearch(r.q) : r.kind === 'topic' ? renderTopic(byId[r.id]) : renderHome();
-  document.title = r.kind === 'home' ? 'לומדים SQL · Northwind' : r.kind === 'search' ? `חיפוש: ${r.q.trim()} · ${SITE}` : `${titleOf(r.id)} · ${SITE}`;
+  view.innerHTML = r.kind === 'search' ? renderSearch(r.q) : r.kind === 'path' ? renderPath() : r.kind === 'topic' ? renderTopic(byId[r.id]) : renderHome();
+  document.title = r.kind === 'home' ? 'לומדים SQL · Northwind' : r.kind === 'search' ? `חיפוש: ${r.q.trim()} · ${SITE}` : r.kind === 'path' ? `${PATH.title} · ${SITE}` : `${titleOf(r.id)} · ${SITE}`;
   if (scroll) window.scrollTo(0, 0);
 }
 qInput.addEventListener('input', () => {
