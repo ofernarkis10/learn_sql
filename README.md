@@ -74,11 +74,7 @@ All the question sets are graded in the same five stages: aggregate functions, `
 | `lead` | Text under the title of the topic view | May be longer than `desc` |
 | `items` | The topic's documents | See below |
 
-<<<<<<< Updated upstream
-Current topic ids: `database`, `formulas`, `lessons`, `practice`, `statistics`, `analysis`, `assignments`. `q` and `path` are reserved.
-=======
-Current topic ids: `database`, `formulas`, `lessons`, `practice`, `statistics`, `analysis`, `assignments`, `project`.
->>>>>>> Stashed changes
+Current topic ids: `database`, `formulas`, `lessons`, `practice`, `statistics`, `analysis`, `assignments`, `project`. `q` and `path` are reserved.
 
 ### The data: documents
 
@@ -93,7 +89,7 @@ Current topic ids: `database`, `formulas`, `lessons`, `practice`, `statistics`, 
 
 ### The learning path
 
-The `PATH` data, right after `TOPICS`, orders existing documents into the steps of the project: (1) the client, Northwind; (2) the structure of the data; (3) the SQL language and how a query is executed; (4) practicing queries; (5) the research questions. Each step has a `title`, a `text` and `hrefs`, a list of file names. The path shows each document with its number in the path (`2.1`) and the name of its topic, taken from `TOPICS`, so a document is still listed once. A file name that is not in `TOPICS` is skipped. `path` is reserved and cannot be a topic id.
+The `PATH` data, right after `TOPICS`, orders existing documents into the steps of the project: (1) the client, Northwind; (2) the structure of the data; (3) the SQL language and how a query is executed; (4) practicing queries; (5) the research questions and the project. Each step has a `title`, a `text` and `hrefs`, a list of file names. The path shows each document with its number in the path (`2.1`) and the name of its topic, taken from `TOPICS`, so a document is still listed once. A file name that is not in `TOPICS` is skipped. `path` is reserved and cannot be a topic id.
 
 To add a page to the path: add it to `TOPICS` first, then add its file name to the right step's `hrefs`.
 
