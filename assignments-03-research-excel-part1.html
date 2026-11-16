@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>שיעורי בית: שאלות מחקר באקסל, חלק א׳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a homework booklet. Instructions, an index, then one card per research question grouped by kind; each card has SQL, Excel and conclusion steps. */
+
+:root { --bg:#EEF1F5; --sheet:#FCFCFD; --ink:#172033; --muted:#556074; --line:#D6DBE3; --soft:#E4E9F1; --accent:#2457C5; --warm:#A34E16; --warm-soft:#F6E8DD; --ok:#2E7D4F; --ok-soft:#E3F1E8;
+  --font-display:"Rubik","Arial Hebrew",Arial,sans-serif; --font-body:"Assistant","Arial Hebrew",Arial,sans-serif; --font-mono:"JetBrains Mono",Consolas,"Courier New",monospace; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0E131B; --sheet:#161D29; --ink:#E7EBF2; --muted:#9AA5B8; --line:#2B3546; --soft:#1F2836; --accent:#84A9FF; --warm:#F0A46F; --warm-soft:#3A2A1E; --ok:#7FD3A0; --ok-soft:#1C3226; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#0E131B; --sheet:#161D29; --ink:#E7EBF2; --muted:#9AA5B8; --line:#2B3546; --soft:#1F2836; --accent:#84A9FF; --warm:#F0A46F; --warm-soft:#3A2A1E; --ok:#7FD3A0; --ok-soft:#1C3226; color-scheme:dark; }
+* { box-sizing:border-box; font-variant-ligatures:none; font-feature-settings:"liga" 0, "calt" 0; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:17px; line-height:1.55; }
+.wrap { max-width:1000px; margin:0 auto; padding-block:28px 64px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+.sheet { background:var(--sheet); border:1px solid var(--line); border-radius:8px; padding:clamp(18px, 3vw, 44px); display:flex; flex-direction:column; gap:26px; }
+h1, h2, h3 { font-family:var(--font-display); margin:0; line-height:1.2; text-wrap:balance; }
+h1 { font-size:clamp(28px, 4vw, 40px); } h2 { font-size:25px; } h3 { font-size:21px; font-weight:500; flex:1; min-width:220px; }
+p { margin:0; }
+bdi, code { font-family:var(--font-mono); font-size:.86em; }
+code { background:var(--soft); padding:1px 6px; border-radius:4px; direction:ltr; unicode-bidi:isolate; }
+.eyebrow { font-size:14px; font-weight:700; letter-spacing:.05em; color:var(--accent); }
+header.top { display:flex; flex-direction:column; gap:10px; border-bottom:3px double var(--line); padding-bottom:18px; }
+.lead { font-size:19px; color:var(--muted); max-width:70ch; }
+.box { border:1px solid var(--line); border-radius:10px; padding:18px 22px; display:flex; flex-direction:column; gap:10px; }
+.box ul, .box ol { margin:0; padding-right:22px; display:flex; flex-direction:column; gap:6px; }
+.idx { width:100%; border-collapse:collapse; font-size:16px; }
+.idx th { text-align:right; font-size:13px; color:var(--muted); padding:6px 8px; border-bottom:2px solid var(--ink); }
+.idx td { padding:6px 8px; border-bottom:1px solid var(--line); }
+.idx td.n { font-family:var(--font-display); font-weight:700; color:var(--accent); width:36px; }
+.idx a { color:inherit; text-decoration:none; } .idx a:hover, .idx a:focus-visible { color:var(--accent); text-decoration:underline; }
+h2.grp { border-bottom:2px solid var(--accent); padding-bottom:6px; margin-top:6px; }
+.gdesc { color:var(--muted); margin-top:-14px; }
+.q { border:1px solid var(--line); border-radius:10px; padding:20px 22px; display:flex; flex-direction:column; gap:14px; scroll-margin-top:12px; break-inside:avoid; }
+.q header { display:flex; gap:12px; align-items:baseline; flex-wrap:wrap; }
+.qn { font-family:var(--font-display); font-weight:700; font-size:26px; color:var(--accent); min-width:30px; }
+.why { color:var(--muted); }
+.vars { margin:0; display:grid; grid-template-columns:repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap:10px; }
+.vars div { background:var(--soft); border-radius:8px; padding:10px 12px; min-width:0; }
+.vars div.wide { grid-column:1 / -1; }
+.vars dt { font-size:13px; font-weight:700; color:var(--muted); }
+.vars dd { margin:0; font-size:16px; }
+.lbl { font-size:13px; font-weight:700; letter-spacing:.04em; color:var(--muted); margin-bottom:4px; }
+.part { border-inline-start:4px solid var(--accent); padding:4px 14px; display:flex; flex-direction:column; gap:6px; }
+.part.xl { border-color:var(--ok); }
+.part.cc { border-color:var(--warm); }
+.part ol, .part ul { margin:0; padding-right:22px; display:flex; flex-direction:column; gap:5px; }
+.cols { display:flex; flex-wrap:wrap; gap:6px; }
+.cols span { border:1px solid var(--line); border-radius:6px; padding:2px 10px; font-size:15px; }
+.note { background:var(--warm-soft); border-radius:8px; padding:10px 14px; font-size:16px; }
+.note b { color:var(--warm); }
+.hint { font-size:16px; color:var(--muted); }
+.hint b { color:var(--accent); }
+.src { color:var(--muted); width:70px; }
+.sqlh { font-size:14px; font-weight:700; color:var(--muted); margin-top:4px; }
+pre.sql { margin:0; direction:ltr; text-align:left; background:var(--soft); border-radius:8px; padding:10px 14px; font-family:var(--font-mono); font-size:13.5px; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere; }
+.k { color:var(--accent); font-weight:600; } .f { color:#A0307A; } .s { color:var(--ok); } .d { color:#0F7A75; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .f { color:#F3A6D5; } :root:not([data-theme="light"]) .d { color:#9FE3D6; } }
+.fx { display:flex; flex-direction:column; align-items:flex-start; gap:4px; margin:6px 0 4px; }
+code.fxc { display:block; width:fit-content; max-width:100%; direction:ltr; text-align:left; font-size:14px; padding:3px 10px; white-space:pre-wrap; overflow-wrap:anywhere; }
+.fxn { font-size:14px; color:var(--muted); }
+.fnwrap { overflow-x:auto; }
+table.fns { width:100%; border-collapse:collapse; font-size:16px; }
+table.fns th { text-align:right; font-size:13px; color:var(--muted); padding:6px 8px; border-bottom:2px solid var(--ink); }
+table.fns td { padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+table.fns td:first-child { white-space:nowrap; }
+code.ex { display:inline-block; direction:ltr; font-size:13px; white-space:nowrap; }
+.tag { font-size:13px; font-weight:700; color:var(--muted); border:1.5px solid var(--line); border-radius:99px; padding:1px 10px; white-space:nowrap; }
+@media print { body { background:none; } .sheet { border:0; padding:0; } .q { break-inside:auto; } }
+
+</style>
+<style>
+/* Back link to the page's topic in index.html */
+.site-back{color:var(--accent);font-family:var(--font-body,"Assistant","Arial Hebrew",Arial,sans-serif);font-weight:600;font-size:15px;text-decoration:none;width:fit-content;white-space:nowrap}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.wrap > .site-back{display:block;margin-bottom:12px}
+@media print{.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="wrap" dir="rtl">
+  <a class="site-back" href="index.html#assignments">→ חזרה לנושא: עבודות בית</a>
+<div class="sheet">
+  <header class="top">
+    <div class="eyebrow">שיעורי בית · מגמת מידע ונתונים · Northwind ב־sql-practice.com</div>
+    <h1>שיעורי בית: שאלות מחקר באקסל, חלק א׳</h1>
+    <p class="lead">6 שאלות מתוך מאגר שאלות המחקר על Northwind: השוואה בין קבוצות · התפלגות וריכוז. השאילתה כבר כתובה: מריצים אותה, מעתיקים את התוצאה לאקסל, מחשבים את המדדים, ובעיקר מסבירים מה המספרים אומרים על החברה.</p>
+  </header>
+
+  <section class="box">
+    <h2>איך עובדים</h2>
+    <ol>
+      <li><b>מריצים:</b> מעתיקים את השאילתה לאתר <bdi dir="ltr">sql-practice.com</bdi> (בוחרים <bdi dir="ltr">northwind.db</bdi>) ומריצים. בדקו שמספר השורות זהה למספר שכתוב בשאלה.</li>
+      <li><b>מעתיקים לאקסל:</b> מסמנים את טבלת התוצאה בעכבר, מעתיקים (<bdi dir="ltr">Ctrl+C</bdi>) ומדביקים לגיליון חדש. האתר מציג 100 שורות בעמוד: אם יש יותר, מעתיקים עמוד אחרי עמוד.</li>
+      <li><b>מחשבים:</b> בנוסחאות של אקסל ולא במחשבון. לכל שאלה גיליון נפרד. הנוסחאות שבשאלות מניחות שהדבקתם את התוצאה החל מהתא A1, כך ששורת הכותרות בשורה 1 והנתונים מתחילים בשורה 2. נוסחה שמתחילה בשם של תא (למשל <bdi dir="ltr">D2:</bdi>) כותבים בתא הזה וגוררים למטה לכל השורות.</li>
+      <li><b>מסבירים:</b> זה החלק העיקרי. עונים על שאלות ההבנה במשפטים מלאים, ומצטטים את המספרים שחישבתם.</li>
+    </ol>
+    <p><b>סכום של שורת הזמנה</b> הוא מחיר כפול כמות, אחרי הנחה: <code>p.unit_price * od.quantity * (1 - od.discount)</code>. המחיר נמצא בטבלה <code>products</code>, והכמות וההנחה בטבלה <code>order_details</code>.</p>
+    <p><b>מגישים:</b> קובץ אקסל אחד עם גיליון לכל שאלה. בכל גיליון: הנתונים, החישובים, הגרף, והתשובות לשאלות ההבנה.</p>
+  </section>
+
+  <section class="box">
+    <h2>הפונקציות של אקסל בעבודה</h2>
+    <p>אלה הפונקציות שמשתמשים בהן בשאלות. בכל שאלה כתובות הנוסחאות המלאות עם הטווחים שלה.</p>
+    <div class="fnwrap"><table class="fns"><tr><th>פונקציה</th><th>מה היא מחזירה</th><th>דוגמה</th></tr><tr><td><code>MAX</code></td><td>הערך הגדול ביותר</td><td><code class="ex">=MAX(D2:D9)</code></td></tr><tr><td><code>MIN</code></td><td>הערך הקטן ביותר</td><td><code class="ex">=MIN(D2:D9)</code></td></tr><tr><td><code>AVERAGE</code></td><td>ממוצע של טווח</td><td><code class="ex">=AVERAGE(B2:B90)</code></td></tr><tr><td><code>CORREL</code></td><td>מקדם המתאם r בין שני טווחים</td><td><code class="ex">=CORREL(E2:E9, D2:D9)</code></td></tr><tr><td><code>STDEV.S</code></td><td>סטיית תקן של מדגם</td><td><code class="ex">=STDEV.S(B2:B90)</code></td></tr><tr><td><code>STANDARDIZE</code></td><td>ציון תקן: כמה סטיות תקן הערך רחוק מהממוצע</td><td><code class="ex">=STANDARDIZE(B2, AVERAGE($B$2:$B$78), STDEV.S($B$2:$B$78))</code></td></tr><tr><td><code>IF</code></td><td>ערך אחד אם התנאי נכון ואחר אם לא</td><td><code class="ex">=IF(ABS(D2) &gt; 2, 1, 0)</code></td></tr><tr><td><code>SUM</code></td><td>סכום של טווח</td><td><code class="ex">=SUM(B2:B90)</code></td></tr><tr><td><code>ROW</code></td><td>מספר השורה של התא</td><td><code class="ex">=ROW() - 1</code></td></tr><tr><td><code>MEDIAN</code></td><td>חציון: הערך האמצעי אחרי מיון</td><td><code class="ex">=MEDIAN(B2:B90)</code></td></tr></table></div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:10px">
+    <h2>רשימת השאלות</h2>
+    <table class="idx"><tr><th>#</th><th>השאלה</th><th>סוג</th><th>במאגר</th></tr><tr><td class="n">1</td><td><a href="#q1">איזו חברת משלוחים מהירה ועקבית יותר?</a></td><td>השוואה בין קבוצות</td><td class="src">6</td></tr><tr><td class="n">2</td><td><a href="#q2">באילו מדינות הלקוחות מזמינים הזמנות גדולות יותר?</a></td><td>השוואה בין קבוצות</td><td class="src">8</td></tr><tr><td class="n">3</td><td><a href="#q3">האם החברה נותנת יותר הנחות בקטגוריות מסוימות?</a></td><td>השוואה בין קבוצות</td><td class="src">9</td></tr><tr><td class="n">4</td><td><a href="#q4">איזו חברת משלוחים מאחרת יותר?</a></td><td>השוואה בין קבוצות</td><td class="src">10</td></tr><tr><td class="n">5</td><td><a href="#q5">האם מעט לקוחות אחראים לרוב המכירות?</a></td><td>התפלגות וריכוז</td><td class="src">15</td></tr><tr><td class="n">6</td><td><a href="#q6">באילו קטגוריות יש בעיית מלאי?</a></td><td>התפלגות וריכוז</td><td class="src">16</td></tr></table>
+  </section>
+
+<h2 class="grp">השוואה בין קבוצות</h2><p class="gdesc">משתנה כמותי שמשווים בין קבוצות: ממוצע מול חציון, סטיית תקן ומקדם שונות.</p>
+<article class="q" id="q1">
+  <header><span class="qn">1</span><h3>איזו חברת משלוחים מהירה ועקבית יותר?</h3><span class="tag">שאלה 6 במאגר</span></header>
+  <p class="why"><bdi dir="ltr">Northwind</bdi> משלמת לשלוש חברות משלוחים. המחקר יכול להמליץ באיזו מהן להשתמש יותר.</p>
+  <dl class="vars"><div class="wide"><dt>השערה</dt><dd>יש הבדל בזמן המשלוח הממוצע בין שלוש החברות.</dd></div><div><dt>יחידת תצפית</dt><dd>הזמנה שנשלחה</dd></div><div><dt>משתנה בלתי תלוי</dt><dd>חברת המשלוחים</dd></div><div><dt>משתנה תלוי</dt><dd>ימים מההזמנה ועד המשלוח</dd></div></dl>
+  <div class="part"><div class="lbl">שלב 1 · מריצים באתר ומעתיקים לאקסל · שורות בתוצאה: 3</div><pre class="sql"><span class="k">SELECT</span> s.company_name,
+       <span class="f">COUNT</span>(*) <span class="k">AS</span> orders,
+       <span class="f">AVG</span>(<span class="f">julianday</span>(o.shipped_date) - <span class="f">julianday</span>(o.order_date)) <span class="k">AS</span> mean_days,
+       <span class="f">MEDIAN</span>(<span class="f">julianday</span>(o.shipped_date) - <span class="f">julianday</span>(o.order_date)) <span class="k">AS</span> median_days,
+       <span class="f">STDEV</span>(<span class="f">julianday</span>(o.shipped_date) - <span class="f">julianday</span>(o.order_date)) <span class="k">AS</span> sd_days
+<span class="k">FROM</span> orders <span class="k">AS</span> o
+<span class="k">JOIN</span> shippers <span class="k">AS</span> s <span class="k">ON</span> s.shipper_id = o.ship_via
+<span class="k">WHERE</span> o.shipped_date <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">GROUP</span> <span class="k">BY</span> s.company_name;</pre></div>
+  <div class="part xl"><div class="lbl">שלב 2 · חישובים באקסל</div><ol><li>מעתיקים את הטבלה ומחשבים לכל חברה מקדם שונות: סטיית התקן חלקי הממוצע.<div class="fx"><code class="fxc">F2: =E2 / C2</code></div></li><li>משרטטים גרף עמודות של הממוצע ושל החציון לכל חברה.</li><li>מחשבים את ההפרש בין החברה המהירה לאיטית, ומחלקים אותו בסטיית התקן הממוצעת של השלוש.<div class="fx"><code class="fxc">=(MAX(C2:C4) - MIN(C2:C4)) / AVERAGE(E2:E4)</code></div></li></ol></div>
+  <div class="part cc"><div class="lbl">שלב 3 · הבנה: עונים במילים, ומשתמשים במספרים שחישבתם</div><ol><li>מה ההבדל בין הממוצע לחציון של זמן המשלוח? מה זה אומר על ההזמנות שמתעכבות?</li><li>מה מודד מקדם השונות? למה הוא מתאים להשוואת עקביות יותר מסטיית התקן לבד?</li><li>ההבדל בין הממוצעים הוא יום או יומיים, וסטיית התקן גדולה. האם ההבדל משמעותי? נמקו בעזרת החישוב בסעיף 3.</li><li>על איזו חברה הייתם ממליצים, ולמה?</li></ol></div>
+  
+</article>
+<article class="q" id="q2">
+  <header><span class="qn">2</span><h3>באילו מדינות הלקוחות מזמינים הזמנות גדולות יותר?</h3><span class="tag">שאלה 8 במאגר</span></header>
+  <p class="why">מדינות עם הזמנות גדולות יכולות להיות יעד לשיווק או לשירות מיוחד.</p>
+  <dl class="vars"><div class="wide"><dt>השערה</dt><dd>הסכום הממוצע של הזמנה שונה ממדינה למדינה.</dd></div><div><dt>יחידת תצפית</dt><dd>מדינת לקוח (13 מדינות עם 20 הזמנות ומעלה)</dd></div><div><dt>משתנה בלתי תלוי</dt><dd>מדינת הלקוח</dd></div><div><dt>משתנה תלוי</dt><dd>הסכום הממוצע להזמנה</dd></div></dl>
+  <div class="part"><div class="lbl">שלב 1 · מריצים באתר ומעתיקים לאקסל · שורות בתוצאה: 13</div><pre class="sql"><span class="k">SELECT</span> c.country,
+       <span class="f">COUNT</span>(<span class="k">DISTINCT</span> c.customer_id) <span class="k">AS</span> customers,
+       <span class="f">COUNT</span>(<span class="k">DISTINCT</span> o.order_id) <span class="k">AS</span> orders,
+       <span class="f">SUM</span>(p.unit_price * od.quantity * (<span class="d">1</span> - od.discount))
+         / <span class="f">COUNT</span>(<span class="k">DISTINCT</span> o.order_id) <span class="k">AS</span> avg_order_value
+<span class="k">FROM</span> customers <span class="k">AS</span> c
+<span class="k">JOIN</span> orders <span class="k">AS</span> o <span class="k">ON</span> o.customer_id = c.customer_id
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.order_id = o.order_id
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.product_id = od.product_id
+<span class="k">GROUP</span> <span class="k">BY</span> c.country
+<span class="k">HAVING</span> <span class="f">COUNT</span>(<span class="k">DISTINCT</span> o.order_id) &gt;= <span class="d">20</span>
+<span class="k">ORDER</span> <span class="k">BY</span> avg_order_value <span class="k">DESC</span>;</pre></div>
+  <div class="part xl"><div class="lbl">שלב 2 · חישובים באקסל</div><ol><li>משרטטים גרף פיזור: מספר ההזמנות של המדינה בציר <bdi dir="ltr">x</bdi>, והסכום הממוצע להזמנה בציר <bdi dir="ltr">y</bdi>.</li><li>מחשבים את מקדם המתאם <bdi dir="ltr">r</bdi> בין מספר ההזמנות לבין הסכום הממוצע להזמנה.<div class="fx"><code class="fxc">=CORREL(C2:C14, D2:D14)</code></div></li><li>מחשבים את הממוצע, סטיית התקן והטווח של הסכום הממוצע להזמנה בין 13 המדינות.<div class="fx"><code class="fxc">=AVERAGE(D2:D14)</code><code class="fxc">=STDEV.S(D2:D14)</code><code class="fxc">=MAX(D2:D14) - MIN(D2:D14)</code></div></li><li>מחשבים לכל מדינה ציון תקן של הסכום הממוצע, ומסמנים מדינות עם ציון תקן גדול מ־1.<div class="fx"><code class="fxc">E2: =STANDARDIZE(D2, AVERAGE($D$2:$D$14), STDEV.S($D$2:$D$14))</code><code class="fxc">F2: =IF(E2 &gt; 1, 1, 0)</code></div></li></ol></div>
+  <div class="part cc"><div class="lbl">שלב 3 · הבנה: עונים במילים, ומשתמשים במספרים שחישבתם</div><ol><li>אילו מדינות מזמינות הזמנות גדולות במיוחד, ואילו קטנות? כמה גדול ההבדל בין הגבוהה לנמוכה?</li><li>מה מראה גרף הפיזור: האם מדינות עם הרבה הזמנות מזמינות גם הזמנות גדולות יותר? היעזרו ב־<bdi dir="ltr">r</bdi>.</li><li>מה אומר ציון התקן של אוסטריה? האם היא חריגה ביחס לשאר המדינות?</li><li>באוסטריה יש רק 2 לקוחות. כמה אפשר לסמוך על הממוצע שלה? למה השאילתה משאירה רק מדינות עם 20 הזמנות לפחות?</li></ol></div>
+  
+</article>
+<article class="q" id="q3">
+  <header><span class="qn">3</span><h3>האם החברה נותנת יותר הנחות בקטגוריות מסוימות?</h3><span class="tag">שאלה 9 במאגר</span></header>
+  <p class="why">אם בקטגוריה מסוימת נותנים הרבה הנחות, אולי המחיר שלה גבוה מדי או שקשה למכור אותה.</p>
+  <dl class="vars"><div class="wide"><dt>השערה</dt><dd>אחוז השורות עם הנחה שונה בין הקטגוריות.</dd></div><div><dt>יחידת תצפית</dt><dd>שורת הזמנה, לפי קטגוריה (8)</dd></div><div><dt>משתנה בלתי תלוי</dt><dd>הקטגוריה</dd></div><div><dt>משתנה תלוי</dt><dd>ההנחה הממוצעת ואחוז השורות עם הנחה</dd></div></dl>
+  <div class="part"><div class="lbl">שלב 1 · מריצים באתר ומעתיקים לאקסל · שורות בתוצאה: 8</div><pre class="sql"><span class="k">SELECT</span> c.category_name,
+       <span class="f">COUNT</span>(*) <span class="k">AS</span> lines,
+       <span class="f">AVG</span>(od.discount) <span class="k">AS</span> avg_discount,
+       <span class="d">100.0</span> * <span class="f">AVG</span>(od.discount &gt; <span class="d">0</span>) <span class="k">AS</span> pct_discounted,
+       <span class="f">AVG</span>(p.unit_price) <span class="k">AS</span> avg_price
+<span class="k">FROM</span> order_details <span class="k">AS</span> od
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.product_id = od.product_id
+<span class="k">JOIN</span> categories <span class="k">AS</span> c <span class="k">ON</span> c.category_id = p.category_id
+<span class="k">GROUP</span> <span class="k">BY</span> c.category_name;</pre></div>
+  <div class="part xl"><div class="lbl">שלב 2 · חישובים באקסל</div><ol><li>מחשבים את הממוצע, הטווח וסטיית התקן של אחוז השורות עם הנחה בין 8 הקטגוריות.<div class="fx"><code class="fxc">=AVERAGE(D2:D9)</code><code class="fxc">=MAX(D2:D9) - MIN(D2:D9)</code><code class="fxc">=STDEV.S(D2:D9)</code></div></li><li>מחשבים לכל קטגוריה את ההנחה הממוצעת רק בשורות עם הנחה: <bdi dir="ltr">avg_discount</bdi> חלקי <bdi dir="ltr">(pct_discounted / 100)</bdi>.<div class="fx"><code class="fxc">F2: =C2 / (D2 / 100)</code></div></li><li>משרטטים גרף פיזור בין המחיר הממוצע של הקטגוריה לבין אחוז השורות עם הנחה, ומחשבים <bdi dir="ltr">r</bdi>.<div class="fx"><code class="fxc">=CORREL(E2:E9, D2:D9)</code></div></li></ol></div>
+  <div class="part cc"><div class="lbl">שלב 3 · הבנה: עונים במילים, ומשתמשים במספרים שחישבתם</div><ol><li>מה ההבדל בין &quot;הנחה ממוצעת&quot; לבין &quot;אחוז השורות עם הנחה&quot;? תנו דוגמה לקטגוריה שבה אחד גבוה והשני לא.</li><li>מה מלמד החישוב בסעיף 2 שלא רואים בטבלה המקורית?</li><li>האם ההבדלים בין הקטגוריות גדולים ביחס לסטיית התקן ביניהן?</li><li>יש רק 8 קטגוריות. כמה אפשר לסמוך על <bdi dir="ltr">r</bdi> שחישבתם?</li></ol></div>
+  
+</article>
+<article class="q" id="q4">
+  <header><span class="qn">4</span><h3>איזו חברת משלוחים מאחרת יותר?</h3><span class="tag">שאלה 10 במאגר</span></header>
+  <p class="why">איחור במשלוח פוגע בלקוח. השאלה בודקת אם יש חברה שאחראית ליותר איחורים.</p>
+  <dl class="vars"><div class="wide"><dt>השערה</dt><dd>אחוז ההזמנות שנשלחו אחרי התאריך הנדרש שונה בין החברות.</dd></div><div><dt>יחידת תצפית</dt><dd>הזמנה שנשלחה, לפי חברת משלוחים</dd></div><div><dt>משתנה בלתי תלוי</dt><dd>חברת המשלוחים</dd></div><div><dt>משתנה תלוי</dt><dd>ההזמנה נשלחה באיחור (כן / לא)</dd></div></dl>
+  <div class="part"><div class="lbl">שלב 1 · מריצים באתר ומעתיקים לאקסל · שורות בתוצאה: 3</div><pre class="sql"><span class="k">SELECT</span> s.company_name,
+       <span class="f">COUNT</span>(*) <span class="k">AS</span> shipped,
+       <span class="f">SUM</span>(o.shipped_date &gt; o.required_date) <span class="k">AS</span> late,
+       <span class="f">AVG</span>(CASE WHEN o.shipped_date &gt; o.required_date
+           THEN <span class="f">julianday</span>(o.shipped_date) - <span class="f">julianday</span>(o.required_date) END) <span class="k">AS</span> days_late
+<span class="k">FROM</span> orders <span class="k">AS</span> o
+<span class="k">JOIN</span> shippers <span class="k">AS</span> s <span class="k">ON</span> s.shipper_id = o.ship_via
+<span class="k">WHERE</span> o.shipped_date <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">GROUP</span> <span class="k">BY</span> s.company_name;</pre></div>
+  <div class="part xl"><div class="lbl">שלב 2 · חישובים באקסל</div><ol><li>מחשבים לכל חברה את אחוז ההזמנות שנשלחו באיחור.<div class="fx"><code class="fxc">F2: =C2 / B2</code></div></li><li>מחשבים את אחוז האיחורים בכל החברות יחד.<div class="fx"><code class="fxc">=SUM(C2:C4) / SUM(B2:B4)</code></div></li><li>מחשבים את היחס בין אחוז האיחורים הגבוה לנמוך.<div class="fx"><code class="fxc">=MAX(F2:F4) / MIN(F2:F4)</code></div></li><li>משרטטים שני גרפי עמודות: אחוז האיחורים לכל חברה, וממוצע ימי האיחור לכל חברה.</li></ol></div>
+  <div class="part cc"><div class="lbl">שלב 3 · הבנה: עונים במילים, ומשתמשים במספרים שחישבתם</div><ol><li>איזו חברה מאחרת הכי הרבה, ואיזו הכי מעט?</li><li>אחוז האיחורים בכל החברות נמוך. האם ההבדל בין החברות חשוב, ביחס לאחוז הכללי?</li><li>בכל חברה יש רק 9 עד 16 הזמנות שאיחרו. כמה אפשר לסמוך על ממוצע ימי האיחור?</li><li>מה חשוב יותר ללקוח: כמה פעמים חברה מאחרת, או בכמה ימים? על איזו חברה הייתם ממליצים?</li></ol></div>
+  
+</article>
+<h2 class="grp">התפלגות וריכוז</h2><p class="gdesc">איך הערכים מתפזרים: צידוד, כלל 68–95–99.7, ריכוז ואחוזים מצטברים.</p>
+<article class="q" id="q5">
+  <header><span class="qn">5</span><h3>האם מעט לקוחות אחראים לרוב המכירות?</h3><span class="tag">שאלה 15 במאגר</span></header>
+  <p class="why">חברה שתלויה במעט לקוחות נמצאת בסיכון: אם לקוח גדול עוזב, המכירות נופלות.</p>
+  <dl class="vars"><div class="wide"><dt>השערה</dt><dd>20% מהלקוחות אחראים ל־80% מהמכירות (כלל פרטו).</dd></div><div><dt>יחידת תצפית</dt><dd>לקוח (89)</dd></div><div><dt>משתנה בלתי תלוי</dt><dd>דירוג הלקוח</dd></div><div><dt>משתנה תלוי</dt><dd>המכירות של הלקוח</dd></div></dl>
+  <div class="part"><div class="lbl">שלב 1 · מריצים באתר ומעתיקים לאקסל · שורות בתוצאה: 89</div><pre class="sql"><span class="k">SELECT</span> c.company_name,
+       <span class="f">SUM</span>(p.unit_price * od.quantity * (<span class="d">1</span> - od.discount)) <span class="k">AS</span> sales
+<span class="k">FROM</span> customers <span class="k">AS</span> c
+<span class="k">JOIN</span> orders <span class="k">AS</span> o <span class="k">ON</span> o.customer_id = c.customer_id
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.order_id = o.order_id
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.product_id = od.product_id
+<span class="k">GROUP</span> <span class="k">BY</span> c.customer_id
+<span class="k">ORDER</span> <span class="k">BY</span> sales <span class="k">DESC</span>;</pre></div>
+  <div class="part xl"><div class="lbl">שלב 2 · חישובים באקסל</div><ol><li>מחשבים לכל לקוח: אחוז מסך המכירות, אחוז מצטבר של המכירות, ואחוז מצטבר של הלקוחות.<div class="fx"><code class="fxc">C2: =B2 / SUM($B$2:$B$90)</code><code class="fxc">D2: =SUM($C$2:C2)</code><code class="fxc">E2: =(ROW() - 1) / 89</code></div></li><li>מוצאים את החלק של 10, 18 (20%) ו־30 הלקוחות הגדולים בסך המכירות.<div class="fx"><code class="fxc">=SUM(B2:B11) / SUM(B2:B90)</code><code class="fxc">=SUM(B2:B19) / SUM(B2:B90)</code><code class="fxc">=SUM(B2:B31) / SUM(B2:B90)</code></div></li><li>משרטטים גרף פרטו: עמודות של המכירות וקו של האחוז המצטבר.</li><li>מחשבים ממוצע, חציון וסטיית תקן של המכירות לפי לקוח.<div class="fx"><code class="fxc">=AVERAGE(B2:B90)</code><code class="fxc">=MEDIAN(B2:B90)</code><code class="fxc">=STDEV.S(B2:B90)</code></div></li></ol></div>
+  <div class="part cc"><div class="lbl">שלב 3 · הבנה: עונים במילים, ומשתמשים במספרים שחישבתם</div><ol><li>האם כלל 80/20 מתקיים? אם לא, מה היחס האמיתי?</li><li>מה אומר הפער בין הממוצע לחציון של המכירות לפי לקוח?</li><li>מה היה קורה למכירות אם שלושת הלקוחות הגדולים היו עוזבים? חשבו באחוזים.</li><li>מה הייתם ממליצים לחברה בעקבות התוצאה?</li></ol></div>
+  
+</article>
+<article class="q" id="q6">
+  <header><span class="qn">6</span><h3>באילו קטגוריות יש בעיית מלאי?</h3><span class="tag">שאלה 16 במאגר</span></header>
+  <p class="why">מוצר שהמלאי שלו ירד מתחת לסף ההזמנה מחדש עלול להיגמר. השאלה מזהה איפה צריך לטפל.</p>
+  <dl class="vars"><div class="wide"><dt>השערה</dt><dd>רוב המוצרים שמתחת לסף ההזמנה נמצאים בכמה קטגוריות בלבד.</dd></div><div><dt>יחידת תצפית</dt><dd>מוצר (77), לפי קטגוריה (8)</dd></div><div><dt>משתנה בלתי תלוי</dt><dd>הקטגוריה</dd></div><div><dt>משתנה תלוי</dt><dd>מספר המוצרים מתחת לסף, ומספר המוצרים שהופסקו</dd></div></dl>
+  <div class="part"><div class="lbl">שלב 1 · מריצים באתר ומעתיקים לאקסל · שורות בתוצאה: 8</div><pre class="sql"><span class="k">SELECT</span> c.category_name,
+       <span class="f">COUNT</span>(*) <span class="k">AS</span> products,
+       <span class="f">SUM</span>(p.units_in_stock &lt; p.reorder_level) <span class="k">AS</span> below_reorder,
+       <span class="f">SUM</span>(p.discontinued) <span class="k">AS</span> discontinued
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> categories <span class="k">AS</span> c <span class="k">ON</span> c.category_id = p.category_id
+<span class="k">GROUP</span> <span class="k">BY</span> c.category_name;</pre></div>
+  <div class="part xl"><div class="lbl">שלב 2 · חישובים באקסל</div><ol><li>מחשבים לכל קטגוריה את אחוז המוצרים מתחת לסף מתוך המוצרים שלה.<div class="fx"><code class="fxc">E2: =C2 / B2</code></div></li><li>מחשבים לכל קטגוריה איזה חלק מכל המוצרים שמתחת לסף נמצא בה.<div class="fx"><code class="fxc">F2: =C2 / SUM($C$2:$C$9)</code></div></li><li>משרטטים שני גרפים: עמודות של האחוז בכל קטגוריה, ועוגה של החלוקה בין הקטגוריות.</li></ol></div>
+  <div class="part cc"><div class="lbl">שלב 3 · הבנה: עונים במילים, ומשתמשים במספרים שחישבתם</div><ol><li>מה ההבדל בין שני האחוזים שחישבתם (סעיף 1 וסעיף 2)? מתי כל אחד מהם חשוב?</li><li>האם הבעיה מרוכזת בכמה קטגוריות? האם ההשערה התאשרה?</li><li>קטגוריה עם הרבה מוצרים תופיע גדולה בעוגה גם אם האחוז בה נמוך. איך זה יכול להטעות?</li><li>מוצר שהופסק לא צריך הזמנה מחדש. איך זה משנה את המסקנה?</li></ol></div>
+  
+</article>
+
+  <section class="box">
+    <h2>מגבלות של הנתונים</h2>
+    <ul>
+      <li><b>הנתונים בדיוניים.</b> אפשר להסיק מסקנות על החברה הזאת, לא על העולם.</li>
+      <li><b>שנים חלקיות.</b> הנתונים מתחילים ב־4 ביולי 2016 ונגמרים ב־6 במאי 2018. רק 2017 היא שנה מלאה.</li>
+      <li><b>קבוצות קטנות.</b> 3 חברות משלוחים ו־8 קטגוריות: ערך אחד יכול לשנות את התוצאה.</li>
+      <li><b>אין עלויות ואין רווח.</b> יש רק מחירי מכירה.</li>
+      <li><b>קשר אינו סיבה.</b> מתאם בין שני משתנים לא מוכיח שאחד גורם לשני.</li>
+    </ul>
+  </section>
+</div>
+</div>
+</body>
+</html>
