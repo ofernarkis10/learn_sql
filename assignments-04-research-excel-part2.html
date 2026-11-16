@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>שיעורי בית: שאלות מחקר באקסל, חלק ב׳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a homework booklet. Instructions, an index, then one card per research question grouped by kind; each card has SQL, Excel and conclusion steps. */
+
+:root { --bg:#EEF1F5; --sheet:#FCFCFD; --ink:#172033; --muted:#556074; --line:#D6DBE3; --soft:#E4E9F1; --accent:#2457C5; --warm:#A34E16; --warm-soft:#F6E8DD; --ok:#2E7D4F; --ok-soft:#E3F1E8;
+  --font-display:"Rubik","Arial Hebrew",Arial,sans-serif; --font-body:"Assistant","Arial Hebrew",Arial,sans-serif; --font-mono:"JetBrains Mono",Consolas,"Courier New",monospace; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0E131B; --sheet:#161D29; --ink:#E7EBF2; --muted:#9AA5B8; --line:#2B3546; --soft:#1F2836; --accent:#84A9FF; --warm:#F0A46F; --warm-soft:#3A2A1E; --ok:#7FD3A0; --ok-soft:#1C3226; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#0E131B; --sheet:#161D29; --ink:#E7EBF2; --muted:#9AA5B8; --line:#2B3546; --soft:#1F2836; --accent:#84A9FF; --warm:#F0A46F; --warm-soft:#3A2A1E; --ok:#7FD3A0; --ok-soft:#1C3226; color-scheme:dark; }
+* { box-sizing:border-box; font-variant-ligatures:none; font-feature-settings:"liga" 0, "calt" 0; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:17px; line-height:1.55; }
+.wrap { max-width:1000px; margin:0 auto; padding-block:28px 64px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+.sheet { background:var(--sheet); border:1px solid var(--line); border-radius:8px; padding:clamp(18px, 3vw, 44px); display:flex; flex-direction:column; gap:26px; }
+h1, h2, h3 { font-family:var(--font-display); margin:0; line-height:1.2; text-wrap:balance; }
+h1 { font-size:clamp(28px, 4vw, 40px); } h2 { font-size:25px; } h3 { font-size:21px; font-weight:500; flex:1; min-width:220px; }
+p { margin:0; }
+bdi, code { font-family:var(--font-mono); font-size:.86em; }
+code { background:var(--soft); padding:1px 6px; border-radius:4px; direction:ltr; unicode-bidi:isolate; }
+.eyebrow { font-size:14px; font-weight:700; letter-spacing:.05em; color:var(--accent); }
+header.top { display:flex; flex-direction:column; gap:10px; border-bottom:3px double var(--line); padding-bottom:18px; }
+.lead { font-size:19px; color:var(--muted); max-width:70ch; }
+.box { border:1px solid var(--line); border-radius:10px; padding:18px 22px; display:flex; flex-direction:column; gap:10px; }
+.box ul, .box ol { margin:0; padding-right:22px; display:flex; flex-direction:column; gap:6px; }
+.idx { width:100%; border-collapse:collapse; font-size:16px; }
+.idx th { text-align:right; font-size:13px; color:var(--muted); padding:6px 8px; border-bottom:2px solid var(--ink); }
+.idx td { padding:6px 8px; border-bottom:1px solid var(--line); }
+.idx td.n { font-family:var(--font-display); font-weight:700; color:var(--accent); width:36px; }
+.idx a { color:inherit; text-decoration:none; } .idx a:hover, .idx a:focus-visible { color:var(--accent); text-decoration:underline; }
+h2.grp { border-bottom:2px solid var(--accent); padding-bottom:6px; margin-top:6px; }
+.gdesc { color:var(--muted); margin-top:-14px; }
+.q { border:1px solid var(--line); border-radius:10px; padding:20px 22px; display:flex; flex-direction:column; gap:14px; scroll-margin-top:12px; break-inside:avoid; }
+.q header { display:flex; gap:12px; align-items:baseline; flex-wrap:wrap; }
+.qn { font-family:var(--font-display); font-weight:700; font-size:26px; color:var(--accent); min-width:30px; }
+.why { color:var(--muted); }
+.vars { margin:0; display:grid; grid-template-columns:repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap:10px; }
+.vars div { background:var(--soft); border-radius:8px; padding:10px 12px; min-width:0; }
+.vars div.wide { grid-column:1 / -1; }
+.vars dt { font-size:13px; font-weight:700; color:var(--muted); }
+.vars dd { margin:0; font-size:16px; }
+.lbl { font-size:13px; font-weight:700; letter-spacing:.04em; color:var(--muted); margin-bottom:4px; }
+.part { border-inline-start:4px solid var(--accent); padding:4px 14px; display:flex; flex-direction:column; gap:6px; }
+.part.xl { border-color:var(--ok); }
+.part.cc { border-color:var(--warm); }
+.part ol, .part ul { margin:0; padding-right:22px; display:flex; flex-direction:column; gap:5px; }
+.cols { display:flex; flex-wrap:wrap; gap:6px; }
+.cols span { border:1px solid var(--line); border-radius:6px; padding:2px 10px; font-size:15px; }
+.note { background:var(--warm-soft); border-radius:8px; padding:10px 14px; font-size:16px; }
+.note b { color:var(--warm); }
+.hint { font-size:16px; color:var(--muted); }
+.hint b { color:var(--accent); }
+.src { color:var(--muted); width:70px; }
+.sqlh { font-size:14px; font-weight:700; color:var(--muted); margin-top:4px; }
+pre.sql { margin:0; direction:ltr; text-align:left; background:var(--soft); border-radius:8px; padding:10px 14px; font-family:var(--font-mono); font-size:13.5px; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere; }
+.k { color:var(--accent); font-weight:600; } .f { color:#A0307A; } .s { color:var(--ok); } .d { color:#0F7A75; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .f { color:#F3A6D5; } :root:not([data-theme="light"]) .d { color:#9FE3D6; } }
+.fx { display:flex; flex-direction:column; align-items:flex-start; gap:4px; margin:6px 0 4px; }
+code.fxc { display:block; width:fit-content; max-width:100%; direction:ltr; text-align:left; font-size:14px; padding:3px 10px; white-space:pre-wrap; overflow-wrap:anywhere; }
+.fxn { font-size:14px; color:var(--muted); }
+.fnwrap { overflow-x:auto; }
+table.fns { width:100%; border-collapse:collapse; font-size:16px; }
+table.fns th { text-align:right; font-size:13px; color:var(--muted); padding:6px 8px; border-bottom:2px solid var(--ink); }
+table.fns td { padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+table.fns td:first-child { white-space:nowrap; }
+code.ex { display:inline-block; direction:ltr; font-size:13px; white-space:nowrap; }
+.tag { font-size:13px; font-weight:700; color:var(--muted); border:1.5px solid var(--line); border-radius:99px; padding:1px 10px; white-space:nowrap; }
+@media print { body { background:none; } .sheet { border:0; padding:0; } .q { break-inside:auto; } }
+
+</style>
+<style>
+/* Back link to the page's topic in index.html */
+.site-back{color:var(--accent);font-family:var(--font-body,"Assistant","Arial Hebrew",Arial,sans-serif);font-weight:600;font-size:15px;text-decoration:none;width:fit-content;white-space:nowrap}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.wrap > .site-back{display:block;margin-bottom:12px}
+@media print{.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="wrap" dir="rtl">
+  <a class="site-back" href="index.html#assignments">→ חזרה לנושא: עבודות בית</a>
+<div class="sheet">
+  <header class="top">
+    <div class="eyebrow">שיעורי בית · מגמת מידע ונתונים · Northwind ב־sql-practice.com</div>
+    <h1>שיעורי בית: שאלות מחקר באקסל, חלק ב׳</h1>
+    <p class="lead">6 שאלות מתוך מאגר שאלות המחקר על Northwind: קשר בין משתנים · זמן ומגמה. השאילתה כבר כתובה: מריצים אותה, מעתיקים את התוצאה לאקסל, מחשבים את המדדים, ובעיקר מסבירים מה המספרים אומרים על החברה.</p>
+  </header>
+
+  <section class="box">
+    <h2>איך עובדים</h2>
+    <ol>
+      <li><b>מריצים:</b> מעתיקים את השאילתה לאתר <bdi dir="ltr">sql-practice.com</bdi> (בוחרים <bdi dir="ltr">northwind.db</bdi>) ומריצים. בדקו שמספר השורות זהה למספר שכתוב בשאלה.</li>
+      <li><b>מעתיקים לאקסל:</b> מסמנים את טבלת התוצאה בעכבר, מעתיקים (<bdi dir="ltr">Ctrl+C</bdi>) ומדביקים לגיליון חדש. האתר מציג 100 שורות בעמוד: אם יש יותר, מעתיקים עמוד אחרי עמוד.</li>
+      <li><b>מחשבים:</b> בנוסחאות של אקסל ולא במחשבון. לכל שאלה גיליון נפרד. הנוסחאות שבשאלות מניחות שהדבקתם את התוצאה החל מהתא A1, כך ששורת הכותרות בשורה 1 והנתונים מתחילים בשורה 2. נוסחה שמתחילה בשם של תא (למשל <bdi dir="ltr">D2:</bdi>) כותבים בתא הזה וגוררים למטה לכל השורות.</li>
+      <li><b>מסבירים:</b> זה החלק העיקרי. עונים על שאלות ההבנה במשפטים מלאים, ומצטטים את המספרים שחישבתם.</li>
+    </ol>
+    <p><b>סכום של שורת הזמנה</b> הוא מחיר כפול כמות, אחרי הנחה: <code>p.unit_price * od.quantity * (1 - od.discount)</code>. המחיר נמצא בטבלה <code>products</code>, והכמות וההנחה בטבלה <code>order_details</code>.</p>
+    <p><b>מגישים:</b> קובץ אקסל אחד עם גיליון לכל שאלה. בכל גיליון: הנתונים, החישובים, הגרף, והתשובות לשאלות ההבנה.</p>
+  </section>
+
+  <section class="box">
+    <h2>הפונקציות של אקסל בעבודה</h2>
+    <p>אלה הפונקציות שמשתמשים בהן בשאלות. בכל שאלה כתובות הנוסחאות המלאות עם הטווחים שלה.</p>
+    <div class="fnwrap"><table class="fns"><tr><th>פונקציה</th><th>מה היא מחזירה</th><th>דוגמה</th></tr><tr><td><code>AVERAGE</code></td><td>ממוצע של טווח</td><td><code class="ex">=AVERAGE(B2:B90)</code></td></tr><tr><td><code>MEDIAN</code></td><td>חציון: הערך האמצעי אחרי מיון</td><td><code class="ex">=MEDIAN(B2:B90)</code></td></tr><tr><td><code>STDEV.S</code></td><td>סטיית תקן של מדגם</td><td><code class="ex">=STDEV.S(B2:B90)</code></td></tr><tr><td><code>SLOPE</code></td><td>שיפוע קו הרגרסיה</td><td><code class="ex">=SLOPE(C2:C831, B2:B831)</code></td></tr><tr><td><code>INTERCEPT</code></td><td>חותך קו הרגרסיה</td><td><code class="ex">=INTERCEPT(C2:C831, B2:B831)</code></td></tr><tr><td><code>CORREL</code></td><td>מקדם המתאם r בין שני טווחים</td><td><code class="ex">=CORREL(E2:E9, D2:D9)</code></td></tr><tr><td><code>RSQ</code></td><td>R²: איזה חלק מהשונות הקו מסביר</td><td><code class="ex">=RSQ(C2:C831, B2:B831)</code></td></tr><tr><td><code>FORECAST.LINEAR</code></td><td>חיזוי ערך לפי קו הרגרסיה</td><td><code class="ex">=FORECAST.LINEAR(1000, C2:C831, B2:B831)</code></td></tr><tr><td><code>COUNTIF</code></td><td>ספירת השורות שמקיימות תנאי</td><td><code class="ex">=COUNTIF(B2:B831, &quot;&gt;10000&quot;)</code></td></tr><tr><td><code>STANDARDIZE</code></td><td>ציון תקן: כמה סטיות תקן הערך רחוק מהממוצע</td><td><code class="ex">=STANDARDIZE(B2, AVERAGE($B$2:$B$78), STDEV.S($B$2:$B$78))</code></td></tr><tr><td><code>IF</code></td><td>ערך אחד אם התנאי נכון ואחר אם לא</td><td><code class="ex">=IF(ABS(D2) &gt; 2, 1, 0)</code></td></tr><tr><td><code>ABS</code></td><td>ערך מוחלט</td><td><code class="ex">=ABS(D2)</code></td></tr><tr><td><code>FILTER</code></td><td>מחזיר רק את השורות שמקיימות תנאי (אקסל 365 ו־2021 ומעלה)</td><td><code class="ex">=FILTER(B2:B78, E2:E78 = 0)</code></td></tr><tr><td><code>AVERAGEIFS</code></td><td>ממוצע רק של השורות שמקיימות תנאים</td><td><code class="ex">=AVERAGEIFS(C2:C90, B2:B90, &quot;&lt;=5&quot;)</code></td></tr><tr><td><code>SUM</code></td><td>סכום של טווח</td><td><code class="ex">=SUM(B2:B90)</code></td></tr><tr><td><code>MAX</code></td><td>הערך הגדול ביותר</td><td><code class="ex">=MAX(D2:D9)</code></td></tr><tr><td><code>MIN</code></td><td>הערך הקטן ביותר</td><td><code class="ex">=MIN(D2:D9)</code></td></tr><tr><td><code>SUMIF</code></td><td>סכום השורות שמקיימות תנאי אחד</td><td><code class="ex">=SUMIF(A2:A18, &quot;2016*&quot;, B2:B18)</code></td></tr><tr><td><code>LEFT</code></td><td>התווים הראשונים של טקסט</td><td><code class="ex">=LEFT(A2, 4)</code></td></tr><tr><td><code>MID</code></td><td>תווים מאמצע טקסט</td><td><code class="ex">=MID(A2, 6, 2)</code></td></tr></table></div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:10px">
+    <h2>רשימת השאלות</h2>
+    <table class="idx"><tr><th>#</th><th>השאלה</th><th>סוג</th><th>במאגר</th></tr><tr><td class="n">1</td><td><a href="#q1">האם דמי המשלוח תלויים בסכום ההזמנה?</a></td><td>קשר בין משתנים</td><td class="src">1</td></tr><tr><td class="n">2</td><td><a href="#q2">האם מוצרים זולים נמכרים ביותר יחידות?</a></td><td>קשר בין משתנים</td><td class="src">3</td></tr><tr><td class="n">3</td><td><a href="#q3">האם לקוחות שמזמינים הרבה פעמים מזמינים גם הזמנות גדולות יותר?</a></td><td>קשר בין משתנים</td><td class="src">4</td></tr><tr><td class="n">4</td><td><a href="#q4">האם המכירות של Northwind גדלות לאורך הזמן?</a></td><td>זמן ומגמה</td><td class="src">11</td></tr><tr><td class="n">5</td><td><a href="#q5">האם יש חודשים חזקים יותר בשנה?</a></td><td>זמן ומגמה</td><td class="src">12</td></tr><tr><td class="n">6</td><td><a href="#q6">האם החברה ממשיכה להשיג לקוחות חדשים?</a></td><td>זמן ומגמה</td><td class="src">13</td></tr></table>
+  </section>
+
+<h2 class="grp">קשר בין משתנים</h2><p class="gdesc">שני משתנים כמותיים לכל תצפית: גרף פיזור, שיפוע, חותך, מקדם מתאם r ו־R².</p>
+<article class="q" id="q1">
+  <header><span class="qn">1</span><h3>האם דמי המשלוח תלויים בסכום ההזמנה?</h3><span class="tag">שאלה 1 במאגר</span></header>
+  <p class="why">אם דמי המשלוח עולים יחד עם סכום ההזמנה, החברה יכולה להעריך מראש כמה יעלה המשלוח של הזמנה חדשה.</p>
+  <dl class="vars"><div class="wide"><dt>השערה</dt><dd>ככל שסכום ההזמנה גבוה יותר, דמי המשלוח גבוהים יותר.</dd></div><div><dt>יחידת תצפית</dt><dd>הזמנה</dd></div><div><dt>משתנה בלתי תלוי</dt><dd>סכום ההזמנה</dd></div><div><dt>משתנה תלוי</dt><dd>דמי המשלוח <bdi dir="ltr">(freight)</bdi></dd></div></dl>
+  <div class="part"><div class="lbl">שלב 1 · מריצים באתר ומעתיקים לאקסל · שורות בתוצאה: 830</div><pre class="sql"><span class="k">SELECT</span> o.order_id,
+       <span class="f">SUM</span>(p.unit_price * od.quantity * (<span class="d">1</span> - od.discount)) <span class="k">AS</span> order_value,
+       o.freight
+<span class="k">FROM</span> orders <span class="k">AS</span> o
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.order_id = o.order_id
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.product_id = od.product_id
+<span class="k">GROUP</span> <span class="k">BY</span> o.order_id;</pre></div>
+  <div class="part xl"><div class="lbl">שלב 2 · חישובים באקסל</div><ol><li>מחשבים ממוצע, חציון וסטיית תקן לכל אחד משני המשתנים.<div class="fx"><code class="fxc">=AVERAGE(B2:B831)</code><code class="fxc">=MEDIAN(B2:B831)</code><code class="fxc">=STDEV.S(B2:B831)</code><span class="fxn">ובאותו אופן לעמודה <bdi dir="ltr">C</bdi></span></div></li><li>משרטטים גרף פיזור, ומחשבים שיפוע <bdi dir="ltr">(SLOPE)</bdi>, חותך <bdi dir="ltr">(INTERCEPT)</bdi>, מקדם מתאם <bdi dir="ltr">(CORREL)</bdi> ו־<bdi dir="ltr">R</bdi>² <bdi dir="ltr">(RSQ)</bdi>.<div class="fx"><code class="fxc">=SLOPE(C2:C831, B2:B831)</code><code class="fxc">=INTERCEPT(C2:C831, B2:B831)</code><code class="fxc">=CORREL(B2:B831, C2:C831)</code><code class="fxc">=RSQ(C2:C831, B2:B831)</code></div></li><li>חוזים את דמי המשלוח להזמנה של 1,000 ושל 5,000.<div class="fx"><code class="fxc">=FORECAST.LINEAR(1000, C2:C831, B2:B831)</code><code class="fxc">=FORECAST.LINEAR(5000, C2:C831, B2:B831)</code></div></li><li>מוחקים את ההזמנות שמעל 10,000 ומחשבים שוב את השיפוע ואת <bdi dir="ltr">r</bdi>.<div class="fx"><code class="fxc">=COUNTIF(B2:B831, &quot;&gt;10000&quot;)</code><span class="fxn">אחרי המחיקה: אותן נוסחאות <bdi dir="ltr">SLOPE</bdi> ו־<bdi dir="ltr">CORREL</bdi> על הטווח החדש</span></div></li></ol></div>
+  <div class="part cc"><div class="lbl">שלב 3 · הבנה: עונים במילים, ומשתמשים במספרים שחישבתם</div><ol><li>מה המשמעות של השיפוע במילים? כמה דמי משלוח מוסיפים כל 1,000 של סכום הזמנה?</li><li>מה אומר <bdi dir="ltr">R</bdi>² על דמי המשלוח? איזה חלק מהם הסכום מסביר, ומה אחראי לשאר?</li><li>הממוצע של סכום ההזמנה גדול מהחציון. מה זה אומר על ההזמנות?</li><li>מה קרה לקו אחרי שמחקתם את ההזמנות הגדולות? למה מעט תצפיות משנות אותו?</li><li>האם מתאם חזק מוכיח שהסכום גורם לדמי משלוח גבוהים? מה עוד יכול להסביר את הקשר?</li></ol></div>
+  <p class="note"><b>שימו לב:</b> התוצאה ארוכה: 830 שורות, 9 עמודים באתר. מעתיקים עמוד אחרי עמוד ומדביקים אחד מתחת לשני.</p>
+</article>
+<article class="q" id="q2">
+  <header><span class="qn">2</span><h3>האם מוצרים זולים נמכרים ביותר יחידות?</h3><span class="tag">שאלה 3 במאגר</span></header>
+  <p class="why">המחיר הוא אחד הכלים העיקריים של חברה. השאלה בודקת אם הלקוחות של <bdi dir="ltr">Northwind</bdi> רגישים למחיר.</p>
+  <dl class="vars"><div class="wide"><dt>השערה</dt><dd>ככל שמחיר המוצר נמוך יותר, נמכרות ממנו יותר יחידות.</dd></div><div><dt>יחידת תצפית</dt><dd>מוצר</dd></div><div><dt>משתנה בלתי תלוי</dt><dd>מחיר המוצר <bdi dir="ltr">(unit_price)</bdi></dd></div><div><dt>משתנה תלוי</dt><dd>סך היחידות שנמכרו</dd></div></dl>
+  <div class="part"><div class="lbl">שלב 1 · מריצים באתר ומעתיקים לאקסל · שורות בתוצאה: 77</div><pre class="sql"><span class="k">SELECT</span> p.product_name,
+       p.unit_price,
+       <span class="f">SUM</span>(od.quantity) <span class="k">AS</span> units_sold
+<span class="k">FROM</span> products <span class="k">AS</span> p
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.product_id = p.product_id
+<span class="k">GROUP</span> <span class="k">BY</span> p.product_id;</pre></div>
+  <div class="part xl"><div class="lbl">שלב 2 · חישובים באקסל</div><ol><li>מחשבים מדדי מרכז ופיזור לכל משתנה.<div class="fx"><code class="fxc">=AVERAGE(B2:B78)</code><code class="fxc">=MEDIAN(B2:B78)</code><code class="fxc">=STDEV.S(B2:B78)</code><span class="fxn">ובאותו אופן לעמודה <bdi dir="ltr">C</bdi></span></div></li><li>משרטטים גרף פיזור ומחשבים <bdi dir="ltr">r</bdi>, שיפוע וחותך.<div class="fx"><code class="fxc">=CORREL(B2:B78, C2:C78)</code><code class="fxc">=SLOPE(C2:C78, B2:B78)</code><code class="fxc">=INTERCEPT(C2:C78, B2:B78)</code></div></li><li>מחשבים ציון תקן למחיר של כל מוצר <bdi dir="ltr">(STANDARDIZE)</bdi>, ומסמנים מוצרים עם ציון תקן גדול מ־2.<div class="fx"><code class="fxc">D2: =STANDARDIZE(B2, AVERAGE($B$2:$B$78), STDEV.S($B$2:$B$78))</code><code class="fxc">E2: =IF(ABS(D2) &gt; 2, 1, 0)</code></div></li><li>מחשבים שוב את <bdi dir="ltr">r</bdi> ואת השיפוע בלי המוצרים המסומנים.<div class="fx"><code class="fxc">=CORREL(FILTER(B2:B78, E2:E78 = 0), FILTER(C2:C78, E2:E78 = 0))</code><code class="fxc">=SLOPE(FILTER(C2:C78, E2:E78 = 0), FILTER(B2:B78, E2:E78 = 0))</code></div></li></ol></div>
+  <div class="part cc"><div class="lbl">שלב 3 · הבנה: עונים במילים, ומשתמשים במספרים שחישבתם</div><ol><li>מה אומר הסימן של <bdi dir="ltr">r</bdi>? האם הוא מתאים להשערה?</li><li><bdi dir="ltr">r</bdi> קרוב ל־0 או רחוק ממנו? מה זה אומר על הקשר בין מחיר למכירות?</li><li>מה המשמעות של ציון תקן 2? למה מוצר יקר אחד, <bdi dir="ltr">C</bdi>ô<bdi dir="ltr">te de Blaye</bdi>, יכול לשנות את <bdi dir="ltr">r</bdi>?</li><li>על סמך התוצאה, האם הייתם ממליצים לחברה להוריד מחירים כדי למכור יותר? נמקו.</li></ol></div>
+  
+</article>
+<article class="q" id="q3">
+  <header><span class="qn">3</span><h3>האם לקוחות שמזמינים הרבה פעמים מזמינים גם הזמנות גדולות יותר?</h3><span class="tag">שאלה 4 במאגר</span></header>
+  <p class="why">לקוח קבוע יכול להזמין הרבה הזמנות קטנות או מעט הזמנות גדולות. התשובה משפיעה על אופן הטיפול בלקוחות.</p>
+  <dl class="vars"><div class="wide"><dt>השערה</dt><dd>ללקוחות עם יותר הזמנות יש סכום ממוצע גבוה יותר להזמנה.</dd></div><div><dt>יחידת תצפית</dt><dd>לקוח</dd></div><div><dt>משתנה בלתי תלוי</dt><dd>מספר ההזמנות של הלקוח</dd></div><div><dt>משתנה תלוי</dt><dd>הסכום הממוצע להזמנה</dd></div></dl>
+  <div class="part"><div class="lbl">שלב 1 · מריצים באתר ומעתיקים לאקסל · שורות בתוצאה: 89</div><pre class="sql"><span class="k">SELECT</span> o.customer_id,
+       <span class="f">COUNT</span>(<span class="k">DISTINCT</span> o.order_id) <span class="k">AS</span> orders,
+       <span class="f">SUM</span>(p.unit_price * od.quantity * (<span class="d">1</span> - od.discount))
+         / <span class="f">COUNT</span>(<span class="k">DISTINCT</span> o.order_id) <span class="k">AS</span> avg_order_value,
+       <span class="f">SUM</span>(p.unit_price * od.quantity * (<span class="d">1</span> - od.discount)) <span class="k">AS</span> sales
+<span class="k">FROM</span> orders <span class="k">AS</span> o
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.order_id = o.order_id
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.product_id = od.product_id
+<span class="k">GROUP</span> <span class="k">BY</span> o.customer_id;</pre></div>
+  <div class="part xl"><div class="lbl">שלב 2 · חישובים באקסל</div><ol><li>מחשבים <bdi dir="ltr">r</bdi>, שיפוע וחותך בין מספר ההזמנות לבין הסכום הממוצע להזמנה.<div class="fx"><code class="fxc">=CORREL(B2:B90, C2:C90)</code><code class="fxc">=SLOPE(C2:C90, B2:B90)</code><code class="fxc">=INTERCEPT(C2:C90, B2:B90)</code></div></li><li>מחלקים את הלקוחות לשלוש קבוצות לפי מספר ההזמנות (1–5, 6–10, יותר מ־10), ומחשבים את הסכום הממוצע בכל קבוצה <bdi dir="ltr">(AVERAGEIFS)</bdi>.<div class="fx"><code class="fxc">=AVERAGEIFS(C2:C90, B2:B90, &quot;&lt;=5&quot;)</code><code class="fxc">=AVERAGEIFS(C2:C90, B2:B90, &quot;&gt;=6&quot;, B2:B90, &quot;&lt;=10&quot;)</code><code class="fxc">=AVERAGEIFS(C2:C90, B2:B90, &quot;&gt;10&quot;)</code></div></li><li>מחשבים <bdi dir="ltr">r</bdi> בין מספר ההזמנות לבין סך הקניות <bdi dir="ltr">(sales)</bdi>.<div class="fx"><code class="fxc">=CORREL(B2:B90, D2:D90)</code></div></li></ol></div>
+  <div class="part cc"><div class="lbl">שלב 3 · הבנה: עונים במילים, ומשתמשים במספרים שחישבתם</div><ol><li>מה ההבדל בין &quot;סכום ממוצע להזמנה&quot; לבין &quot;סך הקניות&quot; של לקוח?</li><li>למה הקשר בין מספר ההזמנות לסך הקניות חזק הרבה יותר? האם הוא מלמד משהו חדש?</li><li>האם ההשוואה בין שלוש הקבוצות מספרת אותו סיפור כמו <bdi dir="ltr">r</bdi>?</li><li>מה הייתם אומרים למנהל המכירות על לקוחות קבועים?</li></ol></div>
+  
+</article>
+<h2 class="grp">זמן ומגמה</h2><p class="gdesc">משתנה שנמדד לאורך זמן: מגמה, שיעור שינוי, חיזוי ומגבלות שלו.</p>
+<article class="q" id="q4">
+  <header><span class="qn">4</span><h3>האם המכירות של Northwind גדלות לאורך הזמן?</h3><span class="tag">שאלה 11 במאגר</span></header>
+  <p class="why">זו השאלה הראשונה שכל הנהלה שואלת: האם העסק צומח, ובאיזה קצב?</p>
+  <dl class="vars"><div class="wide"><dt>השערה</dt><dd>סך המכירות בחודש עולה עם הזמן.</dd></div><div><dt>יחידת תצפית</dt><dd>חודש (22 חודשים מלאים)</dd></div><div><dt>משתנה בלתי תלוי</dt><dd>מספר החודש (1 = יולי 2016)</dd></div><div><dt>משתנה תלוי</dt><dd>סך המכירות בחודש</dd></div></dl>
+  <div class="part"><div class="lbl">שלב 1 · מריצים באתר ומעתיקים לאקסל · שורות בתוצאה: 22</div><pre class="sql"><span class="k">SELECT</span> <span class="f">SUBSTR</span>(o.order_date, <span class="d">1</span>, <span class="d">7</span>) <span class="k">AS</span> ym,
+       (<span class="f">YEAR</span>(o.order_date) - <span class="d">2016</span>) * <span class="d">12</span> + <span class="f">MONTH</span>(o.order_date) - <span class="d">6</span> <span class="k">AS</span> month_no,
+       <span class="f">COUNT</span>(<span class="k">DISTINCT</span> o.order_id) <span class="k">AS</span> orders,
+       <span class="f">SUM</span>(p.unit_price * od.quantity * (<span class="d">1</span> - od.discount)) <span class="k">AS</span> sales
+<span class="k">FROM</span> orders <span class="k">AS</span> o
+<span class="k">JOIN</span> order_details <span class="k">AS</span> od <span class="k">ON</span> od.order_id = o.order_id
+<span class="k">JOIN</span> products <span class="k">AS</span> p <span class="k">ON</span> p.product_id = od.product_id
+<span class="k">WHERE</span> o.order_date &lt; <span class="s">&#x27;2018-05-01&#x27;</span>
+<span class="k">GROUP</span> <span class="k">BY</span> ym
+<span class="k">ORDER</span> <span class="k">BY</span> ym;</pre></div>
+  <div class="part xl"><div class="lbl">שלב 2 · חישובים באקסל</div><ol><li>משרטטים גרף קו של המכירות לפי מספר החודש, ומוסיפים קו מגמה.</li><li>מחשבים שיפוע, חותך ו־<bdi dir="ltr">R</bdi>².<div class="fx"><code class="fxc">=SLOPE(D2:D23, B2:B23)</code><code class="fxc">=INTERCEPT(D2:D23, B2:B23)</code><code class="fxc">=RSQ(D2:D23, B2:B23)</code></div></li><li>מחשבים את אחוז הגידול בין ינואר–אפריל 2017 לבין ינואר–אפריל 2018.<div class="fx"><code class="fxc">=SUM(D20:D23) / SUM(D8:D11) - 1</code><span class="fxn">שורות 8–11: ינואר–אפריל 2017, שורות 20–23: ינואר–אפריל 2018</span></div></li><li>חוזים את המכירות במאי 2018 ובאוגוסט 2018.<div class="fx"><code class="fxc">=FORECAST.LINEAR(23, D2:D23, B2:B23)</code><code class="fxc">=FORECAST.LINEAR(26, D2:D23, B2:B23)</code><span class="fxn">מאי 2018 הוא חודש 23, אוגוסט 2018 הוא חודש 26</span></div></li><li>מוסיפים עמודה של הסכום הממוצע להזמנה: <bdi dir="ltr">sales</bdi> חלקי <bdi dir="ltr">orders</bdi>. מחשבים גם לה שיפוע.<div class="fx"><code class="fxc">E2: =D2 / C2</code><code class="fxc">=SLOPE(E2:E23, B2:B23)</code></div></li></ol></div>
+  <div class="part cc"><div class="lbl">שלב 3 · הבנה: עונים במילים, ומשתמשים במספרים שחישבתם</div><ol><li>מה אומר השיפוע במילים? בכמה גדלות המכירות כל חודש?</li><li>מה אומר <bdi dir="ltr">R</bdi>² על המגמה? האם החודשים מתפזרים קרוב לקו או רחוק ממנו?</li><li>איזה חיזוי אמין יותר, למאי או לאוגוסט? למה?</li><li>האם הגידול במכירות בא מיותר הזמנות או מהזמנות גדולות יותר? היעזרו בסעיף 5.</li><li>למה השאילתה לא כוללת את מאי 2018?</li></ol></div>
+  
+</article>
+<article class="q" id="q5">
+  <header><span class="qn">5</span><h3>האם יש חודשים חזקים יותר בשנה?</h3><span class="tag">שאלה 12 במאגר</span></header>
+  <p class="why">אם יש עונתיות, החברה יכולה להיערך מראש עם מלאי ועובדים.</p>
+  <dl class="vars"><div class="wide"><dt>השערה</dt><dd>מספר ההזמנות הממוצע שונה בין חודשי השנה.</dd></div><div><dt>יחידת תצפית</dt><dd>חודש בשנה (12)</dd></div><div><dt>משתנה בלתי תלוי</dt><dd>החודש בשנה</dd></div><div><dt>משתנה תלוי</dt><dd>מספר ההזמנות הממוצע בחודש</dd></div></dl>
+  <div class="part"><div class="lbl">שלב 1 · מריצים באתר ומעתיקים לאקסל · שורות בתוצאה: 12</div><pre class="sql"><span class="k">SELECT</span> <span class="f">MONTH</span>(order_date) <span class="k">AS</span> month,
+       <span class="f">COUNT</span>(*) <span class="k">AS</span> orders,
+       <span class="f">COUNT</span>(<span class="k">DISTINCT</span> <span class="f">YEAR</span>(order_date)) <span class="k">AS</span> years,
+       <span class="d">1.0</span> * <span class="f">COUNT</span>(*) / <span class="f">COUNT</span>(<span class="k">DISTINCT</span> <span class="f">YEAR</span>(order_date)) <span class="k">AS</span> orders_per_year
+<span class="k">FROM</span> orders
+<span class="k">WHERE</span> order_date &lt; <span class="s">&#x27;2018-05-01&#x27;</span>
+<span class="k">GROUP</span> <span class="k">BY</span> month
+<span class="k">ORDER</span> <span class="k">BY</span> month;</pre></div>
+  <div class="part xl"><div class="lbl">שלב 2 · חישובים באקסל</div><ol><li>משרטטים גרף עמודות של <bdi dir="ltr">orders_per_year</bdi> לפי חודש.</li><li>מחשבים ממוצע וסטיית תקן של <bdi dir="ltr">orders_per_year</bdi>, ומסמנים חודשים שרחוקים מהממוצע ביותר מסטיית תקן אחת.<div class="fx"><code class="fxc">=AVERAGE(D2:D13)</code><code class="fxc">=STDEV.S(D2:D13)</code><code class="fxc">E2: =IF(ABS(D2 - AVERAGE($D$2:$D$13)) &gt; STDEV.S($D$2:$D$13), 1, 0)</code></div></li><li>מחשבים את היחס בין החודש החזק ביותר לחלש ביותר.<div class="fx"><code class="fxc">=MAX(D2:D13) / MIN(D2:D13)</code></div></li></ol></div>
+  <div class="part cc"><div class="lbl">שלב 3 · הבנה: עונים במילים, ומשתמשים במספרים שחישבתם</div><ol><li>למה מחלקים את מספר ההזמנות במספר השנים? מה היה קורה אם היינו משווים את <bdi dir="ltr">orders</bdi>?</li><li>אילו חודשים חזקים ואילו חלשים?</li><li>ינואר–אפריל מגיעים מ־2017 ומ־2018, יולי–דצמבר מ־2016 ומ־2017, ומאי–יוני רק מ־2017. החברה צומחת עם הזמן. איך זה משפיע על ההשוואה בין החודשים?</li><li>האם אפשר לקבוע מהנתונים האלה שיש עונתיות? מה הייתם צריכים כדי להיות בטוחים?</li></ol></div>
+  
+</article>
+<article class="q" id="q6">
+  <header><span class="qn">6</span><h3>האם החברה ממשיכה להשיג לקוחות חדשים?</h3><span class="tag">שאלה 13 במאגר</span></header>
+  <p class="why">עסק צומח צריך לקוחות חדשים. השאלה בודקת אם הצמיחה באה מלקוחות חדשים או מלקוחות קיימים.</p>
+  <dl class="vars"><div class="wide"><dt>השערה</dt><dd>מספר הלקוחות החדשים בכל חודש יורד עם הזמן.</dd></div><div><dt>יחידת תצפית</dt><dd>לקוח, לפי חודש ההזמנה הראשונה</dd></div><div><dt>משתנה בלתי תלוי</dt><dd>החודש</dd></div><div><dt>משתנה תלוי</dt><dd>מספר הלקוחות שהזמינו בפעם הראשונה</dd></div></dl>
+  <div class="part"><div class="lbl">שלב 1 · מריצים באתר ומעתיקים לאקסל · שורות בתוצאה: 17</div><pre class="sql"><span class="k">WITH</span> first <span class="k">AS</span> (
+  <span class="k">SELECT</span> customer_id, <span class="f">MIN</span>(order_date) <span class="k">AS</span> first_order
+  <span class="k">FROM</span> orders
+  <span class="k">GROUP</span> <span class="k">BY</span> customer_id
+)
+<span class="k">SELECT</span> <span class="f">SUBSTR</span>(first_order, <span class="d">1</span>, <span class="d">7</span>) <span class="k">AS</span> first_month,
+       <span class="f">COUNT</span>(*) <span class="k">AS</span> new_customers
+<span class="k">FROM</span> first
+<span class="k">GROUP</span> <span class="k">BY</span> first_month
+<span class="k">ORDER</span> <span class="k">BY</span> first_month;</pre></div>
+  <div class="part xl"><div class="lbl">שלב 2 · חישובים באקסל</div><ol><li>מוסיפים עמודה של המספר המצטבר של הלקוחות.<div class="fx"><code class="fxc">C2: =SUM($B$2:B2)</code></div></li><li>משרטטים גרף עמודות של הלקוחות החדשים וגרף קו של המצטבר.</li><li>מחשבים כמה לקוחות חדשים הצטרפו ב־2016, ב־2017 וב־2018, וכמה אחוזים מכל הלקוחות זה.<div class="fx"><code class="fxc">=SUMIF(A2:A18, &quot;2016*&quot;, B2:B18)</code><code class="fxc">=SUMIF(A2:A18, &quot;2016*&quot;, B2:B18) / SUM(B2:B18)</code><span class="fxn">ובאותו אופן ל־2017 ול־2018</span></div></li><li>מחשבים קו מגמה למספר הלקוחות החדשים בחודש.<div class="fx"><code class="fxc">D2: =(LEFT(A2, 4) - 2016) * 12 + MID(A2, 6, 2) - 6</code><code class="fxc">=SLOPE(B2:B18, D2:D18)</code></div></li></ol></div>
+  <div class="part cc"><div class="lbl">שלב 3 · הבנה: עונים במילים, ומשתמשים במספרים שחישבתם</div><ol><li>מה רואים בגרף המצטבר? איך נראה גרף מצטבר של חברה שמפסיקה להשיג לקוחות?</li><li>למה בחודשים הראשונים יש הרבה לקוחות &quot;חדשים&quot;? האם כולם באמת חדשים?</li><li>המכירות עולות (שאלה 11 במאגר), ומספר הלקוחות החדשים יורד. מה זה אומר על העסק?</li><li>האם ההשערה התאשרה?</li></ol></div>
+  <p class="note"><b>שימו לב:</b> חודש שבו לא הצטרף אף לקוח חדש לא מופיע בתוצאה. שימו לב לזה בגרף.</p>
+</article>
+
+  <section class="box">
+    <h2>מגבלות של הנתונים</h2>
+    <ul>
+      <li><b>הנתונים בדיוניים.</b> אפשר להסיק מסקנות על החברה הזאת, לא על העולם.</li>
+      <li><b>שנים חלקיות.</b> הנתונים מתחילים ב־4 ביולי 2016 ונגמרים ב־6 במאי 2018. רק 2017 היא שנה מלאה.</li>
+      <li><b>קבוצות קטנות.</b> 3 חברות משלוחים ו־8 קטגוריות: ערך אחד יכול לשנות את התוצאה.</li>
+      <li><b>אין עלויות ואין רווח.</b> יש רק מחירי מכירה.</li>
+      <li><b>קשר אינו סיבה.</b> מתאם בין שני משתנים לא מוכיח שאחד גורם לשני.</li>
+    </ul>
+  </section>
+</div>
+</div>
+</body>
+</html>
