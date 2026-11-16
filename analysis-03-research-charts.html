@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>שאלות מחקר על Northwind עם גרפים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a reference booklet. Research method on top, an index, then one card per question grouped by kind. */
+:root {
+  --bg: #EEF1F5;
+  --sheet: #FCFCFD;
+  --ink: #172033;
+  --muted: #556074;
+  --line: #D6DBE3;
+  --soft: #E4E9F1;
+  --accent: #2457C5;
+  --warm: #A34E16;
+  --warm-soft: #F6E8DD;
+  --code-bg: #172033;
+  --code-fg: #E7EBF2;
+  --code-kw: #8DB2FF;
+  --code-fn: #F3A6D5;
+  --code-str: #A8E6A3;
+  --code-num: #9FE3D6;
+  --lv1: #2E7D4F; --lv2: #2457C5; --lv3: #A34E16;
+  --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --font-body: "Assistant", "Arial Hebrew", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --soft: #1F2836; --accent: #84A9FF;
+    --warm: #F0A46F; --warm-soft: #3A2A1E; --code-bg: #0B1017; --lv1: #7FD3A0; --lv2: #84A9FF; --lv3: #F0A46F; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E131B; --sheet: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --soft: #1F2836; --accent: #84A9FF;
+  --warm: #F0A46F; --warm-soft: #3A2A1E; --code-bg: #0B1017; --lv1: #7FD3A0; --lv2: #84A9FF; --lv3: #F0A46F; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.55; }
+.wrap { max-width: 1100px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sheet { background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; padding: clamp(18px, 3vw, 44px); display: flex; flex-direction: column; gap: 28px; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; line-height: 1.2; }
+h1 { font-size: clamp(30px, 4vw, 44px); }
+h2 { font-size: 26px; }
+h3 { font-size: 21px; font-weight: 500; }
+p { margin: 0; }
+a { color: var(--accent); }
+code { font-family: var(--font-mono); font-size: .85em; background: var(--soft); padding: 1px 6px; border-radius: 4px; direction: ltr; unicode-bidi: isolate; }
+.eyebrow { font-size: 14px; font-weight: 700; letter-spacing: .06em; color: var(--accent); }
+header.top { display: flex; flex-direction: column; gap: 10px; border-bottom: 3px double var(--line); padding-bottom: 18px; }
+.lead { font-size: 19px; color: var(--muted); max-width: 72ch; }
+.lbl { font-size: 13px; font-weight: 700; letter-spacing: .05em; color: var(--muted); margin-bottom: 6px; }
+
+/* method */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; counter-reset: s; }
+.steps li { counter-increment: s; border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.steps li::before { content: counter(s); font-family: var(--font-display); font-weight: 700; color: var(--accent); font-size: 20px; }
+.steps b { font-size: 16px; }
+.steps span { font-size: 15px; color: var(--muted); line-height: 1.4; }
+.levels { display: flex; flex-wrap: wrap; gap: 10px 22px; font-size: 16px; color: var(--muted); }
+.lv { font-size: 13px; font-weight: 700; border-radius: 99px; padding: 2px 10px; border: 1.5px solid currentColor; white-space: nowrap; }
+.lv1 { color: var(--lv1); } .lv2 { color: var(--lv2); } .lv3 { color: var(--lv3); }
+
+/* index */
+.idx { width: 100%; border-collapse: collapse; font-size: 16px; }
+.idx th { text-align: right; font-size: 13px; color: var(--muted); padding: 6px 8px; border-bottom: 2px solid var(--ink); }
+.idx td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.idx td.n { font-family: var(--font-display); font-weight: 700; color: var(--accent); width: 36px; }
+.idx a { color: inherit; text-decoration: none; }
+.idx a:hover, .idx a:focus-visible { color: var(--accent); text-decoration: underline; }
+.idxwrap { overflow-x: auto; }
+
+/* cards */
+h2.grp { border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin-top: 8px; scroll-margin-top: 12px; }
+.q { border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 12px; break-inside: avoid; }
+.q header { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.qn { font-family: var(--font-display); font-weight: 700; font-size: 26px; color: var(--accent); min-width: 30px; }
+.q h3 { flex: 1; min-width: 220px; }
+.why { color: var(--muted); }
+.vars { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 10px; }
+.vars div { background: var(--soft); border-radius: 8px; padding: 10px 12px; min-width: 0; }
+.vars dt { font-size: 13px; font-weight: 700; color: var(--muted); }
+.vars dd { margin: 0; font-size: 16px; }
+.vars div:first-child { grid-column: 1 / -1; }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+pre.sql { margin: 0; direction: ltr; text-align: left; background: var(--code-bg); color: var(--code-fg); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font-size: 14px; line-height: 1.55; }
+pre.sql code { background: none; padding: 0; font-size: inherit; color: inherit; }
+.kw { color: var(--code-kw); font-weight: 600; } .fn { color: var(--code-fn); } .str { color: var(--code-str); } .num { color: var(--code-num); }
+.an { margin: 0; padding-right: 22px; display: flex; flex-direction: column; gap: 6px; font-size: 16px; }
+.watch { background: var(--warm-soft); border-radius: 8px; padding: 10px 14px; font-size: 16px; }
+.watch b { color: var(--warm); }
+.ext { font-size: 16px; color: var(--muted); }
+.ext b { color: var(--ink); }
+
+/* limits + template */
+.box { border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; }
+.box ul { margin: 0; padding-right: 22px; display: flex; flex-direction: column; gap: 6px; }
+.tpl { width: 100%; border-collapse: collapse; font-size: 16px; }
+.tpl th { text-align: right; width: 30%; background: var(--soft); padding: 10px 12px; border: 1px solid var(--line); vertical-align: top; font-weight: 700; }
+.tpl td { border: 1px solid var(--line); padding: 10px 12px; height: 46px; color: var(--muted); }
+@media (max-width: 760px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cols { grid-template-columns: minmax(0, 1fr); } }
+@media print { body { background: none; } .sheet { border: 0; } }
+
+/* charts */
+:root { --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --grid: #E3E7EE; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --s1: #3987e5; --s2: #d95926; --s3: #199e70; --grid: #253043; } }
+:root[data-theme="dark"] { --s1: #3987e5; --s2: #d95926; --s3: #199e70; --grid: #253043; }
+.qfig { margin: 0; border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.qfig figcaption { font-family: var(--font-display); font-weight: 500; font-size: 17px; }
+.qfig .cv { position: relative; height: 340px; }
+@media (max-width: 640px) { .qfig .cv { height: 280px; } }
+</style>
+<style>
+/* Back link to the page's topic in index.html */
+.site-back{color:var(--accent);font-family:var(--font-body,"Assistant","Arial Hebrew",Arial,sans-serif);font-weight:600;font-size:15px;text-decoration:none;width:fit-content;white-space:nowrap}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.wrap > .site-back{display:block;margin-bottom:12px}
+@media print{.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+</head>
+<body>
+<div class="wrap" dir="rtl">
+  <a class="site-back" href="index.html#analysis">→ חזרה לנושא: ניתוח נתונים</a>
+<div class="sheet">
+  <header class="top">
+    <div class="eyebrow">מגמת מידע ונתונים · SQL · Northwind ב־sql-practice.com</div>
+    <h1>מאגר שאלות מחקר על Northwind</h1>
+    <p class="lead">18 שאלות לעבודת חקר על הנתונים של חברת Northwind. לכל שאלה: השערה, משתנים, הטבלאות, שאילתה לאיסוף הנתונים ושיטת ניתוח. השאילתות רצות כמו שהן באתר <code>sql-practice.com</code> (בסיס הנתונים <code>northwind.db</code>). הן אוספות את הנתונים, והניתוח הוא העבודה שלכם.</p>
+  </header>
+
+  <section style="display:flex;flex-direction:column;gap:14px">
+    <h2>שלבי עבודת החקר</h2>
+    <ol class="steps">
+      <li><b>שאלת מחקר</b><span>שאלה אחת וממוקדת, שאפשר לענות עליה מהנתונים.</span></li>
+      <li><b>השערה</b><span>מה אתם מצפים לגלות, ולמה. מנסחים לפני שמריצים שאילתות.</span></li>
+      <li><b>משתנים</b><span>יחידת התצפית, המשתנה הבלתי תלוי והמשתנה התלוי.</span></li>
+      <li><b>איסוף נתונים</b><span>שאילתת SQL שמחזירה טבלה עם שורה לכל תצפית.</span></li>
+      <li><b>ניתוח</b><span>מדדי מרכז ופיזור, השוואת קבוצות, התפלגות או רגרסיה.</span></li>
+      <li><b>הצגה</b><span>טבלה או גרף שמראים את התוצאה העיקרית.</span></li>
+      <li><b>מסקנה</b><span>האם ההשערה התאשרה? מה זה אומר על העסק?</span></li>
+      <li><b>מגבלות</b><span>מה הנתונים לא מאפשרים לדעת. ראו את הרשימה בסוף הדף.</span></li>
+    </ol>
+    <div class="levels"><span><span class="lv lv1">בסיסי</span> טבלה אחת או שתיים, קיבוץ והשוואה</span><span><span class="lv lv2">בינוני</span> JOIN בין כמה טבלאות, רגרסיה או התפלגות</span><span><span class="lv lv3">מתקדם</span> טבלת עזר (WITH), החלטות על הגדרות, המלצה עסקית</span></div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:10px">
+    <h2>רשימת השאלות</h2>
+    <div class="idxwrap"><table class="idx"><tr><th>#</th><th>השאלה</th><th>סוג</th><th>רמה</th></tr><tr><td class="n">1</td><td><a href="#q1">האם דמי המשלוח תלויים בסכום ההזמנה?</a></td><td>קשר בין משתנים</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">2</td><td><a href="#q2">האם הנחה גדולה יותר גורמת ללקוחות לקנות כמות גדולה יותר?</a></td><td>קשר בין משתנים</td><td><span class="lv lv1">בסיסי</span></td></tr><tr><td class="n">3</td><td><a href="#q3">האם מוצרים זולים נמכרים ביותר יחידות?</a></td><td>קשר בין משתנים</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">4</td><td><a href="#q4">האם לקוחות שמזמינים הרבה פעמים מזמינים גם הזמנות גדולות יותר?</a></td><td>קשר בין משתנים</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">5</td><td><a href="#q5">האם הזמנות יקרות נשלחות מהר יותר?</a></td><td>קשר בין משתנים</td><td><span class="lv lv3">מתקדם</span></td></tr><tr><td class="n">6</td><td><a href="#q6">איזו חברת משלוחים מהירה ועקבית יותר?</a></td><td>השוואה בין קבוצות</td><td><span class="lv lv1">בסיסי</span></td></tr><tr><td class="n">7</td><td><a href="#q7">האם המשרד בסיאטל מוכר יותר מהמשרד בלונדון?</a></td><td>השוואה בין קבוצות</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">8</td><td><a href="#q8">באילו מדינות הלקוחות מזמינים הזמנות גדולות יותר?</a></td><td>השוואה בין קבוצות</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">9</td><td><a href="#q9">האם החברה נותנת יותר הנחות בקטגוריות מסוימות?</a></td><td>השוואה בין קבוצות</td><td><span class="lv lv1">בסיסי</span></td></tr><tr><td class="n">10</td><td><a href="#q10">איזו חברת משלוחים מאחרת יותר?</a></td><td>השוואה בין קבוצות</td><td><span class="lv lv1">בסיסי</span></td></tr><tr><td class="n">11</td><td><a href="#q11">האם המכירות של Northwind גדלות לאורך הזמן?</a></td><td>זמן ומגמה</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">12</td><td><a href="#q12">האם יש חודשים חזקים יותר בשנה?</a></td><td>זמן ומגמה</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">13</td><td><a href="#q13">האם החברה ממשיכה להשיג לקוחות חדשים?</a></td><td>זמן ומגמה</td><td><span class="lv lv3">מתקדם</span></td></tr><tr><td class="n">14</td><td><a href="#q14">האם הסכום של הזמנה מתפלג נורמלית?</a></td><td>התפלגות וריכוז</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">15</td><td><a href="#q15">האם מעט לקוחות אחראים לרוב המכירות?</a></td><td>התפלגות וריכוז</td><td><span class="lv lv2">בינוני</span></td></tr><tr><td class="n">16</td><td><a href="#q16">באילו קטגוריות יש בעיית מלאי?</a></td><td>התפלגות וריכוז</td><td><span class="lv lv1">בסיסי</span></td></tr><tr><td class="n">17</td><td><a href="#q17">אילו לקוחות הפסיקו להזמין?</a></td><td>שאלות עסקיות פתוחות</td><td><span class="lv lv3">מתקדם</span></td></tr><tr><td class="n">18</td><td><a href="#q18">אילו מוצרים כדאי להפסיק למכור?</a></td><td>שאלות עסקיות פתוחות</td><td><span class="lv lv3">מתקדם</span></td></tr></table></div>
+  </section>
+
+<h2 class="grp" id="g-rel">קשר בין משתנים</h2>
+<article class="q" id="q1">
+  <header><span class="qn">1</span><h3>האם דמי המשלוח תלויים בסכום ההזמנה?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">אם דמי המשלוח עולים יחד עם סכום ההזמנה, החברה יכולה להעריך מראש כמה יעלה המשלוח של הזמנה חדשה.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>ככל שסכום ההזמנה גבוה יותר, דמי המשלוח גבוהים יותר.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>הזמנה (830)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>סכום ההזמנה</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>דמי המשלוח (freight)</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> o.order_id,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> order_value,
+       o.freight
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> o.order_id;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים ממוצע, חציון וסטיית תקן לכל אחד משני המשתנים.</li><li>מחשבים שיפוע, חותך ומקדם מתאם r, וכותבים את קו הרגרסיה.</li><li>מחשבים R² ומסבירים כמה מהשונות בדמי המשלוח הסכום מסביר.</li><li>חוזים את דמי המשלוח להזמנה של 1,000 ושל 5,000.</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>דמי משלוח מול סכום ההזמנה</figcaption><div class="cv"><canvas id="g1" role="img" aria-label="דמי משלוח מול סכום ההזמנה"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> יש כמה הזמנות גדולות מאוד. בדקו אם הן משנות את הקו: הריצו שוב בלי ההזמנות שמעל 10,000.</p>
+  <p class="ext"><b>להרחבה:</b> האם הקשר זהה בכל חברת משלוחים? הוסיפו את ship_via ובדקו את r בכל קבוצה.</p>
+</article>
+<article class="q" id="q2">
+  <header><span class="qn">2</span><h3>האם הנחה גדולה יותר גורמת ללקוחות לקנות כמות גדולה יותר?</h3><span class="lv lv1">בסיסי</span></header>
+  <p class="why">הנחה עולה כסף לחברה. אם היא לא מגדילה את הכמות, אולי לא כדאי לתת אותה.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>בשורות הזמנה עם הנחה גבוהה יותר הכמות גדולה יותר.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>שורת הזמנה (2,155)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>ההנחה (discount)</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>הכמות (quantity)</dd></div>
+    <div><dt>טבלאות</dt><dd><code>order_details</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> discount, quantity
+<span class="kw">FROM</span> order_details;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>משווים את הכמות הממוצעת בשורות עם הנחה ובשורות בלי הנחה.</li><li>מחשבים כמות ממוצעת לכל רמת הנחה (0, 0.05, 0.1 …) בעזרת GROUP BY.</li><li>מחשבים מקדם מתאם r ושיפוע בין ההנחה לכמות.</li><li>מסיקים אם הקשר חזק, חלש או לא קיים.</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>כמות ממוצעת לפי רמת ההנחה</figcaption><div class="cv"><canvas id="g2" role="img" aria-label="כמות ממוצעת לפי רמת ההנחה"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> בשאלה הזאת קשה להבחין בין סיבה לתוצאה. אולי מקבלים הנחה <b>בגלל</b> שקונים הרבה, ולא קונים הרבה בגלל ההנחה.</p>
+  <p class="ext"><b>להרחבה:</b> בדקו את הקשר בנפרד בכל קטגוריה.</p>
+</article>
+<article class="q" id="q3">
+  <header><span class="qn">3</span><h3>האם מוצרים זולים נמכרים ביותר יחידות?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">המחיר הוא אחד הכלים העיקריים של חברה. השאלה בודקת אם הלקוחות של Northwind רגישים למחיר.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>ככל שמחיר המוצר נמוך יותר, נמכרות ממנו יותר יחידות.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>מוצר (77)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>מחיר המוצר (unit_price)</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>סך היחידות שנמכרו</dd></div>
+    <div><dt>טבלאות</dt><dd><code>products</code> <code>order_details</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> p.product_name,
+       p.unit_price,
+       <span class="fn">SUM</span>(od.quantity) <span class="kw">AS</span> units_sold
+<span class="kw">FROM</span> products <span class="kw">AS</span> p
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.product_id = p.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> p.product_id;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים מדדי מרכז ופיזור לכל משתנה.</li><li>מחשבים r, שיפוע וחותך.</li><li>בודקים אם יש מוצרים חריגים במחיר (ציון תקן גדול מ־2), ומריצים שוב בלעדיהם.</li><li>מסבירים את הכיוון ואת העוצמה של הקשר.</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>יחידות שנמכרו מול מחיר המוצר</figcaption><div class="cv"><canvas id="g3" role="img" aria-label="יחידות שנמכרו מול מחיר המוצר"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> יש רק 77 מוצרים, ומוצר יקר אחד (Côte de Blaye) יכול לשנות את התוצאה.</p>
+  <p class="ext"><b>להרחבה:</b> האם התשובה שונה כשמודדים את הפופולריות במספר ההזמנות ולא ביחידות?</p>
+</article>
+<article class="q" id="q4">
+  <header><span class="qn">4</span><h3>האם לקוחות שמזמינים הרבה פעמים מזמינים גם הזמנות גדולות יותר?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">לקוח קבוע יכול להזמין הרבה הזמנות קטנות או מעט הזמנות גדולות. התשובה משפיעה על אופן הטיפול בלקוחות.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>ללקוחות עם יותר הזמנות יש סכום ממוצע גבוה יותר להזמנה.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>לקוח (89)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>מספר ההזמנות של הלקוח</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>הסכום הממוצע להזמנה</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> o.customer_id,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> orders,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount))
+         / <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> avg_order_value
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> o.customer_id;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים r, שיפוע וחותך.</li><li>מחלקים את הלקוחות לשלוש קבוצות לפי מספר ההזמנות (1–5, 6–10, יותר מ־10) ומשווים את הסכום הממוצע.</li><li>משווים את התוצאה לקשר שבין מספר ההזמנות לסך הקניות. שם הקשר צפוי להיות חזק מאוד. למה?</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>סכום ממוצע להזמנה מול מספר ההזמנות</figcaption><div class="cv"><canvas id="g4" role="img" aria-label="סכום ממוצע להזמנה מול מספר ההזמנות"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> סופרים הזמנות עם COUNT(DISTINCT o.order_id), כי אחרי JOIN כל הזמנה מופיעה כמה פעמים.</p>
+  <p class="ext"><b>להרחבה:</b> האם יש הבדל בין לקוחות מאירופה ללקוחות מאמריקה?</p>
+</article>
+<article class="q" id="q5">
+  <header><span class="qn">5</span><h3>האם הזמנות יקרות נשלחות מהר יותר?</h3><span class="lv lv3">מתקדם</span></header>
+  <p class="why">חברה רוצה שהלקוחות החשובים יקבלו שירות מהיר. השאלה בודקת אם זה קורה בפועל.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>ככל שסכום ההזמנה גבוה יותר, מספר הימים עד המשלוח קטן יותר.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>הזמנה שנשלחה (809)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>סכום ההזמנה</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>ימים מההזמנה ועד המשלוח</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> o.order_id,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> order_value,
+       <span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date) <span class="kw">AS</span> days
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">WHERE</span> o.shipped_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> o.order_id;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים r, שיפוע וחותך.</li><li>מחלקים את ההזמנות לרבעונים לפי הסכום (LOWER_QUARTILE, MEDIAN, UPPER_QUARTILE) ומשווים את ממוצע הימים בכל רבע.</li><li>בודקים את ההתפלגות של מספר הימים: האם היא נורמלית?</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>ימים עד המשלוח מול סכום ההזמנה</figcaption><div class="cv"><canvas id="g5" role="img" aria-label="ימים עד המשלוח מול סכום ההזמנה"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> 21 הזמנות לא נשלחו, ו־shipped_date שלהן ריק. השאילתה מסננת אותן.</p>
+  <p class="ext"><b>להרחבה:</b> האם הזמנות שנשלחו באיחור הן דווקא הזמנות גדולות?</p>
+</article>
+<h2 class="grp" id="g-cmp">השוואה בין קבוצות</h2>
+<article class="q" id="q6">
+  <header><span class="qn">6</span><h3>איזו חברת משלוחים מהירה ועקבית יותר?</h3><span class="lv lv1">בסיסי</span></header>
+  <p class="why">Northwind משלמת לשלוש חברות משלוחים. המחקר יכול להמליץ באיזו מהן להשתמש יותר.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>יש הבדל בזמן המשלוח הממוצע בין שלוש החברות.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>הזמנה שנשלחה (809)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>חברת המשלוחים</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>ימים מההזמנה ועד המשלוח</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code> <code>shippers</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> s.company_name,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> orders,
+       <span class="fn">AVG</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date)) <span class="kw">AS</span> mean_days,
+       <span class="fn">MEDIAN</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date)) <span class="kw">AS</span> median_days,
+       <span class="fn">STDEV</span>(<span class="fn">julianday</span>(o.shipped_date) - <span class="fn">julianday</span>(o.order_date)) <span class="kw">AS</span> sd_days
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> shippers <span class="kw">AS</span> s <span class="kw">ON</span> s.shipper_id = o.ship_via
+<span class="kw">WHERE</span> o.shipped_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> s.company_name;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>משווים ממוצע, חציון וסטיית תקן בין שלוש החברות.</li><li>מחשבים לכל חברה מקדם שונות (סטיית תקן חלקי ממוצע) כדי להשוות עקביות.</li><li>בודקים כמה אחוזים מההזמנות של כל חברה נשלחו תוך שבוע.</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>ממוצע וחציון של ימים עד המשלוח</figcaption><div class="cv"><canvas id="g6" role="img" aria-label="ממוצע וחציון של ימים עד המשלוח"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> ההבדלים בין הממוצעים הם של יום או יומיים, וסטיית התקן גדולה. דונו אם ההבדל משמעותי.</p>
+  <p class="ext"><b>להרחבה:</b> הוסיפו את שאלה 10: איזו חברה מאחרת יותר?</p>
+</article>
+<article class="q" id="q7">
+  <header><span class="qn">7</span><h3>האם המשרד בסיאטל מוכר יותר מהמשרד בלונדון?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">לחברה יש שני משרדי מכירות. השאלה בודקת איפה כדאי להוסיף עובדים.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>המכירות לעובד במשרד בארצות הברית גבוהות מהמכירות לעובד בבריטניה.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>עובד (9), לפי משרד (2)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>המשרד (employees.country)</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>מכירות, הזמנות וסכום ממוצע להזמנה</dd></div>
+    <div><dt>טבלאות</dt><dd><code>employees</code> <code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> e.country <span class="kw">AS</span> office,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> e.employee_id) <span class="kw">AS</span> employees,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> orders,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> sales
+<span class="kw">FROM</span> employees <span class="kw">AS</span> e
+<span class="kw">JOIN</span> orders <span class="kw">AS</span> o <span class="kw">ON</span> o.employee_id = e.employee_id
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> e.country;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים לכל משרד את סך המכירות, מספר ההזמנות ומספר העובדים.</li><li>מחלקים במספר העובדים: מכירות לעובד והזמנות לעובד.</li><li>משווים גם את הסכום הממוצע של הזמנה בכל משרד.</li><li>מוסיפים טבלה לכל עובד: מכירות, הזמנות, תפקיד ותאריך קליטה.</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>מכירות לעובד בכל משרד</figcaption><div class="cv"><canvas id="g7" role="img" aria-label="מכירות לעובד בכל משרד"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> יש רק 9 עובדים, ולכן עובד אחד חזק או חלש משנה את כל התוצאה. אל תכתבו מסקנה כללית מדי.</p>
+  <p class="ext"><b>להרחבה:</b> האם ותק העובד (hire_date) קשור למכירות שלו?</p>
+</article>
+<article class="q" id="q8">
+  <header><span class="qn">8</span><h3>באילו מדינות הלקוחות מזמינים הזמנות גדולות יותר?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">מדינות עם הזמנות גדולות יכולות להיות יעד לשיווק או לשירות מיוחד.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>הסכום הממוצע של הזמנה שונה ממדינה למדינה.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>מדינת לקוח (13 מדינות עם 20 הזמנות ומעלה)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>מדינת הלקוח</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>הסכום הממוצע להזמנה</dd></div>
+    <div><dt>טבלאות</dt><dd><code>customers</code> <code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> c.country,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> orders,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount))
+         / <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> avg_order_value
+<span class="kw">FROM</span> customers <span class="kw">AS</span> c
+<span class="kw">JOIN</span> orders <span class="kw">AS</span> o <span class="kw">ON</span> o.customer_id = c.customer_id
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> c.country
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) &gt;= <span class="num">20</span>
+<span class="kw">ORDER</span> <span class="kw">BY</span> avg_order_value <span class="kw">DESC</span>;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>משווים את הסכום הממוצע של הזמנה בכל מדינה.</li><li>בודקים גם את החציון בכל מדינה. האם הסדר משתנה?</li><li>בודקים כמה לקוחות יש בכל מדינה: האם מדינה אחת מבוססת על לקוח גדול אחד?</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>ממוצע וחציון של סכום ההזמנה לפי מדינה</figcaption><div class="cv"><canvas id="g8" role="img" aria-label="ממוצע וחציון של סכום ההזמנה לפי מדינה"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> ה־HAVING משאיר רק מדינות עם 20 הזמנות לפחות. ממוצע של מעט הזמנות אינו אמין.</p>
+  <p class="ext"><b>להרחבה:</b> השוו בין אזורים בעולם (customers.region) במקום מדינות.</p>
+</article>
+<article class="q" id="q9">
+  <header><span class="qn">9</span><h3>האם החברה נותנת יותר הנחות בקטגוריות מסוימות?</h3><span class="lv lv1">בסיסי</span></header>
+  <p class="why">אם בקטגוריה מסוימת נותנים הרבה הנחות, אולי המחיר שלה גבוה מדי או שקשה למכור אותה.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>אחוז השורות עם הנחה שונה בין הקטגוריות.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>שורת הזמנה (2,155), לפי קטגוריה (8)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>הקטגוריה</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>ההנחה הממוצעת ואחוז השורות עם הנחה</dd></div>
+    <div><dt>טבלאות</dt><dd><code>order_details</code> <code>products</code> <code>categories</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> c.category_name,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> lines,
+       <span class="fn">AVG</span>(od.discount) <span class="kw">AS</span> avg_discount,
+       <span class="num">100.0</span> * <span class="fn">AVG</span>(od.discount &gt; <span class="num">0</span>) <span class="kw">AS</span> pct_discounted
+<span class="kw">FROM</span> order_details <span class="kw">AS</span> od
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">JOIN</span> categories <span class="kw">AS</span> c <span class="kw">ON</span> c.category_id = p.category_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> c.category_name;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>משווים בין הקטגוריות את ההנחה הממוצעת ואת אחוז השורות עם הנחה.</li><li>בודקים אם יש קשר בין המחיר הממוצע של הקטגוריה לבין ההנחה שלה.</li><li>מציגים את התוצאה בטבלה ממוינת.</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>אחוז שורות ההזמנה עם הנחה</figcaption><div class="cv"><canvas id="g9" role="img" aria-label="אחוז שורות ההזמנה עם הנחה"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> <code>AVG(od.discount > 0)</code> הוא החלק של השורות שבהן יש הנחה, כי תנאי מחזיר 1 או 0.</p>
+  <p class="ext"><b>להרחבה:</b> האם יש לקוחות שמקבלים הנחה כמעט תמיד?</p>
+</article>
+<article class="q" id="q10">
+  <header><span class="qn">10</span><h3>איזו חברת משלוחים מאחרת יותר?</h3><span class="lv lv1">בסיסי</span></header>
+  <p class="why">איחור במשלוח פוגע בלקוח. השאלה בודקת אם יש חברה שאחראית ליותר איחורים.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>אחוז ההזמנות שנשלחו אחרי התאריך הנדרש שונה בין החברות.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>הזמנה שנשלחה (809)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>חברת המשלוחים</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>ההזמנה נשלחה באיחור (כן / לא)</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code> <code>shippers</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> s.company_name,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> shipped,
+       <span class="fn">SUM</span>(o.shipped_date &gt; o.required_date) <span class="kw">AS</span> late,
+       <span class="num">100.0</span> * <span class="fn">AVG</span>(o.shipped_date &gt; o.required_date) <span class="kw">AS</span> pct_late
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> shippers <span class="kw">AS</span> s <span class="kw">ON</span> s.shipper_id = o.ship_via
+<span class="kw">WHERE</span> o.shipped_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> s.company_name;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>סופרים לכל חברה כמה הזמנות נשלחו וכמה מהן באיחור.</li><li>מחשבים את אחוז האיחורים בכל חברה.</li><li>בודקים גם בכמה ימים, בממוצע, מאחרות ההזמנות המאוחרות.</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>אחוז ההזמנות שנשלחו באיחור</figcaption><div class="cv"><canvas id="g10" role="img" aria-label="אחוז ההזמנות שנשלחו באיחור"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> איחור הוא <code>shipped_date &gt; required_date</code>. תאריכים בתבנית YYYY-MM-DD אפשר להשוות כמו טקסט.</p>
+  <p class="ext"><b>להרחבה:</b> האם האיחורים מתרכזים במדינות יעד מסוימות?</p>
+</article>
+<h2 class="grp" id="g-time">זמן ומגמה</h2>
+<article class="q" id="q11">
+  <header><span class="qn">11</span><h3>האם המכירות של Northwind גדלות לאורך הזמן?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">זו השאלה הראשונה שכל הנהלה שואלת: האם העסק צומח, ובאיזה קצב?</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>סך המכירות בחודש עולה עם הזמן.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>חודש (22 חודשים מלאים)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>מספר החודש (1 = יולי 2016)</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>סך המכירות בחודש</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> <span class="fn">SUBSTR</span>(o.order_date, <span class="num">1</span>, <span class="num">7</span>) <span class="kw">AS</span> ym,
+       (<span class="fn">YEAR</span>(o.order_date) - <span class="num">2016</span>) * <span class="num">12</span> + <span class="fn">MONTH</span>(o.order_date) - <span class="num">6</span> <span class="kw">AS</span> month_no,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> orders,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> sales
+<span class="kw">FROM</span> orders <span class="kw">AS</span> o
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">WHERE</span> o.order_date &lt; <span class="str">&#x27;2018-05-01&#x27;</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> ym
+<span class="kw">ORDER</span> <span class="kw">BY</span> ym;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>משרטטים את המכירות לפי החודש (אפשר להעתיק את התוצאה לאקסל לגרף).</li><li>מחשבים קו רגרסיה בין מספר החודש למכירות: השיפוע הוא הגידול הממוצע בחודש.</li><li>מחשבים את הגידול באחוזים בין 2017 לבין אותם חודשים ב־2016 וב־2018.</li><li>חוזים את המכירות במאי ובאוגוסט 2018.</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>מכירות בכל חודש וקו מגמה</figcaption><div class="cv"><canvas id="g11" role="img" aria-label="מכירות בכל חודש וקו מגמה"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> מאי 2018 לא נכלל, כי יש בו רק 6 ימים. בלי ה־WHERE החודש האחרון ייראה כמו נפילה.</p>
+  <p class="ext"><b>להרחבה:</b> האם הגידול נובע מיותר הזמנות או מהזמנות גדולות יותר?</p>
+</article>
+<article class="q" id="q12">
+  <header><span class="qn">12</span><h3>האם יש חודשים חזקים יותר בשנה?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">אם יש עונתיות, החברה יכולה להיערך מראש עם מלאי ועובדים.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>מספר ההזמנות הממוצע שונה בין חודשי השנה.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>חודש בשנה (12)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>החודש בשנה</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>מספר ההזמנות הממוצע בחודש</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> <span class="fn">MONTH</span>(order_date) <span class="kw">AS</span> month,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> orders,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="fn">YEAR</span>(order_date)) <span class="kw">AS</span> years,
+       <span class="num">1.0</span> * <span class="fn">COUNT</span>(*) / <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="fn">YEAR</span>(order_date)) <span class="kw">AS</span> orders_per_year
+<span class="kw">FROM</span> orders
+<span class="kw">WHERE</span> order_date &lt; <span class="str">&#x27;2018-05-01&#x27;</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> month
+<span class="kw">ORDER</span> <span class="kw">BY</span> month;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים לכל חודש את מספר ההזמנות הממוצע לשנה.</li><li>משווים את החודש החזק ביותר לחלש ביותר.</li><li>דנים: האם ההבדלים נובעים מעונתיות או מהצמיחה של החברה?</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>הזמנות בממוצע לשנה בכל חודש</figcaption><div class="cv"><canvas id="g12" role="img" aria-label="הזמנות בממוצע לשנה בכל חודש"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> כל חודש מופיע רק פעם אחת או פעמיים בנתונים, והחברה צומחת. לכן קשה להפריד בין עונתיות לבין צמיחה.</p>
+  <p class="ext"><b>להרחבה:</b> השוו בין חודשים לפי המכירות ולא לפי מספר ההזמנות.</p>
+</article>
+<article class="q" id="q13">
+  <header><span class="qn">13</span><h3>האם החברה ממשיכה להשיג לקוחות חדשים?</h3><span class="lv lv3">מתקדם</span></header>
+  <p class="why">עסק צומח צריך לקוחות חדשים. השאלה בודקת אם הצמיחה באה מלקוחות חדשים או מלקוחות קיימים.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>מספר הלקוחות החדשים בכל חודש יורד עם הזמן.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>לקוח (89), לפי חודש ההזמנה הראשונה</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>החודש</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>מספר הלקוחות שהזמינו בפעם הראשונה</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">WITH</span> first <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> customer_id, <span class="fn">MIN</span>(order_date) <span class="kw">AS</span> first_order
+  <span class="kw">FROM</span> orders
+  <span class="kw">GROUP</span> <span class="kw">BY</span> customer_id
+)
+<span class="kw">SELECT</span> <span class="fn">SUBSTR</span>(first_order, <span class="num">1</span>, <span class="num">7</span>) <span class="kw">AS</span> first_month,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> new_customers
+<span class="kw">FROM</span> first
+<span class="kw">GROUP</span> <span class="kw">BY</span> first_month
+<span class="kw">ORDER</span> <span class="kw">BY</span> first_month;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מוצאים לכל לקוח את תאריך ההזמנה הראשונה שלו (MIN).</li><li>סופרים כמה לקוחות חדשים הצטרפו בכל חודש.</li><li>מחשבים את המספר המצטבר של הלקוחות לאורך הזמן.</li><li>משווים למגמת המכירות משאלה 11.</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>לקוחות חדשים בכל חודש</figcaption><div class="cv"><canvas id="g13" role="img" aria-label="לקוחות חדשים בכל חודש"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> הנתונים מתחילים ביולי 2016, ולכן בחודשים הראשונים כל לקוח נראה חדש, גם אם הזמין לפני כן.</p>
+  <p class="ext"><b>להרחבה:</b> כמה מהמכירות של 2018 באו מלקוחות שהצטרפו ב־2016?</p>
+</article>
+<h2 class="grp" id="g-dist">התפלגות וריכוז</h2>
+<article class="q" id="q14">
+  <header><span class="qn">14</span><h3>האם הסכום של הזמנה מתפלג נורמלית?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">הרבה כלים סטטיסטיים מניחים התפלגות נורמלית. לפני שמשתמשים בהם צריך לבדוק.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>הסכום של הזמנה מתפלג בקירוב נורמלית.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>הזמנה (830)</dd></div>
+    
+    <div><dt>משתנה תלוי</dt><dd>סכום ההזמנה</dd></div>
+    <div><dt>טבלאות</dt><dd><code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">WITH</span> t <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> o.order_id, <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> x
+  <span class="kw">FROM</span> orders <span class="kw">AS</span> o
+  <span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+  <span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+  <span class="kw">GROUP</span> <span class="kw">BY</span> o.order_id
+)
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> n, <span class="fn">AVG</span>(x) <span class="kw">AS</span> mean_x, <span class="fn">MEDIAN</span>(x) <span class="kw">AS</span> median_x,
+       <span class="fn">STDEV</span>(x) <span class="kw">AS</span> sd_x,
+       <span class="num">3</span> * (<span class="fn">AVG</span>(x) - <span class="fn">MEDIAN</span>(x)) / <span class="fn">STDEV</span>(x) <span class="kw">AS</span> skew
+<span class="kw">FROM</span> t;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים ממוצע, חציון, סטיית תקן ומקדם צידוד.</li><li>בודקים את כלל 68–95–99.7.</li><li>מחשבים את אותם מדדים על LOG(x) ומשווים.</li><li>מסיקים איזו התפלגות מתאימה יותר.</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>היסטוגרמה של סכום ההזמנה</figcaption><div class="cv"><canvas id="g14" role="img" aria-label="היסטוגרמה של סכום ההזמנה"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> השאילתה מחשבת את שלב 1. לשלב 2 צריך להציב את הממוצע ואת סטיית התקן בגבולות, כמו בדף הסטטיסטיקה.</p>
+  <p class="ext"><b>להרחבה:</b> בדקו את אותה שאלה על דמי המשלוח ועל הכמות בשורה.</p>
+</article>
+<article class="q" id="q15">
+  <header><span class="qn">15</span><h3>האם מעט לקוחות אחראים לרוב המכירות?</h3><span class="lv lv2">בינוני</span></header>
+  <p class="why">חברה שתלויה במעט לקוחות נמצאת בסיכון: אם לקוח גדול עוזב, המכירות נופלות.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>20% מהלקוחות אחראים ל־80% מהמכירות (כלל פרטו).</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>לקוח (89)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>דירוג הלקוח</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>המכירות של הלקוח</dd></div>
+    <div><dt>טבלאות</dt><dd><code>customers</code> <code>orders</code> <code>order_details</code> <code>products</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> c.company_name,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> sales
+<span class="kw">FROM</span> customers <span class="kw">AS</span> c
+<span class="kw">JOIN</span> orders <span class="kw">AS</span> o <span class="kw">ON</span> o.customer_id = c.customer_id
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.order_id = o.order_id
+<span class="kw">JOIN</span> products <span class="kw">AS</span> p <span class="kw">ON</span> p.product_id = od.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> c.customer_id
+<span class="kw">ORDER</span> <span class="kw">BY</span> sales <span class="kw">DESC</span>;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים את המכירות של כל לקוח וממיינים מהגדול לקטן.</li><li>מחשבים את סך המכירות ואת החלק של 10, 18 (20%) ו־30 הלקוחות הגדולים.</li><li>בודקים אם כלל 80/20 מתקיים.</li><li>מחשבים מדדי מרכז ופיזור למכירות לפי לקוח.</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>עקומת פרטו: אחוז מצטבר של המכירות</figcaption><div class="cv"><canvas id="g15" role="img" aria-label="עקומת פרטו: אחוז מצטבר של המכירות"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> את האחוזים המצטברים אפשר לחשב ידנית או באקסל. מי שמכיר פונקציות חלון יכול להשתמש ב־<code>SUM(sales) OVER (ORDER BY sales DESC)</code>.</p>
+  <p class="ext"><b>להרחבה:</b> האם יש גם ריכוז במוצרים? בדקו כמה מוצרים אחראים ל־80% מהמכירות.</p>
+</article>
+<article class="q" id="q16">
+  <header><span class="qn">16</span><h3>באילו קטגוריות יש בעיית מלאי?</h3><span class="lv lv1">בסיסי</span></header>
+  <p class="why">מוצר שהמלאי שלו ירד מתחת לסף ההזמנה מחדש עלול להיגמר. השאלה מזהה איפה צריך לטפל.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>רוב המוצרים שמתחת לסף ההזמנה נמצאים בכמה קטגוריות בלבד.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>מוצר (77), לפי קטגוריה (8)</dd></div>
+    <div><dt>משתנה בלתי תלוי</dt><dd>הקטגוריה</dd></div>
+    <div><dt>משתנה תלוי</dt><dd>מספר המוצרים מתחת לסף, ומספר המוצרים שהופסקו</dd></div>
+    <div><dt>טבלאות</dt><dd><code>products</code> <code>categories</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> c.category_name,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> products,
+       <span class="fn">SUM</span>(p.units_in_stock &lt; p.reorder_level) <span class="kw">AS</span> below_reorder,
+       <span class="fn">SUM</span>(p.discontinued) <span class="kw">AS</span> discontinued
+<span class="kw">FROM</span> products <span class="kw">AS</span> p
+<span class="kw">JOIN</span> categories <span class="kw">AS</span> c <span class="kw">ON</span> c.category_id = p.category_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> c.category_name;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>סופרים בכל קטגוריה כמה מוצרים יש, כמה מהם מתחת לסף (units_in_stock &lt; reorder_level) וכמה הופסקו.</li><li>מחשבים את האחוז של מוצרים בבעיה בכל קטגוריה.</li><li>בודקים אילו מהם כבר מוזמנים מהספק (units_on_order &gt; 0).</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>מוצרים מתחת לסף ההזמנה מחדש</figcaption><div class="cv"><canvas id="g16" role="img" aria-label="מוצרים מתחת לסף ההזמנה מחדש"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> מוצר שהופסק (discontinued = 1) לא צריך הזמנה מחדש. חשבו אם להוציא אותו מהספירה.</p>
+  <p class="ext"><b>להרחבה:</b> אילו ספקים אחראים למוצרים שמתחת לסף?</p>
+</article>
+<h2 class="grp" id="g-open">שאלות עסקיות פתוחות</h2>
+<article class="q" id="q17">
+  <header><span class="qn">17</span><h3>אילו לקוחות הפסיקו להזמין?</h3><span class="lv lv3">מתקדם</span></header>
+  <p class="why">לקוח שלא הזמין זמן רב עלול לעבור למתחרה. החברה רוצה לזהות אותו בזמן.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>יש קבוצה של לקוחות שלא הזמינו יותר מ־90 יום לפני סוף הנתונים.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>לקוח (89)</dd></div>
+    
+    <div><dt>משתנה תלוי</dt><dd>ימים מאז ההזמנה האחרונה</dd></div>
+    <div><dt>טבלאות</dt><dd><code>customers</code> <code>orders</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> c.company_name, c.country,
+       <span class="fn">COUNT</span>(*) <span class="kw">AS</span> orders,
+       <span class="fn">MAX</span>(o.order_date) <span class="kw">AS</span> last_order,
+       <span class="fn">julianday</span>(<span class="str">&#x27;2018-05-06&#x27;</span>) - <span class="fn">julianday</span>(<span class="fn">MAX</span>(o.order_date)) <span class="kw">AS</span> days_since
+<span class="kw">FROM</span> customers <span class="kw">AS</span> c
+<span class="kw">JOIN</span> orders <span class="kw">AS</span> o <span class="kw">ON</span> o.customer_id = c.customer_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> c.customer_id
+<span class="kw">ORDER</span> <span class="kw">BY</span> days_since <span class="kw">DESC</span>;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים לכל לקוח את תאריך ההזמנה האחרונה ואת מספר הימים עד 6 במאי 2018.</li><li>בוחרים סף (למשל 90 יום) ומונים כמה לקוחות עוברים אותו.</li><li>משווים את הלקוחות האלה לשאר: מספר הזמנות, סכום ממוצע ומדינה.</li><li>מנסחים המלצה: לאילו לקוחות כדאי לפנות.</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>ימים מאז ההזמנה האחרונה</figcaption><div class="cv"><canvas id="g17" role="img" aria-label="ימים מאז ההזמנה האחרונה"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> הסף נקבע לפי שיקול דעת. נמקו אותו, למשל לפי הזמן הממוצע בין שתי הזמנות של אותו לקוח.</p>
+  <p class="ext"><b>להרחבה:</b> חשבו לכל לקוח את הזמן הממוצע בין הזמנות, וזהו לקוחות שהפער האחרון שלהם גדול פי שניים מהרגיל.</p>
+</article>
+<article class="q" id="q18">
+  <header><span class="qn">18</span><h3>אילו מוצרים כדאי להפסיק למכור?</h3><span class="lv lv3">מתקדם</span></header>
+  <p class="why">מוצר שכמעט לא נמכר תופס מלאי ומקום. השאלה בונה כלל להחלטה.</p>
+  <dl class="vars">
+    <div><dt>השערה</dt><dd>יש מוצרים שגם המכירות שלהם וגם מספר ההזמנות שלהם נמוכים במיוחד.</dd></div>
+    <div><dt>יחידת תצפית</dt><dd>מוצר (77)</dd></div>
+    
+    <div><dt>משתנה תלוי</dt><dd>מכירות, יחידות ומספר הזמנות</dd></div>
+    <div><dt>טבלאות</dt><dd><code>products</code> <code>order_details</code></dd></div>
+  </dl>
+  <div class="cols">
+    <div class="sqlbox"><div class="lbl">שאילתה לאיסוף הנתונים</div><pre class="sql"><code><span class="kw">SELECT</span> p.product_name, p.discontinued,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> od.order_id) <span class="kw">AS</span> orders,
+       <span class="fn">SUM</span>(od.quantity) <span class="kw">AS</span> units,
+       <span class="fn">SUM</span>(p.unit_price * od.quantity * (<span class="num">1</span> - od.discount)) <span class="kw">AS</span> sales
+<span class="kw">FROM</span> products <span class="kw">AS</span> p
+<span class="kw">JOIN</span> order_details <span class="kw">AS</span> od <span class="kw">ON</span> od.product_id = p.product_id
+<span class="kw">GROUP</span> <span class="kw">BY</span> p.product_id
+<span class="kw">ORDER</span> <span class="kw">BY</span> sales;</code></pre></div>
+    <div><div class="lbl">ניתוח</div><ol class="an"><li>מחשבים לכל מוצר מכירות, יחידות ומספר הזמנות, וממיינים מהנמוך.</li><li>קובעים כלל, למשל: ברבע התחתון גם במכירות וגם במספר ההזמנות.</li><li>משווים את הרשימה למוצרים שכבר הופסקו (discontinued = 1). האם החברה קיבלה החלטות דומות?</li><li>מנסחים המלצה ומסבירים את המגבלות.</li></ol></div>
+  </div>
+  <figure class="qfig"><figcaption>מכירות מול מספר ההזמנות של כל מוצר</figcaption><div class="cv"><canvas id="g18" role="img" aria-label="מכירות מול מספר ההזמנות של כל מוצר"></canvas></div></figure>
+  <p class="watch"><b>שימו לב:</b> אין בנתונים עלות ולכן אין רווח. מוצר עם מכירות נמוכות יכול להיות רווחי מאוד. כתבו את זה כמגבלה.</p>
+  <p class="ext"><b>להרחבה:</b> האם מוצרים שנמכרים מעט נמכרים בעיקר עם הנחה?</p>
+</article>
+
+  <section class="box">
+    <h2>מגבלות של הנתונים</h2>
+    <p>בכל עבודה צריך לכתוב מה הנתונים לא מאפשרים לדעת. אלה המגבלות העיקריות של Northwind:</p>
+    <ul>
+      <li><b>הנתונים בדיוניים.</b> Microsoft בנתה אותם לתרגול. אפשר להסיק מסקנות על החברה הזאת, לא על העולם.</li>
+      <li><b>חלק מהקבוצות קטנות:</b> 9 עובדים, 3 חברות משלוחים ו־8 קטגוריות. בקבוצה קטנה ערך אחד יכול לשנות את התוצאה.</li>
+      <li><b>אין עלויות ואין רווח.</b> יש רק מחירי מכירה. אפשר לשאול מה נמכר הכי הרבה, לא מה הכי רווחי.</li>
+      <li><b>אין מידע על הלקוחות</b> מעבר למיקום ולתפקיד של איש הקשר: אין גודל עסק ואין תאריך הצטרפות.</li>
+      <li><b>שנים חלקיות.</b> הנתונים מתחילים ב־4 ביולי 2016 ונגמרים ב־6 במאי 2018. רק 2017 היא שנה מלאה.</li>
+      <li><b>קשר אינו סיבה.</b> מתאם בין שני משתנים לא מוכיח שאחד גורם לשני.</li>
+      <li><b>נתונים שצריך לנקות:</b> שתי שורות בדיקה בטבלת customers (<code>VALON</code>, <code>Val2 </code>), רווחים מיותרים (<code>Sweden </code>), ו־21 הזמנות בלי <code>shipped_date</code>.</li>
+    </ul>
+  </section>
+
+  <section class="box">
+    <h2>טופס הצעת מחקר</h2>
+    <p>ממלאים לפני שמתחילים לעבוד, ומגישים למורה לאישור.</p>
+    <table class="tpl">
+      <tr><th>שאלת המחקר</th><td></td></tr>
+      <tr><th>ההשערה ולמה</th><td></td></tr>
+      <tr><th>יחידת התצפית ומספר התצפיות</th><td></td></tr>
+      <tr><th>משתנה בלתי תלוי</th><td></td></tr>
+      <tr><th>משתנה תלוי</th><td></td></tr>
+      <tr><th>הטבלאות</th><td></td></tr>
+      <tr><th>שיטת הניתוח</th><td></td></tr>
+      <tr><th>מגבלות צפויות</th><td></td></tr>
+    </table>
+  </section>
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const CH = [{"id": "g1", "type": "scatter", "title": "דמי משלוח מול סכום ההזמנה", "cap": "830 הזמנות. קו הרגרסיה: ŷ = 5.9 + 0.0444x, r = 0.75, R² = 0.56.", "xl": "סכום ההזמנה", "yl": "דמי משלוח", "datasets": [{"label": "הזמנה", "data": [{"x": 566.0, "y": 32.4}, {"x": 2329.0, "y": 11.6}, {"x": 1942.0, "y": 65.8}, {"x": 819.0, "y": 41.3}, {"x": 4497.0, "y": 51.3}, {"x": 1806.0, "y": 58.2}, {"x": 696.0, "y": 23.0}, {"x": 3116.0, "y": 148.3}, {"x": 648.0, "y": 14.0}, {"x": 1401.0, "y": 81.9}, {"x": 2024.0, "y": 140.5}, {"x": 126.0, "y": 3.3}, {"x": 1882.0, "y": 55.1}, {"x": 560.0, "y": 3.1}, {"x": 731.0, "y": 48.3}, {"x": 2346.0, "y": 146.1}, {"x": 870.0, "y": 3.7}, {"x": 1470.0, "y": 55.3}, {"x": 433.0, "y": 25.7}, {"x": 4422.0, "y": 208.6}, {"x": 1377.0, "y": 66.3}, {"x": 804.0, "y": 4.6}, {"x": 1720.0, "y": 136.5}, {"x": 60.0, "y": 4.5}, {"x": 1821.0, "y": 98.0}, {"x": 2548.0, "y": 76.1}, {"x": 674.0, "y": 6.0}, {"x": 365.0, "y": 26.9}, {"x": 525.0, "y": 13.8}, {"x": 1504.0, "y": 125.8}, {"x": 1862.0, "y": 92.7}, {"x": 439.0, "y": 25.8}, {"x": 767.0, "y": 9.0}, {"x": 108.0, "y": 2.9}, {"x": 194.0, "y": 12.7}, {"x": 1770.0, "y": 84.8}, {"x": 1465.0, "y": 76.6}, {"x": 2181.0, "y": 76.8}, {"x": 3772.0, "y": 229.2}, {"x": 1026.0, "y": 12.8}, {"x": 101.0, "y": 7.5}, {"x": 599.0, "y": 22.8}, {"x": 2714.0, "y": 79.7}, {"x": 624.0, "y": 6.4}, {"x": 1620.0, "y": 1.4}, {"x": 1061.0, "y": 21.2}, {"x": 2360.0, "y": 147.3}, {"x": 152.0, "y": 1.2}, {"x": 1316.0, "y": 0.1}, {"x": 1776.0, "y": 5.7}, {"x": 3307.0, "y": 168.2}, {"x": 438.0, "y": 29.8}, {"x": 760.0, "y": 17.7}, {"x": 944.0, "y": 45.1}, {"x": 3389.0, "y": 6.3}, {"x": 1400.0, "y": 107.8}, {"x": 1193.0, "y": 63.8}, {"x": 4678.0, "y": 257.6}, {"x": 624.0, "y": 7.6}, {"x": 531.0, "y": 0.6}, {"x": 111.0, "y": 1.6}, {"x": 2203.0, "y": 47.3}, {"x": 421.0, "y": 17.5}, {"x": 336.0, "y": 24.7}, {"x": 2020.0, "y": 40.3}, {"x": 228.0, "y": 2.0}, {"x": 2619.0, "y": 74.2}, {"x": 646.0, "y": 41.8}, {"x": 3548.0, "y": 150.2}, {"x": 360.0, "y": 12.7}, {"x": 301.0, "y": 4.7}, {"x": 1490.0, "y": 64.5}, {"x": 645.0, "y": 34.6}, {"x": 180.0, "y": 3.4}, {"x": 140.0, "y": 0.4}, {"x": 206.0, "y": 4.9}, {"x": 6598.0, "y": 214.3}, {"x": 1873.0, "y": 64.9}, {"x": 1228.0, "y": 77.9}, {"x": 2263.0, "y": 63.4}, {"x": 1462.0, "y": 87.0}, {"x": 5724.0, "y": 191.7}, {"x": 2067.0, "y": 12.8}, {"x": 112.0, "y": 10.2}, {"x": 2234.0, "y": 52.8}, {"x": 1097.0, "y": 0.6}, {"x": 181.0, "y": 8.6}, {"x": 2545.0, "y": 42.1}, {"x": 356.0, "y": 15.5}, {"x": 3088.0, "y": 108.3}, {"x": 1168.0, "y": 84.2}, {"x": 4194.0, "y": 15.7}, {"x": 3046.0, "y": 166.3}, {"x": 441.0, "y": 26.8}, {"x": 2301.0, "y": 54.8}, {"x": 1980.0, "y": 110.4}, {"x": 2870.0, "y": 23.3}, {"x": 3662.0, "y": 249.1}, {"x": 2024.0, "y": 142.1}, {"x": 1018.0, "y": 3.1}, {"x": 455.0, "y": 0.8}, {"x": 179.0, "y": 8.6}, {"x": 803.0, "y": 64.2}, {"x": 6755.0, "y": 162.3}, {"x": 172.0, "y": 1.3}, {"x": 10742.0, "y": 360.6}, {"x": 711.0, "y": 53.8}, {"x": 600.0, "y": 42.0}, {"x": 1383.0, "y": 36.7}, {"x": 1461.0, "y": 34.9}, {"x": 537.0, "y": 19.6}, {"x": 4344.0, "y": 288.4}, {"x": 9244.0, "y": 131.7}, {"x": 2558.0, "y": 183.2}, {"x": 1939.0, "y": 96.0}, {"x": 559.0, "y": 30.5}, {"x": 1188.0, "y": 72.0}, {"x": 504.0, "y": 22.0}, {"x": 170.0, "y": 10.1}, {"x": 1045.0, "y": 13.6}, {"x": 2113.0, "y": 102.0}, {"x": 2989.0, "y": 195.7}, {"x": 1397.0, "y": 1.2}, {"x": 91.0, "y": 0.5}, {"x": 11515.0, "y": 890.8}, {"x": 1708.0, "y": 124.1}, {"x": 574.0, "y": 3.9}, {"x": 423.0, "y": 20.1}, {"x": 499.0, "y": 20.4}, {"x": 1081.0, "y": 22.2}, {"x": 129.0, "y": 5.4}, {"x": 1081.0, "y": 45.0}, {"x": 1643.0, "y": 35.0}, {"x": 140.0, "y": 8.0}, {"x": 3629.0, "y": 94.8}, {"x": 1124.0, "y": 34.2}, {"x": 2778.0, "y": 168.6}, {"x": 864.0, "y": 31.0}, {"x": 208.0, "y": 14.0}, {"x": 1324.0, "y": 93.6}, {"x": 1538.0, "y": 34.9}, {"x": 2292.0, "y": 47.4}, {"x": 2615.0, "y": 126.4}, {"x": 108.0, "y": 5.5}, {"x": 1800.0, "y": 122.5}, {"x": 3202.0, "y": 126.6}, {"x": 553.0, "y": 30.3}, {"x": 2657.0, "y": 184.4}, {"x": 2381.0, "y": 135.4}, {"x": 896.0, "y": 60.3}, {"x": 3132.0, "y": 89.2}, {"x": 2207.0, "y": 27.4}, {"x": 3830.0, "y": 83.9}, {"x": 4837.0, "y": 12.5}, {"x": 3394.0, "y": 67.9}, {"x": 1070.0, "y": 73.8}, {"x": 1992.0, "y": 156.0}, {"x": 500.0, "y": 34.8}, {"x": 2292.0, "y": 108.0}, {"x": 1493.0, "y": 91.5}, {"x": 2030.0, "y": 11.3}, {"x": 399.0, "y": 29.8}, {"x": 1003.0, "y": 2.4}, {"x": 1211.0, "y": 23.7}, {"x": 419.0, "y": 3.8}, {"x": 2656.0, "y": 95.7}, {"x": 282.0, "y": 21.5}, {"x": 128.0, "y": 0.2}, {"x": 902.0, "y": 22.7}, {"x": 13986.0, "y": 70.3}, {"x": 2269.0, "y": 17.6}, {"x": 2622.0, "y": 137.4}, {"x": 2135.0, "y": 44.1}, {"x": 1497.0, "y": 99.2}, {"x": 62.0, "y": 3.0}, {"x": 1275.0, "y": 24.5}, {"x": 11493.0, "y": 370.6}, {"x": 450.0, "y": 7.9}, {"x": 423.0, "y": 18.7}, {"x": 814.0, "y": 31.3}, {"x": 240.0, "y": 11.1}, {"x": 1802.0, "y": 56.6}, {"x": 6124.0, "y": 458.8}, {"x": 2366.0, "y": 44.2}, {"x": 610.0, "y": 4.3}, {"x": 1064.0, "y": 73.8}, {"x": 401.0, "y": 17.9}, {"x": 790.0, "y": 9.2}, {"x": 2493.0, "y": 156.7}, {"x": 492.0, "y": 20.0}, {"x": 568.0, "y": 8.2}, {"x": 1349.0, "y": 4.1}, {"x": 6159.0, "y": 86.5}, {"x": 2195.0, "y": 73.0}, {"x": 2246.0, "y": 47.9}, {"x": 648.0, "y": 14.0}, {"x": 1292.0, "y": 3.5}, {"x": 220.0, "y": 9.3}, {"x": 309.0, "y": 14.7}, {"x": 1148.0, "y": 68.7}, {"x": 555.0, "y": 38.8}, {"x": 2300.0, "y": 53.3}, {"x": 532.0, "y": 7.2}, {"x": 4813.0, "y": 189.1}, {"x": 2532.0, "y": 140.3}, {"x": 510.0, "y": 25.4}, {"x": 415.0, "y": 2.7}, {"x": 3358.0, "y": 180.5}, {"x": 697.0, "y": 8.1}, {"x": 1980.0, "y": 11.6}, {"x": 4870.0, "y": 147.1}, {"x": 2076.0, "y": 25.1}, {"x": 220.0, "y": 16.3}, {"x": 1924.0, "y": 148.6}, {"x": 195.0, "y": 6.2}, {"x": 893.0, "y": 14.8}, {"x": 2012.0, "y": 89.0}, {"x": 3149.0, "y": 145.0}, {"x": 270.0, "y": 11.9}, {"x": 294.0, "y": 4.9}, {"x": 897.0, "y": 44.1}, {"x": 1198.0, "y": 60.2}, {"x": 2276.0, "y": 64.6}, {"x": 1660.0, "y": 45.6}, {"x": 1296.0, "y": 4.2}, {"x": 288.0, "y": 16.4}, {"x": 1564.0, "y": 83.5}, {"x": 1881.0, "y": 68.5}, {"x": 226.0, "y": 4.4}, {"x": 698.0, "y": 13.0}, {"x": 589.0, "y": 4.8}, {"x": 13121.0, "y": 709.0}, {"x": 945.0, "y": 1.4}, {"x": 1840.0, "y": 64.3}, {"x": 184.0, "y": 7.5}, {"x": 836.0, "y": 15.3}, {"x": 483.0, "y": 6.9}, {"x": 1980.0, "y": 64.5}, {"x": 1590.0, "y": 30.5}, {"x": 1117.0, "y": 71.1}, {"x": 1890.0, "y": 4.9}, {"x": 550.0, "y": 5.3}, {"x": 3954.0, "y": 210.2}, {"x": 325.0, "y": 17.0}, {"x": 1064.0, "y": 62.9}, {"x": 761.0, "y": 10.6}, {"x": 1140.0, "y": 66.0}, {"x": 348.0, "y": 4.7}, {"x": 238.0, "y": 46.8}, {"x": 1727.0, "y": 36.2}, {"x": 575.0, "y": 29.8}, {"x": 1412.0, "y": 102.0}, {"x": 523.0, "y": 42.7}, {"x": 149.0, "y": 8.9}, {"x": 816.0, "y": 69.3}, {"x": 2049.0, "y": 16.7}, {"x": 1389.0, "y": 59.1}, {"x": 148.0, "y": 7.1}, {"x": 416.0, "y": 21.2}, {"x": 749.0, "y": 47.5}, {"x": 240.0, "y": 5.0}, {"x": 137.0, "y": 0.2}, {"x": 4708.0, "y": 367.6}, {"x": 2550.0, "y": 350.6}, {"x": 525.0, "y": 3.5}, {"x": 1942.0, "y": 105.7}, {"x": 8623.0, "y": 790.0}, {"x": 9921.0, "y": 204.5}, {"x": 2381.0, "y": 62.8}, {"x": 352.0, "y": 32.1}, {"x": 4150.0, "y": 218.2}, {"x": 2314.0, "y": 91.8}, {"x": 200.0, "y": 13.4}, {"x": 226.0, "y": 17.2}, {"x": 2318.0, "y": 45.3}, {"x": 2444.0, "y": 77.6}, {"x": 3193.0, "y": 244.8}, {"x": 818.0, "y": 11.1}, {"x": 1151.0, "y": 58.6}, {"x": 1503.0, "y": 41.9}, {"x": 392.0, "y": 3.4}, {"x": 946.0, "y": 66.7}, {"x": 4180.0, "y": 339.2}, {"x": 110.0, "y": 8.1}, {"x": 796.0, "y": 74.5}, {"x": 2222.0, "y": 188.0}, {"x": 466.0, "y": 27.9}, {"x": 1941.0, "y": 15.6}, {"x": 1645.0, "y": 58.9}, {"x": 1824.0, "y": 78.9}, {"x": 140.0, "y": 4.9}, {"x": 356.0, "y": 12.4}, {"x": 10192.0, "y": 1007.6}, {"x": 1947.0, "y": 68.7}, {"x": 469.0, "y": 11.0}, {"x": 1505.0, "y": 48.2}, {"x": 417.0, "y": 24.9}, {"x": 210.0, "y": 11.9}, {"x": 2812.0, "y": 194.7}, {"x": 1793.0, "y": 178.4}, {"x": 240.0, "y": 1.4}, {"x": 3554.0, "y": 171.2}, {"x": 683.0, "y": 4.3}, {"x": 1677.0, "y": 73.0}, {"x": 881.0, "y": 83.2}, {"x": 1546.0, "y": 149.5}, {"x": 1729.0, "y": 121.0}, {"x": 2944.0, "y": 252.5}, {"x": 835.0, "y": 9.8}, {"x": 1153.0, "y": 96.7}, {"x": 2143.0, "y": 73.0}, {"x": 520.0, "y": 8.1}, {"x": 1072.0, "y": 36.7}, {"x": 2845.0, "y": 242.2}, {"x": 489.0, "y": 23.0}, {"x": 965.0, "y": 60.4}, {"x": 1234.0, "y": 13.8}, {"x": 640.0, "y": 7.2}, {"x": 1761.0, "y": 88.4}, {"x": 2519.0, "y": 34.0}, {"x": 155.0, "y": 6.5}, {"x": 890.0, "y": 59.0}, {"x": 2465.0, "y": 189.0}, {"x": 551.0, "y": 26.1}, {"x": 1501.0, "y": 116.4}, {"x": 2082.0, "y": 84.8}, {"x": 764.0, "y": 37.6}, {"x": 2147.0, "y": 127.3}, {"x": 838.0, "y": 18.6}, {"x": 569.0, "y": 25.4}, {"x": 477.0, "y": 29.6}, {"x": 318.0, "y": 13.7}, {"x": 1014.0, "y": 75.9}, {"x": 310.0, "y": 3.0}, {"x": 330.0, "y": 27.7}, {"x": 2238.0, "y": 7.3}, {"x": 594.0, "y": 59.1}, {"x": 143.0, "y": 13.4}, {"x": 24.0, "y": 0.5}, {"x": 807.0, "y": 62.5}, {"x": 3120.0, "y": 194.7}, {"x": 72.0, "y": 4.4}, {"x": 1101.0, "y": 44.8}, {"x": 813.0, "y": 55.9}, {"x": 516.0, "y": 32.1}, {"x": 1994.0, "y": 174.2}, {"x": 566.0, "y": 5.2}, {"x": 4725.0, "y": 96.8}, {"x": 1181.0, "y": 16.3}, {"x": 718.0, "y": 35.1}, {"x": 2389.0, "y": 44.4}, {"x": 493.0, "y": 30.0}, {"x": 480.0, "y": 45.1}, {"x": 2285.0, "y": 58.3}, {"x": 49.0, "y": 2.9}, {"x": 1483.0, "y": 48.8}, {"x": 231.0, "y": 7.5}, {"x": 4110.0, "y": 379.1}, {"x": 1130.0, "y": 79.4}, {"x": 6475.0, "y": 200.2}, {"x": 1064.0, "y": 27.8}, {"x": 424.0, "y": 1.9}, {"x": 299.0, "y": 26.8}, {"x": 808.0, "y": 80.7}, {"x": 6375.0, "y": 544.1}, {"x": 353.0, "y": 8.1}, {"x": 464.0, "y": 1.9}, {"x": 120.0, "y": 0.8}, {"x": 4807.0, "y": 116.5}, {"x": 1403.0, "y": 18.5}, {"x": 2698.0, "y": 154.7}, {"x": 1260.0, "y": 91.1}, {"x": 58.0, "y": 0.9}, {"x": 759.0, "y": 23.7}, {"x": 560.0, "y": 51.0}, {"x": 1337.0, "y": 97.2}, {"x": 1393.0, "y": 94.8}, {"x": 480.0, "y": 43.9}, {"x": 1504.0, "y": 138.7}, {"x": 1186.0, "y": 107.5}, {"x": 450.0, "y": 30.4}, {"x": 2775.0, "y": 85.5}, {"x": 904.0, "y": 32.4}, {"x": 56.0, "y": 0.9}, {"x": 589.0, "y": 41.4}, {"x": 5511.0, "y": 477.9}, {"x": 4986.0, "y": 487.4}, {"x": 1326.0, "y": 47.5}, {"x": 630.0, "y": 1.2}, {"x": 2762.0, "y": 201.3}, {"x": 2720.0, "y": 158.4}, {"x": 500.0, "y": 38.6}, {"x": 709.0, "y": 23.6}, {"x": 2054.0, "y": 179.6}, {"x": 696.0, "y": 41.9}, {"x": 815.0, "y": 29.5}, {"x": 1372.0, "y": 0.1}, {"x": 1535.0, "y": 12.4}, {"x": 1446.0, "y": 142.3}, {"x": 636.0, "y": 45.5}, {"x": 372.0, "y": 14.3}, {"x": 1434.0, "y": 6.2}, {"x": 1779.0, "y": 176.8}, {"x": 398.0, "y": 20.6}, {"x": 319.0, "y": 7.1}, {"x": 1083.0, "y": 93.3}, {"x": 602.0, "y": 55.3}, {"x": 154.0, "y": 4.4}, {"x": 604.0, "y": 57.2}, {"x": 4372.0, "y": 352.7}, {"x": 4465.0, "y": 364.2}, {"x": 1227.0, "y": 105.8}, {"x": 1701.0, "y": 111.3}, {"x": 563.0, "y": 17.6}, {"x": 125.0, "y": 1.3}, {"x": 1930.0, "y": 113.2}, {"x": 1288.0, "y": 1.3}, {"x": 1295.0, "y": 26.3}, {"x": 4667.0, "y": 232.4}, {"x": 1537.0, "y": 78.1}, {"x": 625.0, "y": 47.2}, {"x": 570.0, "y": 24.4}, {"x": 2302.0, "y": 203.5}, {"x": 920.0, "y": 30.3}, {"x": 3815.0, "y": 95.8}, {"x": 412.0, "y": 22.8}, {"x": 45.0, "y": 0.9}, {"x": 1423.0, "y": 31.9}, {"x": 535.0, "y": 2.0}, {"x": 813.0, "y": 4.0}, {"x": 5257.0, "y": 389.0}, {"x": 660.0, "y": 27.9}, {"x": 1262.0, "y": 26.6}, {"x": 1287.0, "y": 76.1}, {"x": 376.0, "y": 36.1}, {"x": 63.0, "y": 4.4}, {"x": 1768.0, "y": 145.6}, {"x": 801.0, "y": 33.8}, {"x": 1404.0, "y": 96.5}, {"x": 4961.0, "y": 296.4}, {"x": 3161.0, "y": 299.1}, {"x": 473.0, "y": 13.4}, {"x": 863.0, "y": 15.8}, {"x": 10165.0, "y": 810.1}, {"x": 878.0, "y": 61.0}, {"x": 2071.0, "y": 139.3}, {"x": 4825.0, "y": 398.4}, {"x": 642.0, "y": 16.7}, {"x": 996.0, "y": 102.6}, {"x": 805.0, "y": 45.5}, {"x": 3436.0, "y": 272.5}, {"x": 114.0, "y": 0.6}, {"x": 1638.0, "y": 65.1}, {"x": 2865.0, "y": 220.3}, {"x": 330.0, "y": 23.9}, {"x": 2545.0, "y": 152.3}, {"x": 596.0, "y": 4.8}, {"x": 378.0, "y": 3.5}, {"x": 1893.0, "y": 135.6}, {"x": 1641.0, "y": 21.7}, {"x": 180.0, "y": 3.0}, {"x": 3424.0, "y": 210.8}, {"x": 94.0, "y": 5.0}, {"x": 4452.0, "y": 52.4}, {"x": 1233.0, "y": 89.9}, {"x": 2828.0, "y": 167.1}, {"x": 2206.0, "y": 24.5}, {"x": 1296.0, "y": 63.2}, {"x": 706.0, "y": 22.6}, {"x": 1271.0, "y": 59.3}, {"x": 3463.0, "y": 170.9}, {"x": 844.0, "y": 51.4}, {"x": 550.0, "y": 9.5}, {"x": 924.0, "y": 48.9}, {"x": 1570.0, "y": 74.6}, {"x": 468.0, "y": 21.7}, {"x": 639.0, "y": 57.8}, {"x": 288.0, "y": 10.8}, {"x": 655.0, "y": 16.6}, {"x": 1625.0, "y": 89.9}, {"x": 1297.0, "y": 58.3}, {"x": 1850.0, "y": 141.1}, {"x": 484.0, "y": 20.1}, {"x": 1891.0, "y": 96.7}, {"x": 360.0, "y": 17.0}, {"x": 1459.0, "y": 110.1}, {"x": 1498.0, "y": 1.6}, {"x": 536.0, "y": 46.0}, {"x": 997.0, "y": 44.1}, {"x": 140.0, "y": 7.8}, {"x": 52.0, "y": 2.9}, {"x": 240.0, "y": 11.1}, {"x": 1416.0, "y": 81.9}, {"x": 228.0, "y": 11.0}, {"x": 3118.0, "y": 243.7}, {"x": 319.0, "y": 23.7}, {"x": 736.0, "y": 69.2}, {"x": 4530.0, "y": 3.5}, {"x": 2312.0, "y": 31.4}, {"x": 1913.0, "y": 117.3}, {"x": 2196.0, "y": 232.6}, {"x": 1080.0, "y": 61.5}, {"x": 1591.0, "y": 79.3}, {"x": 1631.0, "y": 130.8}, {"x": 252.0, "y": 1.4}, {"x": 88.0, "y": 7.7}, {"x": 55.0, "y": 2.4}, {"x": 1949.0, "y": 16.7}, {"x": 1990.0, "y": 73.2}, {"x": 3082.0, "y": 8.2}, {"x": 1645.0, "y": 138.2}, {"x": 320.0, "y": 12.0}, {"x": 2917.0, "y": 155.6}, {"x": 507.0, "y": 18.7}, {"x": 4337.0, "y": 328.7}, {"x": 616.0, "y": 37.4}, {"x": 2286.0, "y": 145.5}, {"x": 1516.0, "y": 42.7}, {"x": 2310.0, "y": 157.6}, {"x": 28.0, "y": 1.6}, {"x": 1477.0, "y": 146.3}, {"x": 1684.0, "y": 65.1}, {"x": 236.0, "y": 5.3}, {"x": 344.0, "y": 11.2}, {"x": 3603.0, "y": 91.3}, {"x": 2030.0, "y": 96.4}, {"x": 869.0, "y": 48.2}, {"x": 228.0, "y": 20.3}, {"x": 6635.0, "y": 351.5}, {"x": 224.0, "y": 3.0}, {"x": 97.0, "y": 6.8}, {"x": 1335.0, "y": 58.1}, {"x": 720.0, "y": 42.1}, {"x": 976.0, "y": 73.2}, {"x": 13.0, "y": 1.1}, {"x": 1443.0, "y": 125.0}, {"x": 1488.0, "y": 70.1}, {"x": 388.0, "y": 1.5}, {"x": 1531.0, "y": 110.9}, {"x": 2623.0, "y": 249.9}, {"x": 732.0, "y": 42.7}, {"x": 3687.0, "y": 100.6}, {"x": 723.0, "y": 28.2}, {"x": 1830.0, "y": 16.9}, {"x": 400.0, "y": 23.8}, {"x": 191.0, "y": 4.5}, {"x": 315.0, "y": 21.5}, {"x": 2158.0, "y": 126.7}, {"x": 2341.0, "y": 26.5}, {"x": 420.0, "y": 33.4}, {"x": 447.0, "y": 2.3}, {"x": 1554.0, "y": 30.8}, {"x": 1469.0, "y": 137.4}, {"x": 3027.0, "y": 97.1}, {"x": 2943.0, "y": 257.3}, {"x": 1193.0, "y": 55.2}, {"x": 2278.0, "y": 27.3}, {"x": 2775.0, "y": 237.3}, {"x": 440.0, "y": 22.1}, {"x": 18.0, "y": 1.4}, {"x": 1411.0, "y": 45.5}, {"x": 140.0, "y": 4.9}, {"x": 187.0, "y": 4.3}, {"x": 852.0, "y": 31.2}, {"x": 1693.0, "y": 59.8}, {"x": 602.0, "y": 47.4}, {"x": 1788.0, "y": 130.9}, {"x": 40.0, "y": 14.6}, {"x": 8446.0, "y": 719.8}, {"x": 10953.0, "y": 306.1}, {"x": 833.0, "y": 65.5}, {"x": 477.0, "y": 19.8}, {"x": 1140.0, "y": 37.5}, {"x": 678.0, "y": 36.7}, {"x": 238.0, "y": 7.0}, {"x": 2826.0, "y": 164.0}, {"x": 251.0, "y": 1.2}, {"x": 1031.0, "y": 79.3}, {"x": 730.0, "y": 7.1}, {"x": 843.0, "y": 63.5}, {"x": 932.0, "y": 90.9}, {"x": 1764.0, "y": 154.7}, {"x": 1974.0, "y": 81.8}, {"x": 2684.0, "y": 72.2}, {"x": 475.0, "y": 43.3}, {"x": 907.0, "y": 71.5}, {"x": 1433.0, "y": 29.8}, {"x": 846.0, "y": 69.5}, {"x": 4706.0, "y": 411.9}, {"x": 1065.0, "y": 13.3}, {"x": 1938.0, "y": 59.3}, {"x": 828.0, "y": 35.4}, {"x": 211.0, "y": 2.7}, {"x": 4581.0, "y": 424.3}, {"x": 975.0, "y": 54.4}, {"x": 159.0, "y": 9.3}, {"x": 735.0, "y": 25.2}, {"x": 3813.0, "y": 213.0}, {"x": 1112.0, "y": 56.5}, {"x": 4932.0, "y": 487.6}, {"x": 932.0, "y": 38.2}, {"x": 968.0, "y": 0.6}, {"x": 629.0, "y": 49.2}, {"x": 2603.0, "y": 160.6}, {"x": 2984.0, "y": 174.1}, {"x": 625.0, "y": 53.8}, {"x": 2967.0, "y": 100.2}, {"x": 2228.0, "y": 171.0}, {"x": 660.0, "y": 58.4}, {"x": 2048.0, "y": 188.9}, {"x": 649.0, "y": 52.5}, {"x": 1079.0, "y": 76.1}, {"x": 519.0, "y": 19.3}, {"x": 3523.0, "y": 14.9}, {"x": 581.0, "y": 53.2}, {"x": 441.0, "y": 30.3}, {"x": 282.0, "y": 3.0}, {"x": 16388.0, "y": 348.1}, {"x": 1096.0, "y": 109.1}, {"x": 98.0, "y": 1.9}, {"x": 1921.0, "y": 191.3}, {"x": 1630.0, "y": 143.3}, {"x": 160.0, "y": 12.0}, {"x": 1979.0, "y": 112.3}, {"x": 2058.0, "y": 175.3}, {"x": 337.0, "y": 0.8}, {"x": 310.0, "y": 19.6}, {"x": 710.0, "y": 32.4}, {"x": 917.0, "y": 60.4}, {"x": 1955.0, "y": 38.1}, {"x": 1539.0, "y": 46.7}, {"x": 611.0, "y": 8.5}, {"x": 1500.0, "y": 88.0}, {"x": 150.0, "y": 2.8}, {"x": 893.0, "y": 23.1}, {"x": 36.0, "y": 0.5}, {"x": 1378.0, "y": 91.0}, {"x": 1209.0, "y": 5.6}, {"x": 3128.0, "y": 5.0}, {"x": 70.0, "y": 1.3}, {"x": 605.0, "y": 51.9}, {"x": 11380.0, "y": 280.6}, {"x": 860.0, "y": 32.8}, {"x": 369.0, "y": 20.4}, {"x": 2090.0, "y": 120.3}, {"x": 5502.0, "y": 77.8}, {"x": 2753.0, "y": 116.1}, {"x": 6379.0, "y": 162.8}, {"x": 751.0, "y": 32.5}, {"x": 10835.0, "y": 603.5}, {"x": 30.0, "y": 1.3}, {"x": 122.0, "y": 1.2}, {"x": 34.0, "y": 1.7}, {"x": 935.0, "y": 62.1}, {"x": 863.0, "y": 44.2}, {"x": 932.0, "y": 36.7}, {"x": 1924.0, "y": 163.0}, {"x": 342.0, "y": 13.7}, {"x": 428.0, "y": 26.3}, {"x": 109.0, "y": 9.2}, {"x": 663.0, "y": 33.0}, {"x": 670.0, "y": 53.1}, {"x": 453.0, "y": 38.1}, {"x": 858.0, "y": 38.2}, {"x": 6201.0, "y": 580.9}, {"x": 769.0, "y": 33.1}, {"x": 538.0, "y": 21.2}, {"x": 540.0, "y": 3.5}, {"x": 687.0, "y": 63.8}, {"x": 366.0, "y": 8.3}, {"x": 1448.0, "y": 48.8}, {"x": 1123.0, "y": 19.8}, {"x": 390.0, "y": 29.6}, {"x": 1936.0, "y": 176.5}, {"x": 743.0, "y": 62.7}, {"x": 749.0, "y": 68.3}, {"x": 1836.0, "y": 151.5}, {"x": 475.0, "y": 2.3}, {"x": 514.0, "y": 39.9}, {"x": 800.0, "y": 19.8}, {"x": 138.0, "y": 1.4}, {"x": 1175.0, "y": 33.9}, {"x": 2256.0, "y": 15.6}, {"x": 799.0, "y": 13.6}, {"x": 1789.0, "y": 134.6}, {"x": 921.0, "y": 54.2}, {"x": 500.0, "y": 32.0}, {"x": 620.0, "y": 47.6}, {"x": 456.0, "y": 33.7}, {"x": 645.0, "y": 31.5}, {"x": 2732.0, "y": 31.9}, {"x": 638.0, "y": 76.3}, {"x": 360.0, "y": 19.8}, {"x": 4012.0, "y": 400.8}, {"x": 560.0, "y": 18.0}, {"x": 711.0, "y": 2.2}, {"x": 1025.0, "y": 52.9}, {"x": 245.0, "y": 10.2}, {"x": 1408.0, "y": 27.2}, {"x": 220.0, "y": 3.3}, {"x": 2362.0, "y": 23.4}, {"x": 4422.0, "y": 74.4}, {"x": 110.0, "y": 2.5}, {"x": 459.0, "y": 30.9}, {"x": 471.0, "y": 40.4}, {"x": 4441.0, "y": 23.7}, {"x": 1660.0, "y": 27.9}, {"x": 74.0, "y": 3.3}, {"x": 677.0, "y": 44.7}, {"x": 1763.0, "y": 105.4}, {"x": 781.0, "y": 49.6}, {"x": 132.0, "y": 5.0}, {"x": 265.0, "y": 2.1}, {"x": 1120.0, "y": 104.5}, {"x": 3584.0, "y": 275.8}, {"x": 58.0, "y": 2.7}, {"x": 2053.0, "y": 87.4}, {"x": 848.0, "y": 144.4}, {"x": 1098.0, "y": 27.2}, {"x": 910.0, "y": 62.2}, {"x": 1408.0, "y": 74.6}, {"x": 108.0, "y": 0.2}, {"x": 224.0, "y": 16.2}, {"x": 1733.0, "y": 121.8}, {"x": 252.0, "y": 0.0}, {"x": 292.0, "y": 15.2}, {"x": 439.0, "y": 13.0}, {"x": 718.0, "y": 32.3}, {"x": 912.0, "y": 38.0}, {"x": 2233.0, "y": 208.5}, {"x": 1303.0, "y": 32.8}, {"x": 4814.0, "y": 353.1}, {"x": 248.0, "y": 1.3}, {"x": 15810.0, "y": 193.4}, {"x": 1014.0, "y": 14.0}, {"x": 721.0, "y": 657.5}, {"x": 1810.0, "y": 211.2}, {"x": 2023.0, "y": 91.5}, {"x": 2220.0, "y": 217.9}, {"x": 2772.0, "y": 185.5}, {"x": 3575.0, "y": 61.1}, {"x": 1354.0, "y": 34.8}, {"x": 4289.0, "y": 117.6}, {"x": 2296.0, "y": 38.5}, {"x": 70.0, "y": 4.3}, {"x": 4895.0, "y": 8.8}, {"x": 941.0, "y": 65.5}, {"x": 1196.0, "y": 46.0}, {"x": 560.0, "y": 1.1}, {"x": 1885.0, "y": 73.9}, {"x": 686.0, "y": 20.3}, {"x": 1198.0, "y": 96.4}, {"x": 904.0, "y": 55.1}, {"x": 2769.0, "y": 197.3}, {"x": 1811.0, "y": 141.2}, {"x": 326.0, "y": 14.9}, {"x": 295.0, "y": 44.8}, {"x": 586.0, "y": 0.8}, {"x": 330.0, "y": 25.2}, {"x": 2634.0, "y": 202.2}, {"x": 4681.0, "y": 79.5}, {"x": 617.0, "y": 59.1}, {"x": 645.0, "y": 28.7}, {"x": 934.0, "y": 1.2}, {"x": 2825.0, "y": 243.0}, {"x": 361.0, "y": 33.0}, {"x": 243.0, "y": 23.6}, {"x": 622.0, "y": 4.6}, {"x": 492.0, "y": 33.8}, {"x": 6750.0, "y": 754.3}, {"x": 1575.0, "y": 11.7}, {"x": 76.0, "y": 3.2}, {"x": 632.0, "y": 43.3}, {"x": 6306.0, "y": 297.2}, {"x": 1402.0, "y": 6.3}, {"x": 1500.0, "y": 123.8}, {"x": 1967.0, "y": 74.4}, {"x": 270.0, "y": 29.2}, {"x": 1030.0, "y": 47.1}, {"x": 878.0, "y": 52.5}, {"x": 2160.0, "y": 29.6}, {"x": 1287.0, "y": 47.8}, {"x": 12615.0, "y": 830.8}, {"x": 2394.0, "y": 227.2}, {"x": 8903.0, "y": 606.2}, {"x": 3233.0, "y": 84.7}, {"x": 539.0, "y": 40.3}, {"x": 1755.0, "y": 0.2}, {"x": 1692.0, "y": 149.5}, {"x": 60.0, "y": 3.2}, {"x": 733.0, "y": 29.6}, {"x": 3090.0, "y": 65.0}, {"x": 200.0, "y": 18.8}, {"x": 1773.0, "y": 48.2}, {"x": 406.0, "y": 30.0}, {"x": 210.0, "y": 8.8}, {"x": 592.0, "y": 8.7}, {"x": 1310.0, "y": 70.6}, {"x": 1486.0, "y": 71.6}, {"x": 818.0, "y": 46.6}, {"x": 525.0, "y": 24.1}, {"x": 274.0, "y": 8.3}, {"x": 810.0, "y": 59.4}, {"x": 36.0, "y": 2.8}, {"x": 1332.0, "y": 67.3}, {"x": 3055.0, "y": 53.1}, {"x": 305.0, "y": 0.3}, {"x": 1728.0, "y": 120.9}, {"x": 3740.0, "y": 279.0}, {"x": 45.0, "y": 4.1}, {"x": 858.0, "y": 31.1}, {"x": 1838.0, "y": 85.8}, {"x": 266.0, "y": 11.0}, {"x": 510.0, "y": 14.0}, {"x": 406.0, "y": 29.9}, {"x": 1343.0, "y": 81.7}, {"x": 4330.0, "y": 30.1}, {"x": 189.0, "y": 12.9}, {"x": 929.0, "y": 44.7}, {"x": 87.0, "y": 8.0}, {"x": 2027.0, "y": 81.8}, {"x": 360.0, "y": 15.7}, {"x": 1630.0, "y": 136.0}, {"x": 485.0, "y": 0.9}, {"x": 5218.0, "y": 258.6}, {"x": 300.0, "y": 25.0}, {"x": 232.0, "y": 18.4}, {"x": 498.0, "y": 6.2}, {"x": 793.0, "y": 38.3}, {"x": 1256.0, "y": 8.5}], "c": "s1"}, {"label": "קו רגרסיה", "data": [{"x": 13.0, "y": 6.49}, {"x": 16388.0, "y": 732.74}], "c": "s2", "kind": "line"}]}, {"id": "g2", "type": "bar", "title": "כמות ממוצעת לפי רמת ההנחה", "cap": "רמות הנחה עם 100 שורות לפחות. כל רמות ההנחה מעל 0 נמצאות בערך באותה רמה.", "xl": "רמת ההנחה", "yl": "כמות ממוצעת בשורה", "datasets": [{"label": "כמות ממוצעת", "data": [21.7, 28.0, 25.2, 28.4, 27.0, 28.2], "c": "s1"}], "labels": ["0%", "5%", "10%", "15%", "20%", "25%"]}, {"id": "g3", "type": "scatter", "title": "יחידות שנמכרו מול מחיר המוצר", "cap": "77 מוצרים. r = −0.04, שיפוע −0.37 יחידות לכל שקל.", "xl": "מחיר המוצר", "yl": "יחידות שנמכרו", "datasets": [{"label": "מוצר", "data": [{"x": 18, "y": 828}, {"x": 19, "y": 1057}, {"x": 10, "y": 328}, {"x": 22, "y": 453}, {"x": 21.35, "y": 298}, {"x": 25, "y": 301}, {"x": 30, "y": 763}, {"x": 40, "y": 372}, {"x": 97, "y": 95}, {"x": 31, "y": 742}, {"x": 21, "y": 706}, {"x": 38, "y": 344}, {"x": 6, "y": 891}, {"x": 23.25, "y": 404}, {"x": 15.5, "y": 122}, {"x": 17.45, "y": 1158}, {"x": 39, "y": 978}, {"x": 62.5, "y": 539}, {"x": 9.2, "y": 723}, {"x": 81, "y": 313}, {"x": 10, "y": 1016}, {"x": 21, "y": 348}, {"x": 9, "y": 580}, {"x": 4.5, "y": 1125}, {"x": 14, "y": 318}, {"x": 31.23, "y": 753}, {"x": 43.9, "y": 365}, {"x": 45.6, "y": 640}, {"x": 123.79, "y": 746}, {"x": 25.89, "y": 612}, {"x": 12.5, "y": 1397}, {"x": 32, "y": 297}, {"x": 2.5, "y": 755}, {"x": 14, "y": 506}, {"x": 18, "y": 883}, {"x": 19, "y": 805}, {"x": 26, "y": 125}, {"x": 263.5, "y": 623}, {"x": 18, "y": 793}, {"x": 18.4, "y": 1103}, {"x": 9.65, "y": 981}, {"x": 14, "y": 697}, {"x": 46, "y": 580}, {"x": 19.45, "y": 601}, {"x": 9.5, "y": 508}, {"x": 12, "y": 548}, {"x": 9.5, "y": 485}, {"x": 12.75, "y": 138}, {"x": 20, "y": 520}, {"x": 16.25, "y": 235}, {"x": 53, "y": 886}, {"x": 7, "y": 500}, {"x": 32.8, "y": 722}, {"x": 7.45, "y": 755}, {"x": 24, "y": 903}, {"x": 38, "y": 1263}, {"x": 19.5, "y": 434}, {"x": 13.25, "y": 534}, {"x": 55, "y": 1496}, {"x": 34, "y": 1577}, {"x": 28.5, "y": 603}, {"x": 49.3, "y": 1083}, {"x": 43.9, "y": 445}, {"x": 33.25, "y": 740}, {"x": 21.05, "y": 745}, {"x": 17, "y": 239}, {"x": 14, "y": 184}, {"x": 12.5, "y": 799}, {"x": 36, "y": 714}, {"x": 15, "y": 817}, {"x": 21.5, "y": 1057}, {"x": 34.8, "y": 806}, {"x": 15, "y": 293}, {"x": 10, "y": 297}, {"x": 7.75, "y": 1155}, {"x": 18, "y": 981}, {"x": 13, "y": 791}], "c": "s1"}, {"label": "קו רגרסיה", "data": [{"x": 2.5, "y": 676.15}, {"x": 263.5, "y": 580.14}], "c": "s2", "kind": "line"}]}, {"id": "g4", "type": "scatter", "title": "סכום ממוצע להזמנה מול מספר ההזמנות", "cap": "89 לקוחות. r = 0.75.", "xl": "מספר ההזמנות של הלקוח", "yl": "סכום ממוצע להזמנה", "datasets": [{"label": "לקוח", "data": [{"x": 6, "y": 712}, {"x": 4, "y": 356}, {"x": 7, "y": 1018}, {"x": 13, "y": 1064}, {"x": 18, "y": 1462}, {"x": 7, "y": 463}, {"x": 11, "y": 2000}, {"x": 3, "y": 1493}, {"x": 17, "y": 1379}, {"x": 14, "y": 1600}, {"x": 10, "y": 664}, {"x": 6, "y": 302}, {"x": 1, "y": 126}, {"x": 8, "y": 1596}, {"x": 5, "y": 928}, {"x": 3, "y": 639}, {"x": 6, "y": 650}, {"x": 4, "y": 421}, {"x": 8, "y": 1971}, {"x": 30, "y": 3712}, {"x": 7, "y": 630}, {"x": 5, "y": 2453}, {"x": 19, "y": 1597}, {"x": 15, "y": 1965}, {"x": 3, "y": 1057}, {"x": 6, "y": 260}, {"x": 8, "y": 903}, {"x": 5, "y": 191}, {"x": 10, "y": 1173}, {"x": 9, "y": 963}, {"x": 11, "y": 1682}, {"x": 2, "y": 882}, {"x": 14, "y": 2399}, {"x": 18, "y": 1374}, {"x": 5, "y": 657}, {"x": 19, "y": 2770}, {"x": 10, "y": 643}, {"x": 14, "y": 2289}, {"x": 4, "y": 498}, {"x": 14, "y": 748}, {"x": 3, "y": 198}, {"x": 2, "y": 197}, {"x": 15, "y": 1359}, {"x": 4, "y": 769}, {"x": 14, "y": 1273}, {"x": 12, "y": 1414}, {"x": 8, "y": 555}, {"x": 10, "y": 786}, {"x": 7, "y": 1391}, {"x": 13, "y": 2525}, {"x": 5, "y": 1069}, {"x": 3, "y": 216}, {"x": 5, "y": 708}, {"x": 10, "y": 1679}, {"x": 10, "y": 1317}, {"x": 6, "y": 788}, {"x": 10, "y": 2591}, {"x": 5, "y": 1130}, {"x": 9, "y": 825}, {"x": 13, "y": 2209}, {"x": 28, "y": 4096}, {"x": 5, "y": 591}, {"x": 18, "y": 3184}, {"x": 12, "y": 604}, {"x": 11, "y": 1213}, {"x": 10, "y": 2049}, {"x": 5, "y": 331}, {"x": 6, "y": 1000}, {"x": 31, "y": 3507}, {"x": 9, "y": 1986}, {"x": 7, "y": 2815}, {"x": 4, "y": 606}, {"x": 9, "y": 1504}, {"x": 12, "y": 2267}, {"x": 4, "y": 862}, {"x": 3, "y": 649}, {"x": 6, "y": 904}, {"x": 10, "y": 1167}, {"x": 6, "y": 1204}, {"x": 3, "y": 524}, {"x": 11, "y": 1557}, {"x": 10, "y": 1002}, {"x": 5, "y": 354}, {"x": 10, "y": 1055}, {"x": 15, "y": 1164}, {"x": 9, "y": 736}, {"x": 14, "y": 2036}, {"x": 7, "y": 452}, {"x": 7, "y": 521}], "c": "s1"}, {"label": "קו רגרסיה", "data": [{"x": 1, "y": 340.74}, {"x": 31, "y": 3591.78}], "c": "s2", "kind": "line"}]}, {"id": "g5", "type": "scatter", "title": "ימים עד המשלוח מול סכום ההזמנה", "cap": "809 הזמנות שנשלחו. r = 0.03.", "xl": "סכום ההזמנה", "yl": "ימים עד המשלוח", "datasets": [{"label": "הזמנה", "data": [{"x": 566.0, "y": 12.0}, {"x": 2329.0, "y": 5.0}, {"x": 1942.0, "y": 4.0}, {"x": 819.0, "y": 7.0}, {"x": 4497.0, "y": 2.0}, {"x": 1806.0, "y": 6.0}, {"x": 696.0, "y": 12.0}, {"x": 3116.0, "y": 3.0}, {"x": 648.0, "y": 2.0}, {"x": 1401.0, "y": 6.0}, {"x": 2024.0, "y": 6.0}, {"x": 126.0, "y": 7.0}, {"x": 1882.0, "y": 10.0}, {"x": 560.0, "y": 11.0}, {"x": 731.0, "y": 3.0}, {"x": 2346.0, "y": 8.0}, {"x": 870.0, "y": 30.0}, {"x": 1470.0, "y": 18.0}, {"x": 433.0, "y": 5.0}, {"x": 4422.0, "y": 8.0}, {"x": 1377.0, "y": 3.0}, {"x": 804.0, "y": 9.0}, {"x": 1720.0, "y": 1.0}, {"x": 60.0, "y": 29.0}, {"x": 1821.0, "y": 4.0}, {"x": 2548.0, "y": 7.0}, {"x": 674.0, "y": 10.0}, {"x": 365.0, "y": 2.0}, {"x": 525.0, "y": 6.0}, {"x": 1504.0, "y": 4.0}, {"x": 1862.0, "y": 4.0}, {"x": 439.0, "y": 3.0}, {"x": 767.0, "y": 29.0}, {"x": 108.0, "y": 7.0}, {"x": 194.0, "y": 6.0}, {"x": 1770.0, "y": 7.0}, {"x": 1465.0, "y": 8.0}, {"x": 2181.0, "y": 6.0}, {"x": 3772.0, "y": 9.0}, {"x": 1026.0, "y": 6.0}, {"x": 101.0, "y": 11.0}, {"x": 599.0, "y": 2.0}, {"x": 2714.0, "y": 7.0}, {"x": 624.0, "y": 8.0}, {"x": 1620.0, "y": 5.0}, {"x": 1061.0, "y": 13.0}, {"x": 2360.0, "y": 6.0}, {"x": 152.0, "y": 8.0}, {"x": 1316.0, "y": 8.0}, {"x": 1776.0, "y": 6.0}, {"x": 3307.0, "y": 6.0}, {"x": 438.0, "y": 7.0}, {"x": 760.0, "y": 9.0}, {"x": 944.0, "y": 8.0}, {"x": 3389.0, "y": 29.0}, {"x": 1400.0, "y": 7.0}, {"x": 1193.0, "y": 5.0}, {"x": 4678.0, "y": 26.0}, {"x": 624.0, "y": 7.0}, {"x": 531.0, "y": 8.0}, {"x": 111.0, "y": 6.0}, {"x": 2203.0, "y": 34.0}, {"x": 421.0, "y": 7.0}, {"x": 336.0, "y": 6.0}, {"x": 2020.0, "y": 10.0}, {"x": 228.0, "y": 10.0}, {"x": 2619.0, "y": 9.0}, {"x": 646.0, "y": 7.0}, {"x": 3548.0, "y": 11.0}, {"x": 360.0, "y": 10.0}, {"x": 301.0, "y": 3.0}, {"x": 1490.0, "y": 9.0}, {"x": 645.0, "y": 15.0}, {"x": 180.0, "y": 8.0}, {"x": 140.0, "y": 19.0}, {"x": 206.0, "y": 7.0}, {"x": 6598.0, "y": 2.0}, {"x": 1873.0, "y": 5.0}, {"x": 1228.0, "y": 4.0}, {"x": 2263.0, "y": 3.0}, {"x": 1462.0, "y": 3.0}, {"x": 5724.0, "y": 8.0}, {"x": 2067.0, "y": 12.0}, {"x": 112.0, "y": 5.0}, {"x": 2234.0, "y": 4.0}, {"x": 1097.0, "y": 7.0}, {"x": 181.0, "y": 7.0}, {"x": 2545.0, "y": 2.0}, {"x": 356.0, "y": 2.0}, {"x": 3088.0, "y": 5.0}, {"x": 1168.0, "y": 4.0}, {"x": 4194.0, "y": 7.0}, {"x": 3046.0, "y": 10.0}, {"x": 441.0, "y": 7.0}, {"x": 2301.0, "y": 5.0}, {"x": 1980.0, "y": 6.0}, {"x": 2870.0, "y": 4.0}, {"x": 3662.0, "y": 7.0}, {"x": 2024.0, "y": 3.0}, {"x": 1018.0, "y": 2.0}, {"x": 455.0, "y": 8.0}, {"x": 179.0, "y": 7.0}, {"x": 803.0, "y": 22.0}, {"x": 6755.0, "y": 9.0}, {"x": 172.0, "y": 6.0}, {"x": 10742.0, "y": 12.0}, {"x": 711.0, "y": 6.0}, {"x": 600.0, "y": 5.0}, {"x": 1383.0, "y": 9.0}, {"x": 1461.0, "y": 13.0}, {"x": 537.0, "y": 7.0}, {"x": 4344.0, "y": 5.0}, {"x": 9244.0, "y": 10.0}, {"x": 2558.0, "y": 11.0}, {"x": 1939.0, "y": 3.0}, {"x": 559.0, "y": 8.0}, {"x": 1188.0, "y": 8.0}, {"x": 504.0, "y": 5.0}, {"x": 170.0, "y": 32.0}, {"x": 1045.0, "y": 4.0}, {"x": 2113.0, "y": 3.0}, {"x": 2989.0, "y": 7.0}, {"x": 1397.0, "y": 24.0}, {"x": 91.0, "y": 21.0}, {"x": 11515.0, "y": 5.0}, {"x": 1708.0, "y": 6.0}, {"x": 574.0, "y": 4.0}, {"x": 423.0, "y": 3.0}, {"x": 499.0, "y": 4.0}, {"x": 1081.0, "y": 4.0}, {"x": 129.0, "y": 9.0}, {"x": 1081.0, "y": 2.0}, {"x": 1643.0, "y": 35.0}, {"x": 140.0, "y": 1.0}, {"x": 3629.0, "y": 3.0}, {"x": 1124.0, "y": 2.0}, {"x": 2778.0, "y": 4.0}, {"x": 864.0, "y": 6.0}, {"x": 208.0, "y": 7.0}, {"x": 1324.0, "y": 2.0}, {"x": 1538.0, "y": 1.0}, {"x": 2292.0, "y": 4.0}, {"x": 2615.0, "y": 3.0}, {"x": 108.0, "y": 8.0}, {"x": 1800.0, "y": 8.0}, {"x": 3202.0, "y": 9.0}, {"x": 553.0, "y": 9.0}, {"x": 2657.0, "y": 8.0}, {"x": 2381.0, "y": 10.0}, {"x": 896.0, "y": 6.0}, {"x": 3132.0, "y": 10.0}, {"x": 2207.0, "y": 8.0}, {"x": 3830.0, "y": 15.0}, {"x": 4837.0, "y": 9.0}, {"x": 3394.0, "y": 8.0}, {"x": 1070.0, "y": 6.0}, {"x": 1992.0, "y": 5.0}, {"x": 500.0, "y": 16.0}, {"x": 2292.0, "y": 6.0}, {"x": 1493.0, "y": 23.0}, {"x": 2030.0, "y": 6.0}, {"x": 399.0, "y": 5.0}, {"x": 1003.0, "y": 5.0}, {"x": 1211.0, "y": 11.0}, {"x": 419.0, "y": 2.0}, {"x": 2656.0, "y": 2.0}, {"x": 282.0, "y": 3.0}, {"x": 128.0, "y": 9.0}, {"x": 902.0, "y": 11.0}, {"x": 13986.0, "y": 12.0}, {"x": 2269.0, "y": 7.0}, {"x": 2622.0, "y": 10.0}, {"x": 2135.0, "y": 6.0}, {"x": 1497.0, "y": 6.0}, {"x": 62.0, "y": 9.0}, {"x": 1275.0, "y": 32.0}, {"x": 11493.0, "y": 4.0}, {"x": 450.0, "y": 21.0}, {"x": 423.0, "y": 10.0}, {"x": 814.0, "y": 35.0}, {"x": 240.0, "y": 7.0}, {"x": 1802.0, "y": 9.0}, {"x": 6124.0, "y": 4.0}, {"x": 2366.0, "y": 8.0}, {"x": 610.0, "y": 7.0}, {"x": 1064.0, "y": 29.0}, {"x": 401.0, "y": 10.0}, {"x": 790.0, "y": 3.0}, {"x": 2493.0, "y": 6.0}, {"x": 492.0, "y": 7.0}, {"x": 568.0, "y": 8.0}, {"x": 1349.0, "y": 3.0}, {"x": 6159.0, "y": 18.0}, {"x": 2195.0, "y": 32.0}, {"x": 2246.0, "y": 7.0}, {"x": 648.0, "y": 2.0}, {"x": 1292.0, "y": 9.0}, {"x": 220.0, "y": 7.0}, {"x": 309.0, "y": 5.0}, {"x": 1148.0, "y": 21.0}, {"x": 555.0, "y": 7.0}, {"x": 2300.0, "y": 9.0}, {"x": 532.0, "y": 20.0}, {"x": 4813.0, "y": 21.0}, {"x": 2532.0, "y": 6.0}, {"x": 510.0, "y": 5.0}, {"x": 415.0, "y": 4.0}, {"x": 3358.0, "y": 7.0}, {"x": 697.0, "y": 3.0}, {"x": 1980.0, "y": 6.0}, {"x": 4870.0, "y": 6.0}, {"x": 2076.0, "y": 1.0}, {"x": 220.0, "y": 3.0}, {"x": 1924.0, "y": 5.0}, {"x": 195.0, "y": 15.0}, {"x": 893.0, "y": 2.0}, {"x": 2012.0, "y": 10.0}, {"x": 3149.0, "y": 9.0}, {"x": 270.0, "y": 7.0}, {"x": 294.0, "y": 5.0}, {"x": 897.0, "y": 5.0}, {"x": 1198.0, "y": 4.0}, {"x": 2276.0, "y": 3.0}, {"x": 1660.0, "y": 7.0}, {"x": 1296.0, "y": 7.0}, {"x": 288.0, "y": 8.0}, {"x": 1564.0, "y": 8.0}, {"x": 1881.0, "y": 21.0}, {"x": 226.0, "y": 7.0}, {"x": 698.0, "y": 8.0}, {"x": 589.0, "y": 8.0}, {"x": 13121.0, "y": 2.0}, {"x": 945.0, "y": 4.0}, {"x": 1840.0, "y": 5.0}, {"x": 184.0, "y": 20.0}, {"x": 836.0, "y": 32.0}, {"x": 483.0, "y": 8.0}, {"x": 1980.0, "y": 6.0}, {"x": 1590.0, "y": 7.0}, {"x": 1117.0, "y": 2.0}, {"x": 1890.0, "y": 6.0}, {"x": 550.0, "y": 12.0}, {"x": 3954.0, "y": 3.0}, {"x": 325.0, "y": 8.0}, {"x": 1064.0, "y": 10.0}, {"x": 761.0, "y": 8.0}, {"x": 1140.0, "y": 7.0}, {"x": 348.0, "y": 8.0}, {"x": 238.0, "y": 3.0}, {"x": 1727.0, "y": 3.0}, {"x": 575.0, "y": 4.0}, {"x": 1412.0, "y": 8.0}, {"x": 523.0, "y": 8.0}, {"x": 149.0, "y": 7.0}, {"x": 816.0, "y": 19.0}, {"x": 2049.0, "y": 5.0}, {"x": 1389.0, "y": 7.0}, {"x": 148.0, "y": 7.0}, {"x": 416.0, "y": 17.0}, {"x": 749.0, "y": 7.0}, {"x": 240.0, "y": 27.0}, {"x": 137.0, "y": 12.0}, {"x": 4708.0, "y": 10.0}, {"x": 2550.0, "y": 3.0}, {"x": 525.0, "y": 3.0}, {"x": 1942.0, "y": 6.0}, {"x": 8623.0, "y": 24.0}, {"x": 9921.0, "y": 30.0}, {"x": 2381.0, "y": 7.0}, {"x": 352.0, "y": 5.0}, {"x": 4150.0, "y": 10.0}, {"x": 2314.0, "y": 3.0}, {"x": 200.0, "y": 2.0}, {"x": 226.0, "y": 3.0}, {"x": 2318.0, "y": 6.0}, {"x": 2444.0, "y": 29.0}, {"x": 3193.0, "y": 6.0}, {"x": 818.0, "y": 21.0}, {"x": 1151.0, "y": 10.0}, {"x": 1503.0, "y": 2.0}, {"x": 392.0, "y": 3.0}, {"x": 946.0, "y": 2.0}, {"x": 4180.0, "y": 4.0}, {"x": 110.0, "y": 11.0}, {"x": 796.0, "y": 3.0}, {"x": 2222.0, "y": 10.0}, {"x": 466.0, "y": 2.0}, {"x": 1941.0, "y": 8.0}, {"x": 1645.0, "y": 23.0}, {"x": 1824.0, "y": 5.0}, {"x": 140.0, "y": 1.0}, {"x": 356.0, "y": 7.0}, {"x": 10192.0, "y": 25.0}, {"x": 1947.0, "y": 10.0}, {"x": 469.0, "y": 6.0}, {"x": 1505.0, "y": 2.0}, {"x": 417.0, "y": 9.0}, {"x": 210.0, "y": 35.0}, {"x": 2812.0, "y": 4.0}, {"x": 1793.0, "y": 10.0}, {"x": 240.0, "y": 7.0}, {"x": 3554.0, "y": 3.0}, {"x": 683.0, "y": 9.0}, {"x": 1677.0, "y": 9.0}, {"x": 881.0, "y": 7.0}, {"x": 1546.0, "y": 4.0}, {"x": 1729.0, "y": 6.0}, {"x": 2944.0, "y": 2.0}, {"x": 835.0, "y": 10.0}, {"x": 1153.0, "y": 3.0}, {"x": 2143.0, "y": 6.0}, {"x": 520.0, "y": 8.0}, {"x": 1072.0, "y": 3.0}, {"x": 2845.0, "y": 3.0}, {"x": 489.0, "y": 3.0}, {"x": 965.0, "y": 14.0}, {"x": 1234.0, "y": 6.0}, {"x": 640.0, "y": 7.0}, {"x": 1761.0, "y": 6.0}, {"x": 2519.0, "y": 5.0}, {"x": 155.0, "y": 26.0}, {"x": 890.0, "y": 25.0}, {"x": 2465.0, "y": 2.0}, {"x": 551.0, "y": 17.0}, {"x": 1501.0, "y": 7.0}, {"x": 2082.0, "y": 1.0}, {"x": 764.0, "y": 11.0}, {"x": 2147.0, "y": 10.0}, {"x": 838.0, "y": 7.0}, {"x": 569.0, "y": 7.0}, {"x": 477.0, "y": 31.0}, {"x": 318.0, "y": 9.0}, {"x": 1014.0, "y": 5.0}, {"x": 310.0, "y": 6.0}, {"x": 330.0, "y": 17.0}, {"x": 2238.0, "y": 4.0}, {"x": 594.0, "y": 4.0}, {"x": 143.0, "y": 9.0}, {"x": 24.0, "y": 7.0}, {"x": 807.0, "y": 7.0}, {"x": 3120.0, "y": 7.0}, {"x": 72.0, "y": 10.0}, {"x": 1101.0, "y": 7.0}, {"x": 813.0, "y": 9.0}, {"x": 516.0, "y": 8.0}, {"x": 1994.0, "y": 35.0}, {"x": 566.0, "y": 7.0}, {"x": 4725.0, "y": 4.0}, {"x": 1181.0, "y": 32.0}, {"x": 718.0, "y": 7.0}, {"x": 2389.0, "y": 4.0}, {"x": 493.0, "y": 6.0}, {"x": 480.0, "y": 5.0}, {"x": 2285.0, "y": 6.0}, {"x": 49.0, "y": 5.0}, {"x": 1483.0, "y": 21.0}, {"x": 231.0, "y": 11.0}, {"x": 4110.0, "y": 8.0}, {"x": 1130.0, "y": 9.0}, {"x": 6475.0, "y": 3.0}, {"x": 1064.0, "y": 9.0}, {"x": 424.0, "y": 6.0}, {"x": 299.0, "y": 12.0}, {"x": 808.0, "y": 7.0}, {"x": 6375.0, "y": 4.0}, {"x": 353.0, "y": 3.0}, {"x": 464.0, "y": 3.0}, {"x": 120.0, "y": 7.0}, {"x": 4807.0, "y": 5.0}, {"x": 1403.0, "y": 4.0}, {"x": 2698.0, "y": 7.0}, {"x": 1260.0, "y": 3.0}, {"x": 58.0, "y": 9.0}, {"x": 759.0, "y": 6.0}, {"x": 560.0, "y": 5.0}, {"x": 1337.0, "y": 5.0}, {"x": 1393.0, "y": 12.0}, {"x": 480.0, "y": 6.0}, {"x": 1504.0, "y": 9.0}, {"x": 1186.0, "y": 10.0}, {"x": 450.0, "y": 8.0}, {"x": 2775.0, "y": 8.0}, {"x": 904.0, "y": 6.0}, {"x": 56.0, "y": 1.0}, {"x": 589.0, "y": 5.0}, {"x": 5511.0, "y": 3.0}, {"x": 4986.0, "y": 6.0}, {"x": 1326.0, "y": 3.0}, {"x": 630.0, "y": 7.0}, {"x": 2762.0, "y": 7.0}, {"x": 2720.0, "y": 12.0}, {"x": 500.0, "y": 7.0}, {"x": 709.0, "y": 7.0}, {"x": 2054.0, "y": 4.0}, {"x": 696.0, "y": 14.0}, {"x": 815.0, "y": 8.0}, {"x": 1372.0, "y": 7.0}, {"x": 1535.0, "y": 7.0}, {"x": 1446.0, "y": 7.0}, {"x": 636.0, "y": 7.0}, {"x": 372.0, "y": 12.0}, {"x": 1434.0, "y": 1.0}, {"x": 1779.0, "y": 5.0}, {"x": 398.0, "y": 10.0}, {"x": 319.0, "y": 7.0}, {"x": 1083.0, "y": 17.0}, {"x": 602.0, "y": 9.0}, {"x": 154.0, "y": 8.0}, {"x": 604.0, "y": 6.0}, {"x": 4372.0, "y": 11.0}, {"x": 4465.0, "y": 3.0}, {"x": 1227.0, "y": 5.0}, {"x": 1701.0, "y": 37.0}, {"x": 563.0, "y": 6.0}, {"x": 125.0, "y": 9.0}, {"x": 1930.0, "y": 23.0}, {"x": 1288.0, "y": 9.0}, {"x": 1295.0, "y": 6.0}, {"x": 4667.0, "y": 10.0}, {"x": 1537.0, "y": 7.0}, {"x": 625.0, "y": 8.0}, {"x": 570.0, "y": 7.0}, {"x": 2302.0, "y": 2.0}, {"x": 920.0, "y": 7.0}, {"x": 3815.0, "y": 9.0}, {"x": 412.0, "y": 1.0}, {"x": 45.0, "y": 12.0}, {"x": 1423.0, "y": 4.0}, {"x": 535.0, "y": 7.0}, {"x": 813.0, "y": 4.0}, {"x": 5257.0, "y": 23.0}, {"x": 660.0, "y": 7.0}, {"x": 1262.0, "y": 2.0}, {"x": 1287.0, "y": 5.0}, {"x": 376.0, "y": 6.0}, {"x": 63.0, "y": 5.0}, {"x": 1768.0, "y": 4.0}, {"x": 801.0, "y": 4.0}, {"x": 1404.0, "y": 8.0}, {"x": 4961.0, "y": 30.0}, {"x": 3161.0, "y": 6.0}, {"x": 473.0, "y": 6.0}, {"x": 863.0, "y": 1.0}, {"x": 10165.0, "y": 19.0}, {"x": 878.0, "y": 10.0}, {"x": 2071.0, "y": 4.0}, {"x": 4825.0, "y": 3.0}, {"x": 642.0, "y": 7.0}, {"x": 996.0, "y": 6.0}, {"x": 805.0, "y": 6.0}, {"x": 3436.0, "y": 8.0}, {"x": 114.0, "y": 4.0}, {"x": 1638.0, "y": 6.0}, {"x": 2865.0, "y": 2.0}, {"x": 330.0, "y": 8.0}, {"x": 2545.0, "y": 6.0}, {"x": 596.0, "y": 24.0}, {"x": 378.0, "y": 34.0}, {"x": 1893.0, "y": 5.0}, {"x": 1641.0, "y": 7.0}, {"x": 180.0, "y": 19.0}, {"x": 3424.0, "y": 34.0}, {"x": 94.0, "y": 3.0}, {"x": 4452.0, "y": 8.0}, {"x": 1233.0, "y": 10.0}, {"x": 2828.0, "y": 2.0}, {"x": 2206.0, "y": 5.0}, {"x": 1296.0, "y": 6.0}, {"x": 706.0, "y": 3.0}, {"x": 1271.0, "y": 5.0}, {"x": 3463.0, "y": 2.0}, {"x": 844.0, "y": 9.0}, {"x": 550.0, "y": 8.0}, {"x": 924.0, "y": 2.0}, {"x": 1570.0, "y": 6.0}, {"x": 468.0, "y": 26.0}, {"x": 639.0, "y": 6.0}, {"x": 288.0, "y": 5.0}, {"x": 655.0, "y": 32.0}, {"x": 1625.0, "y": 32.0}, {"x": 1297.0, "y": 7.0}, {"x": 1850.0, "y": 10.0}, {"x": 484.0, "y": 9.0}, {"x": 1891.0, "y": 8.0}, {"x": 360.0, "y": 1.0}, {"x": 1459.0, "y": 3.0}, {"x": 1498.0, "y": 5.0}, {"x": 536.0, "y": 11.0}, {"x": 997.0, "y": 10.0}, {"x": 140.0, "y": 7.0}, {"x": 52.0, "y": 6.0}, {"x": 240.0, "y": 5.0}, {"x": 1416.0, "y": 12.0}, {"x": 228.0, "y": 4.0}, {"x": 3118.0, "y": 4.0}, {"x": 319.0, "y": 4.0}, {"x": 736.0, "y": 7.0}, {"x": 4530.0, "y": 9.0}, {"x": 2312.0, "y": 2.0}, {"x": 1913.0, "y": 7.0}, {"x": 2196.0, "y": 8.0}, {"x": 1080.0, "y": 29.0}, {"x": 1591.0, "y": 3.0}, {"x": 1631.0, "y": 9.0}, {"x": 252.0, "y": 4.0}, {"x": 88.0, "y": 2.0}, {"x": 55.0, "y": 2.0}, {"x": 1949.0, "y": 2.0}, {"x": 1990.0, "y": 5.0}, {"x": 3082.0, "y": 18.0}, {"x": 1645.0, "y": 6.0}, {"x": 320.0, "y": 14.0}, {"x": 2917.0, "y": 9.0}, {"x": 507.0, "y": 6.0}, {"x": 4337.0, "y": 7.0}, {"x": 616.0, "y": 5.0}, {"x": 2286.0, "y": 5.0}, {"x": 1516.0, "y": 5.0}, {"x": 2310.0, "y": 4.0}, {"x": 28.0, "y": 10.0}, {"x": 1477.0, "y": 7.0}, {"x": 1684.0, "y": 4.0}, {"x": 236.0, "y": 8.0}, {"x": 344.0, "y": 23.0}, {"x": 3603.0, "y": 9.0}, {"x": 2030.0, "y": 5.0}, {"x": 869.0, "y": 1.0}, {"x": 228.0, "y": 14.0}, {"x": 6635.0, "y": 3.0}, {"x": 224.0, "y": 37.0}, {"x": 97.0, "y": 8.0}, {"x": 1335.0, "y": 29.0}, {"x": 720.0, "y": 9.0}, {"x": 976.0, "y": 2.0}, {"x": 13.0, "y": 5.0}, {"x": 1443.0, "y": 1.0}, {"x": 1488.0, "y": 4.0}, {"x": 388.0, "y": 6.0}, {"x": 1531.0, "y": 4.0}, {"x": 2623.0, "y": 7.0}, {"x": 732.0, "y": 28.0}, {"x": 3687.0, "y": 9.0}, {"x": 723.0, "y": 4.0}, {"x": 1830.0, "y": 9.0}, {"x": 400.0, "y": 8.0}, {"x": 191.0, "y": 15.0}, {"x": 315.0, "y": 9.0}, {"x": 2158.0, "y": 27.0}, {"x": 2341.0, "y": 20.0}, {"x": 420.0, "y": 11.0}, {"x": 447.0, "y": 10.0}, {"x": 1554.0, "y": 10.0}, {"x": 1469.0, "y": 10.0}, {"x": 3027.0, "y": 2.0}, {"x": 2943.0, "y": 4.0}, {"x": 1193.0, "y": 7.0}, {"x": 2278.0, "y": 8.0}, {"x": 2775.0, "y": 10.0}, {"x": 440.0, "y": 5.0}, {"x": 18.0, "y": 30.0}, {"x": 1411.0, "y": 8.0}, {"x": 140.0, "y": 6.0}, {"x": 187.0, "y": 6.0}, {"x": 852.0, "y": 6.0}, {"x": 1693.0, "y": 10.0}, {"x": 602.0, "y": 4.0}, {"x": 1788.0, "y": 9.0}, {"x": 40.0, "y": 9.0}, {"x": 8446.0, "y": 29.0}, {"x": 10953.0, "y": 7.0}, {"x": 833.0, "y": 5.0}, {"x": 477.0, "y": 9.0}, {"x": 1140.0, "y": 6.0}, {"x": 678.0, "y": 7.0}, {"x": 238.0, "y": 8.0}, {"x": 2826.0, "y": 4.0}, {"x": 251.0, "y": 21.0}, {"x": 1031.0, "y": 5.0}, {"x": 730.0, "y": 25.0}, {"x": 843.0, "y": 25.0}, {"x": 932.0, "y": 22.0}, {"x": 1764.0, "y": 10.0}, {"x": 1974.0, "y": 8.0}, {"x": 2684.0, "y": 9.0}, {"x": 475.0, "y": 5.0}, {"x": 907.0, "y": 8.0}, {"x": 1433.0, "y": 4.0}, {"x": 846.0, "y": 6.0}, {"x": 4706.0, "y": 5.0}, {"x": 1065.0, "y": 7.0}, {"x": 1938.0, "y": 4.0}, {"x": 828.0, "y": 3.0}, {"x": 211.0, "y": 28.0}, {"x": 4581.0, "y": 9.0}, {"x": 975.0, "y": 9.0}, {"x": 159.0, "y": 5.0}, {"x": 735.0, "y": 5.0}, {"x": 3813.0, "y": 9.0}, {"x": 1112.0, "y": 1.0}, {"x": 4932.0, "y": 19.0}, {"x": 932.0, "y": 6.0}, {"x": 968.0, "y": 7.0}, {"x": 629.0, "y": 7.0}, {"x": 2603.0, "y": 7.0}, {"x": 2984.0, "y": 4.0}, {"x": 625.0, "y": 7.0}, {"x": 2967.0, "y": 9.0}, {"x": 2228.0, "y": 8.0}, {"x": 660.0, "y": 13.0}, {"x": 2048.0, "y": 9.0}, {"x": 649.0, "y": 5.0}, {"x": 1079.0, "y": 4.0}, {"x": 519.0, "y": 6.0}, {"x": 3523.0, "y": 18.0}, {"x": 581.0, "y": 3.0}, {"x": 441.0, "y": 15.0}, {"x": 282.0, "y": 7.0}, {"x": 16388.0, "y": 10.0}, {"x": 1096.0, "y": 9.0}, {"x": 98.0, "y": 8.0}, {"x": 1921.0, "y": 19.0}, {"x": 1630.0, "y": 5.0}, {"x": 160.0, "y": 9.0}, {"x": 1979.0, "y": 5.0}, {"x": 2058.0, "y": 4.0}, {"x": 337.0, "y": 3.0}, {"x": 310.0, "y": 5.0}, {"x": 710.0, "y": 25.0}, {"x": 917.0, "y": 3.0}, {"x": 1955.0, "y": 10.0}, {"x": 1539.0, "y": 2.0}, {"x": 611.0, "y": 2.0}, {"x": 1500.0, "y": 8.0}, {"x": 150.0, "y": 7.0}, {"x": 893.0, "y": 9.0}, {"x": 36.0, "y": 8.0}, {"x": 1378.0, "y": 1.0}, {"x": 1209.0, "y": 6.0}, {"x": 3128.0, "y": 17.0}, {"x": 70.0, "y": 3.0}, {"x": 605.0, "y": 7.0}, {"x": 11380.0, "y": 7.0}, {"x": 860.0, "y": 2.0}, {"x": 369.0, "y": 2.0}, {"x": 2090.0, "y": 2.0}, {"x": 5502.0, "y": 2.0}, {"x": 2753.0, "y": 2.0}, {"x": 6379.0, "y": 5.0}, {"x": 751.0, "y": 8.0}, {"x": 10835.0, "y": 6.0}, {"x": 30.0, "y": 14.0}, {"x": 122.0, "y": 6.0}, {"x": 34.0, "y": 12.0}, {"x": 935.0, "y": 3.0}, {"x": 863.0, "y": 8.0}, {"x": 932.0, "y": 8.0}, {"x": 1924.0, "y": 3.0}, {"x": 342.0, "y": 10.0}, {"x": 428.0, "y": 6.0}, {"x": 109.0, "y": 2.0}, {"x": 663.0, "y": 8.0}, {"x": 670.0, "y": 12.0}, {"x": 453.0, "y": 6.0}, {"x": 858.0, "y": 7.0}, {"x": 6201.0, "y": 20.0}, {"x": 769.0, "y": 6.0}, {"x": 538.0, "y": 3.0}, {"x": 540.0, "y": 3.0}, {"x": 687.0, "y": 10.0}, {"x": 366.0, "y": 9.0}, {"x": 1448.0, "y": 9.0}, {"x": 1123.0, "y": 2.0}, {"x": 390.0, "y": 6.0}, {"x": 1936.0, "y": 6.0}, {"x": 743.0, "y": 2.0}, {"x": 749.0, "y": 10.0}, {"x": 1836.0, "y": 35.0}, {"x": 475.0, "y": 9.0}, {"x": 514.0, "y": 7.0}, {"x": 800.0, "y": 34.0}, {"x": 138.0, "y": 13.0}, {"x": 1175.0, "y": 7.0}, {"x": 2256.0, "y": 12.0}, {"x": 799.0, "y": 13.0}, {"x": 1789.0, "y": 18.0}, {"x": 921.0, "y": 10.0}, {"x": 500.0, "y": 3.0}, {"x": 620.0, "y": 9.0}, {"x": 456.0, "y": 9.0}, {"x": 645.0, "y": 3.0}, {"x": 2732.0, "y": 6.0}, {"x": 638.0, "y": 3.0}, {"x": 360.0, "y": 12.0}, {"x": 4012.0, "y": 9.0}, {"x": 560.0, "y": 7.0}, {"x": 711.0, "y": 8.0}, {"x": 1025.0, "y": 1.0}, {"x": 245.0, "y": 6.0}, {"x": 1408.0, "y": 7.0}, {"x": 220.0, "y": 3.0}, {"x": 2362.0, "y": 6.0}, {"x": 4422.0, "y": 4.0}, {"x": 110.0, "y": 7.0}, {"x": 459.0, "y": 22.0}, {"x": 471.0, "y": 8.0}, {"x": 4441.0, "y": 9.0}, {"x": 1660.0, "y": 3.0}, {"x": 74.0, "y": 3.0}, {"x": 677.0, "y": 3.0}, {"x": 1763.0, "y": 9.0}, {"x": 781.0, "y": 9.0}, {"x": 132.0, "y": 5.0}, {"x": 265.0, "y": 20.0}, {"x": 1120.0, "y": 11.0}, {"x": 3584.0, "y": 4.0}, {"x": 58.0, "y": 7.0}, {"x": 2053.0, "y": 4.0}, {"x": 848.0, "y": 10.0}, {"x": 1098.0, "y": 19.0}, {"x": 910.0, "y": 10.0}, {"x": 1408.0, "y": 9.0}, {"x": 108.0, "y": 7.0}, {"x": 224.0, "y": 31.0}, {"x": 1733.0, "y": 9.0}, {"x": 252.0, "y": 2.0}, {"x": 292.0, "y": 3.0}, {"x": 439.0, "y": 9.0}, {"x": 718.0, "y": 2.0}, {"x": 912.0, "y": 9.0}, {"x": 2233.0, "y": 15.0}, {"x": 1303.0, "y": 28.0}, {"x": 4814.0, "y": 5.0}, {"x": 248.0, "y": 21.0}, {"x": 15810.0, "y": 6.0}, {"x": 1014.0, "y": 12.0}, {"x": 721.0, "y": 10.0}, {"x": 1810.0, "y": 4.0}, {"x": 2023.0, "y": 3.0}, {"x": 2220.0, "y": 22.0}, {"x": 2772.0, "y": 6.0}, {"x": 3575.0, "y": 10.0}, {"x": 1354.0, "y": 2.0}, {"x": 4289.0, "y": 6.0}, {"x": 2296.0, "y": 6.0}, {"x": 70.0, "y": 2.0}, {"x": 4895.0, "y": 9.0}, {"x": 941.0, "y": 7.0}, {"x": 1196.0, "y": 4.0}, {"x": 560.0, "y": 8.0}, {"x": 1885.0, "y": 10.0}, {"x": 686.0, "y": 14.0}, {"x": 1198.0, "y": 7.0}, {"x": 904.0, "y": 8.0}, {"x": 2769.0, "y": 8.0}, {"x": 1811.0, "y": 10.0}, {"x": 326.0, "y": 2.0}, {"x": 295.0, "y": 13.0}, {"x": 586.0, "y": 3.0}, {"x": 330.0, "y": 8.0}, {"x": 2634.0, "y": 5.0}, {"x": 617.0, "y": 2.0}, {"x": 645.0, "y": 12.0}, {"x": 934.0, "y": 4.0}, {"x": 2825.0, "y": 8.0}, {"x": 361.0, "y": 1.0}, {"x": 243.0, "y": 5.0}, {"x": 622.0, "y": 10.0}, {"x": 492.0, "y": 3.0}, {"x": 6750.0, "y": 7.0}, {"x": 1575.0, "y": 3.0}, {"x": 632.0, "y": 2.0}, {"x": 6306.0, "y": 7.0}, {"x": 1402.0, "y": 20.0}, {"x": 1500.0, "y": 10.0}, {"x": 1967.0, "y": 5.0}, {"x": 270.0, "y": 9.0}, {"x": 1030.0, "y": 13.0}, {"x": 878.0, "y": 4.0}, {"x": 2160.0, "y": 6.0}, {"x": 1287.0, "y": 11.0}, {"x": 12615.0, "y": 10.0}, {"x": 2394.0, "y": 7.0}, {"x": 8903.0, "y": 6.0}, {"x": 3233.0, "y": 6.0}, {"x": 539.0, "y": 7.0}, {"x": 1755.0, "y": 4.0}, {"x": 1692.0, "y": 2.0}, {"x": 60.0, "y": 6.0}, {"x": 733.0, "y": 9.0}, {"x": 1773.0, "y": 6.0}, {"x": 406.0, "y": 9.0}, {"x": 210.0, "y": 7.0}, {"x": 592.0, "y": 8.0}, {"x": 1486.0, "y": 1.0}, {"x": 818.0, "y": 7.0}, {"x": 525.0, "y": 6.0}, {"x": 274.0, "y": 10.0}, {"x": 810.0, "y": 8.0}, {"x": 1332.0, "y": 4.0}, {"x": 3055.0, "y": 2.0}, {"x": 1728.0, "y": 7.0}, {"x": 3740.0, "y": 3.0}, {"x": 45.0, "y": 2.0}, {"x": 266.0, "y": 4.0}, {"x": 1343.0, "y": 6.0}, {"x": 4330.0, "y": 3.0}, {"x": 929.0, "y": 3.0}, {"x": 87.0, "y": 2.0}, {"x": 360.0, "y": 2.0}], "c": "s1"}, {"label": "קו רגרסיה", "data": [{"x": 13.0, "y": 8.32}, {"x": 16388.0, "y": 10.02}], "c": "s2", "kind": "line"}]}, {"id": "g6", "type": "bar", "title": "ממוצע וחציון של ימים עד המשלוח", "cap": "הממוצע גבוה מהחציון בכל החברות: יש משלוחים איטיים במיוחד.", "xl": "", "yl": "ימים", "datasets": [{"label": "ממוצע", "data": [7.47, 8.57, 9.23], "c": "s1"}, {"label": "חציון", "data": [6, 7, 7], "c": "s2"}], "labels": ["Federal Shipping", "Speedy Express", "United Package"]}, {"id": "g7", "type": "bar", "title": "מכירות לעובד בכל משרד", "cap": "5 עובדים בארה״ב, 4 בבריטניה.", "xl": "", "yl": "מכירות לעובד", "datasets": [{"label": "מכירות לעובד", "data": [197332, 91761], "c": "s1"}], "labels": ["סיאטל (ארה״ב)", "לונדון (בריטניה)"]}, {"id": "g8", "type": "bar", "title": "ממוצע וחציון של סכום ההזמנה לפי מדינה", "cap": "13 מדינות עם 20 הזמנות לפחות, ממוינות לפי הממוצע.", "xl": "", "yl": "סכום ההזמנה", "datasets": [{"label": "ממוצע", "data": [3432, 2144, 1988, 1860, 1531, 1381, 1333, 1159, 1127, 938, 895, 818, 595], "c": "s1"}, {"label": "חציון", "data": [2791, 1337, 1360, 1156, 1292, 1018, 1389, 674, 774, 636, 686, 423, 448], "c": "s2"}], "labels": ["Austria", "USA", "Germany", "Canada", "Sweden", "Brazil", "Venezuela", "France", "UK", "Finland", "Mexico", "Spain", "Italy"]}, {"id": "g9", "type": "bar", "title": "אחוז שורות ההזמנה עם הנחה", "cap": "", "xl": "", "yl": "אחוז", "datasets": [{"label": "שורות עם הנחה", "data": [39.1, 39.4, 40.1, 38.8, 32.1, 43.9, 33.1, 40.9], "c": "s1"}], "labels": ["Beverages", "Condiments", "Confections", "Dairy Products", "Grains/Cereals", "Meat/Poultry", "Produce", "Seafood"], "pct": true}, {"id": "g10", "type": "bar", "title": "אחוז ההזמנות שנשלחו באיחור", "cap": "", "xl": "", "yl": "אחוז", "datasets": [{"label": "באיחור", "data": [3.61, 4.9, 5.08], "c": "s2"}], "labels": ["Federal Shipping", "Speedy Express", "United Package"], "pct": true}, {"id": "g11", "type": "line", "title": "מכירות בכל חודש וקו מגמה", "cap": "השיפוע: גידול של 2,862 בחודש בממוצע. R² = 0.56.", "xl": "חודש", "yl": "מכירות", "datasets": [{"label": "מכירות", "data": [34864, 31879, 32997, 46917, 57033, 56576, 76605, 48155, 48201, 54090, 53781, 36363, 51021, 47288, 55629, 66749, 43534, 71398, 94222, 99415, 104854, 123799], "c": "s1"}, {"label": "קו מגמה", "data": [30648, 33510, 36372, 39234, 42096, 44958, 47820, 50682, 53544, 56406, 59268, 62130, 64992, 67854, 70716, 73577, 76439, 79301, 82163, 85025, 87887, 90749], "c": "s2", "kind": "trend"}], "labels": ["יולי 16", "אוג׳ 16", "ספט׳ 16", "אוק׳ 16", "נוב׳ 16", "דצמ׳ 16", "ינו׳ 17", "פבר׳ 17", "מרץ 17", "אפר׳ 17", "מאי 17", "יוני 17", "יולי 17", "אוג׳ 17", "ספט׳ 17", "אוק׳ 17", "נוב׳ 17", "דצמ׳ 17", "ינו׳ 18", "פבר׳ 18", "מרץ 18", "אפר׳ 18"]}, {"id": "g12", "type": "bar", "title": "הזמנות בממוצע לשנה בכל חודש", "cap": "ממוצע על השנים שיש בהן נתונים לחודש. בלי מאי 2018, שיש בו רק 6 ימים.", "xl": "חודש", "yl": "הזמנות", "datasets": [{"label": "הזמנות בממוצע", "data": [44.0, 41.5, 51.5, 52.5, 32.0, 30.0, 27.5, 29.0, 30.0, 32.0, 29.5, 39.5], "c": "s1"}], "labels": ["ינו׳", "פבר׳", "מרץ", "אפר׳", "מאי", "יוני", "יולי", "אוג׳", "ספט׳", "אוק׳", "נוב׳", "דצמ׳"]}, {"id": "g13", "type": "bar", "title": "לקוחות חדשים בכל חודש", "cap": "20 לקוחות \"חדשים\" ביולי 2016: הנתונים מתחילים בחודש הזה.", "xl": "חודש", "yl": "לקוחות חדשים", "datasets": [{"label": "לקוחות חדשים", "data": [20, 14, 9, 9, 10, 5, 5, 2, 1, 4, 2, 2, 1, 2, 1, 0, 1, 0, 1, 0, 0, 0], "c": "s1"}], "labels": ["יולי 16", "אוג׳ 16", "ספט׳ 16", "אוק׳ 16", "נוב׳ 16", "דצמ׳ 16", "ינו׳ 17", "פבר׳ 17", "מרץ 17", "אפר׳ 17", "מאי 17", "יוני 17", "יולי 17", "אוג׳ 17", "ספט׳ 17", "אוק׳ 17", "נוב׳ 17", "דצמ׳ 17", "ינו׳ 18", "פבר׳ 18", "מרץ 18", "אפר׳ 18"]}, {"id": "g14", "type": "bar", "title": "היסטוגרמה של סכום ההזמנה", "cap": "ממוצע 1,631, חציון 1,053, סטיית תקן 1,963. זנב ארוך ימינה.", "xl": "סכום ההזמנה (קטעים של 500)", "yl": "מספר הזמנות", "datasets": [{"label": "הזמנות", "data": [213, 193, 113, 98, 67, 40, 23, 15, 16, 18, 2, 3, 7, 4, 0, 0, 1, 2, 1, 1, 13], "c": "s1"}], "labels": ["0", "500", "1,000", "1,500", "2,000", "2,500", "3,000", "3,500", "4,000", "4,500", "5,000", "5,500", "6,000", "6,500", "7,000", "7,500", "8,000", "8,500", "9,000", "9,500", "10,000 ומעלה"]}, {"id": "g15", "type": "scatter", "title": "עקומת פרטו: אחוז מצטבר של המכירות", "cap": "הקו האלכסוני הוא מצב שבו כל הלקוחות קונים אותו דבר.", "xl": "אחוז מצטבר של הלקוחות", "yl": "אחוז מצטבר של המכירות", "datasets": [{"label": "החברה", "data": [{"x": 0, "y": 0}, {"x": 1.1, "y": 8.5}, {"x": 2.2, "y": 16.7}, {"x": 3.4, "y": 24.7}, {"x": 4.5, "y": 29.0}, {"x": 5.6, "y": 32.9}, {"x": 6.7, "y": 35.3}, {"x": 7.9, "y": 37.8}, {"x": 9.0, "y": 40.1}, {"x": 10.1, "y": 42.4}, {"x": 11.2, "y": 44.5}, {"x": 12.4, "y": 46.7}, {"x": 13.5, "y": 48.8}, {"x": 14.6, "y": 50.8}, {"x": 15.7, "y": 52.7}, {"x": 16.9, "y": 54.6}, {"x": 18.0, "y": 56.5}, {"x": 19.1, "y": 58.2}, {"x": 20.2, "y": 59.9}, {"x": 21.3, "y": 61.5}, {"x": 22.5, "y": 63.0}, {"x": 23.6, "y": 64.5}, {"x": 24.7, "y": 66.0}, {"x": 25.8, "y": 67.3}, {"x": 27.0, "y": 68.6}, {"x": 28.1, "y": 70.0}, {"x": 29.2, "y": 71.2}, {"x": 30.3, "y": 72.5}, {"x": 31.5, "y": 73.8}, {"x": 32.6, "y": 75.0}, {"x": 33.7, "y": 76.2}, {"x": 34.8, "y": 77.2}, {"x": 36.0, "y": 78.2}, {"x": 37.1, "y": 79.2}, {"x": 38.2, "y": 80.1}, {"x": 39.3, "y": 81.1}, {"x": 40.4, "y": 82.0}, {"x": 41.6, "y": 82.9}, {"x": 42.7, "y": 83.7}, {"x": 43.8, "y": 84.5}, {"x": 44.9, "y": 85.3}, {"x": 46.1, "y": 86.0}, {"x": 47.2, "y": 86.7}, {"x": 48.3, "y": 87.4}, {"x": 49.4, "y": 88.0}, {"x": 50.6, "y": 88.5}, {"x": 51.7, "y": 89.0}, {"x": 52.8, "y": 89.6}, {"x": 53.9, "y": 90.1}, {"x": 55.1, "y": 90.6}, {"x": 56.2, "y": 91.1}, {"x": 57.3, "y": 91.6}, {"x": 58.4, "y": 92.1}, {"x": 59.6, "y": 92.5}, {"x": 60.7, "y": 93.0}, {"x": 61.8, "y": 93.4}, {"x": 62.9, "y": 93.7}, {"x": 64.0, "y": 94.1}, {"x": 65.2, "y": 94.4}, {"x": 66.3, "y": 94.8}, {"x": 67.4, "y": 95.1}, {"x": 68.5, "y": 95.4}, {"x": 69.7, "y": 95.7}, {"x": 70.8, "y": 96.0}, {"x": 71.9, "y": 96.3}, {"x": 73.0, "y": 96.6}, {"x": 74.2, "y": 96.8}, {"x": 75.3, "y": 97.1}, {"x": 76.4, "y": 97.3}, {"x": 77.5, "y": 97.5}, {"x": 78.7, "y": 97.8}, {"x": 79.8, "y": 98.0}, {"x": 80.9, "y": 98.2}, {"x": 82.0, "y": 98.4}, {"x": 83.1, "y": 98.5}, {"x": 84.3, "y": 98.7}, {"x": 85.4, "y": 98.8}, {"x": 86.5, "y": 99.0}, {"x": 87.6, "y": 99.1}, {"x": 88.8, "y": 99.2}, {"x": 89.9, "y": 99.3}, {"x": 91.0, "y": 99.5}, {"x": 92.1, "y": 99.6}, {"x": 93.3, "y": 99.7}, {"x": 94.4, "y": 99.8}, {"x": 95.5, "y": 99.9}, {"x": 96.6, "y": 99.9}, {"x": 97.8, "y": 100.0}, {"x": 98.9, "y": 100.0}, {"x": 100.0, "y": 100.0}], "c": "s1", "kind": "line"}, {"label": "שוויון", "data": [{"x": 0, "y": 0}, {"x": 100, "y": 100}], "c": "s2", "kind": "line"}]}, {"id": "g16", "type": "bar", "title": "מוצרים מתחת לסף ההזמנה מחדש", "cap": "", "xl": "", "yl": "מוצרים", "datasets": [{"label": "מתחת לסף", "data": [3, 2, 4, 3, 2, 0, 1, 3], "c": "s2"}], "labels": ["Beverages", "Condiments", "Confections", "Dairy Products", "Grains/Cereals", "Meat/Poultry", "Produce", "Seafood"]}, {"id": "g17", "type": "bar", "title": "ימים מאז ההזמנה האחרונה", "cap": "כמה לקוחות בכל טווח של 30 יום, עד 6 במאי 2018.", "xl": "ימים מאז ההזמנה האחרונה", "yl": "לקוחות", "datasets": [{"label": "לקוחות", "data": [53, 14, 6, 7, 3, 1, 2, 0, 1, 0, 0, 1, 1], "c": "s1"}], "labels": ["0 עד 29", "30 עד 59", "60 עד 89", "90 עד 119", "120 עד 149", "150 עד 179", "180 עד 209", "210 עד 239", "240 עד 269", "270 עד 299", "300 עד 329", "330 עד 359", "360 ומעלה"]}, {"id": "g18", "type": "scatter", "title": "מכירות מול מספר ההזמנות של כל מוצר", "cap": "הצבע מסמן מוצרים שהחברה כבר הפסיקה.", "xl": "מספר ההזמנות", "yl": "מכירות", "datasets": [{"label": "נמכר", "data": [{"x": 38, "y": 13366, "name": "Chai"}, {"x": 44, "y": 17719, "name": "Chang"}, {"x": 12, "y": 3240, "name": "Aniseed Syrup"}, {"x": 20, "y": 9087, "name": "Chef Anton's Cajun Seasoning"}, {"x": 12, "y": 7317, "name": "Grandma's Boysenberry Spread"}, {"x": 29, "y": 22454, "name": "Uncle Bob's Organic Dried Pears"}, {"x": 13, "y": 13752, "name": "Northwoods Cranberry Sauce"}, {"x": 33, "y": 21654, "name": "Ikura"}, {"x": 38, "y": 13753, "name": "Queso Cabrales"}, {"x": 14, "y": 12458, "name": "Queso Manchego La Pastora"}, {"x": 40, "y": 5069, "name": "Konbu"}, {"x": 22, "y": 8696, "name": "Tofu"}, {"x": 6, "y": 1862, "name": "Genen Shouyu"}, {"x": 43, "y": 18509, "name": "Pavlova"}, {"x": 27, "y": 30728, "name": "Carnarvon Tigers"}, {"x": 37, "y": 6343, "name": "Teatime Chocolate Biscuits"}, {"x": 16, "y": 24200, "name": "Sir Rodney's Marmalade"}, {"x": 39, "y": 9574, "name": "Sir Rodney's Scones"}, {"x": 14, "y": 7197, "name": "Gustaf's Knäckebröd"}, {"x": 20, "y": 4982, "name": "Tunnbröd"}, {"x": 18, "y": 4092, "name": "NuNuCa Nuß-Nougat-Creme"}, {"x": 32, "y": 21663, "name": "Gumbär Gummibärchen"}, {"x": 9, "y": 15859, "name": "Schoggi Schokolade"}, {"x": 32, "y": 14331, "name": "Nord-Ost Matjeshering"}, {"x": 51, "y": 16123, "name": "Gorgonzola Telino"}, {"x": 15, "y": 8696, "name": "Mascarpone Fabioli"}, {"x": 32, "y": 1818, "name": "Geitost"}, {"x": 19, "y": 6739, "name": "Sasquatch Ale"}, {"x": 36, "y": 14906, "name": "Steeleye Stout"}, {"x": 31, "y": 14132, "name": "Inlagd Sill"}, {"x": 6, "y": 2891, "name": "Gravad lax"}, {"x": 24, "y": 153897, "name": "Côte de Blaye"}, {"x": 30, "y": 13332, "name": "Chartreuse verte"}, {"x": 41, "y": 19055, "name": "Boston Crab Meat"}, {"x": 47, "y": 9021, "name": "Jack's New England Clam Chowder"}, {"x": 28, "y": 25109, "name": "Ipoh Coffee"}, {"x": 24, "y": 10995, "name": "Gula Malacca"}, {"x": 14, "y": 4412, "name": "Rogede sild"}, {"x": 27, "y": 6294, "name": "Spegesild"}, {"x": 21, "y": 4187, "name": "Zaanse koeken"}, {"x": 6, "y": 1555, "name": "Chocolade"}, {"x": 21, "y": 10126, "name": "Maxilaku"}, {"x": 10, "y": 3742, "name": "Valkoinen suklaa"}, {"x": 39, "y": 43847, "name": "Manjimup Dried Apples"}, {"x": 29, "y": 3341, "name": "Filo Mix"}, {"x": 36, "y": 5215, "name": "Tourtière"}, {"x": 33, "y": 19319, "name": "Pâté chinois"}, {"x": 50, "y": 45351, "name": "Gnocchi di nonna Alice"}, {"x": 23, "y": 8302, "name": "Ravioli Angelo"}, {"x": 18, "y": 6226, "name": "Escargots de Bourgogne"}, {"x": 54, "y": 76684, "name": "Raclette Courdavault"}, {"x": 51, "y": 49877, "name": "Camembert Pierrot"}, {"x": 24, "y": 15022, "name": "Sirop d'érable"}, {"x": 48, "y": 50737, "name": "Tarte au sucre"}, {"x": 17, "y": 18344, "name": "Vegie-spread"}, {"x": 30, "y": 23487, "name": "Wimmers gute Semmelknödel"}, {"x": 32, "y": 14894, "name": "Louisiana Fiery Hot Pepper Sauce"}, {"x": 8, "y": 3893, "name": "Louisiana Hot Spiced Okra"}, {"x": 10, "y": 2407, "name": "Laughing Lumberjack Lager"}, {"x": 34, "y": 9279, "name": "Scottish Longbreads"}, {"x": 31, "y": 23312, "name": "Gudbrandsdalsost"}, {"x": 39, "y": 11412, "name": "Outback Lager"}, {"x": 42, "y": 21340, "name": "Flotemysost"}, {"x": 38, "y": 27087, "name": "Mozzarella di Giovanni"}, {"x": 14, "y": 4174, "name": "Röd Kaviar"}, {"x": 13, "y": 2813, "name": "Longlife Tofu"}, {"x": 46, "y": 8472, "name": "Rhönbräu Klosterbier"}, {"x": 39, "y": 16560, "name": "Lakkalikööri"}, {"x": 38, "y": 9745, "name": "Original Frankfurter grüne Soße"}], "c": "s1"}, {"label": "הופסק", "data": [{"x": 10, "y": 5841, "name": "Chef Anton's Gumbo Mix"}, {"x": 5, "y": 7576, "name": "Mishi Kobe Niku"}, {"x": 37, "y": 35106, "name": "Alice Mutton"}, {"x": 51, "y": 4776, "name": "Guaraná Fantástica"}, {"x": 33, "y": 27937, "name": "Rössle Sauerkraut"}, {"x": 32, "y": 84784, "name": "Thüringer Rostbratwurst"}, {"x": 30, "y": 8987, "name": "Singaporean Hokkien Fried Mee"}, {"x": 30, "y": 22624, "name": "Perth Pasties"}], "c": "s2"}]}];
+const charts = [];
+function tok(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function fmt(v) { return v == null ? '' : Number(v).toLocaleString('he-IL', { maximumFractionDigits: 2 }); }
+function build() {
+  charts.forEach(c => c.destroy()); charts.length = 0;
+  const ink = tok('--ink'), muted = tok('--muted'), grid = tok('--grid'), surf = tok('--sheet');
+  const font = { family: 'Assistant, "Arial Hebrew", Arial, sans-serif', size: 12 };
+  for (const c of CH) {
+    const el = document.getElementById(c.id); if (!el) continue;
+    const many = c.datasets.some(d => Array.isArray(d.data) && d.data.length > 120);
+    const datasets = c.datasets.map(d => {
+      const col = tok('--' + d.c);
+      if (d.kind === 'line') return { type: 'line', label: d.label, data: d.data, borderColor: col, backgroundColor: col, borderWidth: 2, pointRadius: 0, pointHitRadius: 6, tension: 0, order: 0 };
+      if (d.kind === 'trend') return { type: 'line', label: d.label, data: d.data, borderColor: col, borderWidth: 2, borderDash: [6, 4], pointRadius: 0, fill: false, order: 0 };
+      if (c.type === 'scatter') return { label: d.label, data: d.data, backgroundColor: col + (many ? '99' : 'cc'), borderColor: surf, borderWidth: many ? 0 : 1, pointRadius: many ? 2.5 : 4.5, pointHoverRadius: 6, order: 1 };
+      if (c.type === 'line') return { label: d.label, data: d.data, borderColor: col, backgroundColor: col, borderWidth: 2, pointRadius: 2.5, tension: 0, spanGaps: false };
+      return { label: d.label, data: d.data, backgroundColor: col, borderRadius: 4, borderSkipped: 'start', maxBarThickness: 46, borderColor: surf, borderWidth: 1 };
+    });
+    const scaleBase = { grid: { color: grid }, border: { display: false }, ticks: { color: muted, font } };
+    const xTitle = c.xl ? { display: true, text: c.xl, color: muted, font } : { display: false };
+    const yTitle = c.yl ? { display: true, text: c.yl, color: muted, font } : { display: false };
+    const pct = c.pct ? { callback: v => v + '%' } : {};
+    const x = { ...scaleBase, title: c.horiz ? yTitle : xTitle, stacked: !!c.stacked };
+    const y = { ...scaleBase, title: c.horiz ? xTitle : yTitle, stacked: !!c.stacked, beginAtZero: c.type !== 'scatter' };
+    if (c.type === 'scatter') { x.type = 'linear'; x.ticks = { ...x.ticks, callback: v => fmt(v) }; }
+    if (c.type !== 'scatter' && !c.horiz) { x.grid = { display: false }; x.ticks = { ...x.ticks, maxRotation: 60, autoSkip: true }; y.ticks = { ...y.ticks, ...pct, callback: pct.callback || (v => fmt(v)) }; }
+    if (c.horiz) { y.grid = { display: false }; y.ticks = { ...y.ticks, autoSkip: false }; x.ticks = { ...x.ticks, callback: v => fmt(v) }; }
+    if (c.type === 'scatter') y.ticks = { ...y.ticks, callback: v => fmt(v) };
+    const showLegend = c.datasets.length > 1;
+    charts.push(new Chart(el, {
+      type: c.type === 'scatter' ? 'scatter' : (c.type === 'line' ? 'line' : 'bar'),
+      data: { labels: c.labels, datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false, indexAxis: c.horiz ? 'y' : 'x',
+        interaction: c.type === 'scatter' ? { mode: 'nearest', intersect: true } : { mode: 'index', intersect: false },
+        scales: { x, y },
+        plugins: {
+          legend: { display: showLegend, rtl: true, position: 'top', align: 'start', labels: { color: ink, font, boxWidth: 12, boxHeight: 12, usePointStyle: true } },
+          tooltip: { rtl: true, textDirection: 'rtl', filter: i => i.raw != null,
+            callbacks: {
+              label: i => {
+                const r = i.raw;
+                if (c.type === 'scatter' && r && typeof r === 'object') return (r.name ? r.name + ': ' : i.dataset.label + ': ') + fmt(r.x) + ' , ' + fmt(r.y);
+                return i.dataset.label + ': ' + fmt(i.parsed[c.horiz ? 'x' : 'y']) + (c.pct ? '%' : '');
+              }
+            } }
+        }
+      }
+    }));
+  }
+}
+function start() { if (window.Chart) build(); }
+start();
+try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', build); } catch (e) {}
+new MutationObserver(build).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+</script>
+</body>
+</html>
