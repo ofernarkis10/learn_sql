@@ -101,7 +101,6 @@ pre.sql code { font-size: inherit; }
 <div class="wrap" dir="rtl">
   <a class="site-back" href="index.html#assignments">→ חזרה לנושא: עבודות בית</a>
 <div class="toolbar" id="toolbar">
-  <label>שם התלמיד/ה: <input type="text" id="studentName" placeholder="הקלידו שם מלא"></label>
   <button type="button" id="exportBtn">💾 שמירת הקובץ עם התשובות</button>
   <span class="save-note">כתבו את התשובות שלכם ישירות על הדף. הן נשמרות אוטומטית בדפדפן הזה; כשסיימתם, לחצו "שמירת הקובץ" כדי להוריד קובץ HTML עם התשובות שלכם — הוא נשאר ניתן לעריכה, כך שגם מי שיפתח אותו (אתם או המורה) יוכל להמשיך לכתוב או לתקן בו, ואפשר לשלוח אותו למורה (במייל, Moodle וכו׳).</span>
 </div>
@@ -653,7 +652,6 @@ document.querySelectorAll('.copy').forEach(b => b.addEventListener('click', asyn
       });
       art.querySelectorAll('.verd span').forEach(sp => { data[art.id + ':' + sp.dataset.k] = sp.classList.contains('sel') ? '1' : '0'; });
     });
-    data.__name = document.getElementById('studentName').value;
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
   }
 
@@ -673,11 +671,9 @@ document.querySelectorAll('.copy').forEach(b => b.addEventListener('click', asyn
         if (data[art.id + ':' + sp.dataset.k] === '1') { sp.classList.add('sel'); sp.textContent = sp.textContent.replace('☐', '☑'); }
       });
     });
-    if (data.__name) document.getElementById('studentName').value = data.__name;
   }
 
   document.querySelector('.sheet').addEventListener('input', e => { if (e.target.closest('.ans')) save(); });
-  document.getElementById('studentName').addEventListener('input', save);
   load();
 
   /* הדבקת תוצאה שהועתקה מטבלת התוצאות באתר (sql-practice.com): שורות מופרדות בירידת שורה, עמודות בטאב */
@@ -748,13 +744,11 @@ document.querySelectorAll('.copy').forEach(b => b.addEventListener('click', asyn
 
   document.getElementById('exportBtn').addEventListener('click', () => {
     const clone = document.documentElement.cloneNode(true);
-    const name = (document.getElementById('studentName').value || 'תלמיד').trim();
-    const safeName = name.replace(/[^\p{L}\p{N}_\- ]+/gu, '').trim().replace(/\s+/g, '_') || 'תלמיד';
     const html = '<!doctype html>\n' + clone.outerHTML;
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'שאלות-מחקר-northwind_' + safeName + '.html';
+    a.download = 'שאלות-מחקר-northwind.html';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   });
