@@ -105,19 +105,21 @@ learn_sql/
 ├── analysis-NN-<name>.html           data analysis (01 research questions, 02 presentation with the answers)
 ├── assignments-NN-<name>.html       homework (01 questions, 02 research questions)
 ├── project-NN-<name>.html           final project (01 proposal guide)
+├── brand.css                       colours of מגמת מידע ונתונים, shared by every page
+├── logo.png                        track logo (temporary copy cut from a slide)
 ├── font-size.js                     text-size control shown on every page
 ├── README.md
 └── LICENSE                          CC0 1.0 Universal
 ```
 
-Every page is a single self-contained HTML file: styles and scripts are inline, there is no framework, and the only external resource is Google Fonts (Rubik, Assistant, JetBrains Mono). Pages support light and dark mode automatically. The one shared file is `font-size.js`, which adds a text-size control (א− / 100% / א+, from 85% to 200%) to every page; the chosen size is remembered across pages and visits in the same browser. The pages set their sizes in `px`, so the control scales the whole page with CSS `zoom`. In the question viewers and the presentations the control sits in the navigation bar (an element with `id="fs-slot"`); on other pages it floats in the bottom-left corner.
+Every page is a single self-contained HTML file: styles and scripts are inline, there is no framework, and the only external resource is Google Fonts (Rubik, Assistant, JetBrains Mono). Pages support light and dark mode automatically. The colours come from `brand.css`, which every page loads after its own `<style>`: it holds the logo colours (`--brand-blue`, `--brand-yellow`, `--brand-gray`, `--brand-navy`, for decoration only) and the role colours the pages already use (`--bg`, `--paper`, `--ink`, `--muted`, `--accent`, `--mark` …) for light and dark mode, all readable at 4.5:1 or better. Pages without a dark mode set `data-theme="light"` on `<html>`. The other shared file is `font-size.js`, which adds a text-size control (א− / 100% / א+, from 85% to 200%) to every page; the chosen size is remembered across pages and visits in the same browser. The pages set their sizes in `px`, so the control scales the whole page with CSS `zoom`. In the question viewers and the presentations the control sits in the navigation bar (an element with `id="fs-slot"`); on other pages it floats in the bottom-left corner.
 
 ## Adding a new page
 
 1. **Name the file** `<topic>-NN-<short-name>.html`, where `NN` is the page's order within its topic.
 2. **Copy the layout** of an existing page of the same kind: a question viewer (`practice-01-30-questions.html`, two pages per question with slides and document views) or a question sheet (`practice-03-25-questions.html`).
 3. **Check every query on sql-practice.com** (northwind.db) and copy the results from there.
-4. **Add the text-size control** with `<script src="font-size.js"></script>` just before `</head>`, and a back link `<a class="site-back" href="index.html#<topic-id>">→ חזרה לנושא: …</a>` at the top of the page.
+4. **Add the shared files**: `<link rel="stylesheet" href="brand.css">` after the page's own `<style>`, and the text-size control with `<script src="font-size.js"></script>` just before `</head>`, and a back link `<a class="site-back" href="index.html#<topic-id>">→ חזרה לנושא: …</a>` at the top of the page.
 5. **Register the page in `index.html`**: add its entry to `TOPICS` and update the topic's `count`.
 6. **Commit and push** to `main`.
 

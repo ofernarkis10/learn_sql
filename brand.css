@@ -1,0 +1,134 @@
+/* ==================================================================
+   brand.css — the colours of מגמת מידע ונתונים
+   Taken from the track logo (blue bars, yellow bulb, grey lettering)
+   and from the dark petrol slides of the research-proposal deck.
+
+   Load it AFTER a page's own <style>, so these values win:
+     <link rel="stylesheet" href="brand.css">
+
+   Two layers:
+   1. Brand colours (--brand-*): the raw logo colours. Use them for
+      decoration only: borders, bars, chart fills, backgrounds.
+      --brand-blue and --brand-yellow are too light for text on white.
+   2. Role tokens (--bg, --paper, --ink …): the names the site pages
+      already use. Text colours here all pass 4.5:1 on their surface.
+   ================================================================== */
+
+:root {
+  /* 1. Brand colours (same in both themes) */
+  --brand-blue:   #25AAE2;   /* logo bars, slogan          */
+  --brand-yellow: #FFCA08;   /* logo bulb                  */
+  --brand-gray:   #706D6E;   /* logo lettering             */
+  --brand-navy:   #0D4062;   /* dark slides background     */
+  --brand-petrol: #0B617C;   /* dark slides, lighter tone  */
+
+  /* 2. Role tokens, light theme */
+  --bg:          #F3F7FA;    /* page ground                       */
+  --paper:       #FFFFFF;    /* cards and panels                  */
+  --ink:         #0D2A3D;    /* main text, navy (13.8:1)          */
+  --muted:       #5C5A5B;    /* secondary text, logo grey (6.3:1) */
+  --line:        #D3E2EC;    /* borders and rules                 */
+  --accent:      #0B6FA4;    /* links, headings: dark logo blue (5.1:1) */
+  --accent-soft: #E3F3FB;    /* tinted backgrounds, focus rings   */
+  --accent-deco: var(--brand-blue);   /* borders and bars only    */
+  --mark:        #8C6400;    /* small labels and counts: dark gold (5.3:1) */
+  --mark-bg:     var(--brand-yellow); /* badges: navy text on yellow (9.7:1) */
+  --mark-fg:     #0D2A3D;
+  --hl:          #FFE58A;    /* search highlight                  */
+  --grid:        rgba(37, 170, 226, .07);
+
+  /* Older page tokens mapped onto the brand, so pages that use them
+     follow along without edits */
+  --sheet:       var(--paper);
+  --page:        var(--paper);
+  --card:        var(--paper);
+  --soft:        var(--accent-soft);
+  --head:        var(--accent-soft);
+  --acc:         var(--accent);
+  --mute:        var(--muted);
+  --main:        var(--accent);
+  --main-soft:   var(--accent-soft);
+  --deep:        var(--brand-navy);   /* dark title bands in presentations */
+  --deep-ink:    #E8F2F8;
+  --warm:        var(--mark);
+  --warm-soft:   #FFF4CC;
+  --ok:          #1F7A55;
+  --ok-soft:     #E2F3EA;
+}
+
+/* Dark theme: the petrol-navy of the slides */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:          #0A2233;
+    --paper:       #10304A;
+    --ink:         #E8F2F8;
+    --muted:       #A9BCCB;
+    --line:        #1F4560;
+    --accent:      #5CC4F0;
+    --accent-soft: #143A55;
+    --mark:        #FFCA08;
+    --mark-fg:     #0D2A3D;
+    --hl:          #6B5800;
+    --grid:        rgba(92, 196, 240, .05);
+    --warm-soft:   #3A3210;
+    --ok:          #7FD3A0;
+    --ok-soft:     #163A2B;
+    --deep:        #061826;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:          #0A2233;
+  --paper:       #10304A;
+  --ink:         #E8F2F8;
+  --muted:       #A9BCCB;
+  --line:        #1F4560;
+  --accent:      #5CC4F0;
+  --accent-soft: #143A55;
+  --mark:        #FFCA08;
+  --mark-fg:     #0D2A3D;
+  --hl:          #6B5800;
+  --grid:        rgba(92, 196, 240, .05);
+  --warm-soft:   #3A3210;
+  --ok:          #7FD3A0;
+  --ok-soft:     #163A2B;
+  --deep:        #061826;
+  color-scheme: dark;
+}
+
+/* ---------- Optional shared pieces ---------- */
+
+/* Logo block: the logo always sits on white, as on the slides,
+   so its grey lettering stays readable in the dark theme too */
+.brand {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  text-decoration: none; color: inherit;
+}
+.brand img {
+  height: 88px; width: auto; display: block;
+  background: #FFFFFF; border-radius: 10px; padding: 6px 10px;
+  border: 1px solid var(--line);
+}
+.brand .brand-name { font-weight: 700; color: var(--muted); font-size: .95rem; line-height: 1.3; }
+
+/* Yellow badge, e.g. "עבודת בית" */
+.badge {
+  background: var(--mark-bg); color: var(--mark-fg);
+  font-weight: 700; font-size: .78rem; border-radius: 99px; padding: 1px 9px;
+}
+
+/* A thin logo-coloured strip: blue then yellow */
+.brand-strip {
+  height: 4px; border-radius: 4px;
+  background: linear-gradient(to left, var(--brand-blue) 0 70%, var(--brand-yellow) 70% 100%);
+}
+
+/* Chart palette in logo order, for Chart.js or SVG */
+:root {
+  --chart-1: var(--brand-blue);
+  --chart-2: #E0A800;   /* yellow deepened so bars show on white */
+  --chart-3: var(--brand-gray);
+  --chart-4: var(--brand-navy);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --chart-4: #9FD8F2; } }
+:root[data-theme="dark"] { --chart-4: #9FD8F2; }

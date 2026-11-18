@@ -92,11 +92,20 @@ section.step h2 .sn{font-family:var(--f-mono);color:var(--paper);background:var(
 section.step .st{color:var(--muted);max-width:70ch}
 .from{font-size:.78rem;color:var(--muted);font-weight:600}
 .hwtag{font-size:.75rem;font-weight:700;color:var(--paper);background:var(--mark);border-radius:99px;padding:1px 8px;margin-inline-start:8px;vertical-align:middle;font-family:var(--f-body)}
+/* Track colours (brand.css) */
+ul.topics a{border-top-color:var(--accent-deco)}
+ul.topics a:hover,ul.topics a:focus-visible,ul.docs li a:hover,ul.docs li a:focus-visible{border-color:var(--accent-deco)}
+.group h2{border-bottom-color:var(--accent-deco)}
+.hwtag{background:var(--mark-bg);color:var(--mark-fg)}
+.q{background:var(--warm-soft);color:var(--mark)}
+.brandbar{display:flex;flex-direction:column;gap:12px}
 </style>
 <script src="font-size.js"></script>
+<link rel="stylesheet" href="brand.css">
 </head>
 <body>
 <div class="wrap">
+<div class="brandbar"><a class="brand" href="index.html" aria-label="מגמת מידע ונתונים, דף הבית"><img src="logo.png" alt="מגמת מידע ונתונים, כי ידע זה כוח" width="640" height="337"></a><div class="brand-strip"></div></div>
 <div class="search" role="search">
   <label><span class="ico" aria-hidden="true">⌕</span>
   <input id="q" type="search" placeholder="חיפוש בכל הדפים, למשל: HAVING, טבלאות, צבירה" aria-label="חיפוש בכותרות ובתיאורים של כל הדפים" autocomplete="off">
