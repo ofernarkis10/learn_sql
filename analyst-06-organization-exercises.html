@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>תרגילים לחלק 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: same reading column as the main guide; each part has an expansion page and an exercises page. */
+:root{
+  --bg:#f4f6f8;
+  --paper:#ffffff;
+  --ink:#16222e;
+  --muted:#556574;
+  --line:#d7dee5;
+  --accent:#1f5f8b;
+  --accent-soft:#e3eef6;
+  --mark:#c98a12;
+  --font-display:"Rubik","Arial Hebrew",Arial,sans-serif;
+  --font-body:"Assistant","Arial Hebrew",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+    --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+  --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.65}
+.wrap{max-width:820px;margin:0 auto;padding:32px 20px 64px;display:flex;flex-direction:column;gap:28px}
+header h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,6vw,40px);line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:65ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:14px;padding:3px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 20px}
+nav.toc ol{margin:0;padding-inline-start:22px;columns:2;column-gap:28px}
+nav.toc a{color:var(--accent);text-decoration:none}
+nav.toc a:hover,nav.toc a:focus-visible{text-decoration:underline}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:24px 22px}
+section h2{font-family:var(--font-display);font-weight:400;font-size:26px;line-height:1.3;margin:0 0 4px;display:flex;gap:12px;align-items:baseline;text-wrap:balance}
+section h2 .n{color:var(--accent);font-size:20px;min-width:1.6em}
+.goal{color:var(--muted);margin:0 0 16px;font-size:16px}
+h3{font-size:19px;margin:22px 0 8px}
+p,li{max-width:65ch}
+ul,ol{padding-inline-start:22px;margin:8px 0}
+li{margin:4px 0}
+.key{border-inline-start:4px solid var(--mark);background:var(--accent-soft);padding:12px 16px;border-radius:6px;margin:14px 0;font-weight:600}
+.table-box{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:16px;min-width:480px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:start;vertical-align:top}
+th{background:var(--accent-soft);font-weight:700}
+td.num{font-variant-numeric:tabular-nums;text-align:end}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;padding:0;list-style:none}
+.flow li{margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-weight:600}
+.flow li.first{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.flow .arr{border:none;background:none;padding:0;color:var(--muted)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.compare div{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.compare .bad{border-style:dashed}
+.compare .lbl{display:block;font-size:14px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.compare .good .lbl{color:var(--accent)}
+.tree{font-family:var(--font-body);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:12px 0}
+.tree ul{list-style:none;padding-inline-start:20px;border-inline-start:2px solid var(--line);margin:4px 0}
+.tree>ul{border:none;padding:0}
+.tree li{margin:4px 0}
+.whys{counter-reset:w;list-style:none;padding:0}
+.whys li{counter-increment:w;padding:6px 0 6px 0;border-bottom:1px solid var(--line)}
+.whys li::before{content:"למה " counter(w) "? ";font-weight:700;color:var(--accent)}
+dl.gloss{display:grid;grid-template-columns:minmax(140px,30%) 1fr;gap:0;margin:8px 0}
+dl.gloss dt,dl.gloss dd{margin:0;padding:10px 8px;border-bottom:1px solid var(--line)}
+dl.gloss dt{font-weight:700}
+.handout{border:2px solid var(--accent)}
+.handout h2 .n{color:var(--mark)}
+.task{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:12px 0}
+.task strong{color:var(--accent)}
+.lines{display:block;border-bottom:1px dashed var(--line);height:30px}
+.check{list-style:none;padding:0}
+.check li::before{content:"☐ ";color:var(--accent)}
+.more{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line);font-size:16px}
+.more a{color:var(--accent);font-weight:700;text-decoration:none}
+.more a:hover,.more a:focus-visible{text-decoration:underline}
+a{color:var(--accent)}
+footer{color:var(--muted);font-size:14px;text-align:center}
+:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+@media (max-width:560px){
+  nav.toc ol{columns:1}
+  .compare{grid-template-columns:1fr}
+  dl.gloss{grid-template-columns:1fr}
+  dl.gloss dt{border-bottom:none;padding-bottom:0}
+  section{padding:20px 16px}
+  body{font-size:17px}
+}
+
+/* site look: learn_sql */
+h1,h2{font-weight:700}
+h1{font-size:2.4rem}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+section h2 .n{font-family:"JetBrains Mono",Consolas,monospace;font-size:1rem;color:var(--paper);background:var(--accent);border-radius:99px;padding:0 10px;min-width:0;flex:none}
+.site-back{color:var(--accent);font-weight:600;font-size:15px;text-decoration:none;width:fit-content}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.chip{background:var(--accent-soft);color:var(--accent)}
+.handout{border-color:var(--accent-deco)}
+code,pre{font-family:"JetBrains Mono",Consolas,"Courier New",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code{direction:ltr;unicode-bidi:isolate;font-size:.86em;background:var(--accent-soft);border-radius:4px;padding:0 4px}
+pre{margin:0;direction:ltr;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:14.5px;line-height:1.55;overflow-x:auto;white-space:pre}
+.kw{color:var(--accent);font-weight:600}
+.dialog{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+.dialog p{margin:0}
+.dialog .who{font-weight:700;color:var(--accent)}
+.dialog .aside{font-size:.8rem;font-weight:700;color:var(--mark-fg);background:var(--mark-bg);border-radius:99px;padding:1px 9px;margin-inline-start:6px;white-space:nowrap}
+@media print{.site-back{display:none} body{background:#fff}}
+</style>
+<script src="font-size.js"></script>
+<link rel="stylesheet" href="brand.css">
+</head>
+<body>
+<div class="wrap">
+<a class="site-back" href="index.html#analyst">→ חזרה לנושא: הכשרת Data Analyst</a>
+
+<header>
+  <h1>תרגילים לחלק 2: הארגון והצורך</h1>
+  <p>שמונה תרגילים על בעלי תפקידים, ההחלטות שלהם והצורך שמאחורי כל בקשה. הפתרונות למדריך נמצאים בחלקים הנפתחים.</p>
+  <div class="meta"><span class="chip">מודול 1: פתיחה</span><span class="chip">חלק 2 מתוך 7</span><span class="chip">כ־75 דקות</span></div>
+  <p class="more"><a href="analyst-01-guide.html#org">← חזרה למדריך המרכזי</a><a href="analyst-05-organization-need.html">ההרחבה של חלק 2</a></p>
+</header>
+
+<section class="handout">
+  <h2><span class="n">1</span>מהבקשה אל הצורך</h2>
+  <p class="goal">לכל בקשה, כתבו מה הצורך שמאחוריה, איזו החלטה תתקבל, ומה כדאי לספק בסוף.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>#</th><th>בעל תפקיד</th><th>הבקשה</th><th>הצורך</th><th>ההחלטה</th><th>מה לספק</th></tr></thead>
+    <tbody>
+      <tr><td>א</td><td>מנהלת משאבי אנוש</td><td>״כמה ימי מחלה היו השנה?״</td><td></td><td></td><td></td></tr>
+      <tr><td>ב</td><td>מנהל מכירות</td><td>״תן לי את המכירות של כל מוכר.״</td><td></td><td></td><td></td></tr>
+      <tr><td>ג</td><td>מנהל לוגיסטיקה</td><td>״כמה משלוחים יצאו באיחור?״</td><td></td><td></td><td></td></tr>
+      <tr><td>ד</td><td>מנהלת מוצר</td><td>״כמה משתמשים נרשמו לאפליקציה?״</td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <details>
+    <summary><strong>תשובות אפשריות</strong></summary>
+    <ul>
+      <li>א: צורך: להבין אם יש עומס או שחיקה במחלקות מסוימות. החלטה: האם להתערב, למשל בחלוקת עבודה מחדש. לספק: ימי מחלה לפי מחלקה וחודש, בהשוואה לשנה שעברה.</li>
+      <li>ב: צורך: לדעת מי צריך הדרכה ומי ראוי לתגמול. החלטה: על מי להשקיע ואת מי לתגמל. לספק: מכירות מול יעד לכל מוכר, תוך התחשבות במשמרות ובסניף.</li>
+      <li>ג: צורך: לשפר את העמידה בזמנים. החלטה: איפה לטפל, אצל ספק, באזור או בשלב בתהליך. לספק: אחוז איחורים לפי ספק, אזור ושלב.</li>
+      <li>ד: צורך: לדעת אם האפליקציה מצליחה. החלטה: האם להמשיך להשקיע בגיוס משתמשים או בשיפור המוצר. לספק: נרשמים מול משתמשים פעילים אחרי שבוע וחודש.</li>
+    </ul>
+    <p>יש יותר מתשובה נכונה אחת. הדבר החשוב הוא שכל תשובה מתחילה בהחלטה, ולא בנתונים.</p>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">2</span>מי אחראי על החוליה?</h2>
+  <p class="goal">לכל פעולה, סמנו מי אחראי עליה: בעל התפקיד, האנליסט, או שניהם יחד.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>#</th><th>פעולה</th><th>מי אחראי</th></tr></thead>
+    <tbody>
+      <tr><td>א</td><td>להחליט אם להאריך את המבצע</td><td></td></tr>
+      <tr><td>ב</td><td>לנסח את השאלה ״האם המכירות במבצע עלו בהשוואה לחודש הקודם?״</td><td></td></tr>
+      <tr><td>ג</td><td>לשלוף את נתוני הקופות ולבדוק שאין כפילויות</td><td></td></tr>
+      <tr><td>ד</td><td>להגדיר שהמטרה היא להגדיל מכירות בלי לפגוע ברווחיות</td><td></td></tr>
+      <tr><td>ה</td><td>להסביר שהעלייה מרוכזת בשני סניפים בלבד</td><td></td></tr>
+      <tr><td>ו</td><td>לעדכן את הסניפים על הארכת המבצע</td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <details>
+    <summary><strong>פתרון</strong></summary>
+    <ul>
+      <li>א: בעל התפקיד (החלטה).</li>
+      <li>ב: שניהם (שאלה).</li>
+      <li>ג: האנליסט (נתונים).</li>
+      <li>ד: בעל התפקיד (צורך).</li>
+      <li>ה: האנליסט (תשובה).</li>
+      <li>ו: בעל התפקיד (פעולה).</li>
+    </ul>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">3</span>רמת ההחלטה וצורת התשובה</h2>
+  <p class="goal">לכל החלטה, קבעו את הרמה (אסטרטגית, טקטית או תפעולית) ואת צורת התשובה המתאימה.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>#</th><th>החלטה</th><th>רמה</th><th>צורת התשובה</th></tr></thead>
+    <tbody>
+      <tr><td>א</td><td>כמה קופות לפתוח הערב בסופר</td><td></td><td></td></tr>
+      <tr><td>ב</td><td>האם להיכנס לשוק בחו״ל בשנים הקרובות</td><td></td><td></td></tr>
+      <tr><td>ג</td><td>איזה קורס הדרכה לתת לנציגי השירות ברבעון הבא</td><td></td><td></td></tr>
+      <tr><td>ד</td><td>איזה מוצר להעביר למדף בכניסה השבוע</td><td></td><td></td></tr>
+      <tr><td>ה</td><td>האם לסגור קו מוצרים שלם</td><td></td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <details>
+    <summary><strong>פתרון</strong></summary>
+    <ul>
+      <li>א: תפעולית. מדד בזמן אמת: מספר לקוחות בתור או תחזית לפי שעה.</li>
+      <li>ב: אסטרטגית. מסמך עם נתוני שוק, חלופות והמלצה.</li>
+      <li>ג: טקטית. ניתוח שמשווה את סוגי הפניות ואת זמני הטיפול בין הנציגים.</li>
+      <li>ד: תפעולית. רשימה קצרה של מוצרים לפי מכירות השבוע.</li>
+      <li>ה: אסטרטגית. ניתוח רווחיות לאורך זמן, והשפעה על מוצרים אחרים.</li>
+    </ul>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">4</span>סוג הצורך</h2>
+  <p class="goal">לכל משפט של בעל תפקיד, זהו את סוג הצורך: לדעת מה קורה, להבין למה, לבחור בין חלופות, לבדוק אם פעולה הצליחה, או להיערך לעתיד.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>#</th><th>המשפט</th><th>סוג הצורך</th></tr></thead>
+    <tbody>
+      <tr><td>א</td><td>״הורדנו מחירים בחודש שעבר. זה עזר?״</td><td></td></tr>
+      <tr><td>ב</td><td>״כמה עובדים נצטרך לקראת העונה?״</td><td></td></tr>
+      <tr><td>ג</td><td>״אני רוצה לראות כל בוקר איך הלך אתמול.״</td><td></td></tr>
+      <tr><td>ד</td><td>״לשכור מחסן בצפון או להרחיב את המחסן הקיים?״</td><td></td></tr>
+      <tr><td>ה</td><td>״למה יש לנו יותר תלונות מלקוחות בירושלים?״</td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <details>
+    <summary><strong>פתרון</strong></summary>
+    <ul>
+      <li>א: לבדוק אם פעולה הצליחה.</li>
+      <li>ב: להיערך לעתיד.</li>
+      <li>ג: לדעת מה קורה.</li>
+      <li>ד: לבחור בין חלופות.</li>
+      <li>ה: להבין למה.</li>
+    </ul>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">5</span>אנליסט או מנתח מערכות?</h2>
+  <p class="goal">לכל משימה, כתבו של מי היא: Data Analyst או מנתח מערכות.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>#</th><th>משימה</th><th>של מי</th></tr></thead>
+    <tbody>
+      <tr><td>א</td><td>לאפיין טופס דיגיטלי חדש לקליטת הזמנות</td><td></td></tr>
+      <tr><td>ב</td><td>לבדוק למה ירד מספר ההזמנות בחודש האחרון</td><td></td></tr>
+      <tr><td>ג</td><td>למפות את שלבי הטיפול בתלונת לקוח ולתכנן תהליך חדש</td><td></td></tr>
+      <tr><td>ד</td><td>להשוות את זמני הטיפול בתלונות לפני ואחרי התהליך החדש</td><td></td></tr>
+      <tr><td>ה</td><td>להגדיר אילו שדות חובה יהיו במערכת ה־CRM</td><td></td></tr>
+      <tr><td>ו</td><td>לגלות ששדה ״סיבת ביטול״ ריק ב־60% מההזמנות, ולדווח על כך</td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <details>
+    <summary><strong>פתרון</strong></summary>
+    <ul>
+      <li>א: מנתח מערכות.</li>
+      <li>ב: Data Analyst.</li>
+      <li>ג: מנתח מערכות.</li>
+      <li>ד: Data Analyst.</li>
+      <li>ה: מנתח מערכות.</li>
+      <li>ו: Data Analyst מגלה ומדווח. מנתח המערכות מחליט איך לתקן, למשל להפוך את השדה לחובה.</li>
+    </ul>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">6</span>כרטיס בעל תפקיד</h2>
+  <p class="goal">בחרו ארגון (בית ספר, מרפאה, חברת משלוחים או ארגון שאתם מכירים) ובעל תפקיד אחד בו. מלאו עבורו כרטיס.</p>
+  <div class="task"><strong>ארגון ובעל תפקיד:</strong><span class="lines"></span></div>
+  <dl class="gloss">
+    <dt>מה מעסיק אותו</dt><dd><span class="lines"></span></dd>
+    <dt>החלטות עיקריות</dt><dd><span class="lines"></span></dd>
+    <dt>מדדים</dt><dd><span class="lines"></span></dd>
+    <dt>שאלה טיפוסית</dt><dd><span class="lines"></span></dd>
+    <dt>איך להציג לו</dt><dd><span class="lines"></span></dd>
+  </dl>
+  <details>
+    <summary><strong>דוגמה למדריך: מנהלת בית ספר</strong></summary>
+    <dl class="gloss">
+      <dt>מה מעסיק אותה</dt><dd>הישגי התלמידים, נוכחות, והצוות.</dd>
+      <dt>החלטות עיקריות</dt><dd>היכן לתגבר שעות, איך לשבץ מורים, אילו תוכניות להפעיל.</dd>
+      <dt>מדדים</dt><dd>ממוצעי ציונים לפי שכבה ומקצוע, אחוז נוכחות, אחוז זכאות לבגרות.</dd>
+      <dt>שאלה טיפוסית</dt><dd>״באילו מקצועות שכבה י״א מתקשה יותר מאשר בשנה שעברה?״</dd>
+      <dt>איך להציג לה</dt><dd>עמוד אחד, השוואה לשנה הקודמת, שלושה ממצאים עיקריים.</dd>
+    </dl>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">7</span>סדר עדיפויות</h2>
+  <p class="goal">ביום ראשון בבוקר הגיעו חמש בקשות. דרגו אותן לפי השפעה, דחיפות ומאמץ, וקבעו את סדר הטיפול.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>#</th><th>בקשה</th><th>השפעה</th><th>דחיפות</th><th>מאמץ</th><th>סדר</th></tr></thead>
+    <tbody>
+      <tr><td>א</td><td>המנכ״ל: נתונים לישיבת דירקטוריון ביום רביעי על ביצועי השנה</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>ב</td><td>מנהל סניף: ״כמה מכרתי אתמול?״</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>ג</td><td>מנהלת שיווק: ניתוח של כל הקמפיינים בשנתיים האחרונות, ״כשיהיה לך זמן״</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>ד</td><td>מנהל כספים: בדיקה אם ספק חייב לנו כסף, לפני תשלום שיוצא מחר</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>ה</td><td>עובד מצוות אחר: לשנות את הצבעים בדשבורד</td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <details>
+    <summary><strong>סדר מומלץ</strong></summary>
+    <ol>
+      <li>ד: השפעה כספית ישירה, וההחלטה מחר. מאמץ נמוך יחסית.</li>
+      <li>א: השפעה גבוהה, ויש עד רביעי. מתחילים היום.</li>
+      <li>ב: לענות במהירות, ולהציע לו דשבורד כדי שהבקשה לא תחזור כל יום.</li>
+      <li>ג: השפעה גבוהה אבל לא דחוף. לברר איזו החלטה הניתוח ישרת, ולתכנן.</li>
+      <li>ה: השפעה נמוכה. אחרון.</li>
+    </ol>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">8</span>משחק תפקידים: לחשוף את הצורך</h2>
+  <p class="goal">המדריך משחק בעל תפקיד עם בקשה קצרה. העובד צריך לגלות, בעזרת שאלות בלבד, מה הצורך ואיזו החלטה עומדת מאחורי הבקשה. זמן: 10 דקות לכל סבב.</p>
+  <div class="task"><strong>הבקשה (המדריך אומר):</strong> ״תוציא לי את מספר הלקוחות שביטלו מנוי החודש.״</div>
+  <div class="task"><strong>העובד רושם:</strong> השאלות ששאל, מה הבין על הצורך, ואיך ינסח את שאלת הניתוח.<span class="lines"></span><span class="lines"></span><span class="lines"></span></div>
+  <details>
+    <summary><strong>תסריט סודי למדריך</strong></summary>
+    <ul>
+      <li><strong>התפקיד:</strong> מנהל שירות לקוחות בחברת סטרימינג.</li>
+      <li><strong>הצורך:</strong> הביטולים עלו, וההנהלה שואלת אותו למה.</li>
+      <li><strong>ההחלטה:</strong> האם להשקיע בהצעת שימור, כלומר הנחה ללקוח שמנסה לבטל.</li>
+      <li><strong>ההשערה שלו:</strong> העלאת המחיר לפני חודשיים.</li>
+      <li><strong>מה לגלות רק אם שואלים:</strong> הוא צריך את התשובה לישיבה בעוד שבוע. ההנהלה תראה את המצגת.</li>
+      <li><strong>שאלת ניתוח טובה:</strong> ״האם שיעור הביטולים עלה אחרי העלאת המחיר, באילו מסלולים ובאילו פלחי לקוחות, ומה הסיבות שהלקוחות ציינו?״</li>
+      <li><strong>לבדוק אצל העובד:</strong> האם שאל מה יעשה עם התשובה, מה ההשערה, מי יראה את התשובה ומתי צריך אותה.</li>
+    </ul>
+  </details>
+  <p class="more"><a href="analyst-01-guide.html#org">← חזרה למדריך המרכזי</a><a href="analyst-05-organization-need.html">ההרחבה של חלק 2</a></p>
+</section>
+
+<footer>מודול 1: פתיחה · תרגילים לחלק 2</footer>
+</div>
+</body>
+</html>

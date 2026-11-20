@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>תרגילים לחלק 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: same reading column as the main guide; each part has an expansion page and an exercises page. */
+:root{
+  --bg:#f4f6f8;
+  --paper:#ffffff;
+  --ink:#16222e;
+  --muted:#556574;
+  --line:#d7dee5;
+  --accent:#1f5f8b;
+  --accent-soft:#e3eef6;
+  --mark:#c98a12;
+  --font-display:"Rubik","Arial Hebrew",Arial,sans-serif;
+  --font-body:"Assistant","Arial Hebrew",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+    --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+  --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.65}
+.wrap{max-width:820px;margin:0 auto;padding:32px 20px 64px;display:flex;flex-direction:column;gap:28px}
+header h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,6vw,40px);line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:65ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:14px;padding:3px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 20px}
+nav.toc ol{margin:0;padding-inline-start:22px;columns:2;column-gap:28px}
+nav.toc a{color:var(--accent);text-decoration:none}
+nav.toc a:hover,nav.toc a:focus-visible{text-decoration:underline}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:24px 22px}
+section h2{font-family:var(--font-display);font-weight:400;font-size:26px;line-height:1.3;margin:0 0 4px;display:flex;gap:12px;align-items:baseline;text-wrap:balance}
+section h2 .n{color:var(--accent);font-size:20px;min-width:1.6em}
+.goal{color:var(--muted);margin:0 0 16px;font-size:16px}
+h3{font-size:19px;margin:22px 0 8px}
+p,li{max-width:65ch}
+ul,ol{padding-inline-start:22px;margin:8px 0}
+li{margin:4px 0}
+.key{border-inline-start:4px solid var(--mark);background:var(--accent-soft);padding:12px 16px;border-radius:6px;margin:14px 0;font-weight:600}
+.table-box{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:16px;min-width:480px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:start;vertical-align:top}
+th{background:var(--accent-soft);font-weight:700}
+td.num{font-variant-numeric:tabular-nums;text-align:end}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;padding:0;list-style:none}
+.flow li{margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-weight:600}
+.flow li.first{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.flow .arr{border:none;background:none;padding:0;color:var(--muted)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.compare div{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.compare .bad{border-style:dashed}
+.compare .lbl{display:block;font-size:14px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.compare .good .lbl{color:var(--accent)}
+.tree{font-family:var(--font-body);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:12px 0}
+.tree ul{list-style:none;padding-inline-start:20px;border-inline-start:2px solid var(--line);margin:4px 0}
+.tree>ul{border:none;padding:0}
+.tree li{margin:4px 0}
+.whys{counter-reset:w;list-style:none;padding:0}
+.whys li{counter-increment:w;padding:6px 0 6px 0;border-bottom:1px solid var(--line)}
+.whys li::before{content:"למה " counter(w) "? ";font-weight:700;color:var(--accent)}
+dl.gloss{display:grid;grid-template-columns:minmax(140px,30%) 1fr;gap:0;margin:8px 0}
+dl.gloss dt,dl.gloss dd{margin:0;padding:10px 8px;border-bottom:1px solid var(--line)}
+dl.gloss dt{font-weight:700}
+.handout{border:2px solid var(--accent)}
+.handout h2 .n{color:var(--mark)}
+.task{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:12px 0}
+.task strong{color:var(--accent)}
+.lines{display:block;border-bottom:1px dashed var(--line);height:30px}
+.check{list-style:none;padding:0}
+.check li::before{content:"☐ ";color:var(--accent)}
+.more{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line);font-size:16px}
+.more a{color:var(--accent);font-weight:700;text-decoration:none}
+.more a:hover,.more a:focus-visible{text-decoration:underline}
+a{color:var(--accent)}
+footer{color:var(--muted);font-size:14px;text-align:center}
+:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+@media (max-width:560px){
+  nav.toc ol{columns:1}
+  .compare{grid-template-columns:1fr}
+  dl.gloss{grid-template-columns:1fr}
+  dl.gloss dt{border-bottom:none;padding-bottom:0}
+  section{padding:20px 16px}
+  body{font-size:17px}
+}
+
+/* site look: learn_sql */
+h1,h2{font-weight:700}
+h1{font-size:2.4rem}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+section h2 .n{font-family:"JetBrains Mono",Consolas,monospace;font-size:1rem;color:var(--paper);background:var(--accent);border-radius:99px;padding:0 10px;min-width:0;flex:none}
+.site-back{color:var(--accent);font-weight:600;font-size:15px;text-decoration:none;width:fit-content}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.chip{background:var(--accent-soft);color:var(--accent)}
+.handout{border-color:var(--accent-deco)}
+code,pre{font-family:"JetBrains Mono",Consolas,"Courier New",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code{direction:ltr;unicode-bidi:isolate;font-size:.86em;background:var(--accent-soft);border-radius:4px;padding:0 4px}
+pre{margin:0;direction:ltr;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:14.5px;line-height:1.55;overflow-x:auto;white-space:pre}
+.kw{color:var(--accent);font-weight:600}
+.dialog{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+.dialog p{margin:0}
+.dialog .who{font-weight:700;color:var(--accent)}
+.dialog .aside{font-size:.8rem;font-weight:700;color:var(--mark-fg);background:var(--mark-bg);border-radius:99px;padding:1px 9px;margin-inline-start:6px;white-space:nowrap}
+@media print{.site-back{display:none} body{background:#fff}}
+</style>
+<script src="font-size.js"></script>
+<link rel="stylesheet" href="brand.css">
+</head>
+<body>
+<div class="wrap">
+<a class="site-back" href="index.html#analyst">→ חזרה לנושא: הכשרת Data Analyst</a>
+
+<header>
+  <h1>תרגילים לחלק 1: מה זה Data Analyst</h1>
+  <p>חמישה תרגילים קצרים שבודקים את ההבנה של התפקיד. הפתרונות למדריך נמצאים בחלקים הנפתחים.</p>
+  <div class="meta"><span class="chip">מודול 1: פתיחה</span><span class="chip">חלק 1 מתוך 7</span><span class="chip">כ־40 דקות</span></div>
+  <p class="more"><a href="analyst-01-guide.html#role">← חזרה למדריך המרכזי</a><a href="analyst-03-role.html">ההרחבה של חלק 1</a></p>
+</header>
+
+<section class="handout">
+  <h2><span class="n">1</span>איזה תפקיד?</h2>
+  <p class="goal">לכל משימה, כתבו מי בדרך כלל אחראי עליה: Data Analyst, מנתח מערכות, BI Developer, Data Scientist או Data Engineer.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>#</th><th>משימה</th><th>תפקיד</th></tr></thead>
+    <tbody>
+      <tr><td>א</td><td>בניית מודל שחוזה אילו לקוחות צפויים לעזוב בחודש הבא</td><td></td></tr>
+      <tr><td>ב</td><td>בדיקה למה המכירות בסניף נתניה ירדו ברבעון האחרון</td><td></td></tr>
+      <tr><td>ג</td><td>הקמת תהליך שמעביר כל לילה את נתוני הקופות למחסן הנתונים</td><td></td></tr>
+      <tr><td>ד</td><td>דשבורד שמתעדכן כל בוקר עם המכירות של אתמול לכל סניף</td><td></td></tr>
+      <tr><td>ה</td><td>ראיונות עם עובדי מחסן כדי לאפיין מערכת הזמנות חדשה</td><td></td></tr>
+      <tr><td>ו</td><td>השוואת שיעורי ההמרה בין שתי גרסאות של דף נחיתה</td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <details>
+    <summary><strong>פתרון</strong></summary>
+    <ul>
+      <li>א: Data Scientist (חיזוי).</li>
+      <li>ב: Data Analyst (מה קרה ולמה).</li>
+      <li>ג: Data Engineer (תשתית).</li>
+      <li>ד: BI Developer (דיווח קבוע).</li>
+      <li>ה: מנתח מערכות (אפיון צרכים ותהליכים).</li>
+      <li>ו: Data Analyst. בארגון עם צוות Data Science גדול זה יכול להיות גם אצלם.</li>
+    </ul>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">2</span>איזה סוג עבודה?</h2>
+  <p class="goal">סווגו כל בקשה: דוח קבוע, שאלה נקודתית או ניתוח עומק. כתבו גם כמה זמן לדעתכם היא תיקח.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>#</th><th>בקשה</th><th>סוג</th><th>זמן</th></tr></thead>
+    <tbody>
+      <tr><td>א</td><td>״כמה הזמנות היו באתר ביום שישי?״</td><td></td><td></td></tr>
+      <tr><td>ב</td><td>״אני צריך כל יום ראשון את מספר הלקוחות החדשים מהשבוע שעבר.״</td><td></td><td></td></tr>
+      <tr><td>ג</td><td>״למה הלקוחות שלנו קונים פחות פעמים בשנה מאשר לפני שלוש שנים?״</td><td></td><td></td></tr>
+      <tr><td>ד</td><td>״איזה סניף מכר הכי הרבה נעלי ריצה בחודש שעבר?״</td><td></td><td></td></tr>
+      <tr><td>ה</td><td>״תבדוק אם כדאי לפתוח סניף חדש בצפון.״</td><td></td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <details>
+    <summary><strong>פתרון</strong></summary>
+    <ul>
+      <li>א: שאלה נקודתית, שעה או פחות.</li>
+      <li>ב: דוח קבוע. כדאי להפוך אותו לאוטומטי או לדשבורד.</li>
+      <li>ג: ניתוח עומק, ימים עד שבועות.</li>
+      <li>ד: שאלה נקודתית, שעה או פחות.</li>
+      <li>ה: ניתוח עומק. סביר שידרוש גם נתונים מחוץ לארגון, כמו אוכלוסייה ומתחרים.</li>
+    </ul>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">3</span>שאלות לפי תחום</h2>
+  <p class="goal">בחרו תחום אחד: בית ספר, מרפאה, אפליקציית משלוחים או מכון כושר. כתבו שלוש שאלות עסקיות שאנליסט יכול לענות עליהן, ולכל שאלה מדד אחד שיעזור לענות עליה.</p>
+  <div class="task">
+    <strong>התחום שבחרתי:</strong>
+    <span class="lines"></span>
+  </div>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>#</th><th>שאלה</th><th>מדד</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td style="height:48px"></td><td></td></tr>
+      <tr><td>2</td><td style="height:48px"></td><td></td></tr>
+      <tr><td>3</td><td style="height:48px"></td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <details>
+    <summary><strong>דוגמה למדריך: מכון כושר</strong></summary>
+    <ul>
+      <li>באילו שעות יש עומס במכון? מדד: מספר כניסות לפי שעה.</li>
+      <li>כמה מנויים חדשים מפסיקים להגיע אחרי חודש? מדד: אחוז מנויים בלי כניסה ב־30 יום.</li>
+      <li>אילו שיעורים קבוצתיים הכי מבוקשים? מדד: תפוסה ממוצעת לשיעור.</li>
+    </ul>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">4</span>להסביר את התפקיד</h2>
+  <p class="goal">הסבירו מה עושה Data Analyst, במשפט אחד או שניים, לכל אחד מהקהלים הבאים.</p>
+  <div class="task"><strong>למנכ״ל:</strong><span class="lines"></span><span class="lines"></span></div>
+  <div class="task"><strong>לחבר שלא עובד בהייטק:</strong><span class="lines"></span><span class="lines"></span></div>
+  <div class="task"><strong>לילד בן 10:</strong><span class="lines"></span><span class="lines"></span></div>
+  <details>
+    <summary><strong>דגשים למדריך</strong></summary>
+    <ul>
+      <li>למנכ״ל: ההסבר מתחיל בערך, כלומר החלטות טובות יותר, חיסכון והכנסות.</li>
+      <li>לחבר: דוגמה מוחשית מהיומיום, כמו חנות שרוצה לדעת מה הלקוחות קונים.</li>
+      <li>לילד: בלש שמחפש רמזים במספרים כדי לענות על שאלה.</li>
+      <li>אם אף הסבר לא מזכיר שאלה או החלטה, כדאי לחזור לנקודה המרכזית של התפקיד.</li>
+    </ul>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">5</span>מה היה חסר?</h2>
+  <p class="goal">קראו את המקרה וענו על השאלות.</p>
+  <div class="task">
+    מנהל המכירות ביקש לדעת ״איך הלך הרבעון״. אחרי שבוע, האנליסט שלח קובץ Excel עם 14 גיליונות: מכירות לפי יום, לפי סניף, לפי מוצר, לפי מוכר ולפי שעה. בקובץ לא היה סיכום. המנהל לא פתח אותו.
+  </div>
+  <div class="task"><strong>א.</strong> אילו שאלות בירור האנליסט היה צריך לשאול בהתחלה?<span class="lines"></span><span class="lines"></span></div>
+  <div class="task"><strong>ב.</strong> איזה כישור מהטבלה ״הכישורים בפועל״ היה חסר כאן?<span class="lines"></span></div>
+  <div class="task"><strong>ג.</strong> איך הייתם מציגים את התוצאות במקום הקובץ?<span class="lines"></span><span class="lines"></span></div>
+  <details>
+    <summary><strong>פתרון</strong></summary>
+    <ul>
+      <li>א: איזו החלטה המנהל צריך לקבל? בהשוואה למה, יעד או רבעון קודם? איזה תוצר הוא רוצה, ומתי?</li>
+      <li>ב: בעיקר תקשורת, וגם הבנה עסקית. האנליסט לא ידע מה חשוב למנהל.</li>
+      <li>ג: שקף או הודעה קצרה עם שורה תחתונה (״עמדנו ב־92% מהיעד״), שניים או שלושה ממצאים עיקריים, והמלצה. הקובץ המלא יכול להיות נספח.</li>
+    </ul>
+  </details>
+  <p class="more"><a href="analyst-01-guide.html#role">← חזרה למדריך המרכזי</a><a href="analyst-03-role.html">ההרחבה של חלק 1</a></p>
+</section>
+
+
+<footer>מודול 1: פתיחה · תרגילים לחלק 1</footer>
+</div>
+</body>
+</html>

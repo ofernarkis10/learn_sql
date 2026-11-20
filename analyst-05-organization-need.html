@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>חלק 2 בהרחבה: הארגון והצורך</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: same reading column as the main guide; each part has an expansion page and an exercises page. */
+:root{
+  --bg:#f4f6f8;
+  --paper:#ffffff;
+  --ink:#16222e;
+  --muted:#556574;
+  --line:#d7dee5;
+  --accent:#1f5f8b;
+  --accent-soft:#e3eef6;
+  --mark:#c98a12;
+  --font-display:"Rubik","Arial Hebrew",Arial,sans-serif;
+  --font-body:"Assistant","Arial Hebrew",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+    --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+  --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.65}
+.wrap{max-width:820px;margin:0 auto;padding:32px 20px 64px;display:flex;flex-direction:column;gap:28px}
+header h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,6vw,40px);line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:65ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:14px;padding:3px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 20px}
+nav.toc ol{margin:0;padding-inline-start:22px;columns:2;column-gap:28px}
+nav.toc a{color:var(--accent);text-decoration:none}
+nav.toc a:hover,nav.toc a:focus-visible{text-decoration:underline}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:24px 22px}
+section h2{font-family:var(--font-display);font-weight:400;font-size:26px;line-height:1.3;margin:0 0 4px;display:flex;gap:12px;align-items:baseline;text-wrap:balance}
+section h2 .n{color:var(--accent);font-size:20px;min-width:1.6em}
+.goal{color:var(--muted);margin:0 0 16px;font-size:16px}
+h3{font-size:19px;margin:22px 0 8px}
+p,li{max-width:65ch}
+ul,ol{padding-inline-start:22px;margin:8px 0}
+li{margin:4px 0}
+.key{border-inline-start:4px solid var(--mark);background:var(--accent-soft);padding:12px 16px;border-radius:6px;margin:14px 0;font-weight:600}
+.table-box{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:16px;min-width:480px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:start;vertical-align:top}
+th{background:var(--accent-soft);font-weight:700}
+td.num{font-variant-numeric:tabular-nums;text-align:end}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;padding:0;list-style:none}
+.flow li{margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-weight:600}
+.flow li.first{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.flow .arr{border:none;background:none;padding:0;color:var(--muted)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.compare div{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.compare .bad{border-style:dashed}
+.compare .lbl{display:block;font-size:14px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.compare .good .lbl{color:var(--accent)}
+.tree{font-family:var(--font-body);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:12px 0}
+.tree ul{list-style:none;padding-inline-start:20px;border-inline-start:2px solid var(--line);margin:4px 0}
+.tree>ul{border:none;padding:0}
+.tree li{margin:4px 0}
+.whys{counter-reset:w;list-style:none;padding:0}
+.whys li{counter-increment:w;padding:6px 0 6px 0;border-bottom:1px solid var(--line)}
+.whys li::before{content:"למה " counter(w) "? ";font-weight:700;color:var(--accent)}
+dl.gloss{display:grid;grid-template-columns:minmax(140px,30%) 1fr;gap:0;margin:8px 0}
+dl.gloss dt,dl.gloss dd{margin:0;padding:10px 8px;border-bottom:1px solid var(--line)}
+dl.gloss dt{font-weight:700}
+.handout{border:2px solid var(--accent)}
+.handout h2 .n{color:var(--mark)}
+.task{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:12px 0}
+.task strong{color:var(--accent)}
+.lines{display:block;border-bottom:1px dashed var(--line);height:30px}
+.check{list-style:none;padding:0}
+.check li::before{content:"☐ ";color:var(--accent)}
+.more{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line);font-size:16px}
+.more a{color:var(--accent);font-weight:700;text-decoration:none}
+.more a:hover,.more a:focus-visible{text-decoration:underline}
+a{color:var(--accent)}
+footer{color:var(--muted);font-size:14px;text-align:center}
+:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+@media (max-width:560px){
+  nav.toc ol{columns:1}
+  .compare{grid-template-columns:1fr}
+  dl.gloss{grid-template-columns:1fr}
+  dl.gloss dt{border-bottom:none;padding-bottom:0}
+  section{padding:20px 16px}
+  body{font-size:17px}
+}
+
+/* site look: learn_sql */
+h1,h2{font-weight:700}
+h1{font-size:2.4rem}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+section h2 .n{font-family:"JetBrains Mono",Consolas,monospace;font-size:1rem;color:var(--paper);background:var(--accent);border-radius:99px;padding:0 10px;min-width:0;flex:none}
+.site-back{color:var(--accent);font-weight:600;font-size:15px;text-decoration:none;width:fit-content}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.chip{background:var(--accent-soft);color:var(--accent)}
+.handout{border-color:var(--accent-deco)}
+code,pre{font-family:"JetBrains Mono",Consolas,"Courier New",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code{direction:ltr;unicode-bidi:isolate;font-size:.86em;background:var(--accent-soft);border-radius:4px;padding:0 4px}
+pre{margin:0;direction:ltr;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:14.5px;line-height:1.55;overflow-x:auto;white-space:pre}
+.kw{color:var(--accent);font-weight:600}
+.dialog{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+.dialog p{margin:0}
+.dialog .who{font-weight:700;color:var(--accent)}
+.dialog .aside{font-size:.8rem;font-weight:700;color:var(--mark-fg);background:var(--mark-bg);border-radius:99px;padding:1px 9px;margin-inline-start:6px;white-space:nowrap}
+@media print{.site-back{display:none} body{background:#fff}}
+</style>
+<script src="font-size.js"></script>
+<link rel="stylesheet" href="brand.css">
+</head>
+<body>
+<div class="wrap">
+<a class="site-back" href="index.html#analyst">→ חזרה לנושא: הכשרת Data Analyst</a>
+
+<header>
+  <h1>חלק 2 בהרחבה: הארגון והצורך</h1>
+  <p>הרחבה לסעיף 2 במדריך המרכזי: איך האנליסט נותן שירות לבעלי התפקידים בארגון, איך מגיעים מהבקשה אל הצורך, ומה ההבדל בין אנליסט לבין מנתח מערכות.</p>
+  <div class="meta"><span class="chip">מודול 1: פתיחה</span><span class="chip">חלק 2 מתוך 7</span></div>
+  <p class="more"><a href="analyst-01-guide.html#org">← חזרה למדריך המרכזי</a><a href="analyst-06-organization-exercises.html">תרגילים לחלק 2</a></p>
+</header>
+
+<nav class="toc" aria-label="תוכן העניינים">
+  <ol>
+    <li><a href="#service">האנליסט כנותן שירות</a></li>
+    <li><a href="#chain">השרשרת מצורך לפעולה</a></li>
+    <li><a href="#need">מהבקשה אל הצורך</a></li>
+    <li><a href="#levels">רמות ההחלטה בהרחבה</a></li>
+    <li><a href="#cards">כרטיסי בעלי תפקידים</a></li>
+    <li><a href="#types">סוגי צורך בהרחבה</a></li>
+    <li><a href="#sa">אנליסט ומנתח מערכות</a></li>
+    <li><a href="#models">מודלים של שירות בארגון</a></li>
+    <li><a href="#priority">סדר עדיפויות</a></li>
+    <li><a href="#success">איך יודעים שהשירות הצליח</a></li>
+  </ol>
+</nav>
+
+<section id="service">
+  <h2><span class="n">1</span>האנליסט כנותן שירות</h2>
+  <p>לאנליסט יש לקוחות פנימיים: בעלי התפקידים בארגון. בדומה לכל נותן שירות, הוא נמדד לפי השאלה אם הלקוח קיבל את מה שהוא צריך, בזמן ובצורה שאפשר להשתמש בה.</p>
+  <h3>מה מאפיין שירות טוב</h3>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>מאפיין</th><th>מה זה אומר בפועל</th></tr></thead>
+    <tbody>
+      <tr><td>רלוונטי</td><td>התשובה עונה על הצורך שמאחורי הבקשה, לא רק על הניסוח שלה.</td></tr>
+      <tr><td>בזמן</td><td>תשובה מדויקת שמגיעה אחרי שההחלטה כבר התקבלה לא שווה כלום.</td></tr>
+      <tr><td>אמין</td><td>הנתונים נבדקו, וההנחות והמגבלות כתובות במפורש.</td></tr>
+      <tr><td>מובן</td><td>בעל התפקיד מבין את התשובה בלי להיות מומחה לנתונים.</td></tr>
+      <tr><td>שימושי</td><td>ברור מה אפשר לעשות עם התשובה.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="key">האנליסט לא מחליט במקום בעל התפקיד. הוא נותן לו את המידע שמאפשר להחליט טוב יותר.</div>
+</section>
+
+<section id="chain">
+  <h2><span class="n">2</span>השרשרת מצורך לפעולה</h2>
+  <p>במדריך המרכזי ראינו את השרשרת. כאן נעבור עליה עם דוגמה אחת: רשת מסעדות, ומנהל התפעול שלה.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>חוליה</th><th>מי אחראי</th><th>בדוגמה</th></tr></thead>
+    <tbody>
+      <tr><td>צורך</td><td>בעל התפקיד</td><td>לצמצם זריקת מזון בלי שיחסרו מנות בשעות העומס.</td></tr>
+      <tr><td>החלטה</td><td>בעל התפקיד</td><td>כמה מנות להכין מראש בכל סניף, בכל יום בשבוע.</td></tr>
+      <tr><td>שאלה</td><td>האנליסט, יחד עם בעל התפקיד</td><td>כמה מנות מכל סוג נמכרו בכל סניף, לפי יום ושעה, בשלושת החודשים האחרונים, וכמה נזרקו?</td></tr>
+      <tr><td>נתונים</td><td>האנליסט</td><td>מכירות מהקופות, דיווחי זריקה מהמטבח.</td></tr>
+      <tr><td>תשובה</td><td>האנליסט</td><td>טבלה לכל סניף: כמות מומלצת לפי יום, ובימי שלישי יש עודף קבוע של כ־20%.</td></tr>
+      <tr><td>פעולה</td><td>בעל התפקיד</td><td>מעדכנים את כמויות ההכנה, ובודקים שוב בעוד חודש.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>שימו לב לחלוקה: הצורך, ההחלטה והפעולה שייכים לבעל התפקיד. השאלה, הנתונים והתשובה הם התרומה של האנליסט. החוליה של השאלה משותפת לשניהם.</p>
+  <h3>איפה השרשרת נשברת</h3>
+  <ul>
+    <li><strong>בין צורך לשאלה:</strong> האנליסט עונה על שאלה אחרת מזו שבעל התפקיד צריך.</li>
+    <li><strong>בין שאלה לנתונים:</strong> הנתונים לא קיימים, לא שלמים או לא מודדים את מה שצריך.</li>
+    <li><strong>בין תשובה לפעולה:</strong> התשובה נכונה, אבל לא ברור מה לעשות איתה.</li>
+  </ul>
+</section>
+
+<section id="need">
+  <h2><span class="n">3</span>מהבקשה אל הצורך</h2>
+  <p>האנליסט לא מזהה צרכים בעצמו. הוא מקבל בקשה מבעל תפקיד, והתפקיד שלו הוא להבין איזה צורך עומד מאחוריה, כדי לענות עליו נכון.</p>
+  <h3>דוגמאות</h3>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>הבקשה</th><th>הצורך</th><th>מה האנליסט מספק בסוף</th></tr></thead>
+    <tbody>
+      <tr><td>״תוציא לי את רשימת הלקוחות הגדולים.״</td><td>להחליט למי להציע הסכם שנתי</td><td>רשימה עם היקף רכישה, תדירות ומגמה, ממוינת לפי פוטנציאל</td></tr>
+      <tr><td>״כמה פניות היו למוקד החודש?״</td><td>להחליט אם לגייס עוד נציגים</td><td>פניות לפי שעה וזמני המתנה, מול מספר הנציגים במשמרת</td></tr>
+      <tr><td>״אני צריך את הנתונים של הקמפיין.״</td><td>להחליט אם להמשיך את הקמפיין</td><td>עלות מול הכנסות מלקוחות שהגיעו מהקמפיין</td></tr>
+      <tr><td>״תבדוק את הציונים של שכבה י׳.״</td><td>להחליט באילו נושאים לתגבר</td><td>ציונים לפי נושא וכיתה, והנושאים החלשים ביותר</td></tr>
+      <tr><td>״כמה עולה לנו המשלוח?״</td><td>להחליט אם להחליף חברת שילוח</td><td>עלות למשלוח ואחוז איחורים, לפי חברה ואזור</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>שאלות שחושפות את הצורך</h3>
+  <ul>
+    <li>מה תעשה עם התשובה?</li>
+    <li>מה יקרה אם לא תקבל אותה?</li>
+    <li>מה אתה מצפה לראות? ומה יפתיע אותך?</li>
+    <li>מי עוד יראה את התשובה?</li>
+    <li>האם זה חד־פעמי, או שתצטרך את זה שוב?</li>
+  </ul>
+  <div class="key">אם בעל התפקיד לא יודע מה יעשה עם התשובה, כדאי לעצור ולברר לפני שמתחילים לעבוד.</div>
+</section>
+
+<section id="levels">
+  <h2><span class="n">4</span>רמות ההחלטה בהרחבה</h2>
+  <p>כל רמת החלטה צריכה סוג אחר של תשובה. ההבדלים משפיעים על רמת הפירוט, על הדיוק ועל צורת ההצגה.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>מאפיין</th><th>אסטרטגית</th><th>טקטית</th><th>תפעולית</th></tr></thead>
+    <tbody>
+      <tr><td>טווח זמן</td><td>שנים</td><td>חודשים עד רבעון</td><td>יום עד שבוע</td></tr>
+      <tr><td>תדירות</td><td>נדירה</td><td>תקופתית</td><td>יומיומית</td></tr>
+      <tr><td>רמת פירוט</td><td>כללית, מסוכמת</td><td>לפי מחלקה, מוצר, ערוץ</td><td>מפורטת: סניף, משמרת, עובד</td></tr>
+      <tr><td>מקור הנתונים</td><td>פנימי וחיצוני: שוק, מתחרים</td><td>בעיקר פנימי</td><td>פנימי ועדכני</td></tr>
+      <tr><td>צורת הצגה</td><td>מסמך או מצגת עם המלצה</td><td>ניתוח עם השוואות</td><td>דשבורד או מדד יומי</td></tr>
+      <tr><td>מה חשוב יותר</td><td>תמונה נכונה</td><td>השוואה הוגנת</td><td>מהירות וזמינות</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="cards">
+  <h2><span class="n">5</span>כרטיסי בעלי תפקידים</h2>
+  <p>כרטיס לכל בעל תפקיד עוזר לאנליסט חדש להבין מה מעסיק את הלקוחות שלו. כדאי לבנות כרטיסים כאלה לבעלי התפקידים בארגון שלכם.</p>
+
+  <h3>מנכ״ל</h3>
+  <dl class="gloss">
+    <dt>מה מעסיק אותו</dt><dd>האם הארגון עומד ביעדים, ואיפה הסיכונים וההזדמנויות.</dd>
+    <dt>החלטות עיקריות</dt><dd>השקעות, כיווני צמיחה, צמצומים.</dd>
+    <dt>מדדים</dt><dd>הכנסות, רווחיות, צמיחה, שביעות רצון לקוחות.</dd>
+    <dt>שאלה טיפוסית</dt><dd>״אנחנו בכיוון הנכון השנה?״</dd>
+    <dt>איך להציג לו</dt><dd>עמוד אחד, מסקנה בשורה הראשונה, שלושה מדדים מול יעד.</dd>
+  </dl>
+
+  <h3>מנהלת שיווק</h3>
+  <dl class="gloss">
+    <dt>מה מעסיק אותה</dt><dd>מאיפה מגיעים לקוחות ומה המחיר של כל לקוח.</dd>
+    <dt>החלטות עיקריות</dt><dd>חלוקת התקציב בין ערוצים, אילו קמפיינים להמשיך.</dd>
+    <dt>מדדים</dt><dd>עלות לרכישת לקוח, שיעור המרה, החזר על ההשקעה.</dd>
+    <dt>שאלה טיפוסית</dt><dd>״איזה ערוץ הכי משתלם?״</dd>
+    <dt>איך להציג לה</dt><dd>השוואה בין ערוצים בטבלה או בגרף עמודות, עם המלצה.</dd>
+  </dl>
+
+  <h3>מנהל תפעול</h3>
+  <dl class="gloss">
+    <dt>מה מעסיק אותו</dt><dd>עמידה בזמנים, עלויות ועומסים.</dd>
+    <dt>החלטות עיקריות</dt><dd>מלאי, שיבוץ עובדים, ספקים.</dd>
+    <dt>מדדים</dt><dd>זמן אספקה, אחוז עמידה בזמנים, עלות ליחידה.</dd>
+    <dt>שאלה טיפוסית</dt><dd>״למה יש לנו איחורים בשבועות האחרונים?״</dd>
+    <dt>איך להציג לו</dt><dd>פילוח לפי שלבי התהליך, כדי לראות איפה הצוואר בקבוק.</dd>
+  </dl>
+
+  <h3>מנהל סניף</h3>
+  <dl class="gloss">
+    <dt>מה מעסיק אותו</dt><dd>היום יום: מכירות, צוות, לקוחות.</dd>
+    <dt>החלטות עיקריות</dt><dd>שיבוץ משמרות, מה לשפר השבוע.</dd>
+    <dt>מדדים</dt><dd>מכירות יומיות מול יעד, סל ממוצע.</dd>
+    <dt>שאלה טיפוסית</dt><dd>״איך אני עומד מול היעד החודשי?״</dd>
+    <dt>איך להציג לו</dt><dd>מדד אחד או שניים, מתעדכנים כל יום, זמינים בטלפון.</dd>
+  </dl>
+</section>
+
+<section id="types">
+  <h2><span class="n">6</span>סוגי צורך בהרחבה</h2>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>הצורך</th><th>איך נראה התוצר</th><th>טעות נפוצה</th></tr></thead>
+    <tbody>
+      <tr><td>לדעת מה קורה</td><td>דשבורד עם מעט מדדים, מול יעד או תקופה קודמת</td><td>דשבורד עם 30 מדדים שאף אחד לא מסתכל עליהם</td></tr>
+      <tr><td>להבין למה</td><td>ניתוח שמפלח את הבעיה עד שמוצאים איפה היא מרוכזת</td><td>לתאר מה קרה בלי להגיע לסיבה</td></tr>
+      <tr><td>לבחור בין חלופות</td><td>השוואה לפי קריטריונים שבעל התפקיד הגדיר</td><td>להשוות לפי מדד אחד ולהתעלם מעלות או סיכון</td></tr>
+      <tr><td>לבדוק אם פעולה הצליחה</td><td>לפני ואחרי, מול קבוצה שלא הושפעה מהפעולה</td><td>לייחס לפעולה שינוי שהיה קורה בכל מקרה, למשל בגלל עונה</td></tr>
+      <tr><td>להיערך לעתיד</td><td>תחזית עם טווח, לא מספר אחד</td><td>להציג תחזית כאילו היא ודאית</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="sa">
+  <h2><span class="n">7</span>אנליסט ומנתח מערכות</h2>
+  <p>בארגון גדול יש מנתחי מערכות. מנתח המערכות עוזר להקים את המערכות של הארגון, מגדיר את תהליכי העבודה ומטפל בתפעול השוטף של החברה: מזהה ומאפיין צרכים, כותב דרישות, ומלווה את המערכות גם אחרי שהן עולות לאוויר. בחלק מהארגונים התפקיד נקרא System Analyst או Business Analyst.</p>
+  <p>האנליסט לוקח את הנתונים שכבר קיימים במערכות שהוקמו, ומנסה להביא מהם תשובות לשאלות.</p>
+  <div class="key">Data Analyst אינו מנתח מערכות. מנתח המערכות מקים את המערכות, מגדיר את תהליכי העבודה ומטפל בתפעול השוטף. האנליסט משתמש בנתונים שהמערכות האלה אוספות כדי לענות על שאלות של בעלי תפקידים.</div>
+  <div class="table-box">
+  <table>
+    <thead><tr><th></th><th>מנתח מערכות</th><th>Data Analyst</th></tr></thead>
+    <tbody>
+      <tr><td>נקודת המוצא</td><td>תהליך עבודה שצריך לבנות או לשפר</td><td>שאלה של בעל תפקיד שצריך לקבל החלטה</td></tr>
+      <tr><td>מה הוא עושה</td><td>עוזר להקים מערכות, מגדיר תהליכי עבודה, מטפל בתפעול השוטף</td><td>מברר את הצורך שמאחורי הבקשה ועונה עליו מתוך נתונים</td></tr>
+      <tr><td>תוצר</td><td>מסמך אפיון, תרשים תהליך, מערכת שעובדת</td><td>ניתוח, תשובה, המלצה, דשבורד</td></tr>
+      <tr><td>שאלה מרכזית</td><td>איך העבודה צריכה להתבצע?</td><td>מה הנתונים אומרים על מה שקרה?</td></tr>
+      <tr><td>קשר לנתונים</td><td>קובע אילו נתונים ייאספו ואיך</td><td>משתמש בנתונים שנאספו</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>איך הם עובדים יחד</h3>
+  <p>לעבודה המשותפת יש שני צדדים. היום, מנתח המערכות עוזר לאנליסט להבין איפה נמצא המידע שהוא צריך. לעתיד, האנליסט יכול לענות רק על שאלות שהמידע שלהן נאסף, ולכן הוא עובד עם מנתח המערכות כדי שהמערכות יאספו כבר עכשיו, בעבודה השוטפת, את המידע שיידרש לתשובות בעתיד.</p>
+  <ul>
+    <li><strong>איפה המידע:</strong> האנליסט פונה למנתח המערכות כדי להבין איפה נמצא המידע שהוא צריך: באיזו מערכת, באיזו טבלה ובאיזה שדה, ואיך הוא נרשם בתהליך העבודה. למשל: האם תאריך המשלוח נרשם כשהחבילה יוצאת מהמחסן, או כשהיא מגיעה ללקוח?</li>
+    <li>מנתח המערכות מאפיין מערכת חדשה, למשל מערכת הזמנות. המערכת הזו תייצר את הנתונים שהאנליסט ינתח בהמשך.</li>
+    <li>כשהאנליסט מגלה שחסר נתון, למשל סיבת ביטול הזמנה, הוא מעביר את זה למנתח המערכות, שיכול להוסיף את השדה למערכת.</li>
+    <li>כשהאנליסט מגלה בעיה בתהליך, למשל שלב שבו הזמנות נתקעות, זה מידע שמנתח המערכות יכול להשתמש בו כדי לשפר את התהליך.</li>
+  </ul>
+  <p>בארגון קטן, ייתכן שאותו אדם עושה את שני התפקידים. גם אז כדאי לזכור שאלה שני סוגי עבודה שונים.</p>
+</section>
+
+<section id="models">
+  <h2><span class="n">8</span>מודלים של שירות בארגון</h2>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>מודל</th><th>איך זה עובד</th><th>יתרון</th><th>חיסרון</th></tr></thead>
+    <tbody>
+      <tr><td>צוות מרכזי</td><td>צוות אנליסטים אחד מקבל בקשות מכל הארגון</td><td>שיטות אחידות, הגדרות מדדים אחידות</td><td>רחוק מהתחום של כל מחלקה, תור ארוך</td></tr>
+      <tr><td>אנליסט משויך</td><td>אנליסט יושב בתוך מחלקה ועובד רק עבורה</td><td>מכיר לעומק את התחום ואת הנתונים שלו</td><td>הגדרות שונות בכל מחלקה, אנליסט בודד</td></tr>
+      <tr><td>משולב</td><td>אנליסטים משויכים למחלקות, ומקבלים הנחיה מקצועית מצוות מרכזי</td><td>קרוב לתחום ועדיין אחיד</td><td>דורש תיאום</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>שירות עצמי</h3>
+  <p>צורך שחוזר על עצמו, כמו ״כמה מכרנו אתמול?״, עדיף לפתור בדשבורד שבעל התפקיד פותח בעצמו. כך האנליסט מתפנה לשאלות שבאמת דורשות ניתוח.</p>
+</section>
+
+<section id="priority">
+  <h2><span class="n">9</span>סדר עדיפויות</h2>
+  <p>תמיד יש יותר בקשות מזמן. העדיפות נקבעת לפי חשיבות ההחלטה שהתשובה תשרת, ולא לפי מי שביקש ראשון או מי שלוחץ הכי חזק.</p>
+  <h3>קריטריונים</h3>
+  <ul>
+    <li><strong>השפעה:</strong> כמה כסף, אנשים או סיכון תלויים בהחלטה?</li>
+    <li><strong>דחיפות:</strong> מתי ההחלטה תתקבל?</li>
+    <li><strong>מאמץ:</strong> כמה עבודה התשובה דורשת?</li>
+  </ul>
+  <h3>דוגמה</h3>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>בקשה</th><th>השפעה</th><th>דחיפות</th><th>מאמץ</th><th>עדיפות</th></tr></thead>
+    <tbody>
+      <tr><td>האם להאריך חוזה עם ספק גדול (ההחלטה בעוד שבוע)</td><td>גבוהה</td><td>גבוהה</td><td>בינוני</td><td>ראשונה</td></tr>
+      <tr><td>כמה לקוחות קנו במבצע אתמול</td><td>נמוכה</td><td>בינונית</td><td>נמוך</td><td>מהר, או להפנות לדשבורד</td></tr>
+      <tr><td>למה שיעור העזיבה עלה השנה</td><td>גבוהה</td><td>נמוכה</td><td>גבוה</td><td>לתכנן לשבועות הקרובים</td></tr>
+      <tr><td>גרף נוסף למצגת פנימית</td><td>נמוכה</td><td>נמוכה</td><td>נמוך</td><td>אחרונה</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="success">
+  <h2><span class="n">10</span>איך יודעים שהשירות הצליח</h2>
+  <ul>
+    <li><strong>התקבלה החלטה:</strong> בעל התפקיד השתמש בתשובה כדי להחליט.</li>
+    <li><strong>הוא חוזר:</strong> בעל התפקיד פונה שוב עם השאלה הבאה.</li>
+    <li><strong>אין סבב תיקונים:</strong> לא היה צורך לחזור ולעשות את העבודה מחדש כי הבינו את הבקשה לא נכון.</li>
+    <li><strong>דשבורדים בשימוש:</strong> אנשים באמת פותחים את מה שנבנה עבורם.</li>
+  </ul>
+  <div class="key">כדאי לחזור לבעל התפקיד כמה שבועות אחרי שהתשובה נמסרה ולשאול: מה החלטת? מה קרה בעקבות זה? זו הדרך הטובה ביותר ללמוד מה עבד.</div>
+  <p class="more"><a href="analyst-01-guide.html#org">← חזרה למדריך המרכזי</a><a href="analyst-06-organization-exercises.html">תרגילים לחלק 2</a></p>
+</section>
+
+<footer>מודול 1: פתיחה · חלק 2 בהרחבה</footer>
+</div>
+</body>
+</html>

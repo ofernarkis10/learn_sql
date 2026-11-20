@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>תרגילים לחלק 4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: same reading column as the main guide; each part has an expansion page and an exercises page. */
+:root{
+  --bg:#f4f6f8;
+  --paper:#ffffff;
+  --ink:#16222e;
+  --muted:#556574;
+  --line:#d7dee5;
+  --accent:#1f5f8b;
+  --accent-soft:#e3eef6;
+  --mark:#c98a12;
+  --font-display:"Rubik","Arial Hebrew",Arial,sans-serif;
+  --font-body:"Assistant","Arial Hebrew",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+    --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+  --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.65}
+.wrap{max-width:820px;margin:0 auto;padding:32px 20px 64px;display:flex;flex-direction:column;gap:28px}
+header h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,6vw,40px);line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:65ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:14px;padding:3px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 20px}
+nav.toc ol{margin:0;padding-inline-start:22px;columns:2;column-gap:28px}
+nav.toc a{color:var(--accent);text-decoration:none}
+nav.toc a:hover,nav.toc a:focus-visible{text-decoration:underline}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:24px 22px}
+section h2{font-family:var(--font-display);font-weight:400;font-size:26px;line-height:1.3;margin:0 0 4px;display:flex;gap:12px;align-items:baseline;text-wrap:balance}
+section h2 .n{color:var(--accent);font-size:20px;min-width:1.6em}
+.goal{color:var(--muted);margin:0 0 16px;font-size:16px}
+h3{font-size:19px;margin:22px 0 8px}
+p,li{max-width:65ch}
+ul,ol{padding-inline-start:22px;margin:8px 0}
+li{margin:4px 0}
+.key{border-inline-start:4px solid var(--mark);background:var(--accent-soft);padding:12px 16px;border-radius:6px;margin:14px 0;font-weight:600}
+.table-box{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:16px;min-width:480px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:start;vertical-align:top}
+th{background:var(--accent-soft);font-weight:700}
+td.num{font-variant-numeric:tabular-nums;text-align:end}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;padding:0;list-style:none}
+.flow li{margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-weight:600}
+.flow li.first{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.flow .arr{border:none;background:none;padding:0;color:var(--muted)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.compare div{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.compare .bad{border-style:dashed}
+.compare .lbl{display:block;font-size:14px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.compare .good .lbl{color:var(--accent)}
+.tree{font-family:var(--font-body);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:12px 0}
+.tree ul{list-style:none;padding-inline-start:20px;border-inline-start:2px solid var(--line);margin:4px 0}
+.tree>ul{border:none;padding:0}
+.tree li{margin:4px 0}
+.whys{counter-reset:w;list-style:none;padding:0}
+.whys li{counter-increment:w;padding:6px 0 6px 0;border-bottom:1px solid var(--line)}
+.whys li::before{content:"למה " counter(w) "? ";font-weight:700;color:var(--accent)}
+dl.gloss{display:grid;grid-template-columns:minmax(140px,30%) 1fr;gap:0;margin:8px 0}
+dl.gloss dt,dl.gloss dd{margin:0;padding:10px 8px;border-bottom:1px solid var(--line)}
+dl.gloss dt{font-weight:700}
+.handout{border:2px solid var(--accent)}
+.handout h2 .n{color:var(--mark)}
+.task{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:12px 0}
+.task strong{color:var(--accent)}
+.lines{display:block;border-bottom:1px dashed var(--line);height:30px}
+.check{list-style:none;padding:0}
+.check li::before{content:"☐ ";color:var(--accent)}
+.more{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line);font-size:16px}
+.more a{color:var(--accent);font-weight:700;text-decoration:none}
+.more a:hover,.more a:focus-visible{text-decoration:underline}
+a{color:var(--accent)}
+footer{color:var(--muted);font-size:14px;text-align:center}
+:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+@media (max-width:560px){
+  nav.toc ol{columns:1}
+  .compare{grid-template-columns:1fr}
+  dl.gloss{grid-template-columns:1fr}
+  dl.gloss dt{border-bottom:none;padding-bottom:0}
+  section{padding:20px 16px}
+  body{font-size:17px}
+}
+
+/* site look: learn_sql */
+h1,h2{font-weight:700}
+h1{font-size:2.4rem}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+section h2 .n{font-family:"JetBrains Mono",Consolas,monospace;font-size:1rem;color:var(--paper);background:var(--accent);border-radius:99px;padding:0 10px;min-width:0;flex:none}
+.site-back{color:var(--accent);font-weight:600;font-size:15px;text-decoration:none;width:fit-content}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.chip{background:var(--accent-soft);color:var(--accent)}
+.handout{border-color:var(--accent-deco)}
+code,pre{font-family:"JetBrains Mono",Consolas,"Courier New",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code{direction:ltr;unicode-bidi:isolate;font-size:.86em;background:var(--accent-soft);border-radius:4px;padding:0 4px}
+pre{margin:0;direction:ltr;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:14.5px;line-height:1.55;overflow-x:auto;white-space:pre}
+.kw{color:var(--accent);font-weight:600}
+.dialog{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+.dialog p{margin:0}
+.dialog .who{font-weight:700;color:var(--accent)}
+.dialog .aside{font-size:.8rem;font-weight:700;color:var(--mark-fg);background:var(--mark-bg);border-radius:99px;padding:1px 9px;margin-inline-start:6px;white-space:nowrap}
+@media print{.site-back{display:none} body{background:#fff}}
+</style>
+<script src="font-size.js"></script>
+<link rel="stylesheet" href="brand.css">
+</head>
+<body>
+<div class="wrap">
+<a class="site-back" href="index.html#analyst">→ חזרה לנושא: הכשרת Data Analyst</a>
+
+<header>
+  <h1>תרגילים לחלק 4: להבין את הבקשה</h1>
+  <p>שישה תרגילים על שלב הבירור: לזהות את סוג הבקשה, לשאול את השאלות הנכונות, להסכים על המילים ולסכם בכתב. הפתרונות נמצאים בחלקים הנפתחים.</p>
+  <div class="meta"><span class="chip">מודול 1: פתיחה</span><span class="chip">חלק 4 מתוך 7</span><span class="chip">כ־60 דקות</span></div>
+  <p class="more"><a href="analyst-01-guide.html#request">← חזרה למדריך המרכזי</a><a href="analyst-11-request.html">ההרחבה של חלק 4</a></p>
+</header>
+
+<section class="handout">
+  <h2><span class="n">1</span>איזה סוג בקשה?</h2>
+  <p class="goal">לכל בקשה, כתבו את הסוג: בקשת תוצר, בקשה עמומה, בקשה עם תשובה מוכנה, בקשה דחופה או בקשה שחוזרת. כתבו גם מה תעשו.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>#</th><th>הבקשה</th><th>סוג</th><th>מה תעשו</th></tr></thead>
+    <tbody>
+      <tr><td>א</td><td>״תראה להנהלה שהספק החדש יותר טוב מהישן.״</td><td></td><td></td></tr>
+      <tr><td>ב</td><td>״משהו לא בסדר עם המלאי. תסתכל.״</td><td></td><td></td></tr>
+      <tr><td>ג</td><td>״תשלח לי שוב את רשימת ההזמנות הפתוחות, כמו כל יום ראשון.״</td><td></td><td></td></tr>
+      <tr><td>ד</td><td>״אני צריך טבלה של כל הלקוחות לפי מדינה.״</td><td></td><td></td></tr>
+      <tr><td>ה</td><td>״המנכ״ל ביקש מספר על המכירות, הוא נכנס לישיבה בעוד שעה.״</td><td></td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <details>
+    <summary><strong>פתרון</strong></summary>
+    <ul>
+      <li>א: בקשה עם תשובה מוכנה. מנסחים שאלה פתוחה: איזה ספק טוב יותר, ולפי מה? ומציגים את מה שנמצא.</li>
+      <li>ב: בקשה עמומה. שואלים מה גרם לבקשה: חוסרים? עודפים? ואיזו החלטה תתקבל.</li>
+      <li>ג: בקשה שחוזרת. מספקים, ומציעים דוח קבוע או דשבורד.</li>
+      <li>ד: בקשת תוצר. שואלים מה יעשו עם הטבלה.</li>
+      <li>ה: בקשה דחופה. מבררים איזה מספר בדיוק, ונותנים תשובה טובה מספיק בזמן, עם הסבר מה לא נבדק.</li>
+    </ul>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">2</span>ארבע שאלות בירור</h2>
+  <p class="goal">מנהל הרכש של Northwind כותב: ״תבדוק את הספקים.״ כתבו ארבע שאלות בירור, אחת לכל נושא, בשפה רגילה של שיחה.</p>
+  <div class="task"><strong>החלטה:</strong><span class="lines"></span></div>
+  <div class="task"><strong>השערה:</strong><span class="lines"></span></div>
+  <div class="task"><strong>תוצר:</strong><span class="lines"></span></div>
+  <div class="task"><strong>זמן ודיוק:</strong><span class="lines"></span></div>
+  <details>
+    <summary><strong>שאלות לדוגמה</strong></summary>
+    <ul>
+      <li>החלטה: ״מה תעשה עם התשובה? אתה חושב להחליף ספק?״</li>
+      <li>השערה: ״מה גרם לך לשאול עכשיו? יש ספק שמטריד אותך?״</li>
+      <li>תוצר: ״איך תרצה לקבל את זה, ומי עוד יראה?״</li>
+      <li>זמן ודיוק: ״עד מתי אתה צריך את זה? מספיקה תמונה כללית?״</li>
+    </ul>
+    <p>שאלה טובה נשמעת כמו שיחה, לא כמו טופס. ״מה ההחלטה העסקית שעומדת מאחורי הבקשה?״ נכון, אבל נשמע מאיים.</p>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">3</span>מילים שצריך להגדיר</h2>
+  <p class="goal">בכל בקשה סמנו את המילה שאפשר להבין בכמה דרכים, וכתבו שתי הגדרות אפשריות.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>#</th><th>הבקשה</th><th>המילה</th><th>שתי הגדרות</th></tr></thead>
+    <tbody>
+      <tr><td>א</td><td>״כמה לקוחות חדשים היו לנו השנה?״</td><td></td><td></td></tr>
+      <tr><td>ב</td><td>״אילו מוצרים הכי רווחיים?״</td><td></td><td></td></tr>
+      <tr><td>ג</td><td>״כמה הזמנות גדולות היו ברבעון?״</td><td></td><td></td></tr>
+      <tr><td>ד</td><td>״איזה סניף הכי מצליח?״</td><td></td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <details>
+    <summary><strong>תשובות אפשריות</strong></summary>
+    <ul>
+      <li>א: ״חדשים״. לקוח שהזמין לראשונה השנה, או לקוח שנרשם השנה גם אם עוד לא הזמין.</li>
+      <li>ב: ״רווחיים״. הכי הרבה הכנסות, או הכי הרבה רווח אחרי עלות. אם אין נתוני עלות, צריך לומר את זה.</li>
+      <li>ג: ״גדולות״. לפי סכום בכסף, או לפי מספר פריטים. ומאיזה סכום הזמנה נחשבת גדולה?</li>
+      <li>ד: ״מצליח״. הכי הרבה מכירות, הכי הרבה צמיחה, או הכי קרוב ליעד.</li>
+    </ul>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">4</span>מה חסר בשיחה?</h2>
+  <p class="goal">קראו את השיחה וענו: אילו שאלות האנליסט לא שאל, ומה עלול לקרות בגלל זה?</p>
+  <div class="dialog">
+    <p><span class="who">מנהלת שיווק:</span> תוציא לי את 10 הלקוחות הכי גדולים.</p>
+    <p><span class="who">אנליסט:</span> אין בעיה. מאיזו תקופה?</p>
+    <p><span class="who">מנהלת שיווק:</span> השנה.</p>
+    <p><span class="who">אנליסט:</span> מעולה, אשלח לך מחר.</p>
+  </div>
+  <div class="task"><span class="lines"></span><span class="lines"></span><span class="lines"></span></div>
+  <details>
+    <summary><strong>פתרון</strong></summary>
+    <ul>
+      <li>לא שאל מה היא תעשה עם הרשימה. אם היא מתכננת מבצע שימור, אולי היא צריכה דווקא לקוחות גדולים שהפסיקו להזמין.</li>
+      <li>לא הגדיר ״הכי גדולים״: לפי סכום, או לפי מספר הזמנות?</li>
+      <li>לא שאל איך היא רוצה את התוצר ומי יראה אותו.</li>
+      <li>לא שלח סיכום בכתב לאישור.</li>
+    </ul>
+    <p>הדבר היחיד שהוא שאל, על התקופה, היה שאלה טובה. אבל בלי ההחלטה, ייתכן שהרשימה לא תעזור לה.</p>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">5</span>כתבו סיכום בקשה</h2>
+  <p class="goal">קראו את השיחה, ומלאו את סיכום הבקשה.</p>
+  <div class="dialog">
+    <p><span class="who">מנהל סניף:</span> אני רוצה לדעת מי הלקוחות שהפסיקו להזמין אצלנו.</p>
+    <p><span class="who">אנליסט:</span> מה תעשה עם הרשימה?</p>
+    <p><span class="who">מנהל סניף:</span> הנציגים יתקשרו אליהם עם הצעה מיוחדת.</p>
+    <p><span class="who">אנליסט:</span> ״הפסיקו להזמין״ זה כמה זמן בלי הזמנה?</p>
+    <p><span class="who">מנהל סניף:</span> שלושה חודשים. אבל רק לקוחות שהזמינו קודם באופן קבוע, לפחות שלוש פעמים.</p>
+    <p><span class="who">אנליסט:</span> איך תרצה את זה, ועד מתי?</p>
+    <p><span class="who">מנהל סניף:</span> רשימה שאפשר לחלק בין הנציגים, עם טלפון. עד יום ראשון.</p>
+  </div>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>שדה</th><th>מה כתוב</th></tr></thead>
+    <tbody>
+      <tr><td>הצורך</td><td style="height:44px"></td></tr>
+      <tr><td>ההחלטה</td><td style="height:44px"></td></tr>
+      <tr><td>שאלת הניתוח</td><td style="height:56px"></td></tr>
+      <tr><td>הגדרות</td><td style="height:56px"></td></tr>
+      <tr><td>תוצר</td><td style="height:44px"></td></tr>
+      <tr><td>מועד</td><td style="height:44px"></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <details>
+    <summary><strong>תשובה אפשרית</strong></summary>
+    <dl class="gloss">
+      <dt>הצורך</dt><dd>להחזיר לקוחות קבועים שהפסיקו להזמין</dd>
+      <dt>ההחלטה</dt><dd>למי הנציגים יתקשרו עם הצעה מיוחדת</dd>
+      <dt>שאלת הניתוח</dt><dd>אילו לקוחות של הסניף הזמינו לפחות שלוש פעמים בעבר, ולא הזמינו בשלושת החודשים האחרונים?</dd>
+      <dt>הגדרות</dt><dd>״הפסיק להזמין״: אין הזמנה בשלושה חודשים. ״לקוח קבוע״: לפחות שלוש הזמנות לפני כן.</dd>
+      <dt>תוצר</dt><dd>רשימה עם שם הלקוח, איש קשר וטלפון, שאפשר לחלק בין הנציגים</dd>
+      <dt>מועד</dt><dd>יום ראשון</dd>
+    </dl>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">6</span>משחק תפקידים</h2>
+  <p class="goal">אחד משחק בעל תפקיד, והשני אנליסט. לאנליסט יש 5 דקות לברר את הבקשה, ואחר כך הוא כותב סיכום בקשה. מחליפים תפקידים עם תסריט אחר.</p>
+  <div class="task"><strong>הבקשה (בעל התפקיד אומר):</strong> ״תבדוק את ההנחות שהנציגים נותנים.״</div>
+  <div class="task"><strong>האנליסט רושם:</strong> השאלות ששאל, ואת סיכום הבקשה.<span class="lines"></span><span class="lines"></span><span class="lines"></span></div>
+  <details>
+    <summary><strong>תסריט סודי לבעל התפקיד</strong></summary>
+    <ul>
+      <li><strong>התפקיד:</strong> סמנכ״לית הכספים של Northwind.</li>
+      <li><strong>הצורך:</strong> הרווחיות ירדה, והיא חושדת שההנחות גבוהות מדי.</li>
+      <li><strong>ההחלטה:</strong> האם לקבוע תקרה להנחה שנציג יכול לתת בלי אישור.</li>
+      <li><strong>להגיד רק אם שואלים:</strong> ״הנחה גבוהה״ מבחינתה היא מעל 15%. היא צריכה את התשובה לישיבה בעוד שבוע. היא רוצה טבלה ולא גרף.</li>
+      <li><strong>שאלת ניתוח טובה:</strong> ״איזה חלק מההכנסות בשנה האחרונה הגיע מהזמנות עם הנחה מעל 15%, וכמה הכנסות ויתרנו עליהן בגלל ההנחות האלה?״</li>
+    </ul>
+  </details>
+  <p class="more"><a href="analyst-01-guide.html#request">← חזרה למדריך המרכזי</a><a href="analyst-11-request.html">ההרחבה של חלק 4</a></p>
+</section>
+
+<footer>מודול 1: פתיחה · תרגילים לחלק 4</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מדריך הכשרת Data Analyst</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: single reading column, numbered modules down the page; exercises live in a separate linked page. */
+:root{
+  --bg:#f4f6f8;
+  --paper:#ffffff;
+  --ink:#16222e;
+  --muted:#556574;
+  --line:#d7dee5;
+  --accent:#1f5f8b;
+  --accent-soft:#e3eef6;
+  --mark:#c98a12;
+  --font-display:"Rubik","Arial Hebrew",Arial,sans-serif;
+  --font-body:"Assistant","Arial Hebrew",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+    --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+  --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.65}
+.wrap{max-width:820px;margin:0 auto;padding:32px 20px 64px;display:flex;flex-direction:column;gap:28px}
+header h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,6vw,40px);line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:65ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:14px;padding:3px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 20px}
+nav.toc ol{margin:0;padding-inline-start:22px;columns:2;column-gap:28px}
+nav.toc a{color:var(--accent);text-decoration:none}
+nav.toc a:hover,nav.toc a:focus-visible{text-decoration:underline}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:24px 22px}
+section h2{font-family:var(--font-display);font-weight:400;font-size:26px;line-height:1.3;margin:0 0 4px;display:flex;gap:12px;align-items:baseline;text-wrap:balance}
+section h2 .n{color:var(--accent);font-size:20px;min-width:1.6em}
+.goal{color:var(--muted);margin:0 0 16px;font-size:16px}
+h3{font-size:19px;margin:22px 0 8px}
+p,li{max-width:65ch}
+ul,ol{padding-inline-start:22px;margin:8px 0}
+li{margin:4px 0}
+.key{border-inline-start:4px solid var(--mark);background:var(--accent-soft);padding:12px 16px;border-radius:6px;margin:14px 0;font-weight:600}
+.table-box{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:16px;min-width:480px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:start;vertical-align:top}
+th{background:var(--accent-soft);font-weight:700}
+td.num{font-variant-numeric:tabular-nums;text-align:end}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;padding:0;list-style:none}
+.flow li{margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-weight:600}
+.flow li.first{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.flow .arr{border:none;background:none;padding:0;color:var(--muted)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.compare div{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.compare .bad{border-style:dashed}
+.compare .lbl{display:block;font-size:14px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.compare .good .lbl{color:var(--accent)}
+.tree{font-family:var(--font-body);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:12px 0}
+.tree ul{list-style:none;padding-inline-start:20px;border-inline-start:2px solid var(--line);margin:4px 0}
+.tree>ul{border:none;padding:0}
+.tree li{margin:4px 0}
+.whys{counter-reset:w;list-style:none;padding:0}
+.whys li{counter-increment:w;padding:6px 0 6px 0;border-bottom:1px solid var(--line)}
+.whys li::before{content:"למה " counter(w) "? ";font-weight:700;color:var(--accent)}
+dl.gloss{display:grid;grid-template-columns:minmax(140px,30%) 1fr;gap:0;margin:8px 0}
+dl.gloss dt,dl.gloss dd{margin:0;padding:10px 8px;border-bottom:1px solid var(--line)}
+dl.gloss dt{font-weight:700}
+.handout{border:2px solid var(--accent)}
+.handout h2 .n{color:var(--mark)}
+.task{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:12px 0}
+.task strong{color:var(--accent)}
+.lines{display:block;border-bottom:1px dashed var(--line);height:30px}
+.check{list-style:none;padding:0}
+.check li::before{content:"☐ ";color:var(--accent)}
+.more{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line);font-size:16px}
+.more a{color:var(--accent);font-weight:700;text-decoration:none}
+.more a:hover,.more a:focus-visible{text-decoration:underline}
+footer{color:var(--muted);font-size:14px;text-align:center}
+:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+@media (max-width:560px){
+  nav.toc ol{columns:1}
+  .compare{grid-template-columns:1fr}
+  dl.gloss{grid-template-columns:1fr}
+  dl.gloss dt{border-bottom:none;padding-bottom:0}
+  section{padding:20px 16px}
+  body{font-size:17px}
+}
+
+/* site look: learn_sql */
+h1,h2{font-weight:700}
+h1{font-size:2.4rem}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+section h2 .n{font-family:"JetBrains Mono",Consolas,monospace;font-size:1rem;color:var(--paper);background:var(--accent);border-radius:99px;padding:0 10px;min-width:0;flex:none}
+.site-back{color:var(--accent);font-weight:600;font-size:15px;text-decoration:none;width:fit-content}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.chip{background:var(--accent-soft);color:var(--accent)}
+.handout{border-color:var(--accent-deco)}
+code,pre{font-family:"JetBrains Mono",Consolas,"Courier New",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code{direction:ltr;unicode-bidi:isolate;font-size:.86em;background:var(--accent-soft);border-radius:4px;padding:0 4px}
+pre{margin:0;direction:ltr;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:14.5px;line-height:1.55;overflow-x:auto;white-space:pre}
+.kw{color:var(--accent);font-weight:600}
+.dialog{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+.dialog p{margin:0}
+.dialog .who{font-weight:700;color:var(--accent)}
+.dialog .aside{font-size:.8rem;font-weight:700;color:var(--mark-fg);background:var(--mark-bg);border-radius:99px;padding:1px 9px;margin-inline-start:6px;white-space:nowrap}
+@media print{.site-back{display:none} body{background:#fff}}
+</style>
+<script src="font-size.js"></script>
+<link rel="stylesheet" href="brand.css">
+</head>
+<body>
+<div class="wrap">
+<a class="site-back" href="index.html#analyst">→ חזרה לנושא: הכשרת Data Analyst</a>
+
+<header>
+  <h1>מדריך הכשרת Data Analyst</h1>
+  <p>המסמך המרכזי של תהליך ההכשרה. המודול הראשון עוסק בפתיחה: מה המקצוע, איזה צורך הוא משרת בארגון, איך נראה התהליך, ואיך שואלים את השאלות הנכונות לפני שנוגעים בנתונים.</p>
+  <p class="key" style="margin-top:14px">לכל חלק יש מסמך הרחבה ומסמך תרגילים, עם קישורים בסוף הסעיף. תרגיל מסכם למודול כולו: <a href="analyst-19-opening-exercise.html" style="color:var(--accent)">תרגילי מודול הפתיחה</a></p>
+  <div class="meta">
+    <span class="chip">שבוע ראשון</span>
+    <span class="chip">כ־5 מפגשים</span>
+    <span class="chip">ללא כלים טכניים</span>
+  </div>
+</header>
+
+<nav class="toc" aria-label="תוכן העניינים">
+  <ol>
+    <li><a href="#role">מה זה Data Analyst</a></li>
+    <li><a href="#org">הארגון והצורך</a></li>
+    <li><a href="#process">מפת התהליך</a></li>
+    <li><a href="#request">להבין את הבקשה</a></li>
+    <li><a href="#question">לנסח את השאלה</a></li>
+    <li><a href="#data">להכיר את הנתונים</a></li>
+    <li><a href="#terms">מושגי יסוד</a></li>
+    <li><a href="#trainer">צ׳קליסט למדריך</a></li>
+  </ol>
+</nav>
+
+<section id="role">
+  <h2><span class="n">1</span>מה זה Data Analyst</h2>
+  <p class="goal">מטרה: העובד יודע להסביר במשפט אחד מה הוא עושה, ובמה התפקיד שונה מתפקידים קרובים.</p>
+  <p>אנליסט נתונים עוזר לארגון לקבל החלטות טובות יותר בעזרת נתונים. הוא מקבל שאלה עסקית, מוצא את הנתונים שעונים עליה, בודק שהם אמינים, מנתח אותם ומחזיר תשובה עם המלצה.</p>
+  <div class="key">התפקיד הוא לענות על שאלות עסקיות. טבלה או גרף הם רק הדרך להגיע לתשובה.</div>
+
+  <h3>תפקידים קרובים</h3>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>תפקיד</th><th>שאלה מרכזית</th><th>תוצר טיפוסי</th></tr></thead>
+    <tbody>
+      <tr><td>Data Analyst</td><td>מה קרה ולמה?</td><td>ניתוח, דשבורד, המלצה</td></tr>
+      <tr><td>BI Developer</td><td>איך כולם יראו את המדדים בקביעות?</td><td>דוחות ודשבורדים קבועים</td></tr>
+      <tr><td>Data Scientist</td><td>מה יקרה?</td><td>מודל חיזוי</td></tr>
+      <tr><td>Data Engineer</td><td>איך הנתונים יגיעו נקיים ובזמן?</td><td>תשתית וצינורות נתונים</td></tr>
+      <tr><td>מנתח מערכות</td><td>איך העבודה והמערכות צריכות להיות בנויות?</td><td>אפיון, תהליכי עבודה ותהליכים ממוחשבים</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>יום עבודה טיפוסי</h3>
+  <ul>
+    <li>מנהל שואל למה ירדו ההרשמות בחודש האחרון.</li>
+    <li>האנליסט מברר מה בדיוק צריך לדעת ולמה.</li>
+    <li>הוא שולף נתונים, בודק אותם ומנקה.</li>
+    <li>הוא משווה, מפלח ומחפש הסבר.</li>
+    <li>הוא מציג ממצא אחד ברור והמלצה לפעולה.</li>
+  </ul>
+
+  <h3>הכישורים הנדרשים</h3>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>כישורי חשיבה</th><th>כישורים טכניים (בהמשך ההכשרה)</th></tr></thead>
+    <tbody>
+      <tr><td>סקרנות ושאילת שאלות</td><td>Excel / Google Sheets</td></tr>
+      <tr><td>חשיבה מבנית: פירוק בעיה</td><td>SQL</td></tr>
+      <tr><td>ספקנות כלפי נתונים</td><td>סטטיסטיקה בסיסית</td></tr>
+      <tr><td>הבנת ההקשר העסקי</td><td>Power BI / Tableau</td></tr>
+      <tr><td>תקשורת וסיפור עם נתונים</td><td>Python (pandas)</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="more"><a href="analyst-03-role.html">להרחבה על חלק 1</a><a href="analyst-04-role-exercises.html">לתרגילים של חלק 1</a></p>
+</section>
+
+<section id="org">
+  <h2><span class="n">2</span>הארגון והצורך: למי האנליסט נותן שירות</h2>
+  <p class="goal">מטרה: העובד מבין שהלקוח שלו הוא בעל תפקיד שצריך לקבל החלטה, ושהעבודה מתחילה בצורך של אותו בעל תפקיד.</p>
+  <p>האנליסט הוא נותן שירות בתוך הארגון. הלקוחות שלו הם בעלי התפקידים: מנכ״ל, מנהלת שיווק, מנהל סניף. לכל אחד מהם יש החלטות שהוא צריך לקבל, ולכל החלטה יש צורך במידע. האנליסט מספק את הדרך לענות על הצורך הזה.</p>
+  <div class="key">הצורך קודם לנתונים. אנליסט שמתחיל מהנתונים מייצר דוחות. אנליסט שמתחיל מהצורך עוזר לקבל החלטות.</div>
+
+  <h3>השרשרת: מצורך לתשובה</h3>
+  <ol class="flow" aria-label="מצורך לתשובה">
+    <li class="first">צורך</li><li class="arr" aria-hidden="true">←</li>
+    <li>החלטה</li><li class="arr" aria-hidden="true">←</li>
+    <li>שאלה</li><li class="arr" aria-hidden="true">←</li>
+    <li>נתונים</li><li class="arr" aria-hidden="true">←</li>
+    <li>תשובה</li><li class="arr" aria-hidden="true">←</li>
+    <li>פעולה</li>
+  </ol>
+  <p>בעל התפקיד מביא את הצורך ואת ההחלטה. האנליסט מתרגם אותם לשאלה, מוצא את הנתונים ומחזיר תשובה שמאפשרת לפעול.</p>
+
+  <h3>הבקשה אינה הצורך</h3>
+  <p>בעלי תפקידים מבקשים בדרך כלל תוצר: ״דוח״, ״טבלה״, ״נתונים על...״. מאחורי הבקשה יש צורך, וזה מה שהאנליסט צריך לזהות.</p>
+  <div class="compare">
+    <div class="bad"><span class="lbl">הבקשה</span>״תוציא לי דוח מכירות לפי מוצר.״</div>
+    <div class="good"><span class="lbl">הצורך</span>להחליט כמה מלאי להזמין לעונה הבאה, בלי להישאר עם עודפים.</div>
+  </div>
+  <div class="compare">
+    <div class="bad"><span class="lbl">הבקשה</span>״כמה עובדים עזבו השנה?״</div>
+    <div class="good"><span class="lbl">הצורך</span>להבין אם יש בעיה במחלקה מסוימת, ולהחליט אם להשקיע בתוכנית שימור.</div>
+  </div>
+
+  <h3>שלוש רמות של החלטות בארגון</h3>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>רמה</th><th>מי מחליט</th><th>דוגמה להחלטה</th><th>מה הוא צריך מהאנליסט</th></tr></thead>
+    <tbody>
+      <tr><td>אסטרטגית</td><td>הנהלה בכירה</td><td>לפתוח סניפים באזור חדש?</td><td>תמונה רחבה, מגמות לאורך זמן, השוואת חלופות</td></tr>
+      <tr><td>טקטית</td><td>מנהלי מחלקות</td><td>לאיזה ערוץ להעביר את תקציב הפרסום ברבעון הבא?</td><td>השוואה בין אפשרויות, מדידת תוצאות</td></tr>
+      <tr><td>תפעולית</td><td>מנהלים בשטח</td><td>כמה עובדים לשבץ במשמרת של יום שישי?</td><td>מדד פשוט, מעודכן, זמין כל יום</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>בעלי תפקידים והצורך שלהם</h3>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>בעל תפקיד</th><th>הצורך</th><th>ההחלטה</th><th>מה האנליסט מספק</th></tr></thead>
+    <tbody>
+      <tr><td>מנכ״ל</td><td>לדעת אם הארגון בכיוון הנכון</td><td>איפה להשקיע ואיפה לצמצם</td><td>תמונת מצב של המדדים המרכזיים מול היעדים</td></tr>
+      <tr><td>מנהלת שיווק</td><td>לדעת מה מביא לקוחות</td><td>איך לחלק את תקציב הפרסום</td><td>השוואת ערוצים: עלות ותוצאה</td></tr>
+      <tr><td>מנהל מכירות</td><td>להבין איפה המכירות חלשות</td><td>על אילו סניפים או מוצרים להתמקד</td><td>פילוח מכירות ואיתור הסיבה לירידה</td></tr>
+      <tr><td>מנהל תפעול</td><td>לעמוד בזמנים בלי עלויות מיותרות</td><td>כמה מלאי להחזיק, איך לשבץ עובדים</td><td>זיהוי עומסים ותחזית ביקוש</td></tr>
+      <tr><td>מנהלת משאבי אנוש</td><td>לשמור על עובדים טובים</td><td>במה להשקיע כדי לצמצם עזיבה</td><td>שיעורי עזיבה לפי מחלקה, ותק ותפקיד</td></tr>
+      <tr><td>מנהל כספים</td><td>לשלוט בהוצאות</td><td>איפה לקצץ ואיך לתקצב</td><td>סטיות מתקציב ומגמות הוצאה</td></tr>
+      <tr><td>מנהל סניף</td><td>לנהל את היום יום</td><td>מה לשפר השבוע</td><td>מדד יומי פשוט מול יעד</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>סוגי צורך וסוג השירות שעונה עליהם</h3>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>הצורך</th><th>שאלה לדוגמה</th><th>השירות של האנליסט</th></tr></thead>
+    <tbody>
+      <tr><td>לדעת מה קורה</td><td>איך היו המכירות אתמול?</td><td>דשבורד או דוח קבוע</td></tr>
+      <tr><td>להבין למה</td><td>למה ירדו ההרשמות?</td><td>ניתוח אבחוני</td></tr>
+      <tr><td>לבחור בין חלופות</td><td>איזה מבצע עדיף?</td><td>השוואה, ניסוי A/B</td></tr>
+      <tr><td>לבדוק אם פעולה הצליחה</td><td>האם הקמפיין החזיר את עצמו?</td><td>מדידת השפעה: לפני ואחרי, מול קבוצת ביקורת</td></tr>
+      <tr><td>להיערך לעתיד</td><td>כמה לקוחות יהיו בחג?</td><td>תחזית</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>איך הארגון מקבל את השירות</h3>
+  <ul>
+    <li><strong>פנייה ישירה:</strong> בעל תפקיד פונה עם שאלה, והאנליסט מברר את הצורך לפני שהוא מתחיל.</li>
+    <li><strong>דוחות ודשבורדים קבועים:</strong> צורך שחוזר על עצמו מקבל פתרון קבוע, ובעל התפקיד מוצא את התשובה בעצמו.</li>
+    <li><strong>שותפות קבועה:</strong> אנליסט שמשויך למחלקה מכיר את התחום שלה ואת הנתונים שלה, ולכן עונה מהר ומדויק יותר.</li>
+  </ul>
+  <h3>אנליסט אינו מנתח מערכות</h3>
+  <p>בארגון גדול יש מנתחי מערכות. מנתח המערכות עוזר להקים את המערכות של הארגון, מגדיר את תהליכי העבודה ומטפל בתפעול השוטף של החברה.</p>
+  <p>האנליסט לוקח את הנתונים שכבר קיימים במערכות שהוקמו, ומנסה להביא מהם תשובות לשאלות של בעלי התפקידים. הוא לא מזהה צרכים בעצמו: הוא מקבל בקשה מבעל תפקיד ומברר איזה צורך עומד מאחוריה.</p>
+  <p>לכן האנליסט עובד יחד עם מנתח המערכות. מנתח המערכות מכיר את המערכות מבפנים, והוא עוזר לאנליסט להבין איפה נמצא המידע שהוא צריך: באיזו מערכת, באיזו טבלה ובאיזה שדה, ומה בדיוק נרשם בכל שדה. וכשחסר מידע כדי לענות על שאלה, מנתח המערכות דואג שהמידע ייאסף מעכשיו בעבודה השוטפת. כך מכינים כבר היום את המידע שיאפשר לענות על שאלות בעתיד.</p>
+  <div class="key">דוגמה: מנהל המשלוחים שואל למה לקוחות מבטלים הזמנות, אבל במערכת אין שדה לסיבת הביטול. היום אי אפשר לענות. מנתח המערכות מוסיף את השדה לתהליך העבודה, ובעוד כמה חודשים תהיה תשובה.</div>
+  <p>כשיש יותר בקשות מזמן, סדר העדיפויות נקבע לפי חשיבות ההחלטה: כמה כסף, כמה אנשים או כמה סיכון תלויים בה.</p>
+  <div class="key">השאלה שמלווה את האנליסט בכל פנייה: איזה צורך של בעל התפקיד אני עונה עליו, ואיזו החלטה התשובה שלי תאפשר?</div>
+  <p class="more"><a href="analyst-05-organization-need.html">להרחבה על חלק 2</a><a href="analyst-07-northwind-organization.html">הארגון לדוגמה: Northwind</a><a href="analyst-06-organization-exercises.html">לתרגילים של חלק 2</a></p>
+</section>
+
+<section id="process">
+  <h2><span class="n">3</span>מפת התהליך</h2>
+  <p class="goal">מטרה: העובד מכיר את שישת השלבים ומבין למה השלב הראשון קובע את כל השאר.</p>
+  <ol class="flow" aria-label="שלבי התהליך">
+    <li class="first">1. שאלה</li><li class="arr" aria-hidden="true">←</li>
+    <li>2. איסוף</li><li class="arr" aria-hidden="true">←</li>
+    <li>3. ניקוי</li><li class="arr" aria-hidden="true">←</li>
+    <li>4. ניתוח</li><li class="arr" aria-hidden="true">←</li>
+    <li>5. הצגה</li><li class="arr" aria-hidden="true">←</li>
+    <li>6. פעולה</li>
+  </ol>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>שלב</th><th>מה עושים</th><th>שאלת מפתח</th></tr></thead>
+    <tbody>
+      <tr><td>שאלה</td><td>מבינים את הבקשה ומנסחים שאלה מדידה</td><td>איזו החלטה תתקבל?</td></tr>
+      <tr><td>איסוף</td><td>מאתרים ושולפים את הנתונים הרלוונטיים</td><td>איפה נמצא המידע?</td></tr>
+      <tr><td>ניקוי</td><td>חסרים, כפילויות, פורמטים, חריגים</td><td>אפשר לסמוך על זה?</td></tr>
+      <tr><td>ניתוח</td><td>השוואה, פילוח, מגמות, מתאמים</td><td>מה הנתונים מראים?</td></tr>
+      <tr><td>הצגה</td><td>גרף או דשבורד עם מסר אחד ברור</td><td>מה הקהל צריך להבין?</td></tr>
+      <tr><td>פעולה</td><td>המלצה ומעקב אחרי התוצאה</td><td>מה עושים עכשיו?</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="key">שאלה גרועה תוביל לניתוח מושלם שעונה על הבעיה הלא נכונה.</div>
+  <p class="more"><a href="analyst-09-process.html">להרחבה על חלק 3</a><a href="analyst-10-process-exercises.html">לתרגילים של חלק 3</a></p>
+</section>
+
+<section id="request">
+  <h2><span class="n">4</span>להבין את הבקשה</h2>
+  <p class="goal">מטרה: העובד לא מתחיל לעבוד לפני שהבין מה באמת מבקשים ממנו.</p>
+  <p>בקשות מגיעות כמעט תמיד מעורפלות: ״תבדוק מה קורה עם הלקוחות״, ״תוציא לי נתונים על המכירות״. לפני כל עבודה מקיימים שיחת בירור קצרה עם מי שביקש.</p>
+  <h3>ארבע שאלות בירור קבועות</h3>
+  <ol>
+    <li><strong>החלטה:</strong> איזו החלטה תתקבל בעקבות התשובה?</li>
+    <li><strong>השערה:</strong> מה התחושה או ההנחה שעומדת מאחורי הבקשה?</li>
+    <li><strong>תוצר:</strong> איך נראית הצלחה? מספר, גרף, טבלה, המלצה?</li>
+    <li><strong>זמן ודיוק:</strong> מתי צריך את התשובה, וכמה מדויקת היא צריכה להיות?</li>
+  </ol>
+  <h3>מי בעל העניין?</h3>
+  <p>כדאי לזהות מי ישתמש בתשובה. מנהל בכיר צריך מסקנה אחת, מנהל תפעול צריך פירוט לפי סניפים, וצוות שיווק צריך פילוח לפי ערוצים.</p>
+  <p class="more"><a href="analyst-11-request.html">להרחבה על חלק 4</a><a href="analyst-12-request-exercises.html">לתרגילים של חלק 4</a></p>
+</section>
+
+<section id="question">
+  <h2><span class="n">5</span>לנסח את השאלה</h2>
+  <p class="goal">מטרה: העובד יודע להפוך בקשה מעורפלת לשאלת ניתוח ברורה ומדידה.</p>
+
+  <h3>א. 5W1H: לפרק את הבקשה</h3>
+  <p>דוגמה רצה: רשת חנויות. המנהל אומר: ״המכירות לא טובות.״</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>שאלה</th><th>מה בודקים</th><th>בדוגמה</th></tr></thead>
+    <tbody>
+      <tr><td>Who (מי)</td><td>מי הישויות בנתונים?</td><td>אילו לקוחות? חדשים או חוזרים?</td></tr>
+      <tr><td>What (מה)</td><td>מה נמדד?</td><td>הכנסות? מספר עסקאות? סל ממוצע?</td></tr>
+      <tr><td>When (מתי)</td><td>איזה טווח זמן?</td><td>ממתי הירידה? בהשוואה לאיזו תקופה?</td></tr>
+      <tr><td>Where (איפה)</td><td>באיזה מקום או ערוץ?</td><td>כל הסניפים או רק חלק? חנות או אונליין?</td></tr>
+      <tr><td>Why (למה)</td><td>למה שואלים?</td><td>להחליט על מבצע? על סגירת סניף?</td></tr>
+      <tr><td>How (איך)</td><td>איך הנתונים נאספו?</td><td>מקופות? ממערכת האתר? ידנית?</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>ב. SMART: לחדד לשאלה מדידה</h3>
+  <ul>
+    <li><strong>S</strong>pecific: ספציפית</li>
+    <li><strong>M</strong>easurable: מדידה</li>
+    <li><strong>A</strong>ction-oriented: מכוונת לפעולה</li>
+    <li><strong>R</strong>elevant: רלוונטית להחלטה</li>
+    <li><strong>T</strong>ime-bound: תחומה בזמן</li>
+  </ul>
+  <div class="compare">
+    <div class="bad"><span class="lbl">לפני</span>מה קורה עם המכירות?</div>
+    <div class="good"><span class="lbl">אחרי</span>באילו סניפים ירדו ההכנסות ביותר מ־10% ברבעון 3, בהשוואה לרבעון 3 אשתקד, ומה השתנה בהם במספר העסקאות ובסל הממוצע?</div>
+  </div>
+  <div class="compare">
+    <div class="bad"><span class="lbl">לפני</span>תבדוק מה קורה עם הלקוחות.</div>
+    <div class="good"><span class="lbl">אחרי</span>כמה לקוחות לא ביצעו רכישה ב־90 הימים האחרונים, ובאילו פלחי גיל ואזור שיעור העזיבה הגבוה ביותר?</div>
+  </div>
+
+  <h3>ג. עץ בעיות: לפרק שאלה גדולה</h3>
+  <div class="tree">
+    <ul>
+      <li><strong>למה ירדו ההכנסות?</strong>
+        <ul>
+          <li>פחות לקוחות
+            <ul><li>פחות לקוחות חדשים</li><li>יותר לקוחות עזבו</li></ul>
+          </li>
+          <li>כל לקוח קונה פחות
+            <ul><li>פחות ביקורים</li><li>סל ממוצע קטן יותר</li></ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+  <p>כל ענף הוא שאלה שאפשר לבדוק בנפרד בנתונים.</p>
+
+  <h3>ד. 5 Whys: להגיע לשורש</h3>
+  <ol class="whys">
+    <li>ההכנסות בסניף ירדו. כי היו פחות עסקאות.</li>
+    <li>היו פחות עסקאות. כי פחות לקוחות נכנסו לחנות.</li>
+    <li>פחות לקוחות נכנסו. כי החניה ליד הסניף נסגרה.</li>
+    <li>החניה נסגרה. כי יש עבודות תשתית ברחוב.</li>
+    <li>לא נערכנו לכך. כי לא היה מעקב אחרי שינויים בסביבת הסניפים.</li>
+  </ol>
+  <p>שימו לב: חלק מהתשובות דורשות מידע שלא נמצא בנתונים. לפעמים צריך לשאול אנשים בשטח.</p>
+  <p class="more"><a href="analyst-13-question.html">להרחבה על חלק 5</a><a href="analyst-14-question-exercises.html">לתרגילים של חלק 5</a></p>
+</section>
+
+<section id="data">
+  <h2><span class="n">6</span>להכיר את הנתונים לפני שמנתחים</h2>
+  <p class="goal">מטרה: העובד יודע לתאר טבלה ולזהות בעיות אפשריות עוד לפני שהוא מחשב משהו.</p>
+  <h3>חמש שאלות על כל טבלה חדשה</h3>
+  <ol>
+    <li><strong>רמת פירוט (Granularity):</strong> מה מייצגת שורה אחת? עסקה, יום, לקוח?</li>
+    <li><strong>מילון נתונים:</strong> מה המשמעות של כל עמודה, ובאיזו יחידה היא נמדדת?</li>
+    <li><strong>מקור:</strong> מאיפה הנתונים הגיעו ואיך נאספו?</li>
+    <li><strong>טווח:</strong> אילו תאריכים, אילו סניפים, כמה שורות יש?</li>
+    <li><strong>חוסרים והטיות:</strong> מה עלול להיות חסר, כפול או לא מייצג?</li>
+  </ol>
+  <h3>דוגמה: מילון נתונים</h3>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>עמודה</th><th>משמעות</th><th>סוג</th><th>הערה</th></tr></thead>
+    <tbody>
+      <tr><td>order_id</td><td>מזהה עסקה</td><td>טקסט</td><td>אמור להיות ייחודי</td></tr>
+      <tr><td>order_date</td><td>תאריך העסקה</td><td>תאריך</td><td>לבדוק פורמט אחיד</td></tr>
+      <tr><td>branch</td><td>שם הסניף</td><td>קטגוריה</td><td>לבדוק כתיב שונה לאותו סניף</td></tr>
+      <tr><td>amount</td><td>סכום העסקה בש״ח</td><td>מספר רציף</td><td>כולל מע״מ? יש החזרים שליליים?</td></tr>
+      <tr><td>customer_id</td><td>מזהה לקוח</td><td>טקסט</td><td>ריק ללקוח שאינו רשום</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="more"><a href="analyst-15-data.html">להרחבה על חלק 6</a><a href="analyst-16-data-exercises.html">לתרגילים של חלק 6</a></p>
+</section>
+
+<section id="terms">
+  <h2><span class="n">7</span>מושגי יסוד</h2>
+  <p class="goal">מטרה: שפה משותפת בין העובד, הצוות והמנהלים.</p>
+  <dl class="gloss">
+    <dt>ניתוח תיאורי</dt><dd>מה קרה? למשל: ההכנסות ירדו ב־8%.</dd>
+    <dt>ניתוח אבחוני</dt><dd>למה זה קרה? למשל: הירידה מרוכזת בשני סניפים.</dd>
+    <dt>ניתוח חזוי</dt><dd>מה צפוי לקרות? למשל: אם המגמה תימשך, הרבעון הבא יהיה חלש יותר.</dd>
+    <dt>ניתוח מרשם</dt><dd>מה כדאי לעשות? למשל: להפעיל מבצע ממוקד בסניפים האלה.</dd>
+    <dt>נתון כמותי / איכותי</dt><dd>מספרים מול תיאורים או קטגוריות (סכום מול שם סניף).</dd>
+    <dt>בדיד / רציף</dt><dd>ספירה (מספר פריטים) מול מדידה (סכום, זמן).</dd>
+    <dt>מדד ו־KPI</dt><dd>מדד הוא כל דבר שמודדים. KPI הוא המדד שבאמת קובע אם הארגון מצליח.</dd>
+    <dt>ממוצע וחציון</dt><dd>ממוצע מושפע מערכים קיצוניים. החציון הוא הערך האמצעי ולכן יציב יותר.</dd>
+    <dt>מתאם אינו סיבתיות</dt><dd>מכירות גלידה ושריפות עולות יחד בקיץ, אבל אחת לא גורמת לשנייה.</dd>
+    <dt>אוכלוסייה ומדגם</dt><dd>כל הלקוחות מול חלק מהם שנבדק. מדגם לא מייצג מוביל למסקנה שגויה.</dd>
+    <dt>הטיית אישוש</dt><dd>הנטייה לחפש רק נתונים שמאשרים את מה שכבר חשבנו.</dd>
+    <dt>איכות נתונים</dt><dd>שלמות, דיוק, עקביות ועדכניות.</dd>
+    <dt>חריג (Outlier)</dt><dd>ערך רחוק מאוד מהשאר. יכול להיות טעות, ויכול להיות התגלית החשובה.</dd>
+  </dl>
+  <p class="more"><a href="analyst-17-terms.html">להרחבה על חלק 7</a><a href="analyst-18-terms-exercises.html">לתרגילים של חלק 7</a></p>
+</section>
+
+<section id="trainer">
+  <h2><span class="n">8</span>צ׳קליסט למדריך: סוף מודול הפתיחה</h2>
+  <p class="goal">אחרי שהעובד פתר את <a href="analyst-19-opening-exercise.html" style="color:var(--accent)">התרגילים</a>, הוא מוכן להמשיך לשלב הכלים הטכניים כשהוא יודע:</p>
+  <ul class="check">
+    <li>להסביר במשפט אחד מה עושה Data Analyst ובמה הוא שונה מ־Data Scientist.</li>
+    <li>לזהות את הצורך וההחלטה של בעל התפקיד שמאחורי כל בקשה.</li>
+    <li>למנות את שישת שלבי התהליך.</li>
+    <li>לשאול את ארבע שאלות הבירור לפני שמתחילים לעבוד.</li>
+    <li>לפרק בקשה בעזרת 5W1H.</li>
+    <li>לנסח שאלה לפי SMART.</li>
+    <li>לבנות עץ בעיות פשוט.</li>
+    <li>לתאר טבלה: רמת פירוט, מילון נתונים, מקור, טווח וחוסרים.</li>
+    <li>להסביר מה ההבדל בין מתאם לסיבתיות ובין ממוצע לחציון.</li>
+  </ul>
+</section>
+
+<footer>מודול 1 מתוך תוכנית ההכשרה. המודול הבא: Excel וטבלאות ציר.</footer>
+</div>
+</body>
+</html>

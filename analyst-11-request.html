@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>חלק 4 בהרחבה: להבין את הבקשה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: same reading column as the main guide; each part has an expansion page and an exercises page. */
+:root{
+  --bg:#f4f6f8;
+  --paper:#ffffff;
+  --ink:#16222e;
+  --muted:#556574;
+  --line:#d7dee5;
+  --accent:#1f5f8b;
+  --accent-soft:#e3eef6;
+  --mark:#c98a12;
+  --font-display:"Rubik","Arial Hebrew",Arial,sans-serif;
+  --font-body:"Assistant","Arial Hebrew",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+    --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+  --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.65}
+.wrap{max-width:820px;margin:0 auto;padding:32px 20px 64px;display:flex;flex-direction:column;gap:28px}
+header h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,6vw,40px);line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:65ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:14px;padding:3px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 20px}
+nav.toc ol{margin:0;padding-inline-start:22px;columns:2;column-gap:28px}
+nav.toc a{color:var(--accent);text-decoration:none}
+nav.toc a:hover,nav.toc a:focus-visible{text-decoration:underline}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:24px 22px}
+section h2{font-family:var(--font-display);font-weight:400;font-size:26px;line-height:1.3;margin:0 0 4px;display:flex;gap:12px;align-items:baseline;text-wrap:balance}
+section h2 .n{color:var(--accent);font-size:20px;min-width:1.6em}
+.goal{color:var(--muted);margin:0 0 16px;font-size:16px}
+h3{font-size:19px;margin:22px 0 8px}
+p,li{max-width:65ch}
+ul,ol{padding-inline-start:22px;margin:8px 0}
+li{margin:4px 0}
+.key{border-inline-start:4px solid var(--mark);background:var(--accent-soft);padding:12px 16px;border-radius:6px;margin:14px 0;font-weight:600}
+.table-box{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:16px;min-width:480px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:start;vertical-align:top}
+th{background:var(--accent-soft);font-weight:700}
+td.num{font-variant-numeric:tabular-nums;text-align:end}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;padding:0;list-style:none}
+.flow li{margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-weight:600}
+.flow li.first{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.flow .arr{border:none;background:none;padding:0;color:var(--muted)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.compare div{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.compare .bad{border-style:dashed}
+.compare .lbl{display:block;font-size:14px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.compare .good .lbl{color:var(--accent)}
+.tree{font-family:var(--font-body);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:12px 0}
+.tree ul{list-style:none;padding-inline-start:20px;border-inline-start:2px solid var(--line);margin:4px 0}
+.tree>ul{border:none;padding:0}
+.tree li{margin:4px 0}
+.whys{counter-reset:w;list-style:none;padding:0}
+.whys li{counter-increment:w;padding:6px 0 6px 0;border-bottom:1px solid var(--line)}
+.whys li::before{content:"למה " counter(w) "? ";font-weight:700;color:var(--accent)}
+dl.gloss{display:grid;grid-template-columns:minmax(140px,30%) 1fr;gap:0;margin:8px 0}
+dl.gloss dt,dl.gloss dd{margin:0;padding:10px 8px;border-bottom:1px solid var(--line)}
+dl.gloss dt{font-weight:700}
+.handout{border:2px solid var(--accent)}
+.handout h2 .n{color:var(--mark)}
+.task{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:12px 0}
+.task strong{color:var(--accent)}
+.lines{display:block;border-bottom:1px dashed var(--line);height:30px}
+.check{list-style:none;padding:0}
+.check li::before{content:"☐ ";color:var(--accent)}
+.more{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line);font-size:16px}
+.more a{color:var(--accent);font-weight:700;text-decoration:none}
+.more a:hover,.more a:focus-visible{text-decoration:underline}
+a{color:var(--accent)}
+footer{color:var(--muted);font-size:14px;text-align:center}
+:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+@media (max-width:560px){
+  nav.toc ol{columns:1}
+  .compare{grid-template-columns:1fr}
+  dl.gloss{grid-template-columns:1fr}
+  dl.gloss dt{border-bottom:none;padding-bottom:0}
+  section{padding:20px 16px}
+  body{font-size:17px}
+}
+
+/* site look: learn_sql */
+h1,h2{font-weight:700}
+h1{font-size:2.4rem}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+section h2 .n{font-family:"JetBrains Mono",Consolas,monospace;font-size:1rem;color:var(--paper);background:var(--accent);border-radius:99px;padding:0 10px;min-width:0;flex:none}
+.site-back{color:var(--accent);font-weight:600;font-size:15px;text-decoration:none;width:fit-content}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.chip{background:var(--accent-soft);color:var(--accent)}
+.handout{border-color:var(--accent-deco)}
+code,pre{font-family:"JetBrains Mono",Consolas,"Courier New",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code{direction:ltr;unicode-bidi:isolate;font-size:.86em;background:var(--accent-soft);border-radius:4px;padding:0 4px}
+pre{margin:0;direction:ltr;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:14.5px;line-height:1.55;overflow-x:auto;white-space:pre}
+.kw{color:var(--accent);font-weight:600}
+.dialog{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+.dialog p{margin:0}
+.dialog .who{font-weight:700;color:var(--accent)}
+.dialog .aside{font-size:.8rem;font-weight:700;color:var(--mark-fg);background:var(--mark-bg);border-radius:99px;padding:1px 9px;margin-inline-start:6px;white-space:nowrap}
+@media print{.site-back{display:none} body{background:#fff}}
+</style>
+<script src="font-size.js"></script>
+<link rel="stylesheet" href="brand.css">
+</head>
+<body>
+<div class="wrap">
+<a class="site-back" href="index.html#analyst">→ חזרה לנושא: הכשרת Data Analyst</a>
+
+<header>
+  <h1>חלק 4 בהרחבה: להבין את הבקשה</h1>
+  <p>הרחבה לסעיף 4 במדריך המרכזי: למה בקשות מגיעות מעורפלות, אילו סוגי בקשות יש, איך שואלים את שאלות הבירור, איך מסכמים את מה שהובן, ומה עושים כשהבקשה לא אפשרית.</p>
+  <div class="meta"><span class="chip">מודול 1: פתיחה</span><span class="chip">חלק 4 מתוך 7</span></div>
+  <p class="more"><a href="analyst-01-guide.html#request">← חזרה למדריך המרכזי</a><a href="analyst-12-request-exercises.html">תרגילים לחלק 4</a></p>
+</header>
+
+<nav class="toc" aria-label="תוכן העניינים">
+  <ol>
+    <li><a href="#why">למה בקשות מגיעות מעורפלות</a></li>
+    <li><a href="#kinds">סוגי בקשות</a></li>
+    <li><a href="#four">ארבע שאלות הבירור בהרחבה</a></li>
+    <li><a href="#more-q">שאלות נוספות</a></li>
+    <li><a href="#terms">להסכים על המילים</a></li>
+    <li><a href="#talk">שיחת בירור לדוגמה</a></li>
+    <li><a href="#brief">לסכם בכתב</a></li>
+    <li><a href="#hard">כשהבקשה לא אפשרית</a></li>
+    <li><a href="#mistakes">טעויות נפוצות</a></li>
+  </ol>
+</nav>
+
+<section id="why">
+  <h2><span class="n">1</span>למה בקשות מגיעות מעורפלות</h2>
+  <p>בעל תפקיד לא מנסח בקשה מעורפלת בכוונה. יש לכך כמה סיבות:</p>
+  <ul>
+    <li><strong>הוא מבקש תוצר, לא צורך.</strong> הוא יודע שהוא רוצה ״דוח״, וחושב שמהדוח הוא כבר יבין לבד.</li>
+    <li><strong>הוא לא יודע מה אפשר.</strong> הוא לא מכיר את הנתונים, ולא יודע אילו שאלות אפשר לשאול עליהם.</li>
+    <li><strong>ההקשר ברור לו, ולכן הוא לא אומר אותו.</strong> הוא יודע שיש ישיבה ביום רביעי ושההנהלה לחוצה. האנליסט לא יודע.</li>
+    <li><strong>הוא עוד לא בטוח מה הבעיה.</strong> יש לו תחושה שמשהו לא בסדר, ולכן הוא מבקש ״תבדוק״.</li>
+  </ul>
+  <div class="key">שיחת הבירור היא לא חוסר אמון בבעל התפקיד. היא עוזרת לו לנסח לעצמו מה הוא צריך.</div>
+</section>
+
+<section id="kinds">
+  <h2><span class="n">2</span>סוגי בקשות</h2>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>סוג</th><th>איך זה נשמע</th><th>הסיכון</th><th>מה עושים</th></tr></thead>
+    <tbody>
+      <tr><td>בקשת תוצר</td><td>״תוציא לי דוח מכירות.״</td><td>מספקים דוח שלא עונה על הצורך</td><td>שואלים מה יעשו עם הדוח</td></tr>
+      <tr><td>בקשה עמומה</td><td>״תבדוק מה קורה עם הלקוחות.״</td><td>מנתחים הכול, ולא עונים על כלום</td><td>מבקשים דוגמה: מה גרם לך לשאול?</td></tr>
+      <tr><td>בקשה עם תשובה מוכנה</td><td>״תוכיח שהמבצע הצליח.״</td><td>מחפשים רק נתונים שמאשרים</td><td>מנסחים שאלה פתוחה: האם המבצע הצליח?</td></tr>
+      <tr><td>בקשה דחופה</td><td>״אני צריך את זה עוד שעה.״</td><td>תשובה מהירה ושגויה</td><td>מבררים מה הכי חשוב, ומה אפשר לתת בזמן הזה</td></tr>
+      <tr><td>בקשה שחוזרת</td><td>״שוב, כמו בשבוע שעבר.״</td><td>עבודה ידנית שחוזרת כל שבוע</td><td>מציעים דוח קבוע או דשבורד</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="four">
+  <h2><span class="n">3</span>ארבע שאלות הבירור בהרחבה</h2>
+  <p>במדריך המרכזי ראינו את ארבע השאלות הקבועות. כאן נראה למה כל אחת חשובה, איך שואלים אותה בשיחה רגילה, ומה לומדים ממנה. הדוגמאות הן ממנהלת השיווק של Northwind, שביקשה: ״תבדוק איך הולך עם הקטגוריות.״</p>
+
+  <h3>1. החלטה</h3>
+  <dl class="gloss">
+    <dt>למה חשוב</dt><dd>ההחלטה קובעת מה צריך לבדוק, ומה אפשר להשאיר בחוץ.</dd>
+    <dt>איך שואלים</dt><dd>״מה תעשי עם התשובה?״ או ״מה יקרה אם תגלי ש...?״</dd>
+    <dt>בדוגמה</dt><dd>היא מחליטה לאיזו קטגוריה לתת את תקציב הקידום ברבעון הבא.</dd>
+  </dl>
+
+  <h3>2. השערה</h3>
+  <dl class="gloss">
+    <dt>למה חשוב</dt><dd>ההשערה מראה מאיפה הבקשה הגיעה, ונותנת כיוון ראשון לבדיקה. חשוב לבדוק אותה, לא להוכיח אותה.</dd>
+    <dt>איך שואלים</dt><dd>״מה גרם לך לשאול את זה עכשיו?״ או ״מה את חושבת שנגלה?״</dd>
+    <dt>בדוגמה</dt><dd>היא חושבת שמאכלי הים יורדים, כי שמעה תלונות מנציגי המכירות.</dd>
+  </dl>
+
+  <h3>3. תוצר</h3>
+  <dl class="gloss">
+    <dt>למה חשוב</dt><dd>אותה תשובה נראית אחרת בשקף להנהלה, בטבלה לעבודה שוטפת או בדשבורד.</dd>
+    <dt>איך שואלים</dt><dd>״איך תרצי לקבל את זה? מי עוד יראה את זה?״</dd>
+    <dt>בדוגמה</dt><dd>שקף אחד, שהיא תציג בישיבת ההנהלה.</dd>
+  </dl>
+
+  <h3>4. זמן ודיוק</h3>
+  <dl class="gloss">
+    <dt>למה חשוב</dt><dd>תשובה מדויקת אחרי הישיבה שווה פחות מתשובה טובה מספיק לפני הישיבה.</dd>
+    <dt>איך שואלים</dt><dd>״עד מתי את צריכה את זה? מספיקה הערכה, או שצריך מספר מדויק?״</dd>
+    <dt>בדוגמה</dt><dd>עד יום רביעי. מספיק לדעת מגמה, לא צריך דיוק עד השקל.</dd>
+  </dl>
+
+  <div class="compare">
+    <div class="bad"><span class="lbl">הבקשה</span>״תבדוק איך הולך עם הקטגוריות.״</div>
+    <div class="good"><span class="lbl">אחרי הבירור</span>איך השתנו המכירות של כל קטגוריה ברבעון האחרון לעומת הרבעון הקודם, והאם מאכלי הים באמת יורדים? שקף אחד, עד יום רביעי.</div>
+  </div>
+</section>
+
+<section id="more-q">
+  <h2><span class="n">4</span>שאלות נוספות</h2>
+  <p>לפי הבקשה, כדאי לשאול גם:</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>שאלה</th><th>מה היא מבררת</th></tr></thead>
+    <tbody>
+      <tr><td>״בהשוואה למה?״</td><td>מול מה מודדים: תקופה קודמת, יעד, סניף אחר</td></tr>
+      <tr><td>״למה אתה מתכוון כשאתה אומר...?״</td><td>הגדרה של מילה, כמו ״לקוח פעיל״ או ״איחור״</td></tr>
+      <tr><td>״זה חד־פעמי, או שתצטרך את זה שוב?״</td><td>אם כדאי לבנות דוח קבוע</td></tr>
+      <tr><td>״מה כבר בדקתם?״</td><td>לא לחזור על עבודה שכבר נעשתה</td></tr>
+      <tr><td>״מה יפתיע אותך?״</td><td>מה התשובה שבעל התפקיד מצפה לה</td></tr>
+      <tr><td>״יש משהו שקרה בתקופה הזו?״</td><td>אירועים שמסבירים שינוי: מבצע, שביתה, ספק חדש</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="terms">
+  <h2><span class="n">5</span>להסכים על המילים</h2>
+  <p>מילים שנשמעות ברורות יכולות להתפרש בכמה דרכים. אם האנליסט ובעל התפקיד מבינים מילה אחרת, האנליסט יענה על שאלה אחרת.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>המילה</th><th>אפשר להבין אותה כ</th></tr></thead>
+    <tbody>
+      <tr><td>״מכירות״</td><td>סכום בכסף, לפני הנחה או אחרי הנחה? מספר יחידות? מספר הזמנות?</td></tr>
+      <tr><td>״לקוח פעיל״</td><td>הזמין החודש? הזמין השנה? הזמין לפחות פעמיים?</td></tr>
+      <tr><td>״איחור״</td><td>נשלח אחרי מועד הדרישה? הגיע אחרי מועד הדרישה? כמה ימים נחשבים איחור?</td></tr>
+      <tr><td>״החודש״</td><td>החודש הקלנדרי? 30 הימים האחרונים?</td></tr>
+      <tr><td>״הלקוחות הגדולים״</td><td>לפי סכום הקנייה? לפי מספר הזמנות? 10 הגדולים, או כל מי שמעל סכום מסוים?</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="key">כל הגדרה שסוכמה נכתבת בסיכום הבקשה, ומופיעה גם בתוצר הסופי.</div>
+</section>
+
+<section id="talk">
+  <h2><span class="n">6</span>שיחת בירור לדוגמה</h2>
+  <p>מנהל המשלוחים של Northwind פונה לאנליסט. ההערות בצד מסבירות מה כל שאלה מבררת.</p>
+  <div class="dialog">
+    <p><span class="who">מנהל המשלוחים:</span> אני צריך את כל הנתונים על המשלוחים של החודש.</p>
+    <p><span class="who">אנליסט:</span> בטח. מה תעשה איתם? <span class="aside">החלטה</span></p>
+    <p><span class="who">מנהל המשלוחים:</span> אני חושב להחליף את אחת מחברות השילוח. נראה לי ש־United Package מאחרת. <span class="aside">השערה</span></p>
+    <p><span class="who">אנליסט:</span> כשאתה אומר ״מאחרת״, אתה מתכוון שההזמנה נשלחה אחרי התאריך שהלקוח ביקש? <span class="aside">הגדרה</span></p>
+    <p><span class="who">מנהל המשלוחים:</span> כן, בדיוק.</p>
+    <p><span class="who">אנליסט:</span> ולהשוות רק את החודש האחרון, או תקופה ארוכה יותר? בחודש אחד יש מעט משלוחים. <span class="aside">בהשוואה למה</span></p>
+    <p><span class="who">מנהל המשלוחים:</span> חצי שנה זה טוב.</p>
+    <p><span class="who">אנליסט:</span> איך תרצה לקבל את זה, ועד מתי? <span class="aside">תוצר וזמן</span></p>
+    <p><span class="who">מנהל המשלוחים:</span> גרף אחד. יש לי פגישה עם החברות ביום חמישי.</p>
+  </div>
+  <p>הבקשה ״כל הנתונים על המשלוחים של החודש״ הפכה לשאלה ממוקדת: אחוז האיחורים של כל חברת שילוח בחצי השנה האחרונה, בגרף אחד, עד יום חמישי.</p>
+</section>
+
+<section id="brief">
+  <h2><span class="n">7</span>לסכם בכתב</h2>
+  <p>אחרי השיחה, האנליסט כותב סיכום קצר ושולח אותו לבעל התפקיד לאישור. כך שניהם בטוחים שהם מדברים על אותו דבר, ואם משהו לא נכון, מגלים את זה עכשיו ולא אחרי שבוע של עבודה.</p>
+  <h3>סיכום בקשה: מנהל המשלוחים</h3>
+  <dl class="gloss">
+    <dt>מבקש</dt><dd>מנהל המשלוחים</dd>
+    <dt>הצורך</dt><dd>משלוחים שמגיעים בזמן</dd>
+    <dt>ההחלטה</dt><dd>האם להעביר משלוחים מחברת שילוח אחת לאחרת</dd>
+    <dt>שאלת הניתוח</dt><dd>איזה אחוז מההזמנות שנשלחו בכל חברת שילוח, בחצי השנה האחרונה, נשלח אחרי מועד הדרישה?</dd>
+    <dt>הגדרות</dt><dd>״איחור״: ההזמנה נשלחה אחרי התאריך שהלקוח ביקש. הזמנות שעוד לא נשלחו לא נכללות.</dd>
+    <dt>תוצר</dt><dd>גרף עמודות אחד, עם מסקנה בכותרת</dd>
+    <dt>מועד</dt><dd>יום רביעי, יום לפני הפגישה עם החברות</dd>
+    <dt>מגבלות</dt><dd>אין בנתונים את תאריך ההגעה ללקוח, רק את תאריך השליחה</dd>
+  </dl>
+  <div class="key">משפט פשוט לסיום השיחה: ״אני אשלח לך סיכום של מה שהבנתי, תגיד לי אם פספסתי משהו.״</div>
+</section>
+
+<section id="hard">
+  <h2><span class="n">8</span>כשהבקשה לא אפשרית</h2>
+  <p>לפעמים, כבר בשלב הבירור, מתברר שאי אפשר לענות על הבקשה כמו שהיא. לא אומרים ״לא״, אלא מציעים דרך אחרת.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>המצב</th><th>מה מציעים</th></tr></thead>
+    <tbody>
+      <tr><td>המידע לא נאסף, למשל סיבת ביטול הזמנה</td><td>לענות על שאלה קרובה עם מה שיש, ולפנות למנתח המערכות כדי שהמידע ייאסף מעכשיו</td></tr>
+      <tr><td>אין מספיק זמן לתשובה מלאה</td><td>תשובה חלקית בזמן, עם הסבר מה חסר, ותשובה מלאה אחר כך</td></tr>
+      <tr><td>מבקשים ״להוכיח״ מסקנה מוכנה</td><td>לבדוק את השאלה בלי להחליט מראש על התשובה, ולהציג את מה שנמצא</td></tr>
+      <tr><td>אותה בקשה חוזרת כל שבוע</td><td>דוח קבוע או דשבורד, כדי שבעל התפקיד יוכל לראות לבד</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="mistakes">
+  <h2><span class="n">9</span>טעויות נפוצות</h2>
+  <ul>
+    <li><strong>להתחיל לעבוד מיד.</strong> נראה יעיל, אבל בדרך כלל מוביל לעבודה מחדש.</li>
+    <li><strong>לשאול יותר מדי שאלות.</strong> שיחת בירור צריכה להיות קצרה. ארבע השאלות הקבועות ועוד אחת או שתיים מספיקות.</li>
+    <li><strong>לשאול שאלות טכניות.</strong> בעל התפקיד לא יודע באיזו טבלה המידע נמצא. את זה מבררים עם מנתח המערכות.</li>
+    <li><strong>לא לכתוב סיכום.</strong> אחרי שבוע, כל אחד זוכר את השיחה אחרת.</li>
+    <li><strong>להסכים לכל דבר.</strong> אם הבקשה לא אפשרית בזמן או בנתונים שיש, אומרים את זה כבר עכשיו.</li>
+  </ul>
+  <p class="more"><a href="analyst-01-guide.html#request">← חזרה למדריך המרכזי</a><a href="analyst-12-request-exercises.html">לתרגילים של חלק 4</a></p>
+</section>
+
+<footer>מודול 1: פתיחה · חלק 4 בהרחבה</footer>
+</div>
+</body>
+</html>

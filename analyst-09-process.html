@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>חלק 3 בהרחבה: מפת התהליך</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: same reading column as the main guide; each part has an expansion page and an exercises page. */
+:root{
+  --bg:#f4f6f8;
+  --paper:#ffffff;
+  --ink:#16222e;
+  --muted:#556574;
+  --line:#d7dee5;
+  --accent:#1f5f8b;
+  --accent-soft:#e3eef6;
+  --mark:#c98a12;
+  --font-display:"Rubik","Arial Hebrew",Arial,sans-serif;
+  --font-body:"Assistant","Arial Hebrew",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+    --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+  --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.65}
+.wrap{max-width:820px;margin:0 auto;padding:32px 20px 64px;display:flex;flex-direction:column;gap:28px}
+header h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,6vw,40px);line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:65ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:14px;padding:3px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 20px}
+nav.toc ol{margin:0;padding-inline-start:22px;columns:2;column-gap:28px}
+nav.toc a{color:var(--accent);text-decoration:none}
+nav.toc a:hover,nav.toc a:focus-visible{text-decoration:underline}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:24px 22px}
+section h2{font-family:var(--font-display);font-weight:400;font-size:26px;line-height:1.3;margin:0 0 4px;display:flex;gap:12px;align-items:baseline;text-wrap:balance}
+section h2 .n{color:var(--accent);font-size:20px;min-width:1.6em}
+.goal{color:var(--muted);margin:0 0 16px;font-size:16px}
+h3{font-size:19px;margin:22px 0 8px}
+p,li{max-width:65ch}
+ul,ol{padding-inline-start:22px;margin:8px 0}
+li{margin:4px 0}
+.key{border-inline-start:4px solid var(--mark);background:var(--accent-soft);padding:12px 16px;border-radius:6px;margin:14px 0;font-weight:600}
+.table-box{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:16px;min-width:480px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:start;vertical-align:top}
+th{background:var(--accent-soft);font-weight:700}
+td.num{font-variant-numeric:tabular-nums;text-align:end}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;padding:0;list-style:none}
+.flow li{margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-weight:600}
+.flow li.first{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.flow .arr{border:none;background:none;padding:0;color:var(--muted)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.compare div{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.compare .bad{border-style:dashed}
+.compare .lbl{display:block;font-size:14px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.compare .good .lbl{color:var(--accent)}
+.tree{font-family:var(--font-body);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:12px 0}
+.tree ul{list-style:none;padding-inline-start:20px;border-inline-start:2px solid var(--line);margin:4px 0}
+.tree>ul{border:none;padding:0}
+.tree li{margin:4px 0}
+.whys{counter-reset:w;list-style:none;padding:0}
+.whys li{counter-increment:w;padding:6px 0 6px 0;border-bottom:1px solid var(--line)}
+.whys li::before{content:"למה " counter(w) "? ";font-weight:700;color:var(--accent)}
+dl.gloss{display:grid;grid-template-columns:minmax(140px,30%) 1fr;gap:0;margin:8px 0}
+dl.gloss dt,dl.gloss dd{margin:0;padding:10px 8px;border-bottom:1px solid var(--line)}
+dl.gloss dt{font-weight:700}
+.handout{border:2px solid var(--accent)}
+.handout h2 .n{color:var(--mark)}
+.task{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:12px 0}
+.task strong{color:var(--accent)}
+.lines{display:block;border-bottom:1px dashed var(--line);height:30px}
+.check{list-style:none;padding:0}
+.check li::before{content:"☐ ";color:var(--accent)}
+.more{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line);font-size:16px}
+.more a{color:var(--accent);font-weight:700;text-decoration:none}
+.more a:hover,.more a:focus-visible{text-decoration:underline}
+a{color:var(--accent)}
+footer{color:var(--muted);font-size:14px;text-align:center}
+:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+@media (max-width:560px){
+  nav.toc ol{columns:1}
+  .compare{grid-template-columns:1fr}
+  dl.gloss{grid-template-columns:1fr}
+  dl.gloss dt{border-bottom:none;padding-bottom:0}
+  section{padding:20px 16px}
+  body{font-size:17px}
+}
+
+/* site look: learn_sql */
+h1,h2{font-weight:700}
+h1{font-size:2.4rem}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+section h2 .n{font-family:"JetBrains Mono",Consolas,monospace;font-size:1rem;color:var(--paper);background:var(--accent);border-radius:99px;padding:0 10px;min-width:0;flex:none}
+.site-back{color:var(--accent);font-weight:600;font-size:15px;text-decoration:none;width:fit-content}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.chip{background:var(--accent-soft);color:var(--accent)}
+.handout{border-color:var(--accent-deco)}
+code,pre{font-family:"JetBrains Mono",Consolas,"Courier New",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code{direction:ltr;unicode-bidi:isolate;font-size:.86em;background:var(--accent-soft);border-radius:4px;padding:0 4px}
+pre{margin:0;direction:ltr;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:14.5px;line-height:1.55;overflow-x:auto;white-space:pre}
+.kw{color:var(--accent);font-weight:600}
+.dialog{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+.dialog p{margin:0}
+.dialog .who{font-weight:700;color:var(--accent)}
+.dialog .aside{font-size:.8rem;font-weight:700;color:var(--mark-fg);background:var(--mark-bg);border-radius:99px;padding:1px 9px;margin-inline-start:6px;white-space:nowrap}
+@media print{.site-back{display:none} body{background:#fff}}
+</style>
+<script src="font-size.js"></script>
+<link rel="stylesheet" href="brand.css">
+</head>
+<body>
+<div class="wrap">
+<a class="site-back" href="index.html#analyst">→ חזרה לנושא: הכשרת Data Analyst</a>
+
+<header>
+  <h1>חלק 3 בהרחבה: מפת התהליך</h1>
+  <p>הרחבה לסעיף 3 במדריך המרכזי: מה עושים בכל אחד מששת השלבים, מתי חוזרים שלב אחורה, ומקרה מלא על Northwind מהשאלה ועד הפעולה.</p>
+  <div class="meta"><span class="chip">מודול 1: פתיחה</span><span class="chip">חלק 3 מתוך 7</span></div>
+  <p class="more"><a href="analyst-01-guide.html#process">← חזרה למדריך המרכזי</a><a href="analyst-10-process-exercises.html">תרגילים לחלק 3</a></p>
+</header>
+
+<nav class="toc" aria-label="תוכן העניינים">
+  <ol>
+    <li><a href="#map">המפה במבט אחד</a></li>
+    <li><a href="#steps">ששת השלבים בפירוט</a></li>
+    <li><a href="#time">איפה הולך הזמן</a></li>
+    <li><a href="#back">חוזרים אחורה</a></li>
+    <li><a href="#case">מקרה מלא: המשלוחים של Northwind</a></li>
+    <li><a href="#tools">איזה כלי בכל שלב</a></li>
+    <li><a href="#project">התהליך בפרויקט הגמר</a></li>
+    <li><a href="#check">רשימת בדיקה</a></li>
+  </ol>
+</nav>
+
+<section id="map">
+  <h2><span class="n">1</span>המפה במבט אחד</h2>
+  <ol class="flow" aria-label="שלבי התהליך">
+    <li class="first">1. שאלה</li><li class="arr" aria-hidden="true">←</li>
+    <li>2. איסוף</li><li class="arr" aria-hidden="true">←</li>
+    <li>3. ניקוי</li><li class="arr" aria-hidden="true">←</li>
+    <li>4. ניתוח</li><li class="arr" aria-hidden="true">←</li>
+    <li>5. הצגה</li><li class="arr" aria-hidden="true">←</li>
+    <li>6. פעולה</li>
+  </ol>
+  <p>כל שלב מקבל משהו מהשלב הקודם ומעביר משהו לשלב הבא. אם שלב אחד נעשה לא טוב, כל מה שבא אחריו נפגע.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>שלב</th><th>מקבל</th><th>מעביר הלאה</th></tr></thead>
+    <tbody>
+      <tr><td>שאלה</td><td>בקשה מבעל תפקיד</td><td>שאלת ניתוח מדידה, והחלטה שהתשובה תשרת</td></tr>
+      <tr><td>איסוף</td><td>שאלת הניתוח</td><td>טבלה עם הנתונים הרלוונטיים</td></tr>
+      <tr><td>ניקוי</td><td>נתונים גולמיים</td><td>נתונים שאפשר לסמוך עליהם, ורשימה של מה שתוקן או הוצא</td></tr>
+      <tr><td>ניתוח</td><td>נתונים נקיים</td><td>ממצאים: מספרים, השוואות, מגמות</td></tr>
+      <tr><td>הצגה</td><td>ממצאים</td><td>מסר ברור והמלצה, בשפה של בעל התפקיד</td></tr>
+      <tr><td>פעולה</td><td>המלצה</td><td>החלטה, ומעקב אם היא עבדה</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="steps">
+  <h2><span class="n">2</span>ששת השלבים בפירוט</h2>
+
+  <h3>1. שאלה</h3>
+  <dl class="gloss">
+    <dt>המטרה</dt><dd>להבין מה בעל התפקיד צריך, ולנסח שאלה שאפשר לענות עליה בנתונים.</dd>
+    <dt>מה עושים</dt><dd>שיחת בירור, 5W1H, ניסוח לפי SMART, עץ בעיות.</dd>
+    <dt>תוצר</dt><dd>שאלת ניתוח אחת או כמה תתי־שאלות, וההחלטה שהתשובה תשרת.</dd>
+    <dt>טעות נפוצה</dt><dd>להתחיל לשלוף נתונים לפני שברור מה שואלים.</dd>
+  </dl>
+
+  <h3>2. איסוף</h3>
+  <dl class="gloss">
+    <dt>המטרה</dt><dd>למצוא את הנתונים שעונים על השאלה ולהביא אותם למקום אחד.</dd>
+    <dt>מה עושים</dt><dd>מבררים עם מנתח המערכות איפה המידע נמצא, באילו טבלאות ושדות, ושולפים אותו מהמערכת.</dd>
+    <dt>תוצר</dt><dd>טבלה אחת או כמה טבלאות עם הנתונים.</dd>
+    <dt>טעות נפוצה</dt><dd>לשלוף ״הכול, ליתר ביטחון״, או לשלוף שדה עם שם דומה שמודד משהו אחר.</dd>
+  </dl>
+
+  <h3>3. ניקוי</h3>
+  <dl class="gloss">
+    <dt>המטרה</dt><dd>לוודא שאפשר לסמוך על הנתונים לפני שמחשבים משהו.</dd>
+    <dt>מה עושים</dt><dd>מחפשים ערכים חסרים, כפילויות, פורמטים לא אחידים וערכים חריגים, ומחליטים מה לעשות עם כל אחד מהם.</dd>
+    <dt>תוצר</dt><dd>נתונים נקיים, ורשימה כתובה של כל ההחלטות: מה הוצא, מה תוקן ולמה.</dd>
+    <dt>טעות נפוצה</dt><dd>למחוק חריגים בלי לבדוק אותם. לפעמים החריג הוא הממצא החשוב.</dd>
+  </dl>
+
+  <h3>4. ניתוח</h3>
+  <dl class="gloss">
+    <dt>המטרה</dt><dd>לענות על השאלה.</dd>
+    <dt>מה עושים</dt><dd>מחשבים מדדים, משווים בין קבוצות, מפלחים, בודקים מגמות לאורך זמן ומחפשים קשרים.</dd>
+    <dt>תוצר</dt><dd>ממצאים: מספרים והשוואות שעונים על שאלת הניתוח.</dd>
+    <dt>טעות נפוצה</dt><dd>לנתח הכול במקום לענות על השאלה, או להציג מספר בלי השוואה.</dd>
+  </dl>
+
+  <h3>5. הצגה</h3>
+  <dl class="gloss">
+    <dt>המטרה</dt><dd>שבעל התפקיד יבין את התשובה ויוכל להחליט.</dd>
+    <dt>מה עושים</dt><dd>בוחרים מסר אחד, גרף שמראה אותו, ומנסחים המלצה.</dd>
+    <dt>תוצר</dt><dd>שקף, דוח קצר או דשבורד.</dd>
+    <dt>טעות נפוצה</dt><dd>להציג את כל מה שנעשה, במקום את מה שנמצא.</dd>
+  </dl>
+
+  <h3>6. פעולה</h3>
+  <dl class="gloss">
+    <dt>המטרה</dt><dd>שהתשובה תשנה משהו.</dd>
+    <dt>מה עושים</dt><dd>בעל התפקיד מחליט. האנליסט מגדיר איך נמדוד אם ההחלטה עבדה, וחוזר לבדוק אחרי זמן.</dd>
+    <dt>תוצר</dt><dd>החלטה, ומדד למעקב.</dd>
+    <dt>טעות נפוצה</dt><dd>לחשוב שהעבודה נגמרה כשהמצגת נשלחה.</dd>
+  </dl>
+</section>
+
+<section id="time">
+  <h2><span class="n">3</span>איפה הולך הזמן</h2>
+  <p>אנליסטים מתחילים מופתעים לגלות שרוב הזמן לא הולך לניתוח עצמו. הרבה מהזמן הולך להבנת השאלה, לאיסוף ולניקוי.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>שלב</th><th>כמה זמן, בערך</th><th>למה</th></tr></thead>
+    <tbody>
+      <tr><td>שאלה</td><td>מעט, אבל קריטי</td><td>שיחה אחת או שתיים, שחוסכות ימים של עבודה מיותרת</td></tr>
+      <tr><td>איסוף וניקוי</td><td>הרבה</td><td>הנתונים מפוזרים, ותמיד יש בהם בעיות</td></tr>
+      <tr><td>ניתוח</td><td>בינוני</td><td>כשהנתונים נקיים והשאלה ברורה, הניתוח מהיר יחסית</td></tr>
+      <tr><td>הצגה</td><td>בינוני</td><td>לבחור מסר אחד ולנסח אותו טוב לוקח זמן</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="key">שעה שמושקעת בשלב השאלה חוסכת יום בשלבים שאחריה.</div>
+</section>
+
+<section id="back">
+  <h2><span class="n">4</span>חוזרים אחורה</h2>
+  <p>המפה נראית כמו קו ישר, אבל בפועל חוזרים לעתים קרובות שלב אחד או יותר אחורה. זה חלק רגיל מהעבודה, לא כישלון.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>מה קרה</th><th>באיזה שלב</th><th>חוזרים ל</th></tr></thead>
+    <tbody>
+      <tr><td>מתברר שהשדה שצריך לא קיים במערכת</td><td>איסוף</td><td>שאלה: מנסחים שאלה שאפשר לענות עליה, ומבקשים ממנתח המערכות לאסוף את המידע מעכשיו</td></tr>
+      <tr><td>חודש אחד נראה מוזר בגרף</td><td>ניתוח</td><td>ניקוי: בודקים אם יש בו נתונים חסרים או כפולים</td></tr>
+      <tr><td>הממצא מפתיע את כולם</td><td>ניתוח</td><td>איסוף וניקוי: מוודאים שאין טעות לפני שמציגים</td></tr>
+      <tr><td>בעל התפקיד אומר ״זה לא מה ששאלתי״</td><td>הצגה</td><td>שאלה: שיחת בירור נוספת</td></tr>
+      <tr><td>אחרי ההחלטה המדד לא השתפר</td><td>פעולה</td><td>שאלה: ניתוח חדש של למה</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="case">
+  <h2><span class="n">5</span>מקרה מלא: המשלוחים של Northwind</h2>
+  <p>מנהל המשלוחים של Northwind פונה לאנליסט: ״יש לנו בעיה עם המשלוחים, הם מאחרים.״ נעבור על ששת השלבים.</p>
+
+  <h3>1. שאלה</h3>
+  <p>בשיחת הבירור מתברר שמנהל המשלוחים צריך להחליט אם להעביר עבודה מחברת שילוח אחת לאחרת. ״מאחרים״ פירושו: ההזמנה נשלחה אחרי מועד הדרישה של הלקוח.</p>
+  <div class="compare">
+    <div class="bad"><span class="lbl">הבקשה</span>״המשלוחים מאחרים.״</div>
+    <div class="good"><span class="lbl">שאלת הניתוח</span>איזה אחוז מההזמנות שנשלחו בכל חברת שילוח נשלח אחרי מועד הדרישה?</div>
+  </div>
+
+  <h3>2. איסוף</h3>
+  <p>האנליסט בודק עם מנתח המערכות איפה המידע. מתברר שהכול נמצא בשתי טבלאות:</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>טבלה</th><th>שדה</th><th>משמעות</th></tr></thead>
+    <tbody>
+      <tr><td>orders</td><td><code>required_date</code></td><td>התאריך שבו הלקוח צריך את ההזמנה</td></tr>
+      <tr><td>orders</td><td><code>shipped_date</code></td><td>התאריך שבו ההזמנה נשלחה. ריק אם עוד לא נשלחה</td></tr>
+      <tr><td>orders</td><td><code>ship_via</code></td><td>מספר חברת השילוח</td></tr>
+      <tr><td>shippers</td><td><code>shipper_id</code>, <code>company_name</code></td><td>מספר חברת השילוח ושמה</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>3. ניקוי</h3>
+  <p>יש הזמנות שעוד לא נשלחו, ולכן <code>shipped_date</code> ריק בהן. אי אפשר לדעת אם הן יאחרו, ולכן מוציאים אותן מהחישוב. האנליסט רושם את ההחלטה הזו, כדי להציג אותה בסוף.</p>
+
+  <h3>4. ניתוח</h3>
+  <p>לכל חברת שילוח סופרים שני דברים: כמה הזמנות היא שלחה, וכמה מהן נשלחו אחרי מועד הדרישה. מחלקים את המספר השני בראשון, ומקבלים את אחוז האיחורים של כל חברה. משווים בין שלוש החברות.</p>
+
+  <h3>5. הצגה</h3>
+  <p>גרף עמודות אחד: אחוז האיחורים לכל חברת שילוח. מעליו כותרת שאומרת את המסקנה, למשל ״חברה X מאחרת פי שניים מהאחרות״. מתחת לגרף: ההזמנות שעוד לא נשלחו לא נכללו בחישוב.</p>
+
+  <h3>6. פעולה</h3>
+  <p>מנהל המשלוחים מחליט אם להעביר חלק מהמשלוחים לחברה אחרת. האנליסט מציע מדד למעקב: אחוז האיחורים לכל חברה, בכל חודש. אחרי שלושה חודשים בודקים שוב.</p>
+  <div class="key">שימו לב: מנתח המערכות עזר בשלב האיסוף להבין מה בדיוק נרשם ב־<code>shipped_date</code>. בלי זה, האנליסט היה יכול לחשב משהו אחר ממה שחשב.</div>
+</section>
+
+<section id="tools">
+  <h2><span class="n">6</span>איזה כלי בכל שלב</h2>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>שלב</th><th>שיחה</th><th>שליפה מהמערכת</th><th>Excel</th><th>Power BI</th></tr></thead>
+    <tbody>
+      <tr><td>שאלה</td><td>●</td><td></td><td></td><td></td></tr>
+      <tr><td>איסוף</td><td>●</td><td>●</td><td></td><td></td></tr>
+      <tr><td>ניקוי</td><td></td><td>●</td><td>●</td><td></td></tr>
+      <tr><td>ניתוח</td><td></td><td>●</td><td>●</td><td></td></tr>
+      <tr><td>הצגה</td><td>●</td><td></td><td>●</td><td>●</td></tr>
+      <tr><td>פעולה</td><td>●</td><td></td><td></td><td>●</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>״שיחה״ היא כלי לכל דבר: עם בעל התפקיד בתחילת התהליך ובסופו, ועם מנתח המערכות בשלב האיסוף.</p>
+</section>
+
+<section id="project">
+  <h2><span class="n">7</span>התהליך בפרויקט הגמר</h2>
+  <p>בפרויקט הגמר של המגמה עוברים את אותם שלבים, כמו אנליסט שארגון שכר.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>שלב</th><th>בפרויקט</th></tr></thead>
+    <tbody>
+      <tr><td>שאלה</td><td>לקוח, מטרה אנליטית וחמש שאלות חקר</td></tr>
+      <tr><td>איסוף</td><td>קובץ נתונים ראשי וקובץ תומך, שמחוברים לפי מפתח משותף</td></tr>
+      <tr><td>ניקוי</td><td>בדיקת הנתונים לפני הניתוח</td></tr>
+      <tr><td>ניתוח</td><td>חישוב המדדים לכל שאלת חקר</td></tr>
+      <tr><td>הצגה</td><td>לפחות שלושה גרפים לכל שאלה, ודשבורד</td></tr>
+      <tr><td>פעולה</td><td>מסקנות והמלצות ללקוח</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>הפירוט נמצא ב<a href="project-01-proposal-guide.html">דף ההנחיה לפרויקט הגמר</a>.</p>
+</section>
+
+<section id="check">
+  <h2><span class="n">8</span>רשימת בדיקה</h2>
+  <p>לפני שעוברים לשלב הבא, בודקים:</p>
+  <ul class="check">
+    <li><strong>שאלה:</strong> אני יודע איזו החלטה התשובה תשרת, והשאלה מדידה.</li>
+    <li><strong>איסוף:</strong> אני יודע מה בדיוק כל שדה אומר, ובדקתי את זה עם מי שמכיר את המערכת.</li>
+    <li><strong>ניקוי:</strong> בדקתי חסרים, כפילויות, פורמטים וחריגים, ורשמתי כל החלטה.</li>
+    <li><strong>ניתוח:</strong> כל מספר מוצג מול השוואה, והתוצאה עונה על השאלה.</li>
+    <li><strong>הצגה:</strong> יש מסר אחד, גרף שמראה אותו, והמלצה.</li>
+    <li><strong>פעולה:</strong> הוגדר מדד למעקב, ומתי בודקים שוב.</li>
+  </ul>
+  <p class="more"><a href="analyst-01-guide.html#process">← חזרה למדריך המרכזי</a><a href="analyst-10-process-exercises.html">לתרגילים של חלק 3</a></p>
+</section>
+
+<footer>מודול 1: פתיחה · חלק 3 בהרחבה</footer>
+</div>
+</body>
+</html>

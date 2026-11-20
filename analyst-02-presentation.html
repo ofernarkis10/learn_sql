@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>מה זה Data Analyst?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a 1600x900 slide stage scaled to the window (presentation), or all slides stacked (document). RTL. */
+:root {
+  --bg: #E9EDF2;
+  --page: #FCFCFD;
+  --ink: #172033;
+  --muted: #556074;
+  --line: #D6DBE3;
+  --soft: #E4E9F1;
+  --accent: #2457C5;
+  --warm: #A34E16;
+  --deep: #14213D;
+  --deep-ink: #E9EEF8;
+  --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --font-body: "Assistant", "Arial Hebrew", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B1017; --page: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --soft: #1F2836;
+    --accent: #84A9FF; --warm: #F0A46F; --deep: #0E1626; --deep-ink: #E7EBF2; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B1017; --page: #161D29; --ink: #E7EBF2; --muted: #9AA5B8; --line: #2B3546; --soft: #1F2836;
+  --accent: #84A9FF; --warm: #F0A46F; --deep: #0E1626; --deep-ink: #E7EBF2; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); display: flex; flex-direction: column; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--page); }
+button, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--soft); padding: 1px 7px; border-radius: 5px; direction: ltr; unicode-bidi: isolate; white-space: nowrap; }
+
+/* bar */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--page); border-bottom: 1px solid var(--line);
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.bar-in { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; max-width: 1600px; margin: 0 auto; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+.brand span { font-weight: 400; color: var(--muted); }
+.spacer { flex: 1; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: none; padding: 6px 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--page); }
+.btn { border: 1px solid var(--line); background: var(--page); border-radius: 8px; padding: 6px 14px; cursor: pointer; }
+.btn:disabled { opacity: .4; cursor: default; }
+.where { font-variant-numeric: tabular-nums; color: var(--muted); min-width: 64px; text-align: center; }
+.notes-btn[aria-pressed="true"] { background: var(--soft); }
+
+/* stage */
+main { flex: 1; min-height: 0; position: relative; }
+.deck { position: absolute; inset: 0; }
+.slide { width: 1600px; height: 900px; background: var(--page); position: absolute; top: 0; left: 0; transform-origin: 0 0; overflow: hidden; display: none; direction: rtl; border-radius: 6px; box-shadow: 0 6px 30px rgba(20, 33, 61, .12); }
+.slide.on { display: block; }
+.slide > .in { position: absolute; inset: 0; padding: 64px 88px 88px; display: flex; flex-direction: column; gap: 26px; }
+.foot { position: absolute; left: 88px; right: 88px; bottom: 30px; display: flex; justify-content: space-between; font-size: 18px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.notes { display: none; }
+body.shownotes .slide .notes { display: block; position: absolute; left: 88px; right: 88px; bottom: 64px; background: var(--soft); border-radius: 10px; padding: 12px 18px; font-size: 20px; color: var(--ink); }
+
+/* document view */
+body.doc main { overflow-y: auto; }
+body.doc .deck { position: relative; inset: auto; padding-block: 24px 48px; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+body.doc .slot { position: relative; flex: none; }
+body.doc .slide { display: block; }
+
+/* type */
+.eyebrow { font-size: 20px; font-weight: 700; letter-spacing: .08em; color: var(--accent); }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+h1 { font-size: 92px; line-height: 1.05; font-weight: 700; letter-spacing: -1px; }
+h1 span { display: block; font-weight: 400; font-size: 60px; color: var(--accent); margin-top: 10px; }
+h2 { font-size: 50px; line-height: 1.15; font-weight: 700; }
+h3 { font-size: 26px; line-height: 1.25; font-weight: 500; }
+p { margin: 0; font-size: 26px; line-height: 1.5; }
+.lead { font-size: 32px; color: var(--muted); max-width: 1180px; }
+.note { font-size: 23px; color: var(--muted); border-right: 4px solid var(--warm); padding-right: 16px; margin-top: auto; }
+.k, .key { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--warm); background: transparent; }
+.tname { font-size: .82em; background: var(--soft); color: var(--accent); padding: 2px 12px; }
+
+/* cover */
+.slide.cover { background: var(--deep); color: var(--deep-ink); }
+.slide.cover .in { justify-content: center; gap: 34px; padding: 96px 120px; }
+.slide.cover .eyebrow { color: #F0A46F; }
+.slide.cover h1 span { color: #9CB8FF; }
+.slide.cover .lead { color: #B8C4DA; }
+.slide.cover code { background: rgba(255, 255, 255, .1); color: var(--deep-ink); }
+.facts { display: flex; gap: 56px; margin-top: 18px; }
+.facts div { display: flex; flex-direction: column; border-top: 2px solid rgba(255, 255, 255, .25); padding-top: 14px; min-width: 170px; }
+.facts b { font-family: var(--font-display); font-size: 64px; line-height: 1; }
+.facts span { font-size: 22px; color: #B8C4DA; margin-top: 8px; }
+
+/* two columns, stats */
+.two { display: grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: start; }
+.text { display: flex; flex-direction: column; gap: 18px; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.stats div { background: var(--soft); border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.stats b { font-family: var(--font-display); font-size: 46px; line-height: 1.05; color: var(--accent); overflow-wrap: anywhere; }
+.stats span { font-size: 21px; color: var(--muted); line-height: 1.35; }
+
+/* process */
+.flow { display: flex; align-items: stretch; gap: 10px; margin-top: 10px; }
+.step { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 12px; padding: 20px 18px; display: flex; flex-direction: column; gap: 10px; background: var(--page); }
+.step .n { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: var(--page); display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 22px; }
+.step h3 { font-size: 28px; font-weight: 700; }
+.step p { font-size: 21px; color: var(--muted); line-height: 1.4; flex: 1; }
+.step code { font-size: 15px; white-space: normal; align-self: flex-start; }
+.arr { align-self: center; font-size: 34px; color: var(--muted); }
+
+/* data tables */
+table { border-collapse: collapse; }
+.data { font-size: 23px; align-self: start; }
+.data.wide { width: 100%; }
+.data th { text-align: right; font-size: 18px; font-weight: 700; color: var(--muted); padding: 8px 14px; border-bottom: 2px solid var(--ink); }
+.data td { padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.35; }
+.data td.num { text-align: left; font-variant-numeric: tabular-nums; direction: ltr; }
+.data tr.tot td { font-weight: 700; border-bottom: 0; border-top: 2px solid var(--ink); }
+.data.map td { font-size: 24px; }
+.data.map .old { color: var(--muted); background: none; }
+.arrc { color: var(--muted); text-align: center; }
+.rules { margin: 0; padding-right: 30px; display: flex; flex-direction: column; gap: 14px; font-size: 25px; line-height: 1.45; }
+
+/* column tables on the table slides */
+.tgrid { display: grid; grid-template-columns: 330px 1fr; gap: 40px; align-items: start; flex: 1; min-height: 0; }
+.tnotes { margin: 0; padding-right: 24px; display: flex; flex-direction: column; gap: 16px; font-size: 23px; line-height: 1.45; color: var(--muted); }
+.tnotes code { white-space: normal; }
+.tnotes code.blk { display: block; margin-top: 8px; padding: 8px 10px; font-size: 16px; line-height: 1.5; text-align: left; }
+.cols { width: 100%; font-size: 20px; }
+.cols th { text-align: right; font-size: 16px; font-weight: 700; color: var(--muted); padding: 6px 10px; border-bottom: 2px solid var(--ink); }
+.cols td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.35; }
+.cols .cn { font-family: var(--font-mono); font-weight: 600; font-size: 17px; direction: ltr; text-align: left; white-space: nowrap; }
+.cols .ct { font-family: var(--font-mono); font-size: 15px; color: var(--muted); direction: ltr; text-align: left; }
+.cols .ck { white-space: nowrap; }
+.cols code { font-size: 15px; }
+.cols.sm { font-size: 18px; }
+.halves { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+.half { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.half h3 { font-size: 24px; display: flex; flex-direction: column; gap: 6px; }
+.half h3 span { font-family: var(--font-body); font-size: 20px; color: var(--muted); font-weight: 400; }
+
+/* ERD */
+.erd { position: relative; width: 1344px; height: 600px; direction: ltr; margin-inline: auto; }
+.erd .lines { position: absolute; inset: 0; }
+.erd .lines path { fill: none; stroke: var(--muted); stroke-width: 2; }
+.tb { position: absolute; background: var(--page); border: 1.5px solid var(--ink); border-radius: 8px; overflow: hidden; }
+.tb .h { background: var(--deep); color: var(--deep-ink); font-family: var(--font-mono); font-weight: 600; font-size: 17px; padding: 8px 12px; height: 40px; }
+.tb .f { display: flex; gap: 8px; align-items: center; height: 28px; padding: 0 12px; font-size: 15px; }
+.tb .f code { background: none; padding: 0; font-size: 15px; }
+.tb .f .k { min-width: 22px; font-size: 13px; }
+
+/* example + quirks cards */
+.example { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.card { background: var(--soft); border-radius: 12px; padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.card h3 { font-size: 22px; font-weight: 700; color: var(--accent); }
+.card p { font-size: 21px; line-height: 1.4; }
+.card code { white-space: normal; font-size: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.grid3 .card { padding: 24px 26px; }
+.grid3 .card h3 { font-size: 26px; }
+.grid3 .card p { font-size: 22px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media print { .bar { display: none; } }
+</style>
+<style>
+/* Back link to the page's topic in index.html */
+.site-back{color:var(--accent);font-family:var(--font-body,"Assistant","Arial Hebrew",Arial,sans-serif);font-weight:600;font-size:15px;text-decoration:none;width:fit-content;white-space:nowrap}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.wrap > .site-back{display:block;margin-bottom:12px}
+@media print{.site-back{display:none}}
+</style>
+<style>
+/* analyst decks: extra pieces on top of the site presentation layout */
+.in > ul, .in > ol, .pc ul, .pc ol, .pair > ul, .pair > ol { margin: 0; padding-right: 34px; display: flex; flex-direction: column; gap: 12px; font-size: 27px; line-height: 1.45; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.pc { border: 2px solid var(--line); border-radius: 12px; padding: 22px 26px; display: flex; flex-direction: column; gap: 10px; background: var(--page); min-width: 0; }
+.pc.good { border-color: var(--accent); background: var(--soft); }
+.pl { display: block; font-size: 20px; font-weight: 700; color: var(--muted); }
+.pc.good .pl { color: var(--accent); }
+.in > .chips, .chips { flex-direction: row; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; list-style: none; padding: 0; margin: 0; }
+.chips li { padding: 12px 20px; border: 2px solid var(--line); border-radius: 10px; font-weight: 700; font-size: 27px; background: var(--page); }
+.chips li.first { background: var(--accent); border-color: var(--accent); color: var(--page); }
+.chips li.chev { border: none; background: none; padding: 0; color: var(--muted); }
+.callout { border-right: 6px solid var(--warm); background: var(--soft); padding: 18px 24px; border-radius: 10px; font-size: 29px; font-weight: 700; line-height: 1.45; }
+.hint { font-size: 22px; color: var(--muted); }
+.data.wide td, .data.wide th { font-size: 23px; }
+.rate { display: grid; grid-template-columns: 1fr auto; gap: 12px 30px; align-items: center; }
+.rate p { font-size: 25px; }
+.dots { display: flex; gap: 10px; }
+.dots span { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-size: 22px; color: var(--muted); }
+.org3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.ocol { display: flex; flex-direction: column; gap: 9px; border-top: 5px solid var(--accent-deco, var(--accent)); padding-top: 10px; }
+.ocol .pl { font-size: 24px; color: var(--accent); }
+.onode { border: 2px dashed var(--line); border-radius: 8px; padding: 8px 14px; font-size: 24px; font-weight: 700; }
+.onode.db { border-style: solid; border-color: var(--accent); background: var(--soft); }
+.slide.cover .pl { color: #B8C4DA; }
+</style>
+<script src="font-size.js"></script>
+<link rel="stylesheet" href="brand.css">
+</head>
+<body>
+<div class="bar" dir="rtl">
+  <div class="bar-in">
+    <a class="site-back" href="index.html#analyst">→ חזרה לנושא: הכשרת Data Analyst</a>
+    <div class="brand">מה זה Data Analyst? <span>· מגמת מידע ונתונים</span></div>
+    <div class="spacer"></div>
+    <span id="fs-slot"></span>
+    <button type="button" class="btn" id="prev">→ הקודם</button>
+    <div class="where" id="where"></div>
+    <button type="button" class="btn" id="next">הבא ←</button>
+    <div class="seg" role="group" aria-label="תצוגה">
+      <button type="button" id="v-slides" aria-pressed="true">מצגת</button>
+      <button type="button" id="v-doc" aria-pressed="false">מסמך</button>
+    </div>
+  </div>
+</div>
+
+<main><div class="deck" id="deck">
+<section class="slide cover" id="s1" data-n="1"><div class="in">
+<div class="eyebrow">יב׳ · מגמת מידע ונתונים</div>
+  <h1>מה זה Data Analyst?</h1>
+  <p class="lead">המקצוע, הצורך שהוא משרת בארגון, ואיך מתחילים כל ניתוח: בשאלות הנכונות, לפני שנוגעים בנתונים.</p>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">1 / 32</span></div></section>
+<section class="slide content" id="s2" data-n="2"><div class="in">
+<div class="eyebrow">על מה נדבר</div>
+  <h2>שבעה נושאים</h2>
+  <ol>
+    <li>מה זה Data Analyst</li>
+    <li>הארגון והצורך</li>
+    <li>מפת התהליך</li>
+    <li>להבין את הבקשה</li>
+    <li>לנסח את השאלה</li>
+    <li>להכיר את הנתונים</li>
+    <li>מושגי יסוד</li>
+  </ol>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">2 / 32</span></div></section>
+<section class="slide cover" id="s3" data-n="3"><div class="in">
+<div class="eyebrow">חלק 1</div>
+<h1>מה זה Data Analyst</h1>
+<p class="lead">מה עושים במקצוע, ובמה הוא שונה ממקצועות קרובים</p>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">3 / 32</span></div></section>
+<section class="slide content" id="s4" data-n="4"><div class="in">
+<div class="eyebrow">1 · מה זה Data Analyst</div>
+  <h2>התפקיד</h2>
+  <p>אנליסט נתונים עוזר לארגון לקבל החלטות טובות יותר בעזרת נתונים.</p>
+  <ol class="chips">
+    <li class="first">מקבל שאלה עסקית</li><li class="chev">←</li><li>מוצא נתונים</li><li class="chev">←</li><li>בודק אותם</li><li class="chev">←</li><li>מנתח</li><li class="chev">←</li><li>מחזיר תשובה והמלצה</li>
+  </ol>
+  <div class="callout">התפקיד הוא לענות על שאלות עסקיות. טבלה או גרף הם רק הדרך להגיע לתשובה.</div>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">4 / 32</span></div></section>
+<section class="slide content" id="s5" data-n="5"><div class="in">
+<div class="eyebrow">1 · מה זה Data Analyst</div>
+  <h2>תפקידים קרובים</h2>
+  <table class="data wide">
+    <thead><tr><th>תפקיד</th><th>שאלה מרכזית</th><th>תוצר טיפוסי</th></tr></thead>
+    <tbody>
+      <tr><td>Data Analyst</td><td>מה קרה ולמה?</td><td>ניתוח, דשבורד, המלצה</td></tr>
+      <tr><td>BI Developer</td><td>איך כולם יראו את המדדים בקביעות?</td><td>דוחות ודשבורדים קבועים</td></tr>
+      <tr><td>Data Scientist</td><td>מה יקרה?</td><td>מודל חיזוי</td></tr>
+      <tr><td>Data Engineer</td><td>איך הנתונים יגיעו נקיים ובזמן?</td><td>תשתית וצינורות נתונים</td></tr>
+      <tr><td>מנתח מערכות</td><td>איך העבודה והמערכות צריכות להיות בנויות?</td><td>אפיון, תהליכי עבודה ותהליכים ממוחשבים</td></tr>
+    </tbody>
+  </table>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">5 / 32</span></div></section>
+<section class="slide content" id="s6" data-n="6"><div class="in">
+<div class="eyebrow">1 · מה זה Data Analyst</div>
+  <h2>יום עבודה והכישורים הנדרשים</h2>
+  <div class="pair">
+    <div class="pc">
+      <span class="pl">יום עבודה טיפוסי</span>
+      <ul>
+        <li>מנהל שואל למה ירדו ההרשמות</li>
+        <li>מבררים מה בדיוק צריך לדעת</li>
+        <li>שולפים, בודקים ומנקים נתונים</li>
+        <li>משווים ומפלחים</li>
+        <li>מציגים ממצא והמלצה</li>
+      </ul>
+    </div>
+    <div class="pc">
+      <span class="pl">כישורים</span>
+      <ul>
+        <li><strong>חשיבה:</strong> סקרנות, חשיבה מבנית, ספקנות, הבנה עסקית, תקשורת</li>
+        <li><strong>כלים:</strong> Excel, SQL, סטטיסטיקה, Power BI, Python</li>
+      </ul>
+    </div>
+  </div>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">6 / 32</span></div></section>
+<section class="slide cover" id="s7" data-n="7"><div class="in">
+<div class="eyebrow">חלק 2</div>
+<h1>הארגון והצורך</h1>
+<p class="lead">למי האנליסט נותן שירות</p>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">7 / 32</span></div></section>
+<section class="slide content" id="s8" data-n="8"><div class="in">
+<div class="eyebrow">2 · הארגון והצורך</div>
+  <h2>הלקוחות של האנליסט: בעלי התפקידים</h2>
+  <p>לכל בעל תפקיד יש החלטות לקבל, ולכל החלטה יש צורך במידע. האנליסט מספק את הדרך לענות על הצורך.</p>
+  <ol class="chips">
+    <li class="first">צורך</li><li class="chev">←</li><li>החלטה</li><li class="chev">←</li><li>שאלה</li><li class="chev">←</li><li>נתונים</li><li class="chev">←</li><li>תשובה</li><li class="chev">←</li><li>פעולה</li>
+  </ol>
+  <div class="callout">הצורך קודם לנתונים. מי שמתחיל מהנתונים מייצר דוחות. מי שמתחיל מהצורך עוזר לקבל החלטות.</div>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">8 / 32</span></div></section>
+<section class="slide content" id="s9" data-n="9"><div class="in">
+<div class="eyebrow">2 · הארגון והצורך</div>
+  <h2>הבקשה אינה הצורך</h2>
+  <div class="pair">
+    <div class="pc"><span class="pl">הבקשה</span><p>״תוציא לי דוח מכירות לפי מוצר.״</p></div>
+    <div class="pc good"><span class="pl">הצורך</span><p>להחליט כמה מלאי להזמין לעונה הבאה, בלי להישאר עם עודפים.</p></div>
+    <div class="pc"><span class="pl">הבקשה</span><p>״כמה עובדים עזבו השנה?״</p></div>
+    <div class="pc good"><span class="pl">הצורך</span><p>להבין אם יש בעיה במחלקה מסוימת, ולהחליט אם להשקיע בתוכנית שימור.</p></div>
+  </div>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">9 / 32</span></div></section>
+<section class="slide content" id="s10" data-n="10"><div class="in">
+<div class="eyebrow">2 · הארגון והצורך</div>
+  <h2>שלוש רמות של החלטות</h2>
+  <table class="data wide">
+    <thead><tr><th>רמה</th><th>מי מחליט</th><th>דוגמה</th><th>מה הוא צריך</th></tr></thead>
+    <tbody>
+      <tr><td>אסטרטגית</td><td>הנהלה בכירה</td><td>לפתוח סניפים באזור חדש?</td><td>תמונה רחבה, מגמות, השוואת חלופות</td></tr>
+      <tr><td>טקטית</td><td>מנהלי מחלקות</td><td>לאיזה ערוץ להעביר את תקציב הפרסום?</td><td>השוואה בין אפשרויות, מדידת תוצאות</td></tr>
+      <tr><td>תפעולית</td><td>מנהלים בשטח</td><td>כמה עובדים לשבץ ביום שישי?</td><td>מדד פשוט, מעודכן, זמין כל יום</td></tr>
+    </tbody>
+  </table>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">10 / 32</span></div></section>
+<section class="slide content" id="s11" data-n="11"><div class="in">
+<div class="eyebrow">2 · הארגון והצורך</div>
+  <h2>בעלי תפקידים והצורך שלהם</h2>
+  <table class="data wide">
+    <thead><tr><th>בעל תפקיד</th><th>הצורך</th><th>מה האנליסט מספק</th></tr></thead>
+    <tbody>
+      <tr><td>מנכ״ל</td><td>לדעת אם הארגון בכיוון הנכון</td><td>המדדים המרכזיים מול היעדים</td></tr>
+      <tr><td>מנהלת שיווק</td><td>לדעת מה מביא לקוחות</td><td>השוואת ערוצים: עלות ותוצאה</td></tr>
+      <tr><td>מנהל תפעול</td><td>לעמוד בזמנים בלי עלויות מיותרות</td><td>זיהוי עומסים ותחזית ביקוש</td></tr>
+      <tr><td>מנהלת משאבי אנוש</td><td>לשמור על עובדים טובים</td><td>שיעורי עזיבה לפי מחלקה ותפקיד</td></tr>
+      <tr><td>מנהל סניף</td><td>לנהל את היום יום</td><td>מדד יומי פשוט מול יעד</td></tr>
+    </tbody>
+  </table>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">11 / 32</span></div></section>
+<section class="slide content" id="s12" data-n="12"><div class="in">
+<div class="eyebrow">2 · הארגון והצורך</div>
+  <h2>סוגי צורך וסוג השירות</h2>
+  <table class="data wide">
+    <thead><tr><th>הצורך</th><th>שאלה לדוגמה</th><th>השירות</th></tr></thead>
+    <tbody>
+      <tr><td>לדעת מה קורה</td><td>איך היו המכירות אתמול?</td><td>דשבורד או דוח קבוע</td></tr>
+      <tr><td>להבין למה</td><td>למה ירדו ההרשמות?</td><td>ניתוח אבחוני</td></tr>
+      <tr><td>לבחור בין חלופות</td><td>איזה מבצע עדיף?</td><td>השוואה, ניסוי A/B</td></tr>
+      <tr><td>לבדוק אם פעולה הצליחה</td><td>האם הקמפיין החזיר את עצמו?</td><td>לפני ואחרי, מול קבוצת ביקורת</td></tr>
+      <tr><td>להיערך לעתיד</td><td>כמה לקוחות יהיו בחג?</td><td>תחזית</td></tr>
+    </tbody>
+  </table>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">12 / 32</span></div></section>
+<section class="slide content" id="s13" data-n="13"><div class="in">
+<div class="eyebrow">2 · הארגון והצורך</div>
+  <h2>אנליסט אינו מנתח מערכות</h2>
+  <div class="pair">
+    <div class="pc">
+      <span class="pl">מנתח מערכות</span>
+      <ul>
+        <li>עוזר להקים את המערכות</li>
+        <li>מגדיר תהליכי עבודה</li>
+        <li>מטפל בתפעול השוטף</li>
+      </ul>
+    </div>
+    <div class="pc good">
+      <span class="pl">Data Analyst</span>
+      <ul>
+        <li>מקבל בקשה ומברר את הצורך שמאחוריה</li>
+        <li>עונה מתוך הנתונים שקיימים במערכות</li>
+        <li>מחזיר תשובה שמאפשרת החלטה</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout">עובדים יחד: מנתח המערכות עוזר לאנליסט להבין איפה נמצא המידע שהוא צריך. כשחסר מידע, הוא דואג שייאסף מעכשיו, כדי שבעתיד תהיה תשובה.</div>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">13 / 32</span></div></section>
+<section class="slide cover" id="s14" data-n="14"><div class="in">
+<div class="eyebrow">חלק 3</div>
+<h1>מפת התהליך</h1>
+<p class="lead">מהשאלה ועד הפעולה</p>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">14 / 32</span></div></section>
+<section class="slide content" id="s15" data-n="15"><div class="in">
+<div class="eyebrow">3 · מפת התהליך</div>
+  <h2>שישה שלבים</h2>
+  <ol class="chips">
+    <li class="first">1. שאלה</li><li class="chev">←</li><li>2. איסוף</li><li class="chev">←</li><li>3. ניקוי</li><li class="chev">←</li><li>4. ניתוח</li><li class="chev">←</li><li>5. הצגה</li><li class="chev">←</li><li>6. פעולה</li>
+  </ol>
+  <table class="data wide">
+    <thead><tr><th>שלב</th><th>מה עושים</th><th>שאלת מפתח</th></tr></thead>
+    <tbody>
+      <tr><td>שאלה</td><td>מבינים את הבקשה ומנסחים שאלה מדידה</td><td>איזו החלטה תתקבל?</td></tr>
+      <tr><td>איסוף</td><td>מאתרים ושולפים נתונים</td><td>איפה נמצא המידע?</td></tr>
+      <tr><td>ניקוי</td><td>חסרים, כפילויות, פורמטים, חריגים</td><td>אפשר לסמוך על זה?</td></tr>
+      <tr><td>ניתוח</td><td>השוואה, פילוח, מגמות</td><td>מה הנתונים מראים?</td></tr>
+      <tr><td>הצגה</td><td>גרף או דשבורד עם מסר אחד</td><td>מה הקהל צריך להבין?</td></tr>
+      <tr><td>פעולה</td><td>המלצה ומעקב</td><td>מה עושים עכשיו?</td></tr>
+    </tbody>
+  </table>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">15 / 32</span></div></section>
+<section class="slide content" id="s16" data-n="16"><div class="in">
+<div class="eyebrow">3 · מפת התהליך</div>
+  <h2>השלב הראשון קובע את כל השאר</h2>
+  <div class="callout">שאלה גרועה תוביל לניתוח מושלם שעונה על הבעיה הלא נכונה.</div>
+  <p>לכן מודול הפתיחה מתמקד בשלב הראשון: להבין את הבקשה, לנסח שאלה, ולהכיר את הנתונים לפני שמנתחים.</p>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">16 / 32</span></div></section>
+<section class="slide cover" id="s17" data-n="17"><div class="in">
+<div class="eyebrow">חלק 4</div>
+<h1>להבין את הבקשה</h1>
+<p class="lead">לפני שמתחילים לעבוד</p>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">17 / 32</span></div></section>
+<section class="slide content" id="s18" data-n="18"><div class="in">
+<div class="eyebrow">4 · להבין את הבקשה</div>
+  <h2>ארבע שאלות בירור קבועות</h2>
+  <p class="hint">בקשות מגיעות מעורפלות: ״תבדוק מה קורה עם הלקוחות״. לפני כל עבודה שואלים:</p>
+  <ol>
+    <li><strong>החלטה:</strong> איזו החלטה תתקבל בעקבות התשובה?</li>
+    <li><strong>השערה:</strong> מה התחושה שעומדת מאחורי הבקשה?</li>
+    <li><strong>תוצר:</strong> איך נראית הצלחה? מספר, גרף, המלצה?</li>
+    <li><strong>זמן ודיוק:</strong> מתי צריך את התשובה, וכמה מדויקת?</li>
+  </ol>
+  <p class="hint">וגם: מי ישתמש בתשובה? מנהל בכיר צריך מסקנה אחת, מנהל תפעול צריך פירוט.</p>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">18 / 32</span></div></section>
+<section class="slide cover" id="s19" data-n="19"><div class="in">
+<div class="eyebrow">חלק 5</div>
+<h1>לנסח את השאלה</h1>
+<p class="lead">5W1H · SMART · עץ בעיות · 5 Whys</p>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">19 / 32</span></div></section>
+<section class="slide content" id="s20" data-n="20"><div class="in">
+<div class="eyebrow">5 · לנסח את השאלה</div>
+  <h2>5W1H: לפרק את הבקשה</h2>
+  <p class="hint">דוגמה: המנהל אומר ״המכירות לא טובות.״</p>
+  <table class="data wide">
+    <thead><tr><th>שאלה</th><th>מה בודקים</th><th>בדוגמה</th></tr></thead>
+    <tbody>
+      <tr><td>Who (מי)</td><td>מי הישויות?</td><td>אילו לקוחות? חדשים או חוזרים?</td></tr>
+      <tr><td>What (מה)</td><td>מה נמדד?</td><td>הכנסות? עסקאות? סל ממוצע?</td></tr>
+      <tr><td>When (מתי)</td><td>איזה טווח זמן?</td><td>ממתי? בהשוואה למה?</td></tr>
+      <tr><td>Where (איפה)</td><td>איזה מקום או ערוץ?</td><td>כל הסניפים? חנות או אונליין?</td></tr>
+      <tr><td>Why (למה)</td><td>למה שואלים?</td><td>להחליט על מבצע? על סגירת סניף?</td></tr>
+      <tr><td>How (איך)</td><td>איך הנתונים נאספו?</td><td>מקופות? ממערכת האתר?</td></tr>
+    </tbody>
+  </table>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">20 / 32</span></div></section>
+<section class="slide content" id="s21" data-n="21"><div class="in">
+<div class="eyebrow">5 · לנסח את השאלה</div>
+  <h2>SMART: לחדד לשאלה מדידה</h2>
+  <p><strong>S</strong>pecific ספציפית · <strong>M</strong>easurable מדידה · <strong>A</strong>ction-oriented מכוונת לפעולה · <strong>R</strong>elevant רלוונטית · <strong>T</strong>ime-bound תחומה בזמן</p>
+  <div class="pair">
+    <div class="pc"><span class="pl">לפני</span><p>מה קורה עם המכירות?</p></div>
+    <div class="pc good"><span class="pl">אחרי</span><p>באילו סניפים ירדו ההכנסות ביותר מ־10% ברבעון 3, בהשוואה לרבעון 3 אשתקד?</p></div>
+  </div>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">21 / 32</span></div></section>
+<section class="slide content" id="s22" data-n="22"><div class="in">
+<div class="eyebrow">5 · לנסח את השאלה</div>
+  <h2>עץ בעיות ו־5 Whys</h2>
+  <div class="pair">
+    <div class="pc">
+      <span class="pl">עץ בעיות: למה ירדו ההכנסות?</span>
+      <ul>
+        <li>פחות לקוחות: פחות חדשים, יותר עוזבים</li>
+        <li>כל לקוח קונה פחות: פחות ביקורים, סל קטן יותר</li>
+      </ul>
+      <p class="hint">כל ענף הוא שאלה שאפשר לבדוק.</p>
+    </div>
+    <div class="pc">
+      <span class="pl">5 Whys: להגיע לשורש</span>
+      <ol>
+        <li>ההכנסות ירדו: פחות עסקאות</li>
+        <li>פחות עסקאות: פחות לקוחות נכנסו</li>
+        <li>פחות לקוחות: החניה נסגרה</li>
+        <li>החניה נסגרה: עבודות ברחוב</li>
+        <li>לא נערכנו: אין מעקב אחרי הסביבה</li>
+      </ol>
+    </div>
+  </div>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">22 / 32</span></div></section>
+<section class="slide cover" id="s23" data-n="23"><div class="in">
+<div class="eyebrow">חלק 6</div>
+<h1>להכיר את הנתונים</h1>
+<p class="lead">לפני שמחשבים משהו</p>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">23 / 32</span></div></section>
+<section class="slide content" id="s24" data-n="24"><div class="in">
+<div class="eyebrow">6 · להכיר את הנתונים</div>
+  <h2>חמש שאלות על כל טבלה חדשה</h2>
+  <ol>
+    <li><strong>רמת פירוט (Granularity):</strong> מה מייצגת שורה אחת? עסקה, יום, לקוח?</li>
+    <li><strong>מילון נתונים:</strong> מה המשמעות של כל עמודה, ובאיזו יחידה?</li>
+    <li><strong>מקור:</strong> מאיפה הנתונים הגיעו ואיך נאספו?</li>
+    <li><strong>טווח:</strong> אילו תאריכים, אילו סניפים, כמה שורות?</li>
+    <li><strong>חוסרים והטיות:</strong> מה עלול להיות חסר, כפול או לא מייצג?</li>
+  </ol>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">24 / 32</span></div></section>
+<section class="slide content" id="s25" data-n="25"><div class="in">
+<div class="eyebrow">6 · להכיר את הנתונים</div>
+  <h2>דוגמה: בעיות שמסתתרות בטבלה</h2>
+  <table class="data wide">
+    <thead><tr><th>order_id</th><th>order_date</th><th>branch</th><th>amount</th><th>customer_id</th></tr></thead>
+    <tbody>
+      <tr><td>A1001</td><td>2026-07-03</td><td>כפר סבא</td><td class="num">245.90</td><td>C552</td></tr>
+      <tr><td>A1002</td><td>03/07/2026</td><td>כ״ס</td><td class="num">89.00</td><td></td></tr>
+      <tr><td>A1003</td><td>2026-07-04</td><td>נתניה</td><td class="num">-89.00</td><td>C552</td></tr>
+      <tr><td>A1003</td><td>2026-07-04</td><td>נתניה</td><td class="num">-89.00</td><td>C552</td></tr>
+      <tr><td>A1004</td><td>2026-07-05</td><td>רעננה</td><td class="num">12,400.00</td><td>C017</td></tr>
+    </tbody>
+  </table>
+  <p class="hint">שני פורמטים של תאריך · אותו סניף בשני שמות · לקוח חסר · סכום שלילי · שורה כפולה · ערך חריג</p>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">25 / 32</span></div></section>
+<section class="slide cover" id="s26" data-n="26"><div class="in">
+<div class="eyebrow">חלק 7</div>
+<h1>מושגי יסוד</h1>
+<p class="lead">שפה משותפת</p>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">26 / 32</span></div></section>
+<section class="slide content" id="s27" data-n="27"><div class="in">
+<div class="eyebrow">7 · מושגי יסוד</div>
+  <h2>ארבעה סוגי ניתוח</h2>
+  <table class="data wide">
+    <thead><tr><th>סוג</th><th>שאלה</th><th>דוגמה</th></tr></thead>
+    <tbody>
+      <tr><td>תיאורי</td><td>מה קרה?</td><td>ההכנסות ירדו ב־8%</td></tr>
+      <tr><td>אבחוני</td><td>למה זה קרה?</td><td>הירידה מרוכזת בשני סניפים</td></tr>
+      <tr><td>חזוי</td><td>מה יקרה?</td><td>אם המגמה תימשך, הרבעון הבא יהיה חלש</td></tr>
+      <tr><td>מרשם</td><td>מה לעשות?</td><td>להפעיל מבצע ממוקד בסניפים האלה</td></tr>
+    </tbody>
+  </table>
+  <p class="hint">סוגי נתונים: כמותי או איכותי, בדיד או רציף.</p>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">27 / 32</span></div></section>
+<section class="slide content" id="s28" data-n="28"><div class="in">
+<div class="eyebrow">7 · מושגי יסוד</div>
+  <h2>מושגים שכל אנליסט צריך</h2>
+  <div class="pair">
+    <ul>
+      <li><strong>KPI:</strong> המדד שבאמת קובע אם הארגון מצליח</li>
+      <li><strong>ממוצע וחציון:</strong> הממוצע מושפע מערכים קיצוניים, החציון יציב</li>
+      <li><strong>מתאם אינו סיבתיות:</strong> גלידה ושריפות עולות יחד בקיץ</li>
+    </ul>
+    <ul>
+      <li><strong>מדגם:</strong> מדגם לא מייצג מוביל למסקנה שגויה</li>
+      <li><strong>הטיית אישוש:</strong> לחפש רק מה שמאשר את מה שחשבנו</li>
+      <li><strong>חריג:</strong> יכול להיות טעות, ויכול להיות התגלית</li>
+    </ul>
+  </div>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">28 / 32</span></div></section>
+<section class="slide content" id="s29" data-n="29"><div class="in">
+<div class="eyebrow">סיכום</div>
+  <h2>חמישה דברים לזכור</h2>
+  <ol>
+    <li>אנליסט עונה על שאלות עסקיות כדי לעזור לקבל החלטות.</li>
+    <li>הלקוח הוא בעל תפקיד, ומתחילים מהצורך שלו.</li>
+    <li>השאלה הראשונה קובעת את כל התהליך.</li>
+    <li>5W1H ו־SMART הופכים בקשה מעורפלת לשאלה מדידה.</li>
+    <li>מכירים את הנתונים לפני שמנתחים אותם.</li>
+  </ol>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">29 / 32</span></div></section>
+<section class="slide cover" id="s30" data-n="30"><div class="in">
+<div class="eyebrow">שאלות</div>
+<h1>ועכשיו, שאלות אליכם</h1>
+<p class="lead">מה מכל זה כבר הכרתם?</p>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">30 / 32</span></div></section>
+<section class="slide content" id="s31" data-n="31"><div class="in">
+<div class="eyebrow">כמה הכרתם לפני?</div>
+  <h2>דרגו כל נושא מ־1 עד 5</h2>
+  <p class="hint">1 = לא שמעתי על זה · 3 = שמעתי, אבל לא עבדתי עם זה · 5 = למדתי ותרגלתי במגמה</p>
+  <div class="rate">
+    <p>1. מה עושה Data Analyst ובמה הוא שונה מתפקידים אחרים</p><div class="dots"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+    <p>2. הצורך של בעלי תפקידים בארגון</p><div class="dots"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+    <p>3. שלבי תהליך הניתוח</p><div class="dots"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+    <p>4. שאלות בירור לפני שמתחילים</p><div class="dots"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+    <p>5. 5W1H, SMART, עץ בעיות</p><div class="dots"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+    <p>6. בדיקת טבלה ואיכות נתונים</p><div class="dots"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+    <p>7. מושגי יסוד</p><div class="dots"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+  </div>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">31 / 32</span></div></section>
+<section class="slide content" id="s32" data-n="32"><div class="in">
+<div class="eyebrow">שאלות לדיון</div>
+  <h2>מה מזה פגשתם במגמה?</h2>
+  <ol>
+    <li>באיזה שלב של התהליך עבדתם הכי הרבה בעבודת הניתוח שלכם?</li>
+    <li>מי ניסח את השאלה בעבודה שלכם: אתם או המורה? איך זה עבד?</li>
+    <li>איפה SQL ו־Excel נכנסים בתהליך שראינו?</li>
+    <li>מה היה חדש לכם היום?</li>
+    <li>מה הייתם רוצים ללמוד עוד לפני סוף השנה?</li>
+  </ol>
+</div><div class="foot"><span>מה זה Data Analyst · מגמת מידע ונתונים</span><span dir="ltr">32 / 32</span></div></section>
+</div></main>
+
+<script>
+const deck = document.getElementById("deck");
+const slides = [...deck.querySelectorAll(".slide")];
+const main = document.querySelector("main");
+let cur = 0;
+const W = 1600, H = 900;
+
+function layout() {
+  const doc = document.body.classList.contains("doc");
+  if (doc) {
+    const s = Math.min(1, (main.clientWidth - 32) / W);
+    slides.forEach(el => {
+      let slot = el.parentElement.classList.contains("slot") ? el.parentElement : null;
+      if (!slot) { slot = document.createElement("div"); slot.className = "slot"; el.before(slot); slot.appendChild(el); }
+      slot.style.width = W * s + "px"; slot.style.height = H * s + "px";
+      el.style.transform = `scale(${s})`;
+    });
+  } else {
+    slides.forEach(el => { if (el.parentElement.classList.contains("slot")) { const slot = el.parentElement; slot.before(el); slot.remove(); } });
+    const pad = 24;
+    const s = Math.min((main.clientWidth - pad * 2) / W, (main.clientHeight - pad * 2) / H);
+    const x = (main.clientWidth - W * s) / 2, y = (main.clientHeight - H * s) / 2;
+    slides.forEach(el => el.style.transform = `translate(${x}px, ${y}px) scale(${s})`);
+  }
+}
+function show(i, scroll) {
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((el, k) => el.classList.toggle("on", k === cur));
+  document.getElementById("where").textContent = `${cur + 1} / ${slides.length}`;
+  document.getElementById("prev").disabled = cur === 0;
+  document.getElementById("next").disabled = cur === slides.length - 1;
+  if (document.body.classList.contains("doc") && scroll) slides[cur].scrollIntoView({ block: "start" });
+  const id = slides[cur].id;
+  if (location.hash.slice(1) !== id) history.replaceState(null, "", "#" + id);
+}
+function setView(v) {
+  document.body.classList.toggle("doc", v === "doc");
+  document.getElementById("v-slides").setAttribute("aria-pressed", v === "slides");
+  document.getElementById("v-doc").setAttribute("aria-pressed", v === "doc");
+  try { localStorage.setItem("analyst-deck-view", v); } catch (e) {}
+  layout(); show(cur, true);
+}
+document.getElementById("prev").onclick = () => show(cur - 1);
+document.getElementById("next").onclick = () => show(cur + 1);
+document.getElementById("v-slides").onclick = () => setView("slides");
+document.getElementById("v-doc").onclick = () => setView("doc");
+document.addEventListener("keydown", e => {
+  if (document.body.classList.contains("doc")) return;
+  if (e.target.closest("button") && (e.key === " " || e.key === "Enter")) return;
+  if (["ArrowLeft", "PageDown", " "].includes(e.key)) { e.preventDefault(); show(cur + 1); }
+  else if (["ArrowRight", "PageUp", "Backspace"].includes(e.key)) { e.preventDefault(); show(cur - 1); }
+  else if (e.key === "Home") show(0);
+  else if (e.key === "End") show(slides.length - 1);
+});
+window.addEventListener("resize", layout);
+window.addEventListener("hashchange", () => { const k = slides.findIndex(s => s.id === location.hash.slice(1)); if (k >= 0 && k !== cur) show(k, true); });
+let view = "slides";
+try { view = localStorage.getItem("analyst-deck-view") || "slides"; } catch (e) {}
+const start = slides.findIndex(s => s.id === location.hash.slice(1));
+if (start > 0) cur = start;
+setView(view === "doc" ? "doc" : "slides");
+</script>
+</body>
+</html>

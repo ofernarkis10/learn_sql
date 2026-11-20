@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>הארגון: Northwind Traders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: same reading column as the main guide; each part has an expansion page and an exercises page. */
+:root{
+  --bg:#f4f6f8;
+  --paper:#ffffff;
+  --ink:#16222e;
+  --muted:#556574;
+  --line:#d7dee5;
+  --accent:#1f5f8b;
+  --accent-soft:#e3eef6;
+  --mark:#c98a12;
+  --font-display:"Rubik","Arial Hebrew",Arial,sans-serif;
+  --font-body:"Assistant","Arial Hebrew",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+    --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+  --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.65}
+.wrap{max-width:820px;margin:0 auto;padding:32px 20px 64px;display:flex;flex-direction:column;gap:28px}
+header h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,6vw,40px);line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:65ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:14px;padding:3px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 20px}
+nav.toc ol{margin:0;padding-inline-start:22px;columns:2;column-gap:28px}
+nav.toc a{color:var(--accent);text-decoration:none}
+nav.toc a:hover,nav.toc a:focus-visible{text-decoration:underline}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:24px 22px}
+section h2{font-family:var(--font-display);font-weight:400;font-size:26px;line-height:1.3;margin:0 0 4px;display:flex;gap:12px;align-items:baseline;text-wrap:balance}
+section h2 .n{color:var(--accent);font-size:20px;min-width:1.6em}
+.goal{color:var(--muted);margin:0 0 16px;font-size:16px}
+h3{font-size:19px;margin:22px 0 8px}
+p,li{max-width:65ch}
+ul,ol{padding-inline-start:22px;margin:8px 0}
+li{margin:4px 0}
+.key{border-inline-start:4px solid var(--mark);background:var(--accent-soft);padding:12px 16px;border-radius:6px;margin:14px 0;font-weight:600}
+.table-box{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:16px;min-width:480px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:start;vertical-align:top}
+th{background:var(--accent-soft);font-weight:700}
+td.num{font-variant-numeric:tabular-nums;text-align:end}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;padding:0;list-style:none}
+.flow li{margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-weight:600}
+.flow li.first{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.flow .arr{border:none;background:none;padding:0;color:var(--muted)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.compare div{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.compare .bad{border-style:dashed}
+.compare .lbl{display:block;font-size:14px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.compare .good .lbl{color:var(--accent)}
+.tree{font-family:var(--font-body);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:12px 0}
+.tree ul{list-style:none;padding-inline-start:20px;border-inline-start:2px solid var(--line);margin:4px 0}
+.tree>ul{border:none;padding:0}
+.tree li{margin:4px 0}
+.whys{counter-reset:w;list-style:none;padding:0}
+.whys li{counter-increment:w;padding:6px 0 6px 0;border-bottom:1px solid var(--line)}
+.whys li::before{content:"למה " counter(w) "? ";font-weight:700;color:var(--accent)}
+dl.gloss{display:grid;grid-template-columns:minmax(140px,30%) 1fr;gap:0;margin:8px 0}
+dl.gloss dt,dl.gloss dd{margin:0;padding:10px 8px;border-bottom:1px solid var(--line)}
+dl.gloss dt{font-weight:700}
+.handout{border:2px solid var(--accent)}
+.handout h2 .n{color:var(--mark)}
+.task{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:12px 0}
+.task strong{color:var(--accent)}
+.lines{display:block;border-bottom:1px dashed var(--line);height:30px}
+.check{list-style:none;padding:0}
+.check li::before{content:"☐ ";color:var(--accent)}
+.more{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line);font-size:16px}
+.more a{color:var(--accent);font-weight:700;text-decoration:none}
+.more a:hover,.more a:focus-visible{text-decoration:underline}
+a{color:var(--accent)}
+.org{display:flex;flex-direction:column;gap:14px;margin:12px 0}
+.org-top{display:flex;justify-content:center}
+.org-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.col-h{font-size:14px;font-weight:700;color:var(--accent)}
+.org .col{display:flex;flex-direction:column;gap:8px;border-top:3px solid var(--accent);padding-top:10px}
+.node{border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-weight:700;font-size:16px;background:var(--bg)}
+.node small{display:block;font-weight:400;color:var(--muted);font-size:14px}
+.node.db{border-color:var(--accent);background:var(--accent-soft)}
+.node.add{border-style:dashed}
+.org-top .node{min-width:200px;text-align:center}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 0}
+.legend .sw{font-size:14px;padding:3px 10px}
+.note-s{color:var(--muted);font-size:16px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0 18px}
+.role{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--bg)}
+.role.db{border-color:var(--accent)}
+.role h4{margin:0 0 6px;font-size:18px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.role .src{font-size:13px;font-weight:600;color:var(--muted);border:1px dashed var(--line);border-radius:999px;padding:1px 8px}
+.role.db .src{color:var(--accent);border:1px solid var(--accent);border-style:solid}
+.role dl{display:grid;grid-template-columns:72px 1fr;gap:4px 10px;margin:0;font-size:15px;line-height:1.5}
+.role dt{font-weight:700;color:var(--muted)}
+.role dd{margin:0}
+table.matrix td:not(:first-child){text-align:center;color:var(--accent);font-weight:700}
+@media (max-width:640px){.org-row,.cards{grid-template-columns:1fr}}
+footer{color:var(--muted);font-size:14px;text-align:center}
+:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+@media (max-width:560px){
+  nav.toc ol{columns:1}
+  .compare{grid-template-columns:1fr}
+  dl.gloss{grid-template-columns:1fr}
+  dl.gloss dt{border-bottom:none;padding-bottom:0}
+  section{padding:20px 16px}
+  body{font-size:17px}
+}
+
+/* site look: learn_sql */
+h1,h2{font-weight:700}
+h1{font-size:2.4rem}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+section h2 .n{font-family:"JetBrains Mono",Consolas,monospace;font-size:1rem;color:var(--paper);background:var(--accent);border-radius:99px;padding:0 10px;min-width:0;flex:none}
+.site-back{color:var(--accent);font-weight:600;font-size:15px;text-decoration:none;width:fit-content}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.chip{background:var(--accent-soft);color:var(--accent)}
+.handout{border-color:var(--accent-deco)}
+code,pre{font-family:"JetBrains Mono",Consolas,"Courier New",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code{direction:ltr;unicode-bidi:isolate;font-size:.86em;background:var(--accent-soft);border-radius:4px;padding:0 4px}
+pre{margin:0;direction:ltr;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:14.5px;line-height:1.55;overflow-x:auto;white-space:pre}
+.kw{color:var(--accent);font-weight:600}
+.dialog{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+.dialog p{margin:0}
+.dialog .who{font-weight:700;color:var(--accent)}
+.dialog .aside{font-size:.8rem;font-weight:700;color:var(--mark-fg);background:var(--mark-bg);border-radius:99px;padding:1px 9px;margin-inline-start:6px;white-space:nowrap}
+@media print{.site-back{display:none} body{background:#fff}}
+</style>
+<script src="font-size.js"></script>
+<link rel="stylesheet" href="brand.css">
+</head>
+<body>
+<div class="wrap">
+<a class="site-back" href="index.html#analyst">→ חזרה לנושא: הכשרת Data Analyst</a>
+
+<header>
+  <h1>הארגון: Northwind Traders</h1>
+  <p>מה זה ארגון, איך בנויה חברת Northwind, ומי בעלי התפקידים בה. החברה משמשת כדוגמה לכל ההכשרה: בעלי התפקידים כאן הם הלקוחות של האנליסט, ובסיס הנתונים של Northwind הוא המקום שבו נמצאות התשובות.</p>
+  <div class="meta"><span class="chip">מודול 1: פתיחה</span><span class="chip">מסמך רקע לחלק 2</span></div>
+  <p class="more"><a href="analyst-01-guide.html#org">← חזרה למדריך המרכזי</a></p>
+</header>
+
+<nav class="toc" aria-label="תוכן העניינים">
+  <ol>
+    <li><a href="#what">מה זה ארגון</a></li>
+    <li><a href="#company">הכירו את Northwind</a></li>
+    <li><a href="#db">מה יש בבסיס הנתונים</a></li>
+    <li><a href="#chart">מבנה הארגון</a></li>
+    <li><a href="#roles">בעלי התפקידים</a></li>
+    <li><a href="#matrix">מי צריך אילו נתונים</a></li>
+    <li><a href="#flow">הזמנה אחת מקצה לקצה</a></li>
+    <li><a href="#analyst">איפה האנליסט נכנס</a></li>
+  </ol>
+</nav>
+
+<section id="what">
+  <h2><span class="n">1</span>מה זה ארגון</h2>
+  <p>ארגון הוא קבוצת אנשים שפועלים יחד כדי להשיג מטרה משותפת. בחברה עסקית המטרה היא בדרך כלל למכור מוצרים או שירותים ולהרוויח.</p>
+  <h3>ממה בנוי ארגון</h3>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>רכיב</th><th>מה זה</th><th>ב־Northwind</th></tr></thead>
+    <tbody>
+      <tr><td>מטרה</td><td>בשביל מה הארגון קיים</td><td>לייבא ולמכור מוצרי מזון לעסקים ברחבי העולם, ברווח</td></tr>
+      <tr><td>אנשים ותפקידים</td><td>מי עושה מה</td><td>מנהלים, נציגי מכירות, רכש, מחסן, משלוחים</td></tr>
+      <tr><td>מבנה</td><td>מי כפוף למי, ואילו מחלקות יש</td><td>הנהלה, מכירות, תפעול, מטה</td></tr>
+      <tr><td>תהליכים</td><td>הדרך הקבועה שבה העבודה נעשית</td><td>קבלת הזמנה, הזמנת סחורה מספק, משלוח</td></tr>
+      <tr><td>נתונים</td><td>התיעוד של כל מה שקרה</td><td>הזמנות, לקוחות, מוצרים, ספקים, משלוחים</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="key">כל תהליך בארגון משאיר נתונים. כל בעל תפקיד צריך נתונים כדי להחליט. האנליסט מחבר בין השניים.</div>
+  <h3>שלוש שכבות בכל ארגון</h3>
+  <ul>
+    <li><strong>הנהלה:</strong> קובעת כיוון ויעדים, ומחליטה החלטות אסטרטגיות.</li>
+    <li><strong>מנהלי מחלקות וסניפים:</strong> מתרגמים את היעדים לתוכניות, ומחליטים החלטות טקטיות.</li>
+    <li><strong>עובדים בשטח:</strong> מבצעים את העבודה היומיומית, ומחליטים החלטות תפעוליות.</li>
+  </ul>
+</section>
+
+<section id="company">
+  <h2><span class="n">2</span>הכירו את Northwind</h2>
+  <p>Northwind Traders היא חברה דמיונית שמייבאת ומייצאת מוצרי מזון מיוחדים. היא קונה מוצרים מספקים במדינות שונות, ומוכרת אותם ללקוחות עסקיים: מסעדות, חנויות ומעדניות באירופה ובאמריקה.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>מה</th><th>פירוט</th></tr></thead>
+    <tbody>
+      <tr><td>מה היא מוכרת</td><td>מוצרי מזון בשמונה קטגוריות: משקאות, תבלינים ורטבים, ממתקים, מוצרי חלב, דגנים, בשר ועוף, ירקות ופירות, מאכלי ים</td></tr>
+      <tr><td>למי</td><td>לקוחות עסקיים בעשרות מדינות</td></tr>
+      <tr><td>ממי היא קונה</td><td>ספקים ממדינות שונות, וכל ספק מספק מוצר אחד או יותר</td></tr>
+      <tr><td>איך הסחורה מגיעה ללקוח</td><td>דרך שלוש חברות שילוח: Speedy Express, United Package, Federal Shipping</td></tr>
+      <tr><td>איפה החברה פועלת</td><td>שני משרדים: אזור סיאטל בארה״ב, ולונדון בבריטניה</td></tr>
+      <tr><td>איך מחולקת הטריטוריה</td><td>ארבעה אזורים: מזרחי, מערבי, צפוני ודרומי, וכל אזור מחולק לטריטוריות</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="db">
+  <h2><span class="n">3</span>מה יש בבסיס הנתונים</h2>
+  <p>כל טבלה בבסיס הנתונים מתעדת חלק אחר מהפעילות של החברה.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>טבלה</th><th>מה היא מתעדת</th><th>שדות חשובים</th></tr></thead>
+    <tbody>
+      <tr><td>customers</td><td>הלקוחות</td><td>company_name, country, city</td></tr>
+      <tr><td>orders</td><td>כל הזמנה: מי הזמין, מתי, מי טיפל, איך נשלחה</td><td>order_date, required_date, shipped_date, ship_via, freight, employee_id</td></tr>
+      <tr><td>order_details</td><td>השורות בכל הזמנה: איזה מוצר, כמה, ובאיזו הנחה. אין בה מחיר: המחיר נמצא ב־products</td><td>order_id, product_id, quantity, discount</td></tr>
+      <tr><td>products</td><td>המוצרים והמלאי</td><td>unit_price, units_in_stock, units_on_order, reorder_level, discontinued</td></tr>
+      <tr><td>categories</td><td>קטגוריות המוצרים</td><td>category_name</td></tr>
+      <tr><td>suppliers</td><td>הספקים</td><td>company_name, country</td></tr>
+      <tr><td>shippers</td><td>חברות השילוח</td><td>company_name</td></tr>
+      <tr><td>employees</td><td>העובדים, התפקידים, ומי כפוף למי</td><td>title, city, hire_date, reports_to</td></tr>
+      <tr><td>regions, territories</td><td>האזורים והטריטוריות, ואיזה עובד אחראי על כל טריטוריה</td><td>region_description, territory_description</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>מה יש בנתונים, ומה הוספנו להדגמה</h3>
+  <p>בטבלת employees יש תשעה עובדים, כולם באגף המכירות: סמנכ״ל מכירות, מנהל מכירות, רכזת מכירות ושישה נציגי מכירות. חברה אמיתית צריכה גם רכש, מחסן, משלוחים, כספים ועוד. כדי להדגים ארגון שלם, הוספנו את בעלי התפקידים האלה.</p>
+  <div class="compare">
+    <div class="good"><span class="lbl">מבסיס הנתונים</span>תפקידים שמופיעים בטבלת employees, עם השמות מהנתונים.</div>
+    <div><span class="lbl">נוסף להדגמה</span>תפקידים שאין בנתונים, אבל קיימים בכל חברה כזו. התהליכים שלהם כן משאירים עקבות בטבלאות.</div>
+  </div>
+</section>
+
+<section id="chart">
+  <h2><span class="n">4</span>מבנה הארגון</h2>
+  <div class="org">
+    <div class="org-top"><div class="node add">מנכ״ל</div></div>
+    <div class="org-row">
+      <div class="col">
+        <div class="col-h">מכירות ושיווק</div>
+        <div class="node db">סמנכ״ל מכירות<small>Andrew Fuller</small></div>
+        <div class="node add">מנהלת שיווק</div>
+        <div class="node db">רכזת מכירות פנים<small>Laura Callahan</small></div>
+        <div class="node add">מנהל סניף ארה״ב (סיאטל)<small>3 נציגים: Davolio, Leverling, Peacock</small></div>
+        <div class="node db">מנהל סניף לונדון<small>Steven Buchanan · 3 נציגים: Suyama, King, Dodsworth</small></div>
+        <div class="node add">מנהל שירות לקוחות</div>
+      </div>
+      <div class="col">
+        <div class="col-h">תפעול</div>
+        <div class="node add">סמנכ״ל תפעול</div>
+        <div class="node add">מנהל רכש וספקים</div>
+        <div class="node add">מנהלי קטגוריה</div>
+        <div class="node add">מנהל מחסן ומלאי</div>
+        <div class="node add">מנהל משלוחים</div>
+      </div>
+      <div class="col">
+        <div class="col-h">כספים ומטה</div>
+        <div class="node add">סמנכ״לית כספים</div>
+        <div class="node add">מנהלת משאבי אנוש</div>
+        <div class="node add">מנהל מערכות מידע<small>כולל מנתחי מערכות</small></div>
+        <div class="node add">Data Analyst</div>
+      </div>
+    </div>
+    <p class="legend"><span class="node db sw">מבסיס הנתונים</span><span class="node add sw">נוסף להדגמה</span></p>
+  </div>
+  <p class="note-s">בנתונים, נציגי סיאטל כפופים ישירות לסמנכ״ל המכירות. בהדגמה הוספנו מנהל סניף בארה״ב, כדי שלשני הסניפים יהיה מבנה דומה.</p>
+</section>
+
+<section id="roles">
+  <h2><span class="n">5</span>בעלי התפקידים</h2>
+  <p>לכל בעל תפקיד: מה הוא עושה, מה הצורך שלו, אילו החלטות הוא מקבל, באילו נתונים הוא משתמש, ושאלה לדוגמה שהוא יכול להביא לאנליסט.</p>
+
+  <h3>הנהלה</h3>
+  <div class="cards">
+    <article class="role add">
+      <h4>מנכ״ל <span class="src">נוסף</span></h4>
+      <dl>
+        <dt>עושה</dt><dd>אחראי על החברה כולה, קובע יעדים ומחלק משאבים.</dd>
+        <dt>הצורך</dt><dd>לדעת אם החברה בכיוון הנכון.</dd>
+        <dt>החלטות</dt><dd>באילו שווקים לצמוח, באילו קטגוריות להשקיע.</dd>
+        <dt>נתונים</dt><dd>orders, order_details, customers</dd>
+        <dt>שאלה</dt><dd>״איך השתנו ההכנסות לפי מדינה בשנה האחרונה?״</dd>
+      </dl>
+    </article>
+    <article class="role db">
+      <h4>סמנכ״ל מכירות <span class="src">Andrew Fuller</span></h4>
+      <dl>
+        <dt>עושה</dt><dd>מנהל את אגף המכירות. כל אנשי המכירות כפופים לו.</dd>
+        <dt>הצורך</dt><dd>לעמוד ביעדי המכירות.</dd>
+        <dt>החלטות</dt><dd>יעדים לכל סניף ונציג, חלוקת טריטוריות.</dd>
+        <dt>נתונים</dt><dd>orders, employees, territories</dd>
+        <dt>שאלה</dt><dd>״מה ההכנסות של כל סניף וכל נציג מול השנה שעברה?״</dd>
+      </dl>
+    </article>
+    <article class="role add">
+      <h4>סמנכ״לית כספים <span class="src">נוספה</span></h4>
+      <dl>
+        <dt>עושה</dt><dd>אחראית על התקציב, הרווחיות והתשלומים.</dd>
+        <dt>הצורך</dt><dd>לשמור על רווחיות.</dd>
+        <dt>החלטות</dt><dd>מדיניות הנחות, תקציב משלוחים.</dd>
+        <dt>נתונים</dt><dd>order_details (discount), products (unit_price), orders (freight)</dd>
+        <dt>שאלה</dt><dd>״כמה הכנסות ויתרנו עליהן בגלל הנחות, ולאילו לקוחות?״</dd>
+      </dl>
+    </article>
+    <article class="role add">
+      <h4>סמנכ״ל תפעול <span class="src">נוסף</span></h4>
+      <dl>
+        <dt>עושה</dt><dd>אחראי על רכש, מחסן ומשלוחים.</dd>
+        <dt>הצורך</dt><dd>שהסחורה תהיה זמינה ותגיע ללקוח בזמן.</dd>
+        <dt>החלטות</dt><dd>עם אילו ספקים וחברות שילוח לעבוד.</dd>
+        <dt>נתונים</dt><dd>products, suppliers, orders, shippers</dd>
+        <dt>שאלה</dt><dd>״איפה בתהליך נוצרים העיכובים?״</dd>
+      </dl>
+    </article>
+  </div>
+
+  <h3>מכירות ושיווק</h3>
+  <div class="cards">
+    <article class="role db">
+      <h4>מנהל סניף לונדון <span class="src">Steven Buchanan</span></h4>
+      <dl>
+        <dt>עושה</dt><dd>מנהל את הסניף ואת שלושת הנציגים שבו.</dd>
+        <dt>הצורך</dt><dd>לעמוד ביעד הסניף ולשפר את הנציגים.</dd>
+        <dt>החלטות</dt><dd>על אילו לקוחות להתמקד, מי מהנציגים צריך עזרה.</dd>
+        <dt>נתונים</dt><dd>orders, customers, employees</dd>
+        <dt>שאלה</dt><dd>״איך כל נציג בסניף עומד מול היעד החודשי?״</dd>
+      </dl>
+    </article>
+    <article class="role add">
+      <h4>מנהל סניף ארה״ב <span class="src">נוסף</span></h4>
+      <dl>
+        <dt>עושה</dt><dd>מנהל את הסניף באזור סיאטל ואת שלושת הנציגים שבו.</dd>
+        <dt>הצורך</dt><dd>כמו בלונדון: יעד הסניף והנציגים.</dd>
+        <dt>החלטות</dt><dd>חלוקת לקוחות בין הנציגים.</dd>
+        <dt>נתונים</dt><dd>orders, customers, employees</dd>
+        <dt>שאלה</dt><dd>״אילו לקוחות לא הזמינו כבר שלושה חודשים?״</dd>
+      </dl>
+    </article>
+    <article class="role db">
+      <h4>נציגי מכירות <span class="src">Davolio, Leverling, Peacock, Suyama, King, Dodsworth</span></h4>
+      <dl>
+        <dt>עושים</dt><dd>מטפלים בלקוחות ומקבלים הזמנות. כל הזמנה נרשמת על שם הנציג.</dd>
+        <dt>הצורך</dt><dd>לדעת מי הלקוחות שלהם ומה הם קונים.</dd>
+        <dt>החלטות</dt><dd>למי להתקשר השבוע, מה להציע.</dd>
+        <dt>נתונים</dt><dd>orders, order_details, customers</dd>
+        <dt>שאלה</dt><dd>״מה הלקוחות שלי קנו בעבר ולא קנו החודש?״</dd>
+      </dl>
+    </article>
+    <article class="role db">
+      <h4>רכזת מכירות פנים <span class="src">Laura Callahan</span></h4>
+      <dl>
+        <dt>עושה</dt><dd>מתאמת את ההזמנות מול המחסן והמשלוחים, ותומכת בנציגים.</dd>
+        <dt>הצורך</dt><dd>שכל הזמנה תצא בזמן.</dd>
+        <dt>החלטות</dt><dd>אילו הזמנות לקדם קודם.</dd>
+        <dt>נתונים</dt><dd>orders (required_date, shipped_date)</dd>
+        <dt>שאלה</dt><dd>״אילו הזמנות עדיין לא נשלחו, ומועד הדרישה שלהן מתקרב?״</dd>
+      </dl>
+    </article>
+    <article class="role add">
+      <h4>מנהלת שיווק <span class="src">נוספה</span></h4>
+      <dl>
+        <dt>עושה</dt><dd>אחראית על מבצעים, קידום מוצרים וגיוס לקוחות.</dd>
+        <dt>הצורך</dt><dd>לדעת מה מביא מכירות.</dd>
+        <dt>החלטות</dt><dd>איזה מוצר לקדם, באיזו מדינה לעשות מבצע.</dd>
+        <dt>נתונים</dt><dd>order_details, products, categories, customers</dd>
+        <dt>שאלה</dt><dd>״אילו קטגוריות צומחות ואילו יורדות, לפי מדינה?״</dd>
+      </dl>
+    </article>
+    <article class="role add">
+      <h4>מנהל שירות לקוחות <span class="src">נוסף</span></h4>
+      <dl>
+        <dt>עושה</dt><dd>מטפל בפניות ובתלונות של לקוחות.</dd>
+        <dt>הצורך</dt><dd>לשמור על לקוחות מרוצים.</dd>
+        <dt>החלטות</dt><dd>אילו לקוחות לפצות, איפה לשפר את השירות.</dd>
+        <dt>נתונים</dt><dd>orders, customers</dd>
+        <dt>שאלה</dt><dd>״לאילו לקוחות היו הכי הרבה איחורים במשלוח?״</dd>
+      </dl>
+    </article>
+  </div>
+
+  <h3>תפעול</h3>
+  <div class="cards">
+    <article class="role add">
+      <h4>מנהל רכש וספקים <span class="src">נוסף</span></h4>
+      <dl>
+        <dt>עושה</dt><dd>מזמין סחורה מהספקים ומנהל את הקשר איתם.</dd>
+        <dt>הצורך</dt><dd>שלא יחסר מלאי, ושלא יהיה עודף.</dd>
+        <dt>החלטות</dt><dd>מה להזמין, כמה ומאיזה ספק.</dd>
+        <dt>נתונים</dt><dd>products (units_in_stock, units_on_order, reorder_level), suppliers</dd>
+        <dt>שאלה</dt><dd>״אילו מוצרים ירדו מתחת לרמת ההזמנה מחדש?״</dd>
+      </dl>
+    </article>
+    <article class="role add">
+      <h4>מנהלי קטגוריה <span class="src">נוספו</span></h4>
+      <dl>
+        <dt>עושים</dt><dd>כל אחד אחראי על קטגוריה, למשל משקאות או מאכלי ים.</dd>
+        <dt>הצורך</dt><dd>שהקטגוריה תהיה רווחית.</dd>
+        <dt>החלטות</dt><dd>אילו מוצרים להוסיף, ואילו להפסיק למכור.</dd>
+        <dt>נתונים</dt><dd>products (discontinued), categories, order_details</dd>
+        <dt>שאלה</dt><dd>״אילו מוצרים בקטגוריה שלי כמעט לא נמכרים?״</dd>
+      </dl>
+    </article>
+    <article class="role add">
+      <h4>מנהל מחסן ומלאי <span class="src">נוסף</span></h4>
+      <dl>
+        <dt>עושה</dt><dd>אחראי על אחסון הסחורה ועל ליקוט ההזמנות.</dd>
+        <dt>הצורך</dt><dd>להכין הזמנות מהר, בלי חוסרים.</dd>
+        <dt>החלטות</dt><dd>כמה עובדים צריך, איך לסדר את המחסן.</dd>
+        <dt>נתונים</dt><dd>products, order_details, orders (order_date)</dd>
+        <dt>שאלה</dt><dd>״באילו ימים ובאילו חודשים יש הכי הרבה הזמנות?״</dd>
+      </dl>
+    </article>
+    <article class="role add">
+      <h4>מנהל משלוחים <span class="src">נוסף</span></h4>
+      <dl>
+        <dt>עושה</dt><dd>מתאם את המשלוחים עם שלוש חברות השילוח.</dd>
+        <dt>הצורך</dt><dd>שהמשלוחים יגיעו בזמן, בעלות סבירה.</dd>
+        <dt>החלטות</dt><dd>איזו חברת שילוח לבחור לכל יעד, ועל מה להתמקח.</dd>
+        <dt>נתונים</dt><dd>orders (shipped_date, required_date, ship_via, freight, ship_country), shippers</dd>
+        <dt>שאלה</dt><dd>״איזו חברת שילוח מאחרת הכי הרבה, ולאילו מדינות?״</dd>
+      </dl>
+    </article>
+  </div>
+
+  <h3>מטה</h3>
+  <div class="cards">
+    <article class="role add">
+      <h4>מנהלת משאבי אנוש <span class="src">נוספה</span></h4>
+      <dl>
+        <dt>עושה</dt><dd>גיוס, קליטה ושימור של עובדים.</dd>
+        <dt>הצורך</dt><dd>שיהיו מספיק עובדים טובים בכל סניף.</dd>
+        <dt>החלטות</dt><dd>מתי לגייס, איפה.</dd>
+        <dt>נתונים</dt><dd>employees (hire_date, reports_to, city), orders</dd>
+        <dt>שאלה</dt><dd>״כמה הזמנות מטפל כל נציג, ובאיזה סניף יש עומס?״</dd>
+      </dl>
+    </article>
+    <article class="role add">
+      <h4>מנהל מערכות מידע ומנתחי מערכות <span class="src">נוספו</span></h4>
+      <dl>
+        <dt>עושים</dt><dd>עוזרים להקים את המערכות, מגדירים את תהליכי העבודה ומטפלים בתפעול השוטף, כולל בסיס הנתונים.</dd>
+        <dt>הצורך</dt><dd>שהמערכות יתמכו בעבודה, ושהנתונים יירשמו נכון.</dd>
+        <dt>החלטות</dt><dd>אילו שדות להוסיף, איך לבנות תהליך חדש.</dd>
+        <dt>נתונים</dt><dd>מבנה כל הטבלאות</dd>
+        <dt>שאלה</dt><dd>הם לא שואלים את האנליסט אלא עובדים איתו: עוזרים לו להבין איפה נמצא המידע שהוא צריך, באיזו טבלה ובאיזה שדה. כשחסר מידע לתשובה, הם דואגים שייאסף מעכשיו בעבודה השוטפת, כדי שבעתיד תהיה תשובה.</dd>
+      </dl>
+    </article>
+    <article class="role add">
+      <h4>Data Analyst <span class="src">נוסף</span></h4>
+      <dl>
+        <dt>עושה</dt><dd>עונה על השאלות של כל בעלי התפקידים מתוך בסיס הנתונים.</dd>
+        <dt>הלקוחות שלו</dt><dd>כל מי שמופיע במסמך הזה.</dd>
+        <dt>נתונים</dt><dd>כל הטבלאות</dd>
+        <dt>כלים</dt><dd>SQL, Excel, Power BI</dd>
+      </dl>
+    </article>
+  </div>
+</section>
+
+<section id="matrix">
+  <h2><span class="n">6</span>מי צריך אילו נתונים</h2>
+  <p>● = משתמש בטבלה באופן קבוע.</p>
+  <div class="table-box">
+  <table class="matrix">
+    <thead><tr><th>בעל תפקיד</th><th>orders</th><th>order_details</th><th>customers</th><th>products</th><th>suppliers</th><th>shippers</th><th>employees</th></tr></thead>
+    <tbody>
+      <tr><td>מנכ״ל</td><td>●</td><td>●</td><td>●</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>סמנכ״ל מכירות</td><td>●</td><td>●</td><td>●</td><td></td><td></td><td></td><td>●</td></tr>
+      <tr><td>מנהלי סניפים</td><td>●</td><td>●</td><td>●</td><td></td><td></td><td></td><td>●</td></tr>
+      <tr><td>נציגי מכירות</td><td>●</td><td>●</td><td>●</td><td>●</td><td></td><td></td><td></td></tr>
+      <tr><td>מנהלת שיווק</td><td>●</td><td>●</td><td>●</td><td>●</td><td></td><td></td><td></td></tr>
+      <tr><td>סמנכ״לית כספים</td><td>●</td><td>●</td><td></td><td></td><td></td><td>●</td><td></td></tr>
+      <tr><td>מנהל רכש</td><td></td><td>●</td><td></td><td>●</td><td>●</td><td></td><td></td></tr>
+      <tr><td>מנהל מחסן</td><td>●</td><td>●</td><td></td><td>●</td><td></td><td></td><td></td></tr>
+      <tr><td>מנהל משלוחים</td><td>●</td><td></td><td>●</td><td></td><td></td><td>●</td><td></td></tr>
+      <tr><td>משאבי אנוש</td><td>●</td><td></td><td></td><td></td><td></td><td></td><td>●</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>הטבלה orders נמצאת כמעט בכל שורה. ההזמנה היא האירוע המרכזי בחברה, וכמעט כל בעל תפקיד נוגע בה.</p>
+</section>
+
+<section id="flow">
+  <h2><span class="n">7</span>הזמנה אחת מקצה לקצה</h2>
+  <p>מסעדה בלונדון מזמינה 20 בקבוקי משקה ו־10 קופסאות גבינה.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>#</th><th>מה קורה</th><th>מי מטפל</th><th>מה נרשם בנתונים</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>הלקוח מזמין</td><td>נציג מכירות בסניף לונדון</td><td>שורה ב־orders עם order_date, required_date ו־employee_id</td></tr>
+      <tr><td>2</td><td>נרשמים המוצרים, הכמויות וההנחה</td><td>הנציג</td><td>שתי שורות ב־order_details</td></tr>
+      <tr><td>3</td><td>בודקים שיש מלאי ומלקטים</td><td>המחסן, בתיאום עם רכזת המכירות</td><td>units_in_stock ב־products יורד</td></tr>
+      <tr><td>4</td><td>אם המלאי נמוך, מזמינים מהספק</td><td>מנהל הרכש</td><td>units_on_order ב־products עולה</td></tr>
+      <tr><td>5</td><td>בוחרים חברת שילוח ושולחים</td><td>מנהל המשלוחים</td><td>ship_via, freight ו־shipped_date ב־orders</td></tr>
+      <tr><td>6</td><td>ההכנסה נרשמת</td><td>הכספים</td><td>מחושבת מ־order_details ו־products: unit_price × quantity × (1 − discount)</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="key">כל שלב בתהליך משאיר עקבות בטבלה אחרת. לכן מתוך הנתונים אפשר לשחזר מה קרה, ולענות על שאלות של כל מי שהיה מעורב.</div>
+</section>
+
+<section id="analyst">
+  <h2><span class="n">8</span>איפה האנליסט נכנס</h2>
+  <p>האנליסט של Northwind מקבל בקשות מבעלי התפקידים. בכל פעם הוא מברר את הצורך שמאחורי הבקשה, ומחפש את התשובה בטבלאות.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>הבקשה</th><th>מי ביקש</th><th>הצורך</th><th>איפה התשובה</th></tr></thead>
+    <tbody>
+      <tr><td>״תוציא לי את המשלוחים של החודש.״</td><td>מנהל משלוחים</td><td>להחליט אם להחליף חברת שילוח</td><td>orders, shippers: איחורים ועלות לפי חברה</td></tr>
+      <tr><td>״כמה מכר הסניף שלי?״</td><td>מנהל סניף לונדון</td><td>לדעת מי מהנציגים צריך עזרה</td><td>orders, order_details, employees</td></tr>
+      <tr><td>״מה המצב עם המלאי?״</td><td>מנהל רכש</td><td>להחליט מה להזמין השבוע</td><td>products: מלאי מול רמת ההזמנה מחדש</td></tr>
+      <tr><td>״תן לי את הלקוחות הגדולים.״</td><td>סמנכ״ל מכירות</td><td>להחליט למי להציע הסכם שנתי</td><td>customers, orders, order_details</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="more"><a href="analyst-01-guide.html#org">← חזרה למדריך המרכזי</a></p>
+</section>
+
+<footer>מודול 1: פתיחה · הארגון לדוגמה: Northwind Traders</footer>
+</div>
+</body>
+</html>

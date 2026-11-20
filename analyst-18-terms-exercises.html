@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>תרגילים לחלק 7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: same reading column as the main guide; each part has an expansion page and an exercises page. */
+:root{
+  --bg:#f4f6f8;
+  --paper:#ffffff;
+  --ink:#16222e;
+  --muted:#556574;
+  --line:#d7dee5;
+  --accent:#1f5f8b;
+  --accent-soft:#e3eef6;
+  --mark:#c98a12;
+  --font-display:"Rubik","Arial Hebrew",Arial,sans-serif;
+  --font-body:"Assistant","Arial Hebrew",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+    --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+  --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.65}
+.wrap{max-width:820px;margin:0 auto;padding:32px 20px 64px;display:flex;flex-direction:column;gap:28px}
+header h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,6vw,40px);line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:65ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:14px;padding:3px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 20px}
+nav.toc ol{margin:0;padding-inline-start:22px;columns:2;column-gap:28px}
+nav.toc a{color:var(--accent);text-decoration:none}
+nav.toc a:hover,nav.toc a:focus-visible{text-decoration:underline}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:24px 22px}
+section h2{font-family:var(--font-display);font-weight:400;font-size:26px;line-height:1.3;margin:0 0 4px;display:flex;gap:12px;align-items:baseline;text-wrap:balance}
+section h2 .n{color:var(--accent);font-size:20px;min-width:1.6em}
+.goal{color:var(--muted);margin:0 0 16px;font-size:16px}
+h3{font-size:19px;margin:22px 0 8px}
+p,li{max-width:65ch}
+ul,ol{padding-inline-start:22px;margin:8px 0}
+li{margin:4px 0}
+.key{border-inline-start:4px solid var(--mark);background:var(--accent-soft);padding:12px 16px;border-radius:6px;margin:14px 0;font-weight:600}
+.table-box{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:16px;min-width:480px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:start;vertical-align:top}
+th{background:var(--accent-soft);font-weight:700}
+td.num{font-variant-numeric:tabular-nums;text-align:end}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;padding:0;list-style:none}
+.flow li{margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-weight:600}
+.flow li.first{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.flow .arr{border:none;background:none;padding:0;color:var(--muted)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.compare div{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.compare .bad{border-style:dashed}
+.compare .lbl{display:block;font-size:14px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.compare .good .lbl{color:var(--accent)}
+.tree{font-family:var(--font-body);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:12px 0}
+.tree ul{list-style:none;padding-inline-start:20px;border-inline-start:2px solid var(--line);margin:4px 0}
+.tree>ul{border:none;padding:0}
+.tree li{margin:4px 0}
+.whys{counter-reset:w;list-style:none;padding:0}
+.whys li{counter-increment:w;padding:6px 0 6px 0;border-bottom:1px solid var(--line)}
+.whys li::before{content:"למה " counter(w) "? ";font-weight:700;color:var(--accent)}
+dl.gloss{display:grid;grid-template-columns:minmax(140px,30%) 1fr;gap:0;margin:8px 0}
+dl.gloss dt,dl.gloss dd{margin:0;padding:10px 8px;border-bottom:1px solid var(--line)}
+dl.gloss dt{font-weight:700}
+.handout{border:2px solid var(--accent)}
+.handout h2 .n{color:var(--mark)}
+.task{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:12px 0}
+.task strong{color:var(--accent)}
+.lines{display:block;border-bottom:1px dashed var(--line);height:30px}
+.check{list-style:none;padding:0}
+.check li::before{content:"☐ ";color:var(--accent)}
+.more{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line);font-size:16px}
+.more a{color:var(--accent);font-weight:700;text-decoration:none}
+.more a:hover,.more a:focus-visible{text-decoration:underline}
+a{color:var(--accent)}
+footer{color:var(--muted);font-size:14px;text-align:center}
+:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+@media (max-width:560px){
+  nav.toc ol{columns:1}
+  .compare{grid-template-columns:1fr}
+  dl.gloss{grid-template-columns:1fr}
+  dl.gloss dt{border-bottom:none;padding-bottom:0}
+  section{padding:20px 16px}
+  body{font-size:17px}
+}
+
+/* site look: learn_sql */
+h1,h2{font-weight:700}
+h1{font-size:2.4rem}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+section h2 .n{font-family:"JetBrains Mono",Consolas,monospace;font-size:1rem;color:var(--paper);background:var(--accent);border-radius:99px;padding:0 10px;min-width:0;flex:none}
+.site-back{color:var(--accent);font-weight:600;font-size:15px;text-decoration:none;width:fit-content}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.chip{background:var(--accent-soft);color:var(--accent)}
+.handout{border-color:var(--accent-deco)}
+code,pre{font-family:"JetBrains Mono",Consolas,"Courier New",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code{direction:ltr;unicode-bidi:isolate;font-size:.86em;background:var(--accent-soft);border-radius:4px;padding:0 4px}
+pre{margin:0;direction:ltr;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:14.5px;line-height:1.55;overflow-x:auto;white-space:pre}
+.kw{color:var(--accent);font-weight:600}
+.dialog{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+.dialog p{margin:0}
+.dialog .who{font-weight:700;color:var(--accent)}
+.dialog .aside{font-size:.8rem;font-weight:700;color:var(--mark-fg);background:var(--mark-bg);border-radius:99px;padding:1px 9px;margin-inline-start:6px;white-space:nowrap}
+@media print{.site-back{display:none} body{background:#fff}}
+</style>
+<script src="font-size.js"></script>
+<link rel="stylesheet" href="brand.css">
+</head>
+<body>
+<div class="wrap">
+<a class="site-back" href="index.html#analyst">→ חזרה לנושא: הכשרת Data Analyst</a>
+
+<header>
+  <h1>תרגילים לחלק 7: מושגי יסוד</h1>
+  <p>שישה תרגילים על המושגים: סוגי ניתוח, KPI, ממוצע וחציון, מתאם וסיבתיות, אחוזים ונקודות אחוז, והטיות. הפתרונות נמצאים בחלקים הנפתחים.</p>
+  <div class="meta"><span class="chip">מודול 1: פתיחה</span><span class="chip">חלק 7 מתוך 7</span><span class="chip">כ־60 דקות</span></div>
+  <p class="more"><a href="analyst-01-guide.html#terms">← חזרה למדריך המרכזי</a><a href="analyst-17-terms.html">ההרחבה של חלק 7</a></p>
+</header>
+
+<section class="handout">
+  <h2><span class="n">1</span>איזה סוג ניתוח?</h2>
+  <p class="goal">לכל משפט, כתבו את סוג הניתוח: תיאורי, אבחוני, חזוי או מרשם.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>#</th><th>המשפט</th><th>סוג</th></tr></thead>
+    <tbody>
+      <tr><td>א</td><td>״ברבעון האחרון היו 270 הזמנות.״</td><td></td></tr>
+      <tr><td>ב</td><td>״הירידה בהזמנות נובעת בעיקר משלושה לקוחות גדולים שהפסיקו להזמין.״</td><td></td></tr>
+      <tr><td>ג</td><td>״כדאי להציע לשלושת הלקוחות האלה הנחה לחצי שנה.״</td><td></td></tr>
+      <tr><td>ד</td><td>״לפי המגמה, בדצמבר יהיו בין 90 ל־110 הזמנות.״</td><td></td></tr>
+      <tr><td>ה</td><td>״המוצר שנמכר הכי הרבה השנה הוא מקטגוריית המשקאות.״</td><td></td></tr>
+      <tr><td>ו</td><td>״אחוז האיחורים גבוה יותר בהזמנות לאמריקה, כי שם משתמשים בעיקר בחברת שילוח אחת.״</td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="goal">המספרים בתרגיל הם לדוגמה.</p>
+  <details>
+    <summary><strong>פתרון</strong></summary>
+    <ul>
+      <li>א: תיאורי.</li>
+      <li>ב: אבחוני.</li>
+      <li>ג: מרשם.</li>
+      <li>ד: חזוי. שימו לב שהתחזית ניתנת כטווח.</li>
+      <li>ה: תיאורי.</li>
+      <li>ו: אבחוני.</li>
+    </ul>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">2</span>בחרו KPI</h2>
+  <p class="goal">לכל בעל תפקיד ב־Northwind, הציעו KPI אחד, הגדירו אותו במדויק, וכתבו מה יכול להיות היעד.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>בעל תפקיד</th><th>KPI</th><th>הגדרה</th><th>יעד</th></tr></thead>
+    <tbody>
+      <tr><td>מנהלת שיווק</td><td style="height:48px"></td><td></td><td></td></tr>
+      <tr><td>מנהל מחסן</td><td style="height:48px"></td><td></td><td></td></tr>
+      <tr><td>סמנכ״לית כספים</td><td style="height:48px"></td><td></td><td></td></tr>
+      <tr><td>מנהל שירות לקוחות</td><td style="height:48px"></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <details>
+    <summary><strong>תשובות אפשריות</strong></summary>
+    <ul>
+      <li>מנהלת שיווק: לקוחות חדשים בחודש. הגדרה: לקוחות שהזמינו לראשונה באותו חודש. יעד לדוגמה: 3 בחודש.</li>
+      <li>מנהל מחסן: זמן מהזמנה לשליחה. הגדרה: חציון הימים בין תאריך ההזמנה לתאריך השליחה. יעד לדוגמה: עד 5 ימים.</li>
+      <li>סמנכ״לית כספים: שיעור ההנחה. הגדרה: סכום ההנחות חלקי ההכנסות לפני הנחה. יעד לדוגמה: עד 5%.</li>
+      <li>מנהל שירות לקוחות: אחוז משלוחים בזמן ללקוחות הגדולים. הגדרה: הזמנות של 20 הלקוחות הגדולים שנשלחו עד מועד הדרישה, מתוך ההזמנות שלהם שנשלחו. יעד לדוגמה: 95%.</li>
+    </ul>
+    <p>שימו לב שבמנהל המחסן כדאי חציון ולא ממוצע: הזמנה אחת שנתקעה לא צריכה להסתיר שרוב ההזמנות יוצאות מהר.</p>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">3</span>ממוצע או חציון?</h2>
+  <p class="goal">אלה דמי המשלוח של שבע הזמנות (נתונים לדוגמה): <span dir="ltr">10, 12, 14, 15, 18, 20, 400</span>.</p>
+  <div class="task"><strong>א.</strong> חשבו את הממוצע ואת החציון.<span class="lines"></span></div>
+  <div class="task"><strong>ב.</strong> מנהל המשלוחים שואל ״כמה עולה משלוח רגיל?״. איזה מדד תציגו, ולמה?<span class="lines"></span></div>
+  <div class="task"><strong>ג.</strong> סמנכ״לית הכספים שואלת ״כמה נשלם על משלוחים אם יהיו 100 הזמנות כאלה?״. איזה מדד מתאים כאן?<span class="lines"></span></div>
+  <div class="task"><strong>ד.</strong> מה עוד תעשו עם ההזמנה של 400?<span class="lines"></span></div>
+  <details>
+    <summary><strong>פתרון</strong></summary>
+    <ul>
+      <li>א: הסכום הוא 489, והממוצע הוא 489 חלקי 7, כ־69.9. החציון (הערך הרביעי אחרי מיון) הוא 15.</li>
+      <li>ב: חציון. רוב המשלוחים עולים בין 10 ל־20. הממוצע (כ־70) גבוה מכמעט כל ההזמנות, בגלל הזמנה אחת.</li>
+      <li>ג: ממוצע, כי צריך את הסכום הכולל: ממוצע כפול מספר ההזמנות. אבל כדאי לציין שהוא מושפע מאוד מההזמנה של 400.</li>
+      <li>ד: לבדוק אם היא אמיתית. אם כן, להבין למה היא כל כך יקרה: יעד רחוק? משלוח דחוף? משקל גדול?</li>
+    </ul>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">4</span>מתאם או סיבתיות?</h2>
+  <p class="goal">בכל טענה נמצא קשר בין שני דברים. כתבו הסבר אחר לקשר, וכיצד אפשר לבדוק אם הטענה נכונה.</p>
+  <div class="task"><strong>א.</strong> ״לקוחות שמקבלים הנחה מזמינים כמויות גדולות יותר. לכן הנחות מגדילות את הכמות.״<span class="lines"></span><span class="lines"></span></div>
+  <div class="task"><strong>ב.</strong> ״בחודשים שבהם היו יותר משלוחים, היו גם יותר איחורים. לכן חברות השילוח מאחרות כשיש להן הרבה עבודה.״<span class="lines"></span><span class="lines"></span></div>
+  <div class="task"><strong>ג.</strong> ״הנציגים עם הכי הרבה שנות ותק מוכרים הכי הרבה. לכן ותק משפר מכירות.״<span class="lines"></span><span class="lines"></span></div>
+  <details>
+    <summary><strong>פתרון</strong></summary>
+    <ul>
+      <li>א: משתנה שלישי: לקוחות גדולים מקבלים הנחות וגם קונים הרבה. בדיקה: להשוות כמויות אצל אותו לקוח, בהזמנות עם הנחה ובלי הנחה. או ניסוי: הנחה לחלק מהלקוחות בלבד.</li>
+      <li>ב: אולי העומס הוא במחסן ולא בחברות השילוח, וההזמנות יוצאות ממנו מאוחר. בדיקה: לבדוק אם האיחור נוצר לפני השליחה או אחריה, ולבדוק עם מנתח המערכות מה בדיוק נרשם.</li>
+      <li>ג: אולי לנציגים הוותיקים הוקצו הלקוחות הגדולים. בדיקה: להשוות מכירות ללקוח, או לבדוק אצל אותו נציג אם המכירות שלו עלו עם השנים.</li>
+    </ul>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">5</span>אחוזים ונקודות אחוז</h2>
+  <p class="goal">חשבו, וכתבו משפט אחד שמתאר כל שינוי בצורה נכונה.</p>
+  <div class="task"><strong>א.</strong> אחוז המשלוחים בזמן ירד מ־92% ל־88%. בכמה נקודות אחוז הוא ירד? ובכמה אחוזים?<span class="lines"></span></div>
+  <div class="task"><strong>ב.</strong> שיעור ההנחה עלה מ־2% ל־3%. מנהל אחד אומר ״עלייה של 1%״, ומנהל אחר אומר ״עלייה של 50%״. מי צודק?<span class="lines"></span></div>
+  <div class="task"><strong>ג.</strong> מוצר חדש מכר 5 יחידות בינואר ו־15 בפברואר. מנהלת השיווק רוצה לכתוב ״צמיחה של 200%״. מה תוסיפו?<span class="lines"></span></div>
+  <details>
+    <summary><strong>פתרון</strong></summary>
+    <ul>
+      <li>א: ירידה של 4 נקודות אחוז. באחוזים: 4 חלקי 92, בערך 4.3%.</li>
+      <li>ב: שניהם צודקים, אבל הראשון צריך לומר ״נקודת אחוז אחת״, לא ״1%״. השני מתאר את השינוי היחסי.</li>
+      <li>ג: את המספרים עצמם: מ־5 ל־15 יחידות. כשהבסיס קטן, אחוז גבוה יכול להטעות.</li>
+    </ul>
+  </details>
+</section>
+
+<section class="handout">
+  <h2><span class="n">6</span>זהו את ההטיה</h2>
+  <p class="goal">בכל מקרה יש הטיה. כתבו את שם ההטיה ואיך לתקן.</p>
+  <div class="task"><strong>א.</strong> כדי להבין למה לקוחות עוזבים, האנליסט בדק את 20 הלקוחות הכי פעילים השנה.<span class="lines"></span></div>
+  <div class="task"><strong>ב.</strong> מנהלת השיווק בטוחה שהמבצע הצליח, ומבקשת להציג רק את שלושת המוצרים שמכירותיהם עלו.<span class="lines"></span></div>
+  <div class="task"><strong>ג.</strong> סקר שביעות רצון נשלח בדואר אלקטרוני רק ללקוחות שנתנו כתובת, ורובם לקוחות ותיקים.<span class="lines"></span></div>
+  <div class="task"><strong>ד.</strong> משווים את הכמויות שקנו לקוחות שביקשו הנחה, לכמויות של לקוחות שלא ביקשו, ומסיקים שההנחה הגדילה את הכמות.<span class="lines"></span></div>
+  <details>
+    <summary><strong>פתרון</strong></summary>
+    <ul>
+      <li>א: הטיית שורדים. צריך לבדוק דווקא את הלקוחות שעזבו, ולהשוות אותם ללקוחות שנשארו.</li>
+      <li>ב: הטיית אישוש. להציג את כל המוצרים שהיו במבצע, גם אלה שמכירותיהם לא עלו.</li>
+      <li>ג: הטיית מדגם. המדגם לא מייצג לקוחות חדשים. לציין את זה, או לשלוח את הסקר בדרך שמגיעה לכולם.</li>
+      <li>ד: הטיית בחירה. מי שביקש הנחה כנראה תכנן מראש לקנות הרבה. צריך השוואה בין קבוצות דומות, או ניסוי.</li>
+    </ul>
+  </details>
+  <p class="more"><a href="analyst-01-guide.html#terms">← חזרה למדריך המרכזי</a><a href="analyst-17-terms.html">ההרחבה של חלק 7</a></p>
+</section>
+
+<footer>מודול 1: פתיחה · תרגילים לחלק 7</footer>
+</div>
+</body>
+</html>

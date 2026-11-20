@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>חלק 6 בהרחבה: להכיר את הנתונים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: same reading column as the main guide; each part has an expansion page and an exercises page. */
+:root{
+  --bg:#f4f6f8;
+  --paper:#ffffff;
+  --ink:#16222e;
+  --muted:#556574;
+  --line:#d7dee5;
+  --accent:#1f5f8b;
+  --accent-soft:#e3eef6;
+  --mark:#c98a12;
+  --font-display:"Rubik","Arial Hebrew",Arial,sans-serif;
+  --font-body:"Assistant","Arial Hebrew",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+    --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+  --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.65}
+.wrap{max-width:820px;margin:0 auto;padding:32px 20px 64px;display:flex;flex-direction:column;gap:28px}
+header h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,6vw,40px);line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:65ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:14px;padding:3px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 20px}
+nav.toc ol{margin:0;padding-inline-start:22px;columns:2;column-gap:28px}
+nav.toc a{color:var(--accent);text-decoration:none}
+nav.toc a:hover,nav.toc a:focus-visible{text-decoration:underline}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:24px 22px}
+section h2{font-family:var(--font-display);font-weight:400;font-size:26px;line-height:1.3;margin:0 0 4px;display:flex;gap:12px;align-items:baseline;text-wrap:balance}
+section h2 .n{color:var(--accent);font-size:20px;min-width:1.6em}
+.goal{color:var(--muted);margin:0 0 16px;font-size:16px}
+h3{font-size:19px;margin:22px 0 8px}
+p,li{max-width:65ch}
+ul,ol{padding-inline-start:22px;margin:8px 0}
+li{margin:4px 0}
+.key{border-inline-start:4px solid var(--mark);background:var(--accent-soft);padding:12px 16px;border-radius:6px;margin:14px 0;font-weight:600}
+.table-box{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:16px;min-width:480px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:start;vertical-align:top}
+th{background:var(--accent-soft);font-weight:700}
+td.num{font-variant-numeric:tabular-nums;text-align:end}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;padding:0;list-style:none}
+.flow li{margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-weight:600}
+.flow li.first{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.flow .arr{border:none;background:none;padding:0;color:var(--muted)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.compare div{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.compare .bad{border-style:dashed}
+.compare .lbl{display:block;font-size:14px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.compare .good .lbl{color:var(--accent)}
+.tree{font-family:var(--font-body);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:12px 0}
+.tree ul{list-style:none;padding-inline-start:20px;border-inline-start:2px solid var(--line);margin:4px 0}
+.tree>ul{border:none;padding:0}
+.tree li{margin:4px 0}
+.whys{counter-reset:w;list-style:none;padding:0}
+.whys li{counter-increment:w;padding:6px 0 6px 0;border-bottom:1px solid var(--line)}
+.whys li::before{content:"למה " counter(w) "? ";font-weight:700;color:var(--accent)}
+dl.gloss{display:grid;grid-template-columns:minmax(140px,30%) 1fr;gap:0;margin:8px 0}
+dl.gloss dt,dl.gloss dd{margin:0;padding:10px 8px;border-bottom:1px solid var(--line)}
+dl.gloss dt{font-weight:700}
+.handout{border:2px solid var(--accent)}
+.handout h2 .n{color:var(--mark)}
+.task{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:12px 0}
+.task strong{color:var(--accent)}
+.lines{display:block;border-bottom:1px dashed var(--line);height:30px}
+.check{list-style:none;padding:0}
+.check li::before{content:"☐ ";color:var(--accent)}
+.more{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line);font-size:16px}
+.more a{color:var(--accent);font-weight:700;text-decoration:none}
+.more a:hover,.more a:focus-visible{text-decoration:underline}
+a{color:var(--accent)}
+footer{color:var(--muted);font-size:14px;text-align:center}
+:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+@media (max-width:560px){
+  nav.toc ol{columns:1}
+  .compare{grid-template-columns:1fr}
+  dl.gloss{grid-template-columns:1fr}
+  dl.gloss dt{border-bottom:none;padding-bottom:0}
+  section{padding:20px 16px}
+  body{font-size:17px}
+}
+
+/* site look: learn_sql */
+h1,h2{font-weight:700}
+h1{font-size:2.4rem}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+section h2 .n{font-family:"JetBrains Mono",Consolas,monospace;font-size:1rem;color:var(--paper);background:var(--accent);border-radius:99px;padding:0 10px;min-width:0;flex:none}
+.site-back{color:var(--accent);font-weight:600;font-size:15px;text-decoration:none;width:fit-content}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.chip{background:var(--accent-soft);color:var(--accent)}
+.handout{border-color:var(--accent-deco)}
+code,pre{font-family:"JetBrains Mono",Consolas,"Courier New",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code{direction:ltr;unicode-bidi:isolate;font-size:.86em;background:var(--accent-soft);border-radius:4px;padding:0 4px}
+pre{margin:0;direction:ltr;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:14.5px;line-height:1.55;overflow-x:auto;white-space:pre}
+.kw{color:var(--accent);font-weight:600}
+.dialog{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+.dialog p{margin:0}
+.dialog .who{font-weight:700;color:var(--accent)}
+.dialog .aside{font-size:.8rem;font-weight:700;color:var(--mark-fg);background:var(--mark-bg);border-radius:99px;padding:1px 9px;margin-inline-start:6px;white-space:nowrap}
+@media print{.site-back{display:none} body{background:#fff}}
+</style>
+<script src="font-size.js"></script>
+<link rel="stylesheet" href="brand.css">
+</head>
+<body>
+<div class="wrap">
+<a class="site-back" href="index.html#analyst">→ חזרה לנושא: הכשרת Data Analyst</a>
+
+<header>
+  <h1>חלק 6 בהרחבה: להכיר את הנתונים</h1>
+  <p>הרחבה לסעיף 6 במדריך המרכזי: חמש השאלות שכל אנליסט שואל על טבלה חדשה, סוגי נתונים, בעיות איכות נפוצות, איך בודקים אותן ומה עושים עם כל בעיה. הדוגמאות לקוחות מ־Northwind.</p>
+  <div class="meta"><span class="chip">מודול 1: פתיחה</span><span class="chip">חלק 6 מתוך 7</span></div>
+  <p class="more"><a href="analyst-01-guide.html#data">← חזרה למדריך המרכזי</a><a href="analyst-16-data-exercises.html">תרגילים לחלק 6</a></p>
+</header>
+
+<nav class="toc" aria-label="תוכן העניינים">
+  <ol>
+    <li><a href="#why">למה להכיר לפני שמנתחים</a></li>
+    <li><a href="#grain">רמת הפירוט</a></li>
+    <li><a href="#dict">מילון נתונים</a></li>
+    <li><a href="#source">מקור וטווח</a></li>
+    <li><a href="#types">סוגי נתונים</a></li>
+    <li><a href="#quality">בעיות איכות נפוצות</a></li>
+    <li><a href="#profile">איך בודקים</a></li>
+    <li><a href="#decide">מה עושים עם בעיה</a></li>
+    <li><a href="#who">עם מי מבררים</a></li>
+    <li><a href="#mistakes">טעויות נפוצות</a></li>
+  </ol>
+</nav>
+
+<section id="why">
+  <h2><span class="n">1</span>למה להכיר לפני שמנתחים</h2>
+  <p>חישוב על נתונים שלא מבינים נותן מספר שנראה נכון, אבל עונה על שאלה אחרת. למשל, אנליסט שסופר שורות בטבלת ההזמנות כדי לדעת כמה לקוחות יש, יקבל את מספר ההזמנות ולא את מספר הלקוחות.</p>
+  <div class="key">לפני כל חישוב: מה מייצגת שורה, מה אומרת כל עמודה, מאיפה הנתונים הגיעו, מה הטווח שלהם, ומה עלול להיות חסר.</div>
+</section>
+
+<section id="grain">
+  <h2><span class="n">2</span>רמת הפירוט (Granularity)</h2>
+  <p>רמת הפירוט היא התשובה לשאלה: מה מייצגת שורה אחת? בכל טבלה ב־Northwind התשובה שונה.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>טבלה</th><th>שורה אחת היא</th><th>מה קורה אם סופרים שורות</th></tr></thead>
+    <tbody>
+      <tr><td>customers</td><td>לקוח אחד</td><td>מקבלים את מספר הלקוחות</td></tr>
+      <tr><td>orders</td><td>הזמנה אחת</td><td>מקבלים את מספר ההזמנות. לקוח שהזמין חמש פעמים נספר חמש פעמים</td></tr>
+      <tr><td>order_details</td><td>מוצר אחד בתוך הזמנה אחת</td><td>מקבלים את מספר שורות ההזמנה. הזמנה עם שלושה מוצרים נספרת שלוש פעמים</td></tr>
+      <tr><td>products</td><td>מוצר אחד</td><td>מקבלים את מספר המוצרים, כולל כאלה שהפסיקו למכור</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>כשמחברים טבלאות, רמת הפירוט משתנה. אם מחברים הזמנות עם השורות שלהן, כל שורה היא מוצר בתוך הזמנה. מי שיסכם שם את דמי המשלוח יספור את דמי המשלוח של כל הזמנה כמה פעמים, פעם לכל מוצר בה.</p>
+</section>
+
+<section id="dict">
+  <h2><span class="n">3</span>מילון נתונים</h2>
+  <p>מילון נתונים מסביר כל עמודה: מה היא אומרת, באיזו יחידה, ערך לדוגמה, והערות. אם אין מילון, האנליסט בונה אחד בעצמו, יחד עם מנתח המערכות.</p>
+  <h3>דוגמה: חלק מטבלת orders</h3>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>עמודה</th><th>משמעות</th><th>סוג</th><th>הערה</th></tr></thead>
+    <tbody>
+      <tr><td><code>order_date</code></td><td>התאריך שבו ההזמנה התקבלה</td><td>תאריך</td><td></td></tr>
+      <tr><td><code>required_date</code></td><td>התאריך שבו הלקוח צריך את ההזמנה</td><td>תאריך</td><td>זה לא תאריך ההגעה בפועל</td></tr>
+      <tr><td><code>shipped_date</code></td><td>התאריך שבו ההזמנה נשלחה</td><td>תאריך</td><td>ריק בהזמנות שעוד לא נשלחו</td></tr>
+      <tr><td><code>ship_via</code></td><td>מספר חברת השילוח</td><td>מזהה</td><td>השם נמצא בטבלה shippers</td></tr>
+      <tr><td><code>freight</code></td><td>דמי המשלוח של ההזמנה</td><td>מספר רציף, בכסף</td><td>סכום אחד לכל ההזמנה</td></tr>
+      <tr><td><code>ship_country</code></td><td>מדינת היעד של המשלוח</td><td>קטגוריה</td><td>יכולה להיות שונה מהמדינה של הלקוח</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>עוד שתי עובדות על Northwind</h3>
+  <ul>
+    <li>בטבלה order_details אין מחיר. המחיר נמצא בטבלת products.</li>
+    <li>ההנחה (<code>discount</code>) רשומה כשבר: 0.15 פירושו 15%.</li>
+  </ul>
+</section>
+
+<section id="source">
+  <h2><span class="n">4</span>מקור וטווח</h2>
+  <h3>מקור: מאיפה הנתונים הגיעו?</h3>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>שאלה</th><th>למה חשוב</th><th>ב־Northwind</th></tr></thead>
+    <tbody>
+      <tr><td>מי מזין את הנתון?</td><td>נתון שאדם מקליד עלול להכיל שגיאות הקלדה</td><td>נציג המכירות מזין את ההזמנה</td></tr>
+      <tr><td>מתי הוא נרשם?</td><td>נתון שנרשם באיחור משנה את התמונה</td><td>תאריך השליחה נרשם כשההזמנה יוצאת</td></tr>
+      <tr><td>האם אפשר לשנות אותו אחר כך?</td><td>אם כן, אולי ראינו גרסה ישנה</td><td>צריך לברר עם מנתח המערכות</td></tr>
+      <tr><td>האם תהליך הרישום השתנה?</td><td>שינוי בתהליך נראה כמו שינוי בעסק</td><td>צריך לברר עם מנתח המערכות</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>טווח: מה יש בנתונים?</h3>
+  <ul>
+    <li><strong>זמן:</strong> מאיזה תאריך ועד איזה תאריך? באתר sql-practice.com ההזמנות הן מיולי 2016 עד מאי 2018.</li>
+    <li><strong>חודשים חלקיים:</strong> החודש הראשון והאחרון בנתונים לרוב לא מלאים. השוואה אליהם תראה ירידה שלא קרתה.</li>
+    <li><strong>מקומות וקבוצות:</strong> אילו מדינות, סניפים וקטגוריות יש? חסר משהו שאמור להיות?</li>
+    <li><strong>כמות:</strong> כמה שורות יש? האם זה הגיוני לגודל העסק?</li>
+  </ul>
+</section>
+
+<section id="types">
+  <h2><span class="n">5</span>סוגי נתונים</h2>
+  <p>סוג הנתון קובע מה מותר לחשב עליו.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>סוג</th><th>דוגמה מ־Northwind</th><th>מה אפשר לחשב</th></tr></thead>
+    <tbody>
+      <tr><td>כמותי רציף</td><td><code>freight</code>, <code>unit_price</code></td><td>ממוצע, חציון, סכום, פיזור</td></tr>
+      <tr><td>כמותי בדיד</td><td><code>quantity</code>, <code>units_in_stock</code></td><td>כמו רציף, וגם ספירה של ערכים</td></tr>
+      <tr><td>איכותי (קטגוריה)</td><td><code>country</code>, <code>category_name</code></td><td>ספירה לפי קטגוריה, אחוז מכל קטגוריה, שכיח</td></tr>
+      <tr><td>תאריך</td><td><code>order_date</code></td><td>טווח, הפרש בימים, קיבוץ לפי חודש או שנה</td></tr>
+      <tr><td>מזהה</td><td><code>order_id</code>, <code>ship_via</code></td><td>רק ספירה וחיבור בין טבלאות</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="key">מזהה נראה כמו מספר, אבל הוא לא כמות. ממוצע של מספרי הזמנה, או של מספרי חברות שילוח, הוא מספר חסר משמעות.</div>
+</section>
+
+<section id="quality">
+  <h2><span class="n">6</span>בעיות איכות נפוצות</h2>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>בעיה</th><th>איך היא נראית</th><th>למה היא מסוכנת</th></tr></thead>
+    <tbody>
+      <tr><td>ערכים חסרים</td><td>תא ריק, למשל תאריך שליחה בהזמנה שעוד לא נשלחה</td><td>ממוצע שמתעלם מהריקים, או סופר אותם כאפס</td></tr>
+      <tr><td>כפילויות</td><td>אותה הזמנה מופיעה פעמיים</td><td>סכומים גדולים מהמציאות</td></tr>
+      <tr><td>פורמט לא אחיד</td><td>תאריכים בשני פורמטים, מספרים שנשמרו כטקסט</td><td>מיון וחישוב שגויים</td></tr>
+      <tr><td>כמה שמות לאותו דבר</td><td>״UK״ ו־״United Kingdom״, או רווח מיותר בסוף שם</td><td>אותה קבוצה נספרת כשתיים</td></tr>
+      <tr><td>ערכים חריגים</td><td>הזמנה גדולה פי מאה מהרגיל</td><td>מזיזים את הממוצע. יכולים להיות טעות או תגלית</td></tr>
+      <tr><td>ערכים בלתי אפשריים</td><td>כמות שלילית, משלוח שנשלח לפני שהוזמן</td><td>מעידים על טעות ברישום</td></tr>
+      <tr><td>שורות בדיקה</td><td>לקוח בשם ״Test״ שנוצר בזמן פיתוח המערכת</td><td>מוסיפים נתונים שלא קרו</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="profile">
+  <h2><span class="n">7</span>איך בודקים</h2>
+  <p>לפני הניתוח עושים ״פרופיל״ לכל עמודה חשובה: כמה בדיקות פשוטות שמראות איך הנתונים נראים.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>בדיקה</th><th>מה היא מגלה</th></tr></thead>
+    <tbody>
+      <tr><td>כמה שורות יש</td><td>אם הכמות הגיונית</td></tr>
+      <tr><td>כמה תאים ריקים יש בכל עמודה</td><td>ערכים חסרים</td></tr>
+      <tr><td>הערך הקטן והגדול ביותר</td><td>חריגים, ערכים בלתי אפשריים, טווח התאריכים</td></tr>
+      <tr><td>כמה ערכים שונים יש</td><td>אם מזהה באמת ייחודי, וכמה קטגוריות יש</td></tr>
+      <tr><td>רשימת הערכים וכמה פעמים כל אחד מופיע</td><td>כמה שמות לאותו דבר, שגיאות הקלדה, שורות בדיקה</td></tr>
+      <tr><td>גרף לפי זמן</td><td>חודשים חסרים, חודשים חלקיים, קפיצות חשודות</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>את כל הבדיקות האלה אפשר לעשות גם באקסל: מיון, ספירה, מינימום ומקסימום, וגרף פשוט.</p>
+</section>
+
+<section id="decide">
+  <h2><span class="n">8</span>מה עושים עם בעיה</h2>
+  <p>לכל בעיה יש ארבע אפשרויות. הבחירה תלויה בשאלה ובכמות הנתונים שהבעיה נוגעת בהם.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>אפשרות</th><th>מתי</th><th>דוגמה</th></tr></thead>
+    <tbody>
+      <tr><td>לתקן</td><td>ברור מה הערך הנכון</td><td>לאחד את ״UK״ ו־״United Kingdom״</td></tr>
+      <tr><td>להוציא</td><td>השורה לא שייכת לשאלה, או שאי אפשר לסמוך עליה</td><td>הזמנות שלא נשלחו, בחישוב אחוז האיחורים</td></tr>
+      <tr><td>להשאיר ולסמן</td><td>הערך אמיתי אבל חריג</td><td>הזמנה גדולה מאוד של לקוח עסקי</td></tr>
+      <tr><td>לברר</td><td>לא ברור אם זו טעות</td><td>כמות שלילית: החזרה, או טעות הקלדה?</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>יומן החלטות</h3>
+  <p>כל החלטה נרשמת, ומוצגת בסוף יחד עם התוצאה. כך מי שקורא יודע מה נכלל בחישוב.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>בעיה</th><th>כמה שורות</th><th>החלטה</th><th>למה</th></tr></thead>
+    <tbody>
+      <tr><td>הזמנות בלי תאריך שליחה</td><td>21</td><td>הוצאו</td><td>עוד לא נשלחו, אי אפשר לדעת אם יאחרו</td></tr>
+      <tr><td>שתי כתיבות של אותה מדינה</td><td>8</td><td>אוחדו</td><td>אותה מדינה</td></tr>
+      <tr><td>הזמנה גדולה פי 20 מהממוצע</td><td>1</td><td>נשארה, סומנה</td><td>אושרה כהזמנה אמיתית של לקוח עסקי</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="goal">המספרים בטבלה הם לדוגמה.</p>
+</section>
+
+<section id="who">
+  <h2><span class="n">9</span>עם מי מבררים</h2>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>שאלה</th><th>את מי שואלים</th></tr></thead>
+    <tbody>
+      <tr><td>מה אומרת עמודה, ומתי היא נרשמת</td><td>מנתח המערכות</td></tr>
+      <tr><td>האם תהליך הרישום השתנה</td><td>מנתח המערכות</td></tr>
+      <tr><td>האם ערך חריג הוא אמיתי</td><td>בעל התפקיד, או מי שעובד בשטח</td></tr>
+      <tr><td>האם להוציא קבוצה מהניתוח</td><td>בעל התפקיד, כי זה משנה את התשובה לשאלה שלו</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="mistakes">
+  <h2><span class="n">10</span>טעויות נפוצות</h2>
+  <ul>
+    <li><strong>לספור שורות בטבלה הלא נכונה,</strong> למשל לספור לקוחות בטבלת ההזמנות.</li>
+    <li><strong>לסכם ערך של הזמנה אחרי שחיברו אותה לשורות שלה,</strong> וכך לספור אותו כמה פעמים.</li>
+    <li><strong>לחשב ממוצע של מזהה.</strong></li>
+    <li><strong>למחוק חריגים בלי לבדוק,</strong> או להשאיר טעות ברורה כי ״כך זה בנתונים״.</li>
+    <li><strong>להשוות לחודש חלקי</strong> בתחילת הנתונים או בסופם.</li>
+    <li><strong>לא לרשום החלטות,</strong> ואחר כך לא לזכור למה המספר יצא כמו שיצא.</li>
+  </ul>
+  <p class="more"><a href="analyst-01-guide.html#data">← חזרה למדריך המרכזי</a><a href="analyst-16-data-exercises.html">לתרגילים של חלק 6</a></p>
+</section>
+
+<footer>מודול 1: פתיחה · חלק 6 בהרחבה</footer>
+</div>
+</body>
+</html>

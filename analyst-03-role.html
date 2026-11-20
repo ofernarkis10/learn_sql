@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>חלק 1 בהרחבה: מה זה Data Analyst</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: same reading column as the main guide; each part has an expansion page and an exercises page. */
+:root{
+  --bg:#f4f6f8;
+  --paper:#ffffff;
+  --ink:#16222e;
+  --muted:#556574;
+  --line:#d7dee5;
+  --accent:#1f5f8b;
+  --accent-soft:#e3eef6;
+  --mark:#c98a12;
+  --font-display:"Rubik","Arial Hebrew",Arial,sans-serif;
+  --font-body:"Assistant","Arial Hebrew",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+    --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+  --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.65}
+.wrap{max-width:820px;margin:0 auto;padding:32px 20px 64px;display:flex;flex-direction:column;gap:28px}
+header h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,6vw,40px);line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:65ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:14px;padding:3px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 20px}
+nav.toc ol{margin:0;padding-inline-start:22px;columns:2;column-gap:28px}
+nav.toc a{color:var(--accent);text-decoration:none}
+nav.toc a:hover,nav.toc a:focus-visible{text-decoration:underline}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:24px 22px}
+section h2{font-family:var(--font-display);font-weight:400;font-size:26px;line-height:1.3;margin:0 0 4px;display:flex;gap:12px;align-items:baseline;text-wrap:balance}
+section h2 .n{color:var(--accent);font-size:20px;min-width:1.6em}
+.goal{color:var(--muted);margin:0 0 16px;font-size:16px}
+h3{font-size:19px;margin:22px 0 8px}
+p,li{max-width:65ch}
+ul,ol{padding-inline-start:22px;margin:8px 0}
+li{margin:4px 0}
+.key{border-inline-start:4px solid var(--mark);background:var(--accent-soft);padding:12px 16px;border-radius:6px;margin:14px 0;font-weight:600}
+.table-box{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:16px;min-width:480px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:start;vertical-align:top}
+th{background:var(--accent-soft);font-weight:700}
+td.num{font-variant-numeric:tabular-nums;text-align:end}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;padding:0;list-style:none}
+.flow li{margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-weight:600}
+.flow li.first{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.flow .arr{border:none;background:none;padding:0;color:var(--muted)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.compare div{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.compare .bad{border-style:dashed}
+.compare .lbl{display:block;font-size:14px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.compare .good .lbl{color:var(--accent)}
+.tree{font-family:var(--font-body);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:12px 0}
+.tree ul{list-style:none;padding-inline-start:20px;border-inline-start:2px solid var(--line);margin:4px 0}
+.tree>ul{border:none;padding:0}
+.tree li{margin:4px 0}
+.whys{counter-reset:w;list-style:none;padding:0}
+.whys li{counter-increment:w;padding:6px 0 6px 0;border-bottom:1px solid var(--line)}
+.whys li::before{content:"למה " counter(w) "? ";font-weight:700;color:var(--accent)}
+dl.gloss{display:grid;grid-template-columns:minmax(140px,30%) 1fr;gap:0;margin:8px 0}
+dl.gloss dt,dl.gloss dd{margin:0;padding:10px 8px;border-bottom:1px solid var(--line)}
+dl.gloss dt{font-weight:700}
+.handout{border:2px solid var(--accent)}
+.handout h2 .n{color:var(--mark)}
+.task{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:12px 0}
+.task strong{color:var(--accent)}
+.lines{display:block;border-bottom:1px dashed var(--line);height:30px}
+.check{list-style:none;padding:0}
+.check li::before{content:"☐ ";color:var(--accent)}
+.more{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line);font-size:16px}
+.more a{color:var(--accent);font-weight:700;text-decoration:none}
+.more a:hover,.more a:focus-visible{text-decoration:underline}
+a{color:var(--accent)}
+footer{color:var(--muted);font-size:14px;text-align:center}
+:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+@media (max-width:560px){
+  nav.toc ol{columns:1}
+  .compare{grid-template-columns:1fr}
+  dl.gloss{grid-template-columns:1fr}
+  dl.gloss dt{border-bottom:none;padding-bottom:0}
+  section{padding:20px 16px}
+  body{font-size:17px}
+}
+
+/* site look: learn_sql */
+h1,h2{font-weight:700}
+h1{font-size:2.4rem}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+section h2 .n{font-family:"JetBrains Mono",Consolas,monospace;font-size:1rem;color:var(--paper);background:var(--accent);border-radius:99px;padding:0 10px;min-width:0;flex:none}
+.site-back{color:var(--accent);font-weight:600;font-size:15px;text-decoration:none;width:fit-content}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.chip{background:var(--accent-soft);color:var(--accent)}
+.handout{border-color:var(--accent-deco)}
+code,pre{font-family:"JetBrains Mono",Consolas,"Courier New",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code{direction:ltr;unicode-bidi:isolate;font-size:.86em;background:var(--accent-soft);border-radius:4px;padding:0 4px}
+pre{margin:0;direction:ltr;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:14.5px;line-height:1.55;overflow-x:auto;white-space:pre}
+.kw{color:var(--accent);font-weight:600}
+.dialog{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+.dialog p{margin:0}
+.dialog .who{font-weight:700;color:var(--accent)}
+.dialog .aside{font-size:.8rem;font-weight:700;color:var(--mark-fg);background:var(--mark-bg);border-radius:99px;padding:1px 9px;margin-inline-start:6px;white-space:nowrap}
+@media print{.site-back{display:none} body{background:#fff}}
+</style>
+<script src="font-size.js"></script>
+<link rel="stylesheet" href="brand.css">
+</head>
+<body>
+<div class="wrap">
+<a class="site-back" href="index.html#analyst">→ חזרה לנושא: הכשרת Data Analyst</a>
+
+<header>
+  <h1>חלק 1 בהרחבה: מה זה Data Analyst</h1>
+  <p>הרחבה לסעיף 1 במדריך המרכזי: איפה אנליסטים עובדים, אילו סוגי עבודה הם עושים, עם מי הם עובדים, ואיך נראית בקשה אחת מתחילתה ועד סופה.</p>
+  <div class="meta"><span class="chip">מודול 1: פתיחה</span><span class="chip">חלק 1 מתוך 7</span></div>
+  <p class="more"><a href="analyst-01-guide.html#role">← חזרה למדריך המרכזי</a><a href="analyst-04-role-exercises.html">תרגילים לחלק 1</a></p>
+</header>
+
+<nav class="toc" aria-label="תוכן העניינים">
+  <ol>
+    <li><a href="#why">למה ארגונים צריכים אנליסט</a></li>
+    <li><a href="#domains">איפה אנליסטים עובדים</a></li>
+    <li><a href="#roles">השוואה מורחבת בין תפקידים</a></li>
+    <li><a href="#work">שלושה סוגי עבודה</a></li>
+    <li><a href="#people">עם מי האנליסט עובד</a></li>
+    <li><a href="#case">מקרה מלא: בקשה אחת מההתחלה עד הסוף</a></li>
+    <li><a href="#skills">הכישורים בפועל</a></li>
+    <li><a href="#myths">תפיסות שגויות על התפקיד</a></li>
+    <li><a href="#ai">האנליסט ו־AI</a></li>
+    <li><a href="#career">מסלול התפתחות</a></li>
+  </ol>
+</nav>
+
+<section id="why">
+  <h2><span class="n">1</span>למה ארגונים צריכים אנליסט</h2>
+  <p>בכל ארגון מתקבלות כל יום החלטות: כמה מלאי להזמין, איזה קמפיין להפעיל, איזה סניף לחזק. בלי נתונים, ההחלטות האלה מבוססות על תחושה, ניסיון או על מי שמדבר הכי חזק בישיבה.</p>
+  <p>לרוב הארגונים כבר יש הרבה נתונים: מערכות קופה, אתר, CRM, מערכת שכר. הבעיה היא שהנתונים מפוזרים, לא נקיים, ואף אחד לא הפך אותם לתשובה. האנליסט הוא החוליה שמחברת בין הנתונים לבין ההחלטה.</p>
+  <div class="key">ערך האנליסט נמדד בהחלטות שהשתפרו בזכותו, לא במספר הדוחות שהפיק.</div>
+  <h3>שלוש דרכים שבהן אנליסט מוסיף ערך</h3>
+  <ul>
+    <li><strong>חוסך כסף:</strong> מזהה הוצאה מיותרת, מלאי עודף או קמפיין שלא מחזיר את עצמו.</li>
+    <li><strong>מגדיל הכנסות:</strong> מזהה פלח לקוחות רווחי, מוצר שכדאי לקדם, שעות שבהן כדאי לתגבר.</li>
+    <li><strong>מונע טעויות:</strong> בודק אם הנחה שכולם מאמינים בה באמת נכונה, לפני שמשקיעים בה.</li>
+  </ul>
+</section>
+
+<section id="domains">
+  <h2><span class="n">2</span>איפה אנליסטים עובדים</h2>
+  <p>הכלים והתהליך זהים כמעט בכל תחום. מה שמשתנה הוא סוג השאלות והמדדים.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>תחום</th><th>שאלה טיפוסית</th><th>מדדים נפוצים</th></tr></thead>
+    <tbody>
+      <tr><td>שיווק</td><td>איזה ערוץ פרסום מביא לקוחות במחיר הנמוך ביותר?</td><td>עלות לרכישה, שיעור המרה</td></tr>
+      <tr><td>מוצר</td><td>באיזה שלב משתמשים נוטשים את תהליך ההרשמה?</td><td>שיעור נטישה, משתמשים פעילים</td></tr>
+      <tr><td>קמעונאות</td><td>אילו מוצרים נמכרים יחד?</td><td>סל ממוצע, מכירות למ״ר</td></tr>
+      <tr><td>כספים</td><td>איפה ההוצאות חורגות מהתקציב?</td><td>סטייה מתקציב, רווח גולמי</td></tr>
+      <tr><td>תפעול</td><td>למה זמני האספקה התארכו?</td><td>זמן אספקה, אחוז עמידה בזמנים</td></tr>
+      <tr><td>משאבי אנוש</td><td>באילו מחלקות עזיבת העובדים גבוהה?</td><td>שיעור עזיבה, זמן גיוס</td></tr>
+      <tr><td>חינוך</td><td>אילו נושאים מתקשים בהם רוב התלמידים?</td><td>ציונים לפי נושא, שיעור נוכחות</td></tr>
+      <tr><td>בריאות</td><td>מתי יש עומס במיון?</td><td>זמן המתנה, תפוסה</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>תפקידי אנליסט לפי התמחות</h3>
+  <ul>
+    <li><strong>Product Analyst:</strong> מנתח איך משתמשים מתנהגים במוצר דיגיטלי.</li>
+    <li><strong>Marketing Analyst:</strong> מודד את האפקטיביות של קמפיינים וערוצים.</li>
+    <li><strong>Financial Analyst:</strong> עוסק בתקציב, תחזיות ורווחיות.</li>
+    <li><strong>Operations Analyst:</strong> מחפש צווארי בקבוק ויעילות בתהליכים.</li>
+    <li><strong>BI Analyst:</strong> מתמקד בדשבורדים ובמדדים קבועים לארגון.</li>
+  </ul>
+</section>
+
+<section id="roles">
+  <h2><span class="n">3</span>השוואה מורחבת בין תפקידים</h2>
+  <p>כאן מרחיבים את ההשוואה מהמדריך המרכזי. במיוחד חשוב ההבדל בין Data Analyst לבין מנתח המערכות, כי מבלבלים ביניהם לעתים קרובות. בחלק מהארגונים מנתח המערכות נקרא System Analyst או Business Analyst.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>תפקיד</th><th>מתמקד ב</th><th>כלים עיקריים</th><th>תוצר</th></tr></thead>
+    <tbody>
+      <tr><td>Data Analyst</td><td>תשובות לשאלות עסקיות מתוך נתונים</td><td>SQL, Excel, Power BI, Python</td><td>ניתוח, תובנה, המלצה</td></tr>
+      <tr><td>מנתח מערכות</td><td>זיהוי ואפיון צרכים, בניית תהליכי עבודה ותהליכים ממוחשבים</td><td>ראיונות, תרשימי תהליך, מסמכי אפיון</td><td>מסמך אפיון, תהליך עבודה, מערכת</td></tr>
+      <tr><td>BI Developer</td><td>דיווח קבוע ואוטומטי</td><td>Power BI, SQL, מודלים של נתונים</td><td>דשבורדים ודוחות קבועים</td></tr>
+      <tr><td>Data Scientist</td><td>חיזוי ומודלים</td><td>Python, סטטיסטיקה, למידת מכונה</td><td>מודל, תחזית</td></tr>
+      <tr><td>Data Engineer</td><td>תשתית נתונים</td><td>SQL, Python, כלי ענן, ETL</td><td>צינורות נתונים, מחסן נתונים</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="key">בארגון קטן, אדם אחד עושה לעתים קרובות את כל התפקידים האלה. בארגון גדול כל אחד מהם הוא צוות.</div>
+  <h3>איך התפקידים עובדים יחד</h3>
+  <p>ה־Data Engineer מביא את הנתונים למקום אחד. ה־Data Analyst שואל עליהם שאלות ומוצא תובנות. ה־BI Developer הופך ניתוח שחוזר על עצמו לדשבורד קבוע. ה־Data Scientist בונה מודל כשצריך לחזות. מנתח המערכות עוזר להקים את המערכות, מגדיר את תהליכי העבודה ומטפל בתפעול השוטף. האנליסט עובד איתו כדי להבין איפה נמצא המידע שהוא צריך, וכדי שהמערכות יאספו כבר עכשיו את המידע שיידרש לתשובות בעתיד.</p>
+</section>
+
+<section id="work">
+  <h2><span class="n">4</span>שלושה סוגי עבודה</h2>
+  <p>רוב עבודת האנליסט נופלת לאחד משלושה סוגים. חשוב לזהות את הסוג כבר כשהבקשה מגיעה, כי הוא קובע כמה זמן ומאמץ להשקיע.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>סוג</th><th>מה זה</th><th>דוגמה</th><th>זמן טיפוסי</th></tr></thead>
+    <tbody>
+      <tr><td>דוח קבוע</td><td>אותם מדדים, כל שבוע או חודש</td><td>דוח מכירות חודשי להנהלה</td><td>שעות. כדאי להפוך לאוטומטי</td></tr>
+      <tr><td>שאלה נקודתית (Ad-hoc)</td><td>שאלה ממוקדת שצריך לענות עליה מהר</td><td>כמה לקוחות קנו במבצע אתמול?</td><td>שעות עד יום</td></tr>
+      <tr><td>ניתוח עומק (Deep Dive)</td><td>שאלה פתוחה שדורשת חקירה</td><td>למה שיעור העזיבה עלה ב־30% השנה?</td><td>ימים עד שבועות</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>אנליסט מתחיל נוטה לטפל בכל בקשה כאילו היא ניתוח עומק, או להפך, לענות על שאלה עמוקה במספר אחד. שאלות הבירור מהסעיף "להבין את הבקשה" עוזרות לזהות את הסוג.</p>
+</section>
+
+<section id="people">
+  <h2><span class="n">5</span>עם מי האנליסט עובד</h2>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>בעל עניין</th><th>מה הוא צריך מהאנליסט</th><th>איך לדבר איתו</th></tr></thead>
+    <tbody>
+      <tr><td>הנהלה בכירה</td><td>מסקנה והמלצה</td><td>שורה תחתונה קודם, פרטים רק אם שואלים</td></tr>
+      <tr><td>מנהל מחלקה</td><td>הבנה של מה קורה בתחום שלו</td><td>פילוח לפי הממדים שהוא מכיר: סניף, צוות, מוצר</td></tr>
+      <tr><td>צוות בשטח</td><td>מידע שעוזר בעבודה היומיומית</td><td>מדד פשוט אחד, מתעדכן בקביעות</td></tr>
+      <tr><td>צוות הנתונים</td><td>הגדרות מדויקות ובקשות ברורות</td><td>שפה טכנית: טבלאות, שדות, תנאים</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="key">אותו ממצא מוצג אחרת לכל קהל. ההחלטה מה להציג מתחילה בשאלה: מה הקורא הזה צריך כדי להחליט?</div>
+</section>
+
+<section id="case">
+  <h2><span class="n">6</span>מקרה מלא: בקשה אחת מההתחלה עד הסוף</h2>
+  <p>רשת של 12 חנויות לציוד ספורט. מנהלת השיווק פונה לאנליסט.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>שלב</th><th>מה קרה</th></tr></thead>
+    <tbody>
+      <tr><td>הבקשה</td><td>״המבצע של החודש שעבר לא עבד. תבדוק.״</td></tr>
+      <tr><td>בירור</td><td>האנליסט שואל: מה פירוש ״לא עבד״? מתברר שהמנהלת צריכה להחליט אם לחזור על המבצע בחודש הבא. ההשערה שלה: ההנחה לא הייתה גבוהה מספיק.</td></tr>
+      <tr><td>ניסוח</td><td>״האם בחודש המבצע עלו ההכנסות ומספר העסקאות במוצרים שבמבצע, בהשוואה לחודש שלפניו ולאותו חודש אשתקד, ובאילו סניפים?״</td></tr>
+      <tr><td>נתונים</td><td>עסקאות מהקופות, רשימת המוצרים שבמבצע, תאריכי המבצע.</td></tr>
+      <tr><td>ניקוי</td><td>נמצאו החזרות שנרשמו כעסקאות שליליות, וסניף אחד שנסגר לשבוע לשיפוצים.</td></tr>
+      <tr><td>ניתוח</td><td>בעשרה סניפים המכירות במוצרי המבצע עלו ב־18%. בשני סניפים לא הייתה עלייה, ובשניהם השילוט של המבצע הגיע באיחור של שבועיים.</td></tr>
+      <tr><td>הצגה</td><td>שקף אחד: ״המבצע עבד בסניפים שבהם הוא היה גלוי ללקוחות. הבעיה הייתה בביצוע, לא בגובה ההנחה.״</td></tr>
+      <tr><td>פעולה</td><td>מחזירים את המבצע, עם בדיקה שהשילוט מגיע לכל הסניפים לפני תחילתו.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>שימו לב: אילו האנליסט היה מסתפק בנתון הכללי, הוא היה מסיק שהמבצע עבד רק חלקית. הפילוח לפי סניף, ושאלה על מה שקרה בשטח, הם שחשפו את הסיבה האמיתית.</p>
+</section>
+
+<section id="skills">
+  <h2><span class="n">7</span>הכישורים בפועל</h2>
+  <p>איך נראה כל כישור חשיבה ביום עבודה רגיל, ואיך נראה חוסר בו.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>כישור</th><th>כשהוא קיים</th><th>כשהוא חסר</th></tr></thead>
+    <tbody>
+      <tr><td>סקרנות</td><td>שואל ״בהשוואה למה?״ ו״למה דווקא שם?״</td><td>מדווח את המספר הראשון שיצא</td></tr>
+      <tr><td>חשיבה מבנית</td><td>מפרק שאלה גדולה לתתי־שאלות שאפשר לבדוק</td><td>קופץ בין כיוונים בלי סדר</td></tr>
+      <tr><td>ספקנות</td><td>בודק אם נתון חריג הוא טעות לפני שמציג אותו</td><td>מציג עלייה של 400% בלי לבדוק</td></tr>
+      <tr><td>הבנה עסקית</td><td>יודע אילו מדדים חשובים לארגון ולמה</td><td>מנתח לעומק משהו שלא מעניין אף אחד</td></tr>
+      <tr><td>תקשורת</td><td>מתחיל מהמסקנה ומסביר בשפה של הקהל</td><td>מציג 15 גרפים ומשאיר לקהל להבין</td></tr>
+      <tr><td>תשומת לב לפרטים</td><td>בודק סינונים, יחידות וטווחי תאריכים</td><td>שוכח שהנתונים כוללים מע״מ בחלק מהחודשים</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="myths">
+  <h2><span class="n">8</span>תפיסות שגויות על התפקיד</h2>
+  <dl class="gloss">
+    <dt>״צריך להיות גאון במתמטיקה״</dt><dd>רוב העבודה דורשת חשבון, אחוזים וסטטיסטיקה בסיסית. חשיבה מסודרת חשובה יותר ממתמטיקה מתקדמת.</dd>
+    <dt>״העבודה היא בעיקר תכנות״</dt><dd>הכלים חשובים, אבל חלק גדול מהזמן הולך לבירור שאלות, הבנת הנתונים והצגת ממצאים.</dd>
+    <dt>״הנתונים מדברים בעד עצמם״</dt><dd>נתונים לא אומרים כלום בלי שאלה, הקשר והשוואה. אותה טבלה יכולה לתמוך בשתי מסקנות הפוכות.</dd>
+    <dt>״יותר גרפים זה יותר טוב״</dt><dd>מסר אחד ברור עדיף על דשבורד עמוס. כל גרף צריך לענות על שאלה.</dd>
+    <dt>״האנליסט אומר מה לעשות״</dt><dd>האנליסט ממליץ ומסביר. ההחלטה נשארת אצל מי שאחראי עליה.</dd>
+  </dl>
+</section>
+
+<section id="ai">
+  <h2><span class="n">9</span>האנליסט ו־AI</h2>
+  <p>כלי AI כבר משנים את העבודה. הם יודעים לכתוב שאילתות SQL, לנקות נתונים, להציע גרפים ולסכם ממצאים. החלקים הטכניים והחוזרים מתקצרים.</p>
+  <p>מה שנשאר אצל האנליסט, ונעשה חשוב יותר:</p>
+  <ul>
+    <li>להבין מה באמת שואלים ולמה.</li>
+    <li>לדעת אם התוצאה הגיונית, ולזהות כשהכלי טועה.</li>
+    <li>להכיר את ההקשר העסקי ואת הנתונים של הארגון.</li>
+    <li>להפוך ממצא להמלצה שאנשים יפעלו לפיה.</li>
+  </ul>
+  <div class="key">כלי AI יענה בביטחון גם על שאלה גרועה. לכן כישורי הפתיחה, שאילת שאלות והכרת הנתונים, הם הבסיס לשימוש נכון בו.</div>
+</section>
+
+<section id="career">
+  <h2><span class="n">10</span>מסלול התפתחות</h2>
+  <ol class="flow" aria-label="מסלול התפתחות">
+    <li class="first">Junior Analyst</li><li class="arr" aria-hidden="true">←</li>
+    <li>Data Analyst</li><li class="arr" aria-hidden="true">←</li>
+    <li>Senior Analyst</li><li class="arr" aria-hidden="true">←</li>
+    <li>Lead / Manager</li>
+  </ol>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>שלב</th><th>מה מצפים</th></tr></thead>
+    <tbody>
+      <tr><td>Junior</td><td>עונה על שאלות מוגדרות היטב, בליווי. לומד את הכלים ואת הנתונים של הארגון.</td></tr>
+      <tr><td>Analyst</td><td>מטפל בבקשות מתחילתן ועד סופן באופן עצמאי, כולל בירור והצגה.</td></tr>
+      <tr><td>Senior</td><td>מוביל ניתוחי עומק, מזהה בעצמו שאלות חשובות, מלווה אנליסטים חדשים.</td></tr>
+      <tr><td>Lead / Manager</td><td>קובע סדרי עדיפויות לצוות ומשפיע על ההחלטות של הארגון.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>מתפקיד Data Analyst אפשר גם להתפצל: ל־Data Science דרך סטטיסטיקה ולמידת מכונה, ל־Data Engineering דרך תשתיות, או לתפקידי מוצר וניהול דרך ההבנה העסקית.</p>
+  <p class="more"><a href="analyst-01-guide.html#role">← חזרה למדריך המרכזי</a><a href="analyst-04-role-exercises.html">לתרגילים של חלק 1</a></p>
+</section>
+
+<footer>מודול 1: פתיחה · חלק 1 בהרחבה</footer>
+</div>
+</body>
+</html>
