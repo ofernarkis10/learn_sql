@@ -42,24 +42,25 @@ The pages are in Hebrew (right-to-left); SQL code is left-to-right. Every query 
 | | `practice-03-25-questions.html` | 25 of the 90 questions, questions only, with the structure of the tables each one needs. Print-ready. **Hidden:** not listed in `index.html`; open it by its file name |
 | Statistics in SQL | `statistics-01-measures-regression.html` | 20 questions with full solutions: measures of center and spread, how close a distribution is to normal (Pearson skewness, the 68–95–99.7 rule), linear regression (slope, intercept, r). Uses the site's `MEDIAN`, `MODE`, `STDEV`, `VARIANCE`, `LOWER_QUARTILE`, `UPPER_QUARTILE` |
 | Data Analyst training (הכשרת Data Analyst) | `analyst-01-guide.html` | The main guide of the opening module: what a Data Analyst does, the organization and its needs, the process map, understanding the request, framing the question (5W1H, SMART, issue tree, 5 Whys), knowing the data, basic terms, trainer checklist |
-| | `analyst-02-presentation.html` | Presentation (32 slides) of the main guide, with questions to the class at the end |
-| | `analyst-03-role.html` | Part 1 in depth: the role, fields, related roles (incl. systems analyst), kinds of work, stakeholders, a full case, skills, myths, AI, career path |
-| | `analyst-04-role-exercises.html` | Part 1 exercises (5), solutions in collapsible blocks |
-| | `analyst-05-organization-need.html` | Part 2 in depth: the analyst as a service to role holders, from request to need, decision levels, role cards, analyst vs systems analyst, service models, priorities |
-| | `analyst-06-organization-exercises.html` | Part 2 exercises (8), solutions in collapsible blocks |
-| | `analyst-07-northwind-organization.html` | Northwind as an example organization: org chart, a card per role holder with the tables and fields they use, one order end to end. Roles not in `employees` are marked as added for the demonstration |
-| | `analyst-08-northwind-presentation.html` | Presentation (18 slides) of the Northwind organization and its role holders |
-| | `analyst-09-process.html` | Part 3 in depth: the six steps of the analysis process, where the time goes, going back a step, a full Northwind case (late shipments by shipper), explained without SQL, tools per step, the process in the final project |
-| | `analyst-10-process-exercises.html` | Part 3 exercises (6), solutions in collapsible blocks |
-| | `analyst-11-request.html` | Part 4 in depth: why requests are vague, kinds of requests, the four clarifying questions, agreeing on terms, a sample clarifying conversation, a written request summary, requests that cannot be met |
-| | `analyst-12-request-exercises.html` | Part 4 exercises (6), solutions in collapsible blocks |
-| | `analyst-13-question.html` | Part 5 in depth: what makes a good analysis question, 5W1H and SMART with before and after examples, comparisons, issue tree, 5 Whys, which tool when, from a business question to a research question |
-| | `analyst-14-question-exercises.html` | Part 5 exercises (6), solutions in collapsible blocks |
-| | `analyst-15-data.html` | Part 6 in depth: granularity of each Northwind table, data dictionary, source and range, data types, common quality issues, profiling, what to do with each issue and a decision log, who to ask |
-| | `analyst-16-data-exercises.html` | Part 6 exercises (6), solutions in collapsible blocks |
-| | `analyst-17-terms.html` | Part 7 in depth: four kinds of analysis, metrics and KPIs, mean, median and mode, spread, correlation vs causation, percent vs percentage points, fair comparison, samples and biases, outliers, glossary |
-| | `analyst-18-terms-exercises.html` | Part 7 exercises (6), solutions in collapsible blocks |
-| | `analyst-19-opening-exercise.html` | Summary exercise of the opening module: from a vague request to a SMART question, and data-quality issues in a sample table |
+| | `analyst-02-module-2.html` | Module 2, the role in a wider context (from the מגמת מידע ונתונים site): the data cycle (data, information, knowledge), data culture and data literacy, info-ethics, translating results for the organization (data storytelling), analysts outside business, the role in the age of AI; trainer checklist |
+| | `analyst-03-presentation.html` | Presentation (32 slides) of the main guide, with questions to the class at the end |
+| | `analyst-04-role.html` | Part 1 in depth: the role, fields, related roles (incl. systems analyst), kinds of work, stakeholders, a full case, skills, myths, AI, career path |
+| | `analyst-05-role-exercises.html` | Part 1 exercises (5), solutions in collapsible blocks |
+| | `analyst-06-organization-need.html` | Part 2 in depth: the analyst as a service to role holders, from request to need, decision levels, role cards, analyst vs systems analyst, service models, priorities |
+| | `analyst-07-organization-exercises.html` | Part 2 exercises (8), solutions in collapsible blocks |
+| | `analyst-08-northwind-organization.html` | Northwind as an example organization: org chart, a card per role holder with the tables and fields they use, one order end to end. Roles not in `employees` are marked as added for the demonstration |
+| | `analyst-09-northwind-presentation.html` | Presentation (18 slides) of the Northwind organization and its role holders |
+| | `analyst-10-process.html` | Part 3 in depth: the six steps of the analysis process, where the time goes, going back a step, a full Northwind case (late shipments by shipper), explained without SQL, tools per step, the process in the final project |
+| | `analyst-11-process-exercises.html` | Part 3 exercises (6), solutions in collapsible blocks |
+| | `analyst-12-request.html` | Part 4 in depth: why requests are vague, kinds of requests, the four clarifying questions, agreeing on terms, a sample clarifying conversation, a written request summary, requests that cannot be met |
+| | `analyst-13-request-exercises.html` | Part 4 exercises (6), solutions in collapsible blocks |
+| | `analyst-14-question.html` | Part 5 in depth: what makes a good analysis question, 5W1H and SMART with before and after examples, comparisons, issue tree, 5 Whys, which tool when, from a business question to a research question |
+| | `analyst-15-question-exercises.html` | Part 5 exercises (6), solutions in collapsible blocks |
+| | `analyst-16-data.html` | Part 6 in depth: granularity of each Northwind table, data dictionary, source and range, data types, common quality issues, profiling, what to do with each issue and a decision log, who to ask |
+| | `analyst-17-data-exercises.html` | Part 6 exercises (6), solutions in collapsible blocks |
+| | `analyst-18-terms.html` | Part 7 in depth: four kinds of analysis, metrics and KPIs, mean, median and mode, spread, correlation vs causation, percent vs percentage points, fair comparison, samples and biases, outliers, glossary |
+| | `analyst-19-terms-exercises.html` | Part 7 exercises (6), solutions in collapsible blocks |
+| | `analyst-20-opening-exercise.html` | Summary exercise of the opening module: from a vague request to a SMART question, and data-quality issues in a sample table |
 | Data analysis (ניתוח נתונים) | `analysis-01-research-questions.html` | 18 research questions for a project: hypothesis, variables, tables, a query that collects the data, analysis steps; data limitations and a proposal form. No results |
 | | `analysis-02-research-presentation.html` | Presentation (40 slides) with the answers: for each research question the SQL that computes the statistics, the result from the site and the conclusion |
 | Homework (עבודות בית) | `assignments-01-homework.html` | 25 new questions to hand in, parallel to the practice sheet, questions only. Print-ready |

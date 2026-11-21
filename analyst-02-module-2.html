@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מדריך הכשרת Data Analyst · מודול 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: single reading column, numbered modules down the page; exercises live in a separate linked page. */
+:root{
+  --bg:#f4f6f8;
+  --paper:#ffffff;
+  --ink:#16222e;
+  --muted:#556574;
+  --line:#d7dee5;
+  --accent:#1f5f8b;
+  --accent-soft:#e3eef6;
+  --mark:#c98a12;
+  --font-display:"Rubik","Arial Hebrew",Arial,sans-serif;
+  --font-body:"Assistant","Arial Hebrew",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+    --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10171e; --paper:#18222c; --ink:#e6edf3; --muted:#9fb0bf;
+  --line:#2a3846; --accent:#6fb3e0; --accent-soft:#1d3346; --mark:#e8b04a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.65}
+.wrap{max-width:820px;margin:0 auto;padding:32px 20px 64px;display:flex;flex-direction:column;gap:28px}
+header h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,6vw,40px);line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:65ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:14px;padding:3px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 20px}
+nav.toc ol{margin:0;padding-inline-start:22px;columns:2;column-gap:28px}
+nav.toc a{color:var(--accent);text-decoration:none}
+nav.toc a:hover,nav.toc a:focus-visible{text-decoration:underline}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:24px 22px}
+section h2{font-family:var(--font-display);font-weight:400;font-size:26px;line-height:1.3;margin:0 0 4px;display:flex;gap:12px;align-items:baseline;text-wrap:balance}
+section h2 .n{color:var(--accent);font-size:20px;min-width:1.6em}
+.goal{color:var(--muted);margin:0 0 16px;font-size:16px}
+h3{font-size:19px;margin:22px 0 8px}
+p,li{max-width:65ch}
+ul,ol{padding-inline-start:22px;margin:8px 0}
+li{margin:4px 0}
+.key{border-inline-start:4px solid var(--mark);background:var(--accent-soft);padding:12px 16px;border-radius:6px;margin:14px 0;font-weight:600}
+.table-box{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:16px;min-width:480px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:start;vertical-align:top}
+th{background:var(--accent-soft);font-weight:700}
+td.num{font-variant-numeric:tabular-nums;text-align:end}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;padding:0;list-style:none}
+.flow li{margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-weight:600}
+.flow li.first{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.flow .arr{border:none;background:none;padding:0;color:var(--muted)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.compare div{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.compare .bad{border-style:dashed}
+.compare .lbl{display:block;font-size:14px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.compare .good .lbl{color:var(--accent)}
+.tree{font-family:var(--font-body);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:12px 0}
+.tree ul{list-style:none;padding-inline-start:20px;border-inline-start:2px solid var(--line);margin:4px 0}
+.tree>ul{border:none;padding:0}
+.tree li{margin:4px 0}
+.whys{counter-reset:w;list-style:none;padding:0}
+.whys li{counter-increment:w;padding:6px 0 6px 0;border-bottom:1px solid var(--line)}
+.whys li::before{content:"למה " counter(w) "? ";font-weight:700;color:var(--accent)}
+dl.gloss{display:grid;grid-template-columns:minmax(140px,30%) 1fr;gap:0;margin:8px 0}
+dl.gloss dt,dl.gloss dd{margin:0;padding:10px 8px;border-bottom:1px solid var(--line)}
+dl.gloss dt{font-weight:700}
+.handout{border:2px solid var(--accent)}
+.handout h2 .n{color:var(--mark)}
+.task{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:12px 0}
+.task strong{color:var(--accent)}
+.lines{display:block;border-bottom:1px dashed var(--line);height:30px}
+.check{list-style:none;padding:0}
+.check li::before{content:"☐ ";color:var(--accent)}
+.more{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line);font-size:16px}
+.more a{color:var(--accent);font-weight:700;text-decoration:none}
+.more a:hover,.more a:focus-visible{text-decoration:underline}
+footer{color:var(--muted);font-size:14px;text-align:center}
+:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+@media (max-width:560px){
+  nav.toc ol{columns:1}
+  .compare{grid-template-columns:1fr}
+  dl.gloss{grid-template-columns:1fr}
+  dl.gloss dt{border-bottom:none;padding-bottom:0}
+  section{padding:20px 16px}
+  body{font-size:17px}
+}
+
+/* site look: learn_sql */
+h1,h2{font-weight:700}
+h1{font-size:2.4rem}
+body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+section h2 .n{font-family:"JetBrains Mono",Consolas,monospace;font-size:1rem;color:var(--paper);background:var(--accent);border-radius:99px;padding:0 10px;min-width:0;flex:none}
+.site-back{color:var(--accent);font-weight:600;font-size:15px;text-decoration:none;width:fit-content}
+.site-back:hover,.site-back:focus-visible{text-decoration:underline}
+.chip{background:var(--accent-soft);color:var(--accent)}
+.handout{border-color:var(--accent-deco)}
+code,pre{font-family:"JetBrains Mono",Consolas,"Courier New",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code{direction:ltr;unicode-bidi:isolate;font-size:.86em;background:var(--accent-soft);border-radius:4px;padding:0 4px}
+pre{margin:0;direction:ltr;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:14.5px;line-height:1.55;overflow-x:auto;white-space:pre}
+.kw{color:var(--accent);font-weight:600}
+.dialog{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+.dialog p{margin:0}
+.dialog .who{font-weight:700;color:var(--accent)}
+.dialog .aside{font-size:.8rem;font-weight:700;color:var(--mark-fg);background:var(--mark-bg);border-radius:99px;padding:1px 9px;margin-inline-start:6px;white-space:nowrap}
+.more .soon{color:var(--muted)}
+@media print{.site-back{display:none} body{background:#fff}}
+</style>
+<script src="font-size.js"></script>
+<link rel="stylesheet" href="brand.css">
+</head>
+<body>
+<div class="wrap">
+<a class="site-back" href="index.html#analyst">→ חזרה לנושא: הכשרת Data Analyst</a>
+
+<header>
+  <h1>מודול 2: התפקיד בהקשר הרחב</h1>
+  <p>המשך ישיר למודול הפתיחה. מודול 1 הסביר מה האנליסט עושה מול בקשה אחת. מודול 2 מרחיב את המבט: מחזור החיים של הנתונים, הצגת התוצאות בשפה של הארגון, תרבות הנתונים בארגון, האחריות האתית, סוגי הארגונים שבהם אנליסטים עובדים, ואיך התפקיד משתנה. הנושאים לקוחים מתוכנית הלימודים ומאתר מגמת מידע ונתונים של משרד החינוך.</p>
+  <p class="key" style="margin-top:14px">לכל פרק יהיה מסמך הרחבה, עם קישור בסוף הפרק.</p>
+  <div class="meta">
+    <span class="chip">מודול 2</span>
+    <span class="chip">אחרי מודול הפתיחה</span>
+    <span class="chip">ללא כלים טכניים</span>
+  </div>
+  <p class="more"><a href="analyst-01-guide.html">← חזרה למודול 1: מדריך הפתיחה</a></p>
+</header>
+
+<nav class="toc" aria-label="תוכן העניינים">
+  <ol>
+    <li><a href="#cycle">מחזור הנתונים</a></li>
+    <li><a href="#story">לתרגם תוצאות לשפה ארגונית</a></li>
+    <li><a href="#culture">תרבות נתונים ואוריינות נתונים</a></li>
+    <li><a href="#ethics">אינפואתיקה: אחריות האנליסט</a></li>
+    <li><a href="#beyond">אנליסט גם מחוץ לעסקים</a></li>
+    <li><a href="#change">התפקיד משתנה: AI וביקוש</a></li>
+    <li><a href="#trainer">צ׳קליסט למדריך</a></li>
+  </ol>
+</nav>
+
+<section id="cycle">
+  <h2><span class="n">1</span>מחזור הנתונים</h2>
+  <p class="goal">מטרה: העובד מכיר את מחזור הנתונים כפי שהוא נלמד במגמה, ויודע לקשר אותו לשישת שלבי התהליך ממודול 1.</p>
+  <p>במגמת מידע ונתונים מתארים את העבודה עם נתונים כמעגל: מחזור הנתונים. זו אותה עבודה שמתוארת במפת התהליך במודול 1, אבל מנקודת המבט של הנתונים: איפה הם נוצרים, מה עובר עליהם, ומה נעשה בהם בסוף.</p>
+  <ol class="flow" aria-label="מחזור הנתונים">
+    <li class="first">יצירה ואיסוף</li><li class="arr" aria-hidden="true">←</li>
+    <li>אחסון</li><li class="arr" aria-hidden="true">←</li>
+    <li>עיבוד וניקוי</li><li class="arr" aria-hidden="true">←</li>
+    <li>ניתוח</li><li class="arr" aria-hidden="true">←</li>
+    <li>הצגה ושיתוף</li><li class="arr" aria-hidden="true">←</li>
+    <li>שימוש בהחלטה</li><li class="arr" aria-hidden="true">↺</li>
+  </ol>
+
+  <h3>הקשר למפת התהליך</h3>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>שלב במחזור</th><th>מה קורה לנתונים</th><th>השלב במפת התהליך (מודול 1)</th></tr></thead>
+    <tbody>
+      <tr><td>יצירה ואיסוף</td><td>נוצרים בעבודה השוטפת (קופה, אתר, טפסים) או נאספים במיוחד לשאלה (סקר)</td><td>איסוף</td></tr>
+      <tr><td>אחסון</td><td>נשמרים במערכות, בטבלאות ובמסדי נתונים</td><td>קורה לפני שהאנליסט מגיע. באחריות מנתח המערכות וה־Data Engineer</td></tr>
+      <tr><td>עיבוד וניקוי</td><td>מתקנים, מאחדים ומסדרים</td><td>ניקוי</td></tr>
+      <tr><td>ניתוח</td><td>הופכים למידע ולתובנות</td><td>ניתוח</td></tr>
+      <tr><td>הצגה ושיתוף</td><td>מועברים לבעלי התפקידים</td><td>הצגה</td></tr>
+      <tr><td>שימוש בהחלטה</td><td>משמשים להחלטה ולפעולה</td><td>פעולה</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="key">מפת התהליך מתחילה בשאלה. מחזור הנתונים מתחיל בנתונים. האנליסט עובד לפי מפת התהליך, אבל צריך להכיר את המחזור כולו כדי לדעת מאיפה הנתונים הגיעו ומה עבר עליהם בדרך.</div>
+
+  <h3>למה זה מחזור</h3>
+  <p>כל החלטה מובילה לפעולה, והפעולה יוצרת נתונים חדשים. מבצע שהופעל מייצר עסקאות חדשות, ואלה הנתונים שיראו אם המבצע הצליח. כך גם עם השאלות: תשובה טובה מעלה בדרך כלל את השאלה הבאה.</p>
+
+  <h3>מנתון למידע ומשם לידע</h3>
+  <dl class="gloss">
+    <dt>נתון</dt><dd>עובדה גולמית בלי הקשר: 349.</dd>
+    <dt>מידע</dt><dd>נתון עם הקשר: ההכנסות של סניף חיפה ביום שני היו 349 אלף ש״ח.</dd>
+    <dt>ידע</dt><dd>הבנה שמאפשרת לפעול: בימי שני ההכנסות נמוכות ב־20% מהממוצע, ולכן אפשר לצמצם משמרות.</dd>
+  </dl>
+  <p>העבודה של האנליסט היא להעלות את הנתונים בסולם הזה, מנתון גולמי עד ידע שאפשר לפעול לפיו.</p>
+  <p class="more"><a href="https://pop.education.gov.il/tchumey_daat/data-analysis/high-school/teaching-materials/introduction/">באתר המגמה: מעגל הנתונים, המודל של פרופ' ניב אחיטוב, The analysis process</a><span class="soon">מסמך הרחבה: בהכנה</span></p>
+</section>
+
+<section id="story">
+  <h2><span class="n">2</span>לתרגם תוצאות לשפה ארגונית</h2>
+  <p class="goal">מטרה: העובד יודע שהעבודה לא נגמרת בניתוח. היא נגמרת כשבעל התפקיד הבין את הממצא ויכול לפעול לפיו.</p>
+  <p>לפי תוכנית הלימודים, האנליסט מתרגם את התוצאות לשפה של הארגון בעזרת כלים ויזואליים. במגמה זה נקרא גם Data Storytelling: לספר סיפור עם נתונים.</p>
+  <ol class="flow" aria-label="מבנה הסיפור">
+    <li class="first">הקשר</li><li class="arr" aria-hidden="true">←</li>
+    <li>ממצא</li><li class="arr" aria-hidden="true">←</li>
+    <li>משמעות</li><li class="arr" aria-hidden="true">←</li>
+    <li>המלצה</li>
+  </ol>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>חלק</th><th>מה אומרים</th><th>דוגמה</th></tr></thead>
+    <tbody>
+      <tr><td>הקשר</td><td>מה שאלנו ולמה</td><td>ביקשת לדעת אם כדאי לחזור על המבצע.</td></tr>
+      <tr><td>ממצא</td><td>הדבר החשוב ביותר שמצאנו</td><td>בעשרה סניפים המכירות עלו ב־18%. בשניים לא הייתה עלייה.</td></tr>
+      <tr><td>משמעות</td><td>מה זה אומר לגבי ההחלטה</td><td>המבצע עובד. בשני הסניפים השילוט הגיע באיחור.</td></tr>
+      <tr><td>המלצה</td><td>מה כדאי לעשות</td><td>לחזור על המבצע ולוודא שהשילוט מגיע בזמן.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>עקרונות לתצוגה ויזואלית</h3>
+  <ul>
+    <li>גרף אחד, מסר אחד.</li>
+    <li>הכותרת אומרת את המסקנה ולא רק את הנושא: ״המכירות עלו בעשרה סניפים״, ולא ״מכירות לפי סניף״.</li>
+    <li>סוג הגרף מתאים לשאלה: השוואה, מגמה לאורך זמן, או חלק מתוך שלם.</li>
+    <li>מדגישים את מה שחשוב ומחלישים את השאר.</li>
+    <li>מתאימים את רמת הפירוט לקהל (מודול 1, סעיף 4: מי בעל העניין).</li>
+  </ul>
+  <div class="key">אם בעל התפקיד צריך לשאול ״אז מה?״, התרגום עוד לא הסתיים.</div>
+  <p class="more"><span class="soon">מסמך הרחבה: בהכנה</span></p>
+</section>
+
+<section id="culture">
+  <h2><span class="n">3</span>תרבות נתונים ואוריינות נתונים</h2>
+  <p class="goal">מטרה: העובד מבין שהתפקיד שלו אינו רק לענות על שאלות, אלא גם לעזור לארגון כולו לעבוד עם נתונים.</p>
+  <p>לפי תוכנית הלימודים של המגמה, האנליסט הוא גורם מוביל ביישום תרבות הנתונים (Data Culture) בארגון. ההגדרה הזו רחבה יותר מ״מי שעונה על שאלות״.</p>
+  <dl class="gloss">
+    <dt>תרבות נתונים</dt><dd>ארגון שבו החלטות נשענות על נתונים ולא רק על תחושה, ושבו אנשים שואלים ״מה הנתונים אומרים?״ לפני שהם מחליטים.</dd>
+    <dt>אוריינות נתונים</dt><dd>היכולת לקרוא נתונים, להבין אותם, לבקר אותם ולהשתמש בהם. היא נדרשת מכל עובד, לא רק מהאנליסט.</dd>
+  </dl>
+
+  <h3>מה האנליסט עושה כדי לקדם תרבות נתונים</h3>
+  <ul>
+    <li>מגדיר מדדים בצורה אחידה, כך שכולם מתכוונים לאותו דבר כשהם אומרים ״לקוח פעיל״.</li>
+    <li>בונה דוחות ודשבורדים שבעלי התפקידים יכולים לקרוא בעצמם.</li>
+    <li>מסביר ממצאים בשפה פשוטה, כולל המגבלות שלהם.</li>
+    <li>מלמד את הסובבים אותו לשאול שאלות טובות: ״בהשוואה למה?״, ״מאיפה הנתון?״.</li>
+  </ul>
+
+  <h3>איך נראית אוריינות נתונים אצל עובד</h3>
+  <ul>
+    <li>שואל מה המקור של נתון לפני שהוא מאמין לו.</li>
+    <li>מבחין בין עלייה באחוזים לעלייה במספרים.</li>
+    <li>מזהה גרף מטעה.</li>
+    <li>יודע שמתאם אינו סיבתיות.</li>
+  </ul>
+  <div class="key">אנליסט בארגון בלי תרבות נתונים יגלה שהניתוחים שלו לא משנים דבר. חלק מהתפקיד הוא לבנות סביבה שבה ניתוח משפיע על החלטות.</div>
+  <p class="more"><a href="https://pop.education.gov.il/tchumey_daat/data-analysis/high-school/teaching-materials/introduction/">באתר המגמה: מהי אוריינות נתונים</a><span class="soon">מסמך הרחבה: בהכנה</span></p>
+</section>
+
+<section id="ethics">
+  <h2><span class="n">4</span>אינפואתיקה: אחריות האנליסט</h2>
+  <p class="goal">מטרה: העובד מכיר את השאלות האתיות שעולות בעבודה עם נתונים, ויודע לעצור ולשאול אותן.</p>
+  <p>אינפואתיקה היא האתיקה של העבודה עם מידע. במגמה זה נושא לימוד שלם. האנליסט עובד עם נתונים על אנשים, ולכן יש לו אחריות כלפיהם.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>נושא</th><th>השאלה שהאנליסט שואל</th><th>דוגמה</th></tr></thead>
+    <tbody>
+      <tr><td>פרטיות</td><td>האם אני צריך מידע מזהה כדי לענות?</td><td>כדי לנתח עזיבת לקוחות לא צריך שמות ומספרי טלפון.</td></tr>
+      <tr><td>הרשאות ומטרה</td><td>האם מותר לי לראות את המידע? האם השימוש מתאים למטרה שלשמה הוא נאסף?</td><td>נתוני שכר פתוחים רק למי שמוסמך לראות אותם.</td></tr>
+      <tr><td>אנונימיות</td><td>האם אפשר לזהות אדם מתוך התוצאה?</td><td>בטבלת שכר לפי מחלקה, מחלקה עם עובד אחד חושפת את השכר שלו.</td></tr>
+      <tr><td>הוגנות והטיה</td><td>האם המסקנה פוגעת בקבוצה מסוימת? האם הנתונים מייצגים אותה?</td><td>סינון מועמדים לפי נתוני עבר עלול לשכפל אפליה שהייתה בעבר.</td></tr>
+      <tr><td>יושר בהצגה</td><td>האם הגרף מראה את המציאות, או מגזים?</td><td>ציר שמתחיל ב־95 במקום ב־0 הופך שינוי קטן לדרמטי.</td></tr>
+      <tr><td>אמינות מקורות</td><td>מאיפה הנתון, ומי עומד מאחוריו?</td><td>נתון מפוסט ברשת מול נתון מהלמ״ס.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>בישראל חל חוק הגנת הפרטיות, ובארגונים רבים יש נהלים ברורים לגבי מידע אישי. האנליסט מכיר את הנהלים בארגון שלו לפני שהוא ניגש לנתונים.</p>
+  <div class="key">מבחן פשוט: האם הייתי מרגיש בנוח אילו האדם שהנתונים עליו היה רואה מה עשיתי איתם?</div>
+  <p class="more"><a href="https://pop.education.gov.il/tchumey_daat/data-analysis/high-school/teaching-data-analysis/leading-curriculum-data-analysis/">באתר המגמה: תוכנית הלימודים, נושא אינפואתיקה</a><span class="soon">מסמך הרחבה: בהכנה</span></p>
+</section>
+
+<section id="beyond">
+  <h2><span class="n">5</span>אנליסט גם מחוץ לעסקים</h2>
+  <p class="goal">מטרה: העובד מבין שהתפקיד קיים בכל סוג של ארגון, ושהתובנות יכולות להיות עסקיות, חברתיות או מחקריות.</p>
+  <p>תוכנית הלימודים מדברת על תובנות עסקיות, חברתיות ומחקריות. מודול 1 השתמש בעיקר בדוגמאות עסקיות, אבל אותו תהליך עובד בכל מקום.</p>
+  <div class="table-box">
+  <table>
+    <thead><tr><th>סוג ארגון</th><th>סוג התובנה</th><th>שאלה לדוגמה</th></tr></thead>
+    <tbody>
+      <tr><td>חברה עסקית</td><td>עסקית</td><td>איזה מוצר כדאי לקדם?</td></tr>
+      <tr><td>משרד ממשלתי או רשות מקומית</td><td>חברתית</td><td>באילו שכונות חסרים מקומות בגנים?</td></tr>
+      <tr><td>עמותה</td><td>חברתית</td><td>האם התוכנית שלנו באמת משפרת את מצב המשתתפים?</td></tr>
+      <tr><td>מוסד מחקר או אקדמיה</td><td>מחקרית</td><td>האם יש קשר בין שעות שינה להישגים?</td></tr>
+      <tr><td>צבא וביטחון</td><td>מבצעית</td><td>אילו דפוסים חוזרים מופיעים במידע שנאסף?</td></tr>
+      <tr><td>בריאות וחינוך</td><td>חברתית ותפעולית</td><td>מתי יש עומס במיון? באילו נושאים תלמידים מתקשים?</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>מה משתנה בין הארגונים</h3>
+  <ul>
+    <li><strong>מי הלקוח:</strong> מנהל, אזרח, חוקר או מפקד.</li>
+    <li><strong>מה נחשב הצלחה:</strong> בארגון עסקי ההצלחה נמדדת בדרך כלל בכסף. בארגון חברתי היא נמדדת בהשפעה על אנשים.</li>
+    <li><strong>רגישות המידע:</strong> בבריאות, בחינוך ובביטחון הנתונים רגישים במיוחד, והאחריות האתית (פרק 4) גדלה.</li>
+  </ul>
+  <p class="more"><a href="https://pop.education.gov.il/tchumey_daat/data-analysis/high-school/teaching-materials/introduction/">באתר המגמה: תפקיד אנליסט המידע בצה״ל</a><span class="soon">מסמך הרחבה: בהכנה</span></p>
+</section>
+
+<section id="change">
+  <h2><span class="n">6</span>התפקיד משתנה: AI וביקוש</h2>
+  <p class="goal">מטרה: העובד יודע שהתפקיד מבוקש ומשתנה, ומבין מה נשאר באחריותו כשיש כלי AI.</p>
+  <p>באתר המגמה, המפמ״רית כותבת שכניסת הבינה המלאכותית משנה את תפקיד הדאטה אנליסט, ובאותו זמן הופכת אותו לחיוני ומבוקש יותר. גם בשוק העבודה יש ביקוש גבוה לאנליסטים. המגמה עצמה ניסתה בחינת בגרות עם אינטרנט פתוח וכלי AI.</p>
+  <div class="compare">
+    <div><span class="lbl">מה כלי AI עושים היטב</span>כתיבת נוסחאות ושאילתות, ניקוי נתונים, הצעת גרפים, סיכום ממצאים.</div>
+    <div class="good"><span class="lbl">מה נשאר אצל האנליסט</span>הבנת הצורך והשאלה, בדיקה שהתוצאה הגיונית, הכרת ההקשר בארגון, ההמלצה והאחריות עליה.</div>
+  </div>
+  <div class="key">הכישורים של מודול הפתיחה, שאילת שאלות והבנת הצורך, הם בדיוק החלק שכלי AI לא עושים במקומנו. כלי AI יענה בביטחון גם על שאלה גרועה.</div>
+  <p class="more"><a href="https://pop.education.gov.il/tchumey_daat/data-analysis/high-school/teaching-data-analysis/about/">באתר המגמה: נעים להכיר</a><a href="https://pop.education.gov.il/tchumey_daat/data-analysis/high-school/teaching-materials/introduction/">סרטון: שוק רותח לדאטה אנליסיס</a><span class="soon">מסמך הרחבה: בהכנה</span></p>
+</section>
+
+<section id="trainer">
+  <h2><span class="n">7</span>צ׳קליסט למדריך: סוף מודול 2</h2>
+  <p class="goal">בסוף המודול העובד יודע:</p>
+  <ul class="check">
+    <li>לתאר את מחזור הנתונים ולקשר כל שלב בו לשלב במפת התהליך.</li>
+    <li>להסביר את ההבדל בין נתון, מידע וידע, עם דוגמה.</li>
+    <li>להציג ממצא במבנה הקשר, ממצא, משמעות, המלצה.</li>
+    <li>להסביר מה זה תרבות נתונים ואוריינות נתונים, ומה תפקיד האנליסט בקידום שלהן.</li>
+    <li>לזהות שאלה אתית בבקשה: פרטיות, הרשאות, אנונימיות, הוגנות או הצגה מטעה.</li>
+    <li>לתת דוגמה לעבודת אנליסט בארגון שאינו עסקי.</li>
+    <li>להסביר מה משתנה בתפקיד בעקבות AI ומה נשאר באחריותו.</li>
+  </ul>
+</section>
+
+<footer>מודול 2 מתוך תוכנית ההכשרה. המודול הקודם: <a href="analyst-01-guide.html">פתיחה</a>. המודול הבא: Excel וטבלאות ציר.</footer>
+</div>
+</body>
+</html>
