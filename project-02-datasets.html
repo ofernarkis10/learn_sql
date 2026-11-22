@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מאגרי נתונים לפרויקט מקצוע ההתמחות</title>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{font-family:"Assistant",Arial,sans-serif;max-width:1000px;margin:0 auto;padding:24px;color:#1f2937;background:#f8fafc;line-height:1.6}
+  h1{color:#1e3a8a;margin-bottom:4px}
+  .sub{color:#475569;margin-top:0}
+  h2{color:#1e40af;border-bottom:2px solid #bfdbfe;padding-bottom:4px;margin-top:36px}
+  .card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px 20px;margin:16px 0;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .card h3{margin:0 0 8px;color:#0f172a}
+  table.meta{border-collapse:collapse;width:100%;margin:6px 0 10px}
+  table.meta td{padding:4px 8px;border-bottom:1px solid #f1f5f9;vertical-align:top}
+  table.meta td:first-child{font-weight:600;width:160px;color:#334155}
+  code{background:#eef2ff;padding:1px 5px;border-radius:4px;direction:ltr;unicode-bidi:embed;font-family:Consolas,monospace}
+  .tag{display:inline-block;font-size:.8em;padding:1px 8px;border-radius:10px;margin-inline-start:6px;vertical-align:middle}
+  .easy{background:#dcfce7;color:#166534}.mid{background:#fef9c3;color:#854d0e}.hard{background:#fee2e2;color:#991b1b}
+  .il{background:#dbeafe;color:#1e40af}
+  ul{margin:4px 0}
+  a{color:#2563eb}
+  .note{background:#fff7ed;border-inline-start:4px solid #fb923c;padding:10px 14px;border-radius:6px}
+  .warn{background:#fef2f2;border-inline-start:4px solid #ef4444;padding:10px 14px;border-radius:6px}
+  table.sum{border-collapse:collapse;width:100%;background:#fff}
+  table.sum th,table.sum td{border:1px solid #e2e8f0;padding:6px 8px;text-align:right;vertical-align:top}
+  table.sum th{background:#eff6ff}
+  .site-back{color:#1e40af;font-weight:600;font-size:15px;text-decoration:none;display:block;width:fit-content;margin-bottom:12px}
+  .site-back:hover,.site-back:focus-visible{text-decoration:underline}
+  @media print{.site-back{display:none}}
+</style>
+<script src="font-size.js"></script>
+<link rel="stylesheet" href="brand.css">
+</head>
+<body>
+<a class="site-back" href="index.html#project">→ חזרה לנושא: פרויקט גמר</a>
+
+<h1>מאגרי נתונים לפרויקט מקצוע ההתמחות</h1>
+<p class="sub">זוגות של קובץ ראשי וקובץ תומך שעומדים בדרישות של <a href="project-01-proposal-guide.html">דף ההנחיה</a>, ובנוסף מאגרים של אוניברסיטאות ומכוני מחקר.</p>
+
+<div class="note">
+<b>מה בדקתי בכל זוג, לפי דף ההנחיה:</b>
+<ul>
+<li><b>קובץ ראשי:</b> לפחות 500 שורות ו-10 עמודות, שדות מספריים וגם שדות קטגוריים, שדה זמן, מקור אמיתי ומתועד, ונתונים שצריך לנקות.</li>
+<li><b>קובץ תומך:</b> מגיע <b>מגוף או מאתר אחר</b>, מוסיף לפחות משתנה חדש אחד, ויש לו מפתח משותף עם הקובץ הראשי.</li>
+</ul>
+</div>
+
+<h2>סיכום</h2>
+<table class="sum">
+<tr><th>#</th><th>נושא</th><th>קובץ ראשי (מקור)</th><th>קובץ תומך (מקור)</th><th>מפתח</th><th>רמת קושי</th></tr>
+<tr><td>1</td><td>יישובים בישראל: בגרות</td><td>זכאות לבגרות לפי בית ספר ושנה (משרד החינוך)</td><td>מדד חברתי-כלכלי (הלמ"ס)</td><td>סמל יישוב</td><td>בינוני</td></tr>
+<tr><td>2</td><td>יישובים בישראל: בחירות</td><td>תוצאות הבחירות לפי יישוב, בכמה מערכות בחירות (ועדת הבחירות)</td><td>מדד חברתי-כלכלי (הלמ"ס)</td><td>סמל יישוב</td><td>בינוני</td></tr>
+<tr><td>3</td><td>תאונות דרכים ומזג אוויר</td><td>תאונות דרכים (הלמ"ס / data.gov.il)</td><td>נתוני מזג אוויר יומיים (השירות המטאורולוגי)</td><td>תאריך + אזור</td><td>קשה</td></tr>
+<tr><td>4</td><td>אולימפיאדה וכלכלה</td><td>120 שנות היסטוריה אולימפית (Kaggle / sports-reference)</td><td>התמ"ג והאוכלוסייה של כל מדינה (הבנק העולמי)</td><td>מדינה + שנה</td><td>בינוני</td></tr>
+<tr><td>5</td><td>אושר במדינות העולם</td><td>World Happiness Report 2015 עד 2023 (Kaggle / Gallup)</td><td>Countries of the World (CIA World Factbook)</td><td>מדינה</td><td>בינוני</td></tr>
+<tr><td>6</td><td>עמדות הציבור לאורך השנים</td><td>General Social Survey (אוניברסיטת שיקגו, NORC)</td><td>נתוני כלכלה של ארה"ב לפי שנה (הבנק העולמי)</td><td>שנה</td><td>בינוני</td></tr>
+<tr><td>7</td><td>פורמולה 1 ומזג אוויר</td><td>תוצאות המרוצים, 1950 עד 2024 (Kaggle / Ergast)</td><td>מזג אוויר היסטורי ביום המרוץ (Open-Meteo)</td><td>תאריך + מסלול</td><td>קשה</td></tr>
+<tr><td>8</td><td>שחקני NBA: ביצועים ושכר</td><td>סטטיסטיקה של כל שחקן בכל עונה (Basketball-Reference)</td><td>שכר השחקנים לפי עונה (HoopsHype / Spotrac)</td><td>שם השחקן + עונה</td><td>בינוני</td></tr>
+<tr><td>9</td><td>שחקני כדורגל: שווי שוק ודירוג</td><td>שווי השוק של השחקנים לאורך זמן (Transfermarkt)</td><td>הדירוגים של השחקנים במשחק EA Sports FC (SoFIFA)</td><td>שם השחקן + שנה</td><td>בינוני</td></tr>
+<tr><td>10</td><td>עיכובי טיסות ומזג אוויר</td><td>נתוני הזמנים והעיכובים של כל טיסה (BTS, משרד התחבורה האמריקאי)</td><td>מזג אוויר יומי בשדה התעופה (Open-Meteo)</td><td>תאריך + שדה תעופה</td><td>בינוני</td></tr>
+<tr><td>11</td><td>רשויות מקומיות: השכלה והכנסה</td><td>קובץ הרשויות המקומיות של הלמ"ס, בכמה שנים</td><td>שכר והכנסה לפי יישוב (ביטוח לאומי)</td><td>סמל או שם הרשות + שנה</td><td>בינוני</td></tr>
+</table>
+
+<h2>מאגרים ישראליים</h2>
+
+<div class="card">
+<h3>1. זכאות לבגרות + מדד חברתי-כלכלי <span class="tag mid">בינוני</span><span class="tag il">ישראל</span></h3>
+<table class="meta">
+<tr><td>קובץ ראשי</td><td>שיעורי הזכאות לבגרות לפי בית ספר או יישוב ולפי שנה, מאתר משרד החינוך (מערכת השקיפות / התמונה החינוכית). יש בו מאות בתי ספר במשך כמה שנים, ולכן יותר מ-500 שורות.</td></tr>
+<tr><td>קובץ תומך</td><td>המדד החברתי-כלכלי של הלמ"ס: לכל יישוב מופיעים סמל היישוב, האוכלוסייה, ערך המדד, הדירוג והאשכול (1 עד 10). המקור הוא גוף אחר. ✓</td></tr>
+<tr><td>מפתח</td><td>סמל יישוב (עדיף על שם היישוב, שנכתב באיותים שונים)</td></tr>
+<tr><td>לקוח לדוגמה</td><td>מנהל מחוז במשרד החינוך שרוצה להחליט היכן לתגבר.</td></tr>
+<tr><td>דוגמאות לשאלות חקר</td><td><ul><li>האם יש קשר בין האשכול החברתי-כלכלי (קובץ תומך) לשיעור הזכאות (קובץ ראשי)? ★</li><li>איך השתנה שיעור הזכאות לאורך השנים, לפי סוג פיקוח?</li></ul></td></tr>
+<tr><td>בעיות צפויות בחיבור</td><td>יישובים שמופיעים רק באחד הקבצים. שנת המדד של הלמ"ס שונה משנות הבגרות.</td></tr>
+<tr><td>קישורים</td><td><a href="https://shkifut.education.gov.il/home">שקיפות בחינוך</a> · <a href="https://www.cbs.gov.il">cbs.gov.il</a> · <a href="https://data.gov.il">data.gov.il</a></td></tr>
+<tr><td>קובץ תומך חלופי</td><td><a href="https://www.btl.gov.il/mediniyut/situation/statistics/btlstatistics.aspx">ביטוח לאומי: סטטיסטיקה לפי יישובים</a>. גם בו המפתח הוא סמל יישוב או שם היישוב.</td></tr>
+<tr><td>קובץ תומך למחקר על מרכז מול פריפריה</td><td><b>מדד הפריפריאליות של הלמ"ס</b>: המדד לשנת 2020 חושב ל-1,213 יישובים ולרשויות המקומיות, ומחלק אותם ל-10 אשכולות, מאשכול 1 (הפריפריאלי ביותר) ועד אשכול 10 (המרכזי ביותר). הוא מאפשר למדוד "מרכז מול פריפריה" במספר, במקום חלוקה לשתי קבוצות. המפתח הוא סמל יישוב.</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>2. תוצאות בחירות לפי יישוב + מדד חברתי-כלכלי <span class="tag mid">בינוני</span><span class="tag il">ישראל</span></h3>
+<table class="meta">
+<tr><td>קובץ ראשי</td><td>תוצאות הבחירות לכנסת לפי יישוב מאתר ועדת הבחירות המרכזית, כולל קובץ Excel לפי קלפיות. בכל קובץ יש יותר מ-1,000 יישובים ועמודות של בעלי זכות בחירה, מצביעים, פסולים ומפלגות. <b>שדה הזמן:</b> צריך לאחד כמה מערכות בחירות לטבלה אחת, למשל הבחירות לכנסות ה-21 עד ה-25.</td></tr>
+<tr><td>קובץ תומך</td><td>המדד החברתי-כלכלי של הלמ"ס, כמו בזוג 1.</td></tr>
+<tr><td>מפתח</td><td>סמל יישוב</td></tr>
+<tr><td>דוגמאות לשאלות חקר</td><td><ul><li>האם יש קשר בין האשכול לשיעור ההצבעה? ★</li><li>איך השתנה שיעור ההצבעה בין מערכות הבחירות?</li></ul></td></tr>
+<tr><td>הערה</td><td>אפשר להתמקד בשיעור ההצבעה ולא בהצבעה למפלגות, כדי שהפרויקט לא יהיה טעון פוליטית.</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>3. תאונות דרכים + מזג אוויר <span class="tag hard">קשה</span><span class="tag il">ישראל</span></h3>
+<table class="meta">
+<tr><td>קובץ ראשי</td><td>קובצי תאונות הדרכים עם נפגעים של הלמ"ס: כל תאונה מופיעה בשורה משלה, עם תאריך, אזור, חומרה, סוג דרך ועוד.</td></tr>
+<tr><td>קובץ תומך</td><td>נתוני מזג אוויר יומיים לפי תחנה, מאתר השירות המטאורולוגי (ims.gov.il).</td></tr>
+<tr><td>מפתח</td><td>מפתח מורכב: תאריך + אזור</td></tr>
+<tr><td>הערה</td><td>זו הדוגמה שמופיעה בדף ההנחיה עצמו. היא קשה טכנית: צריך לשייך כל תחנה לאזור ולחבר בשתי עמודות. היא מתאימה לתלמיד חזק.</td></tr>
+</table>
+</div>
+
+<h2>מאגרים בינלאומיים</h2>
+
+<div class="card">
+<h3>4. היסטוריה אולימפית + התמ"ג של המדינות <span class="tag mid">בינוני</span></h3>
+<table class="meta">
+<tr><td>קובץ ראשי</td><td><code>athlete_events.csv</code>: 271,116 שורות ו-15 עמודות, מאתונה 1896 ועד ריו 2016. שורה לכל השתתפות של ספורטאי במקצה: מין, גיל, גובה, משקל, נבחרת, שנה, עונה, ענף ומדליה. יש ערכים חסרים בגיל, בגובה ובמשקל, כך שיש מה לנקות. ✓</td></tr>
+<tr><td>קובץ תומך</td><td>התמ"ג והאוכלוסייה לפי מדינה ושנה מהבנק העולמי (<a href="https://data.worldbank.org/indicator/NY.GDP.MKTP.CD">data.worldbank.org</a>). המקור הוא גוף אחר. ✓</td></tr>
+<tr><td>מפתח</td><td>שם המדינה + שנה. הקובץ <code>noc_regions.csv</code> שמגיע עם המאגר עוזר לתרגם קוד נבחרת לשם מדינה.</td></tr>
+<tr><td>דוגמאות לשאלות חקר</td><td><ul><li>האם יש קשר בין התמ"ג לנפש של מדינה למספר המדליות שלה? ★</li><li>איך השתנה חלקן של הנשים לאורך השנים?</li></ul></td></tr>
+<tr><td>בעיות צפויות בחיבור</td><td>שמות של מדינות שכבר לא קיימות (ברית המועצות, מערב גרמניה). נתוני הבנק העולמי מתחילים רק ב-1960, כך שלשנים שלפני כן אין התאמה.</td></tr>
+<tr><td>קישור</td><td><a href="https://www.kaggle.com/datasets/heesoo37/120-years-of-olympic-history-athletes-and-results">kaggle.com/datasets/heesoo37/120-years-of-olympic-history-athletes-and-results</a></td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>5. דוח האושר העולמי + מדינות העולם <span class="tag mid">בינוני</span></h3>
+<table class="meta">
+<tr><td>קובץ ראשי</td><td>World Happiness 2015 עד 2023: מדינה, אזור, ציון אושר, תמ"ג לנפש, תמיכה חברתית, תוחלת חיים בריאה, חופש בחירה ושנה. כ-170 מדינות במשך 9 שנים, כלומר יותר מ-500 שורות. ✓</td></tr>
+<tr><td>קובץ תומך</td><td>Countries of the World: 227 מדינות, 20 עמודות (אוכלוסייה, שטח, צפיפות, תמותת תינוקות, שיעור ילודה ומבנה הכלכלה). המקור הוא ה-CIA World Factbook. ✓</td></tr>
+<tr><td>מפתח</td><td><code>Country</code></td></tr>
+<tr><td>דוגמאות לשאלות חקר</td><td><ul><li>האם יש קשר בין תמותת התינוקות (קובץ תומך) לציון האושר? ★</li><li>איך השתנה ציון האושר לאורך השנים, לפי אזור?</li></ul></td></tr>
+<tr><td>בעיות צפויות בחיבור</td><td>שמות המדינות לא תמיד כתובים באותה צורה (למשל Turkey לעומת Turkiye). בקובץ התומך המספרים כתובים עם פסיק עשרוני, ולכן צריך לנקות אותם.</td></tr>
+<tr><td>קישורים</td><td><a href="https://www.kaggle.com/datasets/unsdsn/world-happiness">kaggle.com/datasets/unsdsn/world-happiness</a><br><a href="https://www.kaggle.com/datasets/fernandol/countries-of-the-world">kaggle.com/datasets/fernandol/countries-of-the-world</a></td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>6. General Social Survey + כלכלת ארה"ב <span class="tag mid">בינוני</span></h3>
+<table class="meta">
+<tr><td>קובץ ראשי</td><td>GSS: סקר אמריקאי שנערך באופן קבוע מאז 1972, על עמדות, ערכים והתנהגויות (אמון במוסדות, חינוך, דת, כלכלה ורווחה). כל נשאל מופיע בשורה משלו, יש מאות עמודות ושדה שנה. ✓ המקור הוא אקדמי ומתועד היטב.</td></tr>
+<tr><td>קובץ תומך</td><td>שיעור האבטלה והתמ"ג של ארה"ב לפי שנה, מהבנק העולמי. ✓</td></tr>
+<tr><td>מפתח</td><td><code>year</code>. הקובץ הראשי מפורט יותר (שורה לכל נשאל) מהקובץ התומך (שורה לכל שנה), ולכן צריך GROUP BY לפי שנה. זה בדיוק אחד המקרים שדף ההנחיה מתאר.</td></tr>
+<tr><td>דוגמה לשאלת חקר</td><td>האם יש קשר בין שיעור האבטלה בשנה מסוימת לשביעות הרצון מהמצב הכלכלי באותה שנה? ★</td></tr>
+<tr><td>קישור</td><td><a href="https://gss.norc.org/">gss.norc.org</a></td></tr>
+</table>
+<p>הקובץ ענק. התלמיד צריך לבחור מראש 10 עד 15 משתנים ורק כמה שנים.</p>
+</div>
+
+<div class="card">
+<h3>7. פורמולה 1 + מזג אוויר <span class="tag hard">קשה</span></h3>
+<table class="meta">
+<tr><td>קובץ ראשי</td><td><code>results.csv</code> מחובר ל-<code>races.csv</code> ול-<code>drivers.csv</code>: התוצאה של כל נהג בכל מרוץ (מקום הזינוק, מקום בסיום, נקודות, הקפות, סטטוס סיום), עם תאריך, עונה, מסלול ולאום. יש בו עשרות אלפי שורות ושדה זמן. ✓<br>שלוש הטבלאות האלה מגיעות מאותו מאגר, ולכן ביחד הן נחשבות קובץ ראשי אחד, לא קובץ ראשי וקובץ תומך.</td></tr>
+<tr><td>קובץ תומך</td><td>נתוני מזג אוויר היסטוריים מ-<a href="https://open-meteo.com/en/docs/historical-weather-api">Open-Meteo</a>: טמפרטורה, משקעים, רוח ולחות, לכל מסלול ביום המרוץ. הנתונים חינמיים לשימוש לא מסחרי, לא צריך מפתח API, ואפשר להוריד אותם כ-CSV. המקור הוא גוף אחר. ✓</td></tr>
+<tr><td>מפתח</td><td>מפתח מורכב: תאריך המרוץ + מסלול. בקובץ <code>circuits.csv</code> יש קואורדינטות לכל מסלול, ולפיהן מושכים את מזג האוויר.</td></tr>
+<tr><td>לקוח לדוגמה</td><td>מנהל אסטרטגיה בקבוצת מרוץ שרוצה להבין איך מזג האוויר משפיע על התוצאות.</td></tr>
+<tr><td>דוגמאות לשאלות חקר</td><td><ul><li>האם יש קשר בין כמות המשקעים (קובץ תומך) למספר הנהגים שלא סיימו את המרוץ? ★</li><li>האם יש קשר בין הטמפרטורה לזמן ההקפה המהירה? ★</li><li>הקשר בין מקום הזינוק למקום בסיום.</li><li>איך השתנה מספר הנקודות שצבר כל לאום לאורך העשורים?</li></ul></td></tr>
+<tr><td>בעיות צפויות בחיבור</td><td>צריך לבנות את הקובץ התומך לבד: למשוך נתונים בנפרד לכל מסלול ולכל תאריך. כדאי להגביל את הפרויקט לכמה עונות, למשל 2015 עד 2024. בעמודות של זמן ההקפה ושל הסטטוס יש ערכים חסרים (<code>\N</code>), ולכן צריך לנקות אותן.</td></tr>
+<tr><td>קישורים</td><td><a href="https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020">Kaggle: Formula 1 World Championship (1950-2024)</a> · <a href="https://open-meteo.com/en/docs/historical-weather-api">Open-Meteo Historical Weather API</a></td></tr>
+</table>
+<p>הזוג מתחבר לשיעור על כוח ההצמדה בפורמולה 1. הוא מתאים לתלמיד חזק, כי בניית הקובץ התומך דורשת עבודה.</p>
+</div>
+
+<h2>מאגרים על שחקנים</h2>
+
+<div class="card">
+<h3>8. שחקני NBA: ביצועים + שכר <span class="tag mid">בינוני</span></h3>
+<table class="meta">
+<tr><td>קובץ ראשי</td><td>הסטטיסטיקה של כל שחקן בכל עונה, מ-Basketball-Reference: נקודות, ריבאונדים, אסיסטים, דקות, גיל, עמדה וקבוצה. ב-Kaggle יש כמה גרסאות. למשל, <a href="https://www.kaggle.com/datasets/robertsunderhaft/nba-player-season-statistics-with-mvp-win-share">NBA Player Statistics With MVP Votes</a> מכסה את העונות 1982 עד 2022 ויש בו 17,697 שורות ו-55 עמודות. ✓</td></tr>
+<tr><td>קובץ תומך</td><td>שכר השחקנים לפי עונה, מאתרים אחרים: HoopsHype או Spotrac. ב-Kaggle יש למשל <a href="https://www.kaggle.com/datasets/hrfang1995/nba-salaries-by-players-of-season-2000-to-2019">NBA Salaries 2000-2019</a>. ✓</td></tr>
+<tr><td>מפתח</td><td>מפתח מורכב: שם השחקן + עונה</td></tr>
+<tr><td>לקוח לדוגמה</td><td>מנהל כללי של קבוצה שרוצה לדעת אם הקבוצה משלמת לשחקנים לפי הביצועים שלהם.</td></tr>
+<tr><td>דוגמאות לשאלות חקר</td><td><ul><li>האם יש קשר בין מספר הנקודות למשחק לבין השכר? ★</li><li>איך השתנה השכר הממוצע לפי עמדה לאורך השנים? ★</li><li>הקשר בין גיל השחקן לדקות המשחק שלו.</li></ul></td></tr>
+<tr><td>בעיות צפויות בחיבור</td><td>שמות לא אחידים בין שני הקבצים (למשל עם Jr. או בלי). שחקן שהועבר לקבוצה אחרת באמצע העונה מופיע בכמה שורות, כולל שורת סיכום (TOT). כל מקור סופר את העונה אחרת: 2023 לעומת 2022-23.</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>9. שחקני כדורגל: שווי שוק + דירוג במשחק <span class="tag mid">בינוני</span></h3>
+<table class="meta">
+<tr><td>קובץ ראשי</td><td><a href="https://www.kaggle.com/datasets/davidcariboo/player-scores">Football Data from Transfermarkt</a>: יותר מ-37,000 שחקנים ויותר מ-79,000 משחקים, והוא מתעדכן כל שבוע. הקבצים <code>players.csv</code> (עמדה, לאום, גובה, מועדון ושווי שוק נוכחי) ו-<code>player_valuations.csv</code> (שווי השוק של כל שחקן לאורך השנים) מתחברים דרך <code>player_id</code>. ✓<br>כל הקבצים מגיעים מ-Transfermarkt, ולכן ביחד הם נחשבים קובץ ראשי אחד.</td></tr>
+<tr><td>קובץ תומך</td><td><a href="https://www.kaggle.com/datasets/stefanoleone992/ea-sports-fc-24-complete-player-dataset">EA Sports FC 24 Complete Player Dataset</a>: הדירוגים של השחקנים בכל גרסה מ-FIFA 15 ועד FC 24 (מהירות, כדרור, מסירה, דירוג כללי ופוטנציאל). הנתונים נאספו מאתר SoFIFA, כלומר מגוף אחר. ✓</td></tr>
+<tr><td>מפתח</td><td>מפתח מורכב: שם השחקן + שנה (גרסת המשחק)</td></tr>
+<tr><td>לקוח לדוגמה</td><td>מנהל מקצועי במועדון שמחפש שחקנים ששווים יותר מהמחיר שלהם בשוק.</td></tr>
+<tr><td>דוגמאות לשאלות חקר</td><td><ul><li>האם יש קשר בין הדירוג במשחק לשווי השוק? ★</li><li>איך משתנה שווי השוק עם הגיל, לפי עמדה?</li><li>הקשר בין הליגה לשווי השוק.</li></ul></td></tr>
+<tr><td>בעיות צפויות בחיבור</td><td>שמות עם אותיות מיוחדות (Mbappé לעומת Mbappe) וקיצורים של שמות. כדאי להגביל את הפרויקט לליגה אחת או לכמה עונות, ולבדוק על מדגם קטן כמה שחקנים מתאימים. קובץ תומך חלופי ופשוט יותר: נתוני מדינות מהבנק העולמי, לפי הלאום של השחקן.</td></tr>
+</table>
+</div>
+
+<h2>מאגרים נוספים</h2>
+
+<div class="card">
+<h3>10. עיכובי טיסות + מזג אוויר <span class="tag mid">בינוני</span></h3>
+<table class="meta">
+<tr><td>קובץ ראשי</td><td><a href="https://transtats.bts.gov/DatabaseInfo.asp?QO_VQ=EFD">Airline On-Time Performance Data</a> של הלשכה לסטטיסטיקה של התחבורה בארה"ב (BTS). לכל טיסה מופיעים מועדי ההמראה והנחיתה המתוכננים והבפועל, ביטולים, טיסות שהוסטו ואורך הטיסה. מיוני 2003 מופיעות גם סיבות העיכוב: חברת התעופה, מזג אוויר קיצוני, מערכת התעופה הלאומית, ביטחון ומטוס שהגיע באיחור. הנתונים רשמיים ומתועדים. ✓</td></tr>
+<tr><td>קובץ תומך</td><td>מזג אוויר יומי בכל שדה תעופה מ-<a href="https://open-meteo.com/en/docs/historical-weather-api">Open-Meteo</a>: טמפרטורה, משקעים, שלג ורוח, לפי הקואורדינטות של השדה. המקור הוא גוף אחר. ✓</td></tr>
+<tr><td>מפתח</td><td>מפתח מורכב: תאריך + שדה תעופה (קוד בן 3 אותיות, למשל JFK)</td></tr>
+<tr><td>לקוח לדוגמה</td><td>מנהלת התפעול בחברת תעופה אמיתית שמופיעה בנתונים (למשל Delta או JetBlue).</td></tr>
+<tr><td>דוגמאות לשאלות חקר</td><td><ul><li>האם יש קשר בין כמות המשקעים בשדה לבין משך העיכוב הממוצע? ★</li><li>באילו חודשים ובאילו ימים בשבוע יש הכי הרבה ביטולים?</li><li>השוואת הסיבות לעיכוב בין שדות התעופה.</li></ul></td></tr>
+<tr><td>בעיות צפויות בחיבור</td><td>בכל חודש יש מאות אלפי טיסות, ולכן צריך לסנן מראש: חברה אחת, כמה שדות תעופה וכמה חודשים. הקובץ התומך נבנה לבד, שדה אחרי שדה.</td></tr>
+</table>
+<p>זו דוגמה טובה לנתונים רשמיים ואמיתיים על חברות תעופה, במקום מאגר של חברה בדויה.</p>
+</div>
+
+<div class="card">
+<h3>11. רשויות מקומיות: השכלה והכנסה <span class="tag mid">בינוני</span><span class="tag il">ישראל</span></h3>
+<table class="meta">
+<tr><td>קובץ ראשי</td><td>קובץ "הרשויות המקומיות בישראל" של הלמ"ס. הלמ"ס מפרסמת אותו כל שנה, ויש בו נתונים פיזיים (אוכלוסייה, חינוך ורווחה, תשתיות) ונתונים כספיים (ביצוע התקציב) לכל רשות מקומית. בקובץ של כל שנה יש כ-255 רשויות, ולכן <b>צריך לאחד כמה שנים</b> כדי להגיע ל-500 שורות לפחות. כך הקובץ מקבל גם שדה זמן. ✓</td></tr>
+<tr><td>קובץ תומך</td><td>"שכר והכנסה מעבודה לפי יישוב" של ביטוח לאומי, שמתפרסם כל שנה: השכר הממוצע לחודש של שכירים לפי מין, אחוז השכירים שמרוויחים עד שכר המינימום, ההכנסה של עצמאים ומדד אי-השוויון. בנוסף, בעמוד <a href="https://www.btl.gov.il/mediniyut/situation/statistics/btlstatistics.aspx">סטטיסטיקה לפי יישוב</a> יש את מספר מקבלי הגמלאות ואת הגמלה הממוצעת. ביטוח לאומי הוא גוף אחר מהלמ"ס. ✓</td></tr>
+<tr><td>מפתח</td><td>מפתח מורכב: סמל או שם הרשות + שנה</td></tr>
+<tr><td>דוגמאות לשאלות חקר</td><td><ul><li>האם יש קשר בין שיעור הזכאים לבגרות ברשות (קובץ ראשי) לבין השכר הממוצע של התושבים (קובץ תומך)? ★</li><li>האם הקשר הזה שונה לפי אשכול חברתי-כלכלי? ★</li><li>איך השתנה השכר הממוצע לאורך השנים, לפי מחוז?</li></ul></td></tr>
+<tr><td>בעיות צפויות בחיבור</td><td>חלק מהפרסומים של ביטוח לאומי הם PDF בלבד, ולכן צריך לחפש את גרסת ה-Excel. לפעמים שמות הרשויות כתובים אחרת בשני הקבצים. מועצה אזורית מופיעה בביטוח לאומי לפעמים כיישובים נפרדים.</td></tr>
+</table>
+<p><b>שימו לב:</b> בקובץ הרשויות של הלמ"ס כבר יש את המדד החברתי-כלכלי ואת מדד הפריפריאליות. לכן מדדים שנלקחים ממנו לא נחשבים קובץ תומך ממקור אחר.</p>
+</div>
+
+<h2>מאגרי מידע באוניברסיטאות ובמכוני מחקר</h2>
+<p>אלה מקורות מהימנים במיוחד, אבל <b>בחלקם צריך להירשם או לקבל אישור גישה</b>. כדאי לבדוק את זה לפני שמתחייבים למאגר.</p>
+<table class="sum">
+<tr><th>מאגר</th><th>מה יש בו</th><th>התאמה לפרויקט</th></tr>
+<tr><td><a href="https://isdc.huji.ac.il/">ISDC, האוניברסיטה העברית</a></td><td>סקרים ומחקרים על ישראל: דמוגרפיה, חינוך, בחירות, דיור, שכר ותחבורה</td><td>קובץ ראשי ישראלי. בחלק מהמאגרים צריך אישור.</td></tr>
+<tr><td><a href="https://en.idi.org.il/centers/1159">מרכז ויטרבי, המכון הישראלי לדמוקרטיה</a></td><td>סקרי דעת קהל בישראל לאורך עשרות שנים</td><td>קובץ ראשי עם שדה זמן</td></tr>
+<tr><td><a href="https://jerusaleminstitute.org.il/en/projects/the-jerusalem-database/">מכון ירושלים למחקרי מדיניות</a></td><td>נתונים על ירושלים לפי שכונה ושנה</td><td>קובץ תומך טוב לקובץ ראשי על ירושלים, עם מפתח של שכונה + שנה</td></tr>
+<tr><td><a href="https://www.icpsr.umich.edu/">ICPSR, אוניברסיטת מישיגן</a></td><td>נתונים במדעי החברה: סקרים, חינוך, בריאות, פשיעה ותעסוקה</td><td>קובץ ראשי. חלק מהנתונים דורשים רישום.</td></tr>
+<tr><td><a href="https://dataverse.harvard.edu/">Harvard Dataverse</a></td><td>נתונים שחוקרים פרסמו לצד מאמרים</td><td>מגוון גדול, אבל צריך לבדוק שכל מאגר מתועד</td></tr>
+<tr><td><a href="https://ipums.org/">IPUMS, אוניברסיטת מינסוטה</a></td><td>נתוני מפקדי אוכלוסין וסקרים ממדינות שונות</td><td>קובץ ראשי עם מדינה ושנה. אפשר לחבר אליו נתונים מהבנק העולמי.</td></tr>
+<tr><td><a href="https://gss.norc.org/">GSS, אוניברסיטת שיקגו</a></td><td>סקר עמדות אמריקאי מאז 1972</td><td>ראו זוג 6</td></tr>
+<tr><td><a href="https://openpolicing.stanford.edu/data/">Stanford Open Policing</a></td><td>עצירות של כלי רכב והולכי רגל בארה"ב, בקובצי CSV</td><td>קובץ ראשי גדול עם תאריך. הנושא רגיש.</td></tr>
+<tr><td><a href="https://ukdataservice.ac.uk/">UK Data Service</a> · <a href="https://ropercenter.cornell.edu/">Roper Center</a></td><td>סקרים בריטיים / סקרי דעת קהל בארה"ב</td><td>ברוב המאגרים צריך הרשאה</td></tr>
+</table>
+
+<h2>אתרים ישראליים לקובץ תומך לפי יישוב</h2>
+<ul>
+<li><a href="https://shkifut.education.gov.il/home">שקיפות בחינוך</a>: נתונים על בתי ספר ורשויות</li>
+<li><a href="https://www.btl.gov.il/mediniyut/situation/statistics/btlstatistics.aspx">ביטוח לאומי: סטטיסטיקה לפי יישובים</a></li>
+<li><a href="https://datadashboard.health.gov.il/portal/dashboard/health">עולם הדאטה של משרד הבריאות</a></li>
+<li><a href="https://www.socialmobility.co.il/semi">SEMI: נתוני מוביליות חברתית</a></li>
+<li><a href="https://next.obudget.org/">מפתח התקציב (הסדנא לידע ציבורי)</a></li>
+<li><a href="https://main.knesset.gov.il/Activity/Info/Research/Pages/default.aspx">מרכז המחקר והמידע של הכנסת</a> · <a href="https://data-il.org/oger-hayeda/">אוגר הידע</a></li>
+</ul>
+
+<h2>מאגרים שנפסלו, ולמה</h2>
+<div class="warn">
+<p>במאגרים האלה יש כמה טבלאות שמתחברות יפה, אבל <b>כל הקבצים מגיעים מאותו מקור</b>. לכן הם לא עומדים בדרישה שהקובץ התומך יבוא מגוף אחר:</p>
+<ul>
+<li><b>מונדיאל</b>: WorldCups + WorldCupMatches, מאותו מאגר ב-Kaggle.</li>
+<li><b>פורמולה 1</b>: results + drivers + races, כולן מאותו מאגר. הפתרון: לחבר אליהן מזג אוויר, ראו זוג 7.</li>
+<li><b>Spotify</b>: tracks + artists, מאותו מקור.</li>
+<li><b>IMDb</b>: title.basics + title.ratings. מיליוני שורות, ומאותו מקור.</li>
+<li><b>רכב בישראל</b>: מספרי רישוי + דגמים. שניהם ממשרד התחבורה.</li>
+<li><b>Maven Analytics</b>: נתונים של חברות בדויות, כך שהם לא נתונים אמיתיים.</li>
+</ul>
+<p>כל אחד מהם יכול לשמש קובץ ראשי, אם התלמיד מוצא לו קובץ תומך ממקור אחר. למשל, מונדיאל עם האוכלוסייה של המדינות מהבנק העולמי.</p>
+</div>
+
+<h2>אתרים לחיפוש קובץ תומך</h2>
+<ul>
+<li><a href="https://data.worldbank.org">הבנק העולמי</a>: נתונים לפי מדינה ושנה. מתאים כקובץ תומך לכל קובץ ראשי ברמת מדינה.</li>
+<li><a href="https://www.cbs.gov.il">הלשכה המרכזית לסטטיסטיקה</a>: נתונים לפי יישוב ורשות מקומית. מתאים לכל קובץ ראשי ישראלי שיש בו סמל יישוב.</li>
+<li><a href="https://data.gov.il">data.gov.il</a>: פורטל המידע הממשלתי.</li>
+<li><a href="https://www.odata.org.il">odata.org.il</a>: אתר "הסדנא לידע ציבורי", כולל נתונים של רשויות מקומיות.</li>
+<li><a href="https://opendatasource.tel-aviv.gov.il">מידע פתוח של עיריית תל אביב-יפו</a></li>
+<li><a href="https://www.kaggle.com/datasets">Kaggle</a>: מקור טוב לקובץ הראשי. צריך לבדוק מי אסף את הנתונים, ולהתרחק מנתונים סינתטיים.</li>
+</ul>
+
+</body>
+</html>
