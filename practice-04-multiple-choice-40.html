@@ -156,8 +156,6 @@ html { scroll-behavior: smooth; }
 .q.right .verdict::before { content: "נכון!"; } .q.wrong .verdict::before { content: "לא נכון. נסו לבחור תשובה אחרת."; }
 .q.wrong .ans, .q.wrong .why p { display: none; }
 .q.wrong .ans { color: var(--bad); }
-.q.right .pick { cursor: default; }
-.q.right .pick:hover { border-color: var(--line); }
 .q.right .pick[data-ok] { border-color: var(--ok) !important; background: var(--ok-soft) !important; box-shadow: inset 0 0 0 1px var(--ok) !important; }
 .q.right .pick[data-ok] .ol { background: var(--ok) !important; border-color: var(--ok) !important; color: var(--sheet) !important; }
 .q.done.wrong .pick:has(input:checked) { border-color: var(--bad); background: var(--bad-soft); box-shadow: inset 0 0 0 1px var(--bad); }
@@ -529,7 +527,6 @@ body.reveal .q .pick[data-ok]:has(input:checked) { outline: 2px dashed var(--rev
         i.checked = i.value === v;
         if (i.checked && i.closest('.pick').hasAttribute('data-ok')) ok = true;
       });
-      sec.querySelectorAll('input').forEach(function (i) { i.disabled = ok; });
       sec.classList.toggle('done', !!v); sec.classList.toggle('right', !!v && ok); sec.classList.toggle('wrong', !!v && !ok);
       if (v) { done++; if (ok) right++; }
       document.querySelectorAll('[data-q="' + q + '"]').forEach(function (c) {
